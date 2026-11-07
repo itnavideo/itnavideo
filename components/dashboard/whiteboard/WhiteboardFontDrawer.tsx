@@ -50,7 +50,7 @@ export function WhiteboardFontDrawer({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="group flex items-center justify-between gap-3 px-3.5 py-3 rounded-2xl border border-white/10 bg-[#151E30] hover:border-[#FF6D00]/50 hover:bg-[#1A253C] transition-all text-left shadow-xs w-full cursor-pointer"
+        className="group flex items-center justify-between gap-3 px-3.5 py-3 rounded-2xl border border-white/10 bg-[#151E30] hover:border-[#0066FF]/50 hover:bg-[#1A253C] transition-all text-left shadow-xs w-full cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -65,7 +65,7 @@ export function WhiteboardFontDrawer({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-[#FFA726] transition-colors">
+        <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-[#3B82F6] transition-colors">
           <span className="text-[11px] font-semibold hidden sm:inline-block">Change</span>
           <ChevronDown className="w-4 h-4" />
         </div>
@@ -104,7 +104,7 @@ export function WhiteboardFontDrawer({
                   placeholder="Search handwriting font styles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2 rounded-xl border border-white/10 bg-[#070B14] text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#FF6D00] focus:ring-1 focus:ring-[#FF6D00]"
+                  className="w-full pl-9 pr-8 py-2 rounded-xl border border-white/10 bg-[#070B14] text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF]"
                 />
                 {searchQuery && (
                   <button
@@ -126,7 +126,7 @@ export function WhiteboardFontDrawer({
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition cursor-pointer ${
                       selectedCategory === cat
-                        ? "bg-[#FF6D00] text-black font-black"
+                        ? "bg-[#0066FF] text-white font-bold"
                         : "bg-[#151E30] text-slate-300 hover:text-white"
                     }`}
                   >
@@ -151,7 +151,7 @@ export function WhiteboardFontDrawer({
                     }}
                     className={`flex flex-col justify-between p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-[#FF6D00]/15 border-[#FF6D00] ring-1 ring-[#FF6D00]/30 text-white"
+                        ? "bg-[#0066FF]/15 border-[#0066FF] ring-1 ring-[#0066FF]/30 text-white"
                         : "bg-[#151E30] border-white/10 hover:border-white/20 text-slate-300 hover:text-white"
                     }`}
                   >
@@ -167,7 +167,7 @@ export function WhiteboardFontDrawer({
                         )}
                       </div>
                       {isSelected && (
-                        <span className="w-5 h-5 rounded-full bg-[#FF6D00] text-black flex items-center justify-center shrink-0">
+                        <span className="w-5 h-5 rounded-full bg-[#0066FF] text-white flex items-center justify-center shrink-0">
                           <Check className="w-3 h-3 stroke-[3]" />
                         </span>
                       )}
@@ -194,7 +194,7 @@ export function WhiteboardFontDrawer({
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="px-5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black hover:brightness-110 transition cursor-pointer"
+                className="px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white hover:brightness-110 transition cursor-pointer"
               >
                 Done
               </button>

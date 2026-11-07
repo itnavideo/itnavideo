@@ -132,7 +132,10 @@ export default function WhiteboardVideoPage() {
           const res = await fetch(`/api/reels/jobs/status?renderId=${jobStatus.renderId}`);
           if (!res.ok) return;
           const data = await res.json();
-          if (data.status === "completed" || data.status === "ready") {
+          const isDone = Boolean(data.done || data.state === "ready" || data.state === "completed" || data.outputFile);
+          const isFailed = Boolean(data.state === "error" || data.state === "failed" || (data.done && !data.outputFile && data.errors?.length));
+
+          if (isDone && data.outputFile) {
             setJobStatus((prev) => ({
               ...prev,
               state: "ready",
@@ -140,16 +143,16 @@ export default function WhiteboardVideoPage() {
               outputFile: data.outputFile || data.url,
               message: "Render complete! Your Whiteboard Animation is ready to download.",
             }));
-          } else if (data.status === "failed" || data.status === "error") {
+          } else if (isFailed) {
             setJobStatus((prev) => ({
               ...prev,
               state: "error",
-              message: data.error || "Render encountered an error. Please try again.",
+              message: data.error || data.errors?.[0]?.message || "Render encountered an error. Please try again.",
             }));
           } else if (data.progress !== undefined) {
             setJobStatus((prev) => ({
               ...prev,
-              progress: Math.max(0.4, data.progress),
+              progress: Math.max(0.4, Number(data.progress)),
               message: data.stageMessage || "Drawing whiteboard animation...",
             }));
           }
@@ -299,7 +302,7 @@ export default function WhiteboardVideoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-white pb-20 relative selection:bg-[#FF6D00] selection:text-black">
+    <div className="min-h-screen bg-[#070B14] text-white pb-20 relative selection:bg-[#0066FF] selection:text-white">
       {/* Ambient Radial Studio Glow */}
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,109,0,0.12),transparent_70%)]" />
 
@@ -319,7 +322,7 @@ export default function WhiteboardVideoPage() {
               <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                 Whiteboard Animation
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#FF6D00]/15 text-[#FFA726] border border-[#FF6D00]/30 uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0066FF]/15 text-[#3B82F6] border border-[#0066FF]/30 uppercase tracking-wider">
                 9:16 Vertical
               </span>
             </div>
@@ -332,7 +335,7 @@ export default function WhiteboardVideoPage() {
                   {billingEntitlement.planName || "Creator"} Plan
                 </span>
                 <span className="w-1 h-1 rounded-full bg-white/20" />
-                <span className="text-[#FFA726] font-mono">
+                <span className="text-[#3B82F6] font-mono">
                   {billingEntitlement.usage?.remaining ?? 10} Credits Left
                 </span>
               </div>

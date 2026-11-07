@@ -82,7 +82,7 @@ export default function WhiteboardPreviewModal({
           drawingId: pt.drawingId || pt.icon || "lightbulb_idea",
           label: pt.text?.slice(0, 24) || "Key Takeaway",
         },
-        accentColor: pt.markerColor || "#FF5722",
+        accentColor: pt.markerColor || "#0066FF",
       }));
 
   const totalDuration = Math.max(10, Math.round(durationSeconds || plan.durationSeconds || (scenes[scenes.length - 1]?.endTime || 30)));
@@ -131,7 +131,7 @@ export default function WhiteboardPreviewModal({
         {/* Header Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#0E1422]">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-[#FF5722] to-[#FFA000] flex items-center justify-center text-black shadow-md shadow-orange-500/20">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-[#0052CC] to-[#0066FF] flex items-center justify-center text-white shadow-md shadow-blue-500/20">
               <Sparkles size={18} className="fill-black/30" />
             </div>
             <div>
@@ -180,7 +180,7 @@ export default function WhiteboardPreviewModal({
             <div className="w-full max-w-[280px] mt-2.5 flex items-center justify-between gap-2 bg-[#121828] border border-white/10 rounded-xl p-2">
               <button
                 onClick={togglePlay}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-black font-black text-xs hover:brightness-110 active:scale-95 transition cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white font-bold text-xs hover:brightness-110 active:scale-95 transition cursor-pointer"
               >
                 {isPlaying ? <Pause size={12} /> : <Play size={12} className="fill-black" />}
                 <span>{isPlaying ? "Pause" : "Play"}</span>
@@ -201,10 +201,10 @@ export default function WhiteboardPreviewModal({
             <div className="w-full max-w-[280px] mt-3 bg-[#101524] border border-white/10 rounded-2xl p-2.5 space-y-1.5">
               <div className="flex items-center justify-between px-1 text-[11px]">
                 <span className="font-bold text-zinc-300 flex items-center gap-1">
-                  <Type size={12} className="text-[#FFA000]" />
+                  <Type size={12} className="text-[#3B82F6]" />
                   <span>Writing Font Style:</span>
                 </span>
-                <span className="text-[9px] uppercase font-mono px-1.5 py-0.2 rounded bg-white/5 text-orange-400">
+                <span className="text-[9px] uppercase font-mono px-1.5 py-0.2 rounded bg-white/5 text-blue-400">
                   Switch Live
                 </span>
               </div>
@@ -225,7 +225,7 @@ export default function WhiteboardPreviewModal({
                       onClick={() => onFontPersonalityChange(f.id)}
                       className={`flex flex-col p-1.5 rounded-xl text-left transition cursor-pointer active:scale-95 ${
                         isSelected
-                          ? "bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/60 text-white shadow-sm"
+                          ? "bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/60 text-white shadow-sm"
                           : "bg-white/5 border border-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
                       }`}
                     >
@@ -244,7 +244,7 @@ export default function WhiteboardPreviewModal({
               <div className="rounded-2xl border border-white/10 bg-[#0E1526] p-4 flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-black text-white flex items-center gap-2">
-                    <Layers3 size={16} className="text-[#FFA000]" />
+                    <Layers3 size={16} className="text-[#3B82F6]" />
                     <span>Storyboard Scenes ({scenes.length} Scenes)</span>
                   </h3>
                   <p className="text-xs text-zinc-400 mt-0.5">Click any scene to preview the live marker drawing.</p>
@@ -260,18 +260,18 @@ export default function WhiteboardPreviewModal({
                   <div
                     key={sc.id || idx}
                     onClick={() => jumpToScene(sc.startTime)}
-                    className="group rounded-xl border border-white/10 bg-[#121828] hover:bg-[#182034] hover:border-orange-500/50 p-3 transition cursor-pointer flex items-center justify-between gap-3"
+                    className="group rounded-xl border border-white/10 bg-[#121828] hover:bg-[#182034] hover:border-blue-500/50 p-3 transition cursor-pointer flex items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-xs font-black text-zinc-300 group-hover:text-[#FFA000] group-hover:border-orange-500/40 transition">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-xs font-black text-zinc-300 group-hover:text-[#3B82F6] group-hover:border-blue-500/40 transition">
                         #{idx + 1}
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs font-bold text-white truncate group-hover:text-orange-400 transition">
+                        <div className="text-xs font-bold text-white truncate group-hover:text-blue-400 transition">
                           "{sc.headline}"
                         </div>
                         <div className="flex items-center gap-2 text-[10px] text-zinc-400 mt-0.5">
-                          <span className="font-mono text-[#FFA000]">
+                          <span className="font-mono text-[#3B82F6]">
                             {Number(sc.startTime).toFixed(1)}s – {Number(sc.endTime).toFixed(1)}s
                           </span>
                           <span>•</span>
@@ -282,7 +282,7 @@ export default function WhiteboardPreviewModal({
                       </div>
                     </div>
 
-                    <button className="px-2.5 py-1 rounded-md bg-white/5 group-hover:bg-[#FF5722] text-zinc-400 group-hover:text-black text-[11px] font-bold transition flex items-center gap-1 shrink-0">
+                    <button className="px-2.5 py-1 rounded-md bg-white/5 group-hover:bg-[#0066FF] text-zinc-400 group-hover:text-white text-[11px] font-bold transition flex items-center gap-1 shrink-0">
                       <Play size={10} className="fill-current" />
                       <span>Watch</span>
                     </button>
@@ -313,7 +313,7 @@ export default function WhiteboardPreviewModal({
                   type="button"
                   onClick={onConfirmRender}
                   disabled={isSubmitting}
-                  className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black text-xs sm:text-sm hover:brightness-110 active:scale-98 transition shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white font-bold text-xs sm:text-sm hover:brightness-110 active:scale-98 transition shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Clapperboard size={15} />
                   <span>Looks Great — Render 1080p Video (1 Credit)</span>

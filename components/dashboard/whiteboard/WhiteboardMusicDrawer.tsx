@@ -86,8 +86,10 @@ export function WhiteboardMusicDrawer({
 
     const audioUrl = `https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/${track.path}`;
     const newAudio = new Audio(audioUrl);
-    newAudio.volume = volume;
-    newAudio.play().catch(() => {});
+    newAudio.volume = Math.max(0.75, Math.min(1.0, (volume || 0.12) * 5));
+    newAudio.play().catch((err) => {
+      console.warn("Could not play audition track:", err);
+    });
     newAudio.onended = () => setAuditionTrackId(null);
     audioRef.current = newAudio;
     setAuditionTrackId(track.id);
@@ -114,10 +116,10 @@ export function WhiteboardMusicDrawer({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="group flex items-center justify-between gap-3 px-3.5 py-3 rounded-2xl border border-white/10 bg-[#151E30] hover:border-[#FF6D00]/50 hover:bg-[#1A253C] transition-all text-left shadow-xs w-full cursor-pointer"
+        className="group flex items-center justify-between gap-3 px-3.5 py-3 rounded-2xl border border-white/10 bg-[#151E30] hover:border-[#0066FF]/50 hover:bg-[#1A253C] transition-all text-left shadow-xs w-full cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-[#FF6D00]/20 border border-[#FF6D00]/30 text-[#FFA726] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 rounded-xl bg-[#0066FF]/20 border border-[#0066FF]/30 text-[#3B82F6] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Music className="w-4 h-4" />
           </div>
           <div className="min-w-0">
@@ -129,7 +131,7 @@ export function WhiteboardMusicDrawer({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-[#FFA726] transition-colors">
+        <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-[#3B82F6] transition-colors">
           <span className="text-[11px] font-semibold hidden sm:inline-block">Change</span>
           <ChevronDown className="w-4 h-4" />
         </div>
@@ -142,7 +144,7 @@ export function WhiteboardMusicDrawer({
             {/* Header */}
             <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#FF6D00]/20 border border-[#FF6D00]/30 text-[#FFA726] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-[#0066FF]/20 border border-[#0066FF]/30 text-[#3B82F6] flex items-center justify-center">
                   <Music className="w-4 h-4" />
                 </div>
                 <div>
@@ -166,7 +168,7 @@ export function WhiteboardMusicDrawer({
             {/* Volume Control Bar */}
             <div className="px-5 py-3 bg-[#070B14]/60 border-b border-white/10 flex items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-200 shrink-0">
-                {volume === 0 ? <VolumeX className="w-4 h-4 text-slate-500" /> : <Volume2 className="w-4 h-4 text-[#FFA726]" />}
+                {volume === 0 ? <VolumeX className="w-4 h-4 text-slate-500" /> : <Volume2 className="w-4 h-4 text-[#3B82F6]" />}
                 <span>Volume: {Math.round(volume * 100)}%</span>
               </div>
               <input
@@ -176,7 +178,7 @@ export function WhiteboardMusicDrawer({
                 step="0.01"
                 value={volume}
                 onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
-                className="w-40 sm:w-56 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FF6D00]"
+                className="w-40 sm:w-56 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#0066FF]"
               />
             </div>
 
@@ -189,7 +191,7 @@ export function WhiteboardMusicDrawer({
                   placeholder="Search music by name, vibe or genre..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2 rounded-xl border border-white/10 bg-[#070B14] text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#FF6D00] focus:ring-1 focus:ring-[#FF6D00]"
+                  className="w-full pl-9 pr-8 py-2 rounded-xl border border-white/10 bg-[#070B14] text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF]"
                 />
                 {searchQuery && (
                   <button
@@ -211,7 +213,7 @@ export function WhiteboardMusicDrawer({
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition cursor-pointer ${
                       selectedCategory === cat
-                        ? "bg-[#FF6D00] text-black font-black"
+                        ? "bg-[#0066FF] text-white font-bold"
                         : "bg-[#151E30] text-slate-300 hover:text-white"
                     }`}
                   >
@@ -232,7 +234,7 @@ export function WhiteboardMusicDrawer({
                     key={track.id}
                     className={`flex items-center justify-between p-3 rounded-2xl border transition-all ${
                       isSelected
-                        ? "bg-[#FF6D00]/15 border-[#FF6D00] ring-1 ring-[#FF6D00]/30 text-white"
+                        ? "bg-[#0066FF]/15 border-[#0066FF] ring-1 ring-[#0066FF]/30 text-white"
                         : "bg-[#151E30] border-white/10 hover:border-white/20 text-slate-300 hover:text-white"
                     }`}
                   >
@@ -243,7 +245,7 @@ export function WhiteboardMusicDrawer({
                           onClick={() => handleToggleAudition(track)}
                           className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform active:scale-95 cursor-pointer ${
                             isAuditioning
-                              ? "bg-[#FF6D00] text-black shadow-md shadow-[#FF6D00]/30"
+                              ? "bg-[#0066FF] text-white shadow-md shadow-[#0066FF]/30"
                               : "bg-white/10 text-white hover:bg-white/20"
                           }`}
                           title={isAuditioning ? "Pause audition" : "Audition track"}
@@ -283,7 +285,7 @@ export function WhiteboardMusicDrawer({
                       }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer ${
                         isSelected
-                          ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black"
+                          ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white font-bold"
                           : "bg-white/10 hover:bg-white/20 text-white"
                       }`}
                     >
@@ -310,7 +312,7 @@ export function WhiteboardMusicDrawer({
                   setAuditionTrackId(null);
                   setIsOpen(false);
                 }}
-                className="px-5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black hover:brightness-110 transition cursor-pointer"
+                className="px-5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white hover:brightness-110 transition cursor-pointer"
               >
                 Done
               </button>

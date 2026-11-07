@@ -795,7 +795,7 @@ export function planWhiteboardInfographicData(
   topicTitle?: string,
   durationSeconds: number = 30
 ): WhiteboardStoryInfographicProps {
-  const cleanText = (transcript || '').toLowerCase();
+  const cleanTranscript = (transcript || '').trim();
   const rawTitle = (topicTitle || '').trim();
 
   // Helper to split a phrase or title into prefix + accent
@@ -810,150 +810,59 @@ export function planWhiteboardInfographicData(
     };
   };
 
-  // 1. Finance / Wealth / Savings / Money
-  if (/(money|save|saving|invest|wealth|finance|rupee|dollar|cash|paisa|budget|fund|debt)/i.test(cleanText)) {
-    const titles = splitTitle(rawTitle, 'Why You Should', 'Save Money?');
-    return {
-      titlePrefix: titles.prefix,
-      titleAccent: titles.accent,
-      thoughtText: 'What if an unexpected expense hits tomorrow?',
-      bracketHeader: 'Life has uncertainties...',
-      bracketItems: [
-        { label: 'Medical emergencies', icon: 'medical_emergency' },
-        { label: 'Car & home repairs', icon: 'car_repairs' },
-        { label: 'Future goals & family', icon: 'future_house' },
-      ],
-      centerStatement: 'Saving early gives you unstoppable security.',
-      heroLabel: 'SAVINGS',
-      heroType: 'savings_jar',
-      sideNote: 'It gives you freedom and peace of mind.',
-      bottomSubhead: 'Small steps today... Big wealth tomorrow.',
-      bottomCards: [
-        { label: 'Handle emergencies', icon: 'emergency_siren' },
-        { label: 'Grow your wealth', icon: 'wealth_plant' },
-        { label: 'Achieve your goals', icon: 'target_bullseye' },
-        { label: 'Less daily stress', icon: 'character_happy' },
-      ],
-      showHand: true,
-    };
-  }
+  // Extract real spoken sentences directly from user speech (Zero fake demo scripts)
+  const spokenSentences = cleanTranscript
+    .split(/[.!?\n]+/)
+    .map((s) => s.trim().replace(/^[^a-zA-Z0-9]+/, ''))
+    .filter((s) => s.length > 5);
 
-  // 2. Health / Fitness / Diet / Lifestyle
-  if (/(health|fitness|doctor|medicine|workout|hospital|body|diet|sleep|stress|mental|habit)/i.test(cleanText)) {
-    const titles = splitTitle(rawTitle, 'How To Protect', 'Your Health?');
-    return {
-      titlePrefix: titles.prefix,
-      titleAccent: titles.accent,
-      thoughtText: 'Why do small bad habits compound into sickness?',
-      bracketHeader: 'Daily hidden health risks...',
-      bracketItems: [
-        { label: 'Sudden emergencies', icon: 'medical_emergency' },
-        { label: 'Chronic burnout', icon: 'character_thinking' },
-        { label: 'Vital energy drops', icon: 'lightbulb_idea' },
-      ],
-      centerStatement: 'Prioritizing your daily health prevents costly breakdowns.',
-      heroLabel: 'HEALTH',
-      heroType: 'medical_emergency',
-      sideNote: 'Your health is your greatest compounding asset.',
-      bottomSubhead: 'Consistent care today... Vibrant energy tomorrow.',
-      bottomCards: [
-        { label: 'Prevent emergencies', icon: 'emergency_siren' },
-        { label: 'Boost daily vitality', icon: 'growth_chart' },
-        { label: 'Reach fitness goals', icon: 'target_bullseye' },
-        { label: 'Peace of mind', icon: 'character_happy' },
-      ],
-      showHand: true,
-    };
-  }
+  const fallbackTitle = spokenSentences[0]
+    ? spokenSentences[0].slice(0, 36)
+    : 'Key Insight';
 
-  // 3. Business / Sales / Marketing / Growth / Scale
-  if (/(business|startup|client|sales|growth|marketing|scale|revenue|profit|team|product|customer)/i.test(cleanText)) {
-    const titles = splitTitle(rawTitle, 'How To Scale', 'Your Business?');
-    return {
-      titlePrefix: titles.prefix,
-      titleAccent: titles.accent,
-      thoughtText: 'What is the bottleneck keeping us from scaling?',
-      bracketHeader: 'Every founder faces hurdles...',
-      bracketItems: [
-        { label: 'Consistent client leads', icon: 'target_bullseye' },
-        { label: 'Predictable delivery', icon: 'growth_chart' },
-        { label: 'Strategic partnerships', icon: 'handshake_deal' },
-      ],
-      centerStatement: 'Automating the core workflow unlocks predictable scale.',
-      heroLabel: 'GROWTH',
-      heroType: 'growth_chart',
-      sideNote: 'Consistency compounds faster than sudden luck.',
-      bottomSubhead: 'Strategic systems today... Market leadership tomorrow.',
-      bottomCards: [
-        { label: 'Fix bottlenecks', icon: 'emergency_siren' },
-        { label: 'Compound revenue', icon: 'wealth_plant' },
-        { label: 'Hit annual targets', icon: 'target_bullseye' },
-        { label: 'Delighted clients', icon: 'character_happy' },
-      ],
-      showHand: true,
-    };
-  }
+  const titleData = splitTitle(rawTitle || fallbackTitle, 'Core', 'Takeaway');
 
-  // 4. Learning / Education / Skills / Books / Discipline
-  if (/(study|learn|skill|student|exam|focus|discipline|time|book|reading|knowledge|college)/i.test(cleanText)) {
-    const titles = splitTitle(rawTitle, 'How To Master', 'Deep Focus?');
-    return {
-      titlePrefix: titles.prefix,
-      titleAccent: titles.accent,
-      thoughtText: 'Why is it so easy to get distracted and procrastinate?',
-      bracketHeader: 'Common focus traps to eliminate...',
-      bracketItems: [
-        { label: 'Notification friction', icon: 'lightbulb_idea' },
-        { label: 'Lack of daily routines', icon: 'target_bullseye' },
-        { label: 'Vague milestone tracking', icon: 'graduation_cap' },
-      ],
-      centerStatement: 'Daily focused repetition beats irregular motivation bursts.',
-      heroLabel: 'MASTERY',
-      heroType: 'graduation_cap',
-      sideNote: 'Deep focus is a superpower you build each morning.',
-      bottomSubhead: 'Clear routines today... Lifelong mastery tomorrow.',
-      bottomCards: [
-        { label: 'Beat distractions', icon: 'emergency_siren' },
-        { label: 'Grow your skills', icon: 'wealth_plant' },
-        { label: 'Hit your dreams', icon: 'target_bullseye' },
-        { label: 'True confidence', icon: 'character_happy' },
-      ],
-      showHand: true,
-    };
-  }
+  const thoughtText = spokenSentences[1]
+    ? (spokenSentences[1].endsWith('?') ? spokenSentences[1] : `${spokenSentences[1]}?`)
+    : 'What is the most critical principle to understand?';
 
-  // 5. Universal Adaptive Fallback
-  const defaultTitle = splitTitle(rawTitle, 'The Power Of', 'Clear Action');
-  const sentences = (transcript || '')
-    .split(/[.!?]+/)
-    .map(s => s.trim())
-    .filter(s => s.length > 10);
+  const bracketItems: InfographicBracketItem[] = [
+    { label: (spokenSentences[2] || spokenSentences[0] || 'First Milestone').slice(0, 26), icon: 'lightbulb_idea' },
+    { label: (spokenSentences[3] || spokenSentences[1] || 'Core Strategy').slice(0, 26), icon: 'growth_chart' },
+    { label: (spokenSentences[4] || spokenSentences[2] || 'Key Outcome').slice(0, 26), icon: 'target_bullseye' },
+  ];
 
-  const item1 = sentences[0] ? sentences[0].slice(0, 24) : 'First key principle';
-  const item2 = sentences[1] ? sentences[1].slice(0, 24) : 'Building momentum';
-  const item3 = sentences[2] ? sentences[2].slice(0, 24) : 'Long term impact';
+  const centerStatement = spokenSentences[5]
+    ? spokenSentences[5].slice(0, 52)
+    : spokenSentences[0]
+    ? spokenSentences[0].slice(0, 52)
+    : 'Action and clarity compound into major results.';
+
+  const sideNote = spokenSentences[6]
+    ? spokenSentences[6].slice(0, 48)
+    : 'Consistent progress creates undeniable breakthroughs.';
+
+  const bottomCards: InfographicBottomCard[] = [
+    { label: (spokenSentences[7] || 'Key Principle').slice(0, 20), icon: 'lightbulb_idea' },
+    { label: (spokenSentences[8] || 'Daily Focus').slice(0, 20), icon: 'growth_chart' },
+    { label: (spokenSentences[9] || 'Clear Execution').slice(0, 20), icon: 'target_bullseye' },
+    { label: (spokenSentences[10] || 'Long-Term Impact').slice(0, 20), icon: 'character_happy' },
+  ];
+
+  const heroVisual = resolveVectorDrawing(cleanTranscript);
 
   return {
-    titlePrefix: defaultTitle.prefix,
-    titleAccent: defaultTitle.accent,
-    thoughtText: 'What is the most important step to take next?',
-    bracketHeader: 'Key principles to understand...',
-    bracketItems: [
-      { label: item1, icon: 'lightbulb_idea' },
-      { label: item2, icon: 'growth_chart' },
-      { label: item3, icon: 'target_bullseye' },
-    ],
-    centerStatement: sentences[3] ? sentences[3].slice(0, 48) : 'Clear intentional action unlocks massive results.',
-    heroLabel: 'STRATEGY',
-    heroType: 'lightbulb_idea',
-    sideNote: 'Simple systems executed consistently create real change.',
-    bottomSubhead: 'Small steps today... Extraordinary results tomorrow.',
-    bottomCards: [
-      { label: 'Overcome hurdles', icon: 'emergency_siren' },
-      { label: 'Compound progress', icon: 'wealth_plant' },
-      { label: 'Achieve the goal', icon: 'target_bullseye' },
-      { label: 'Fulfillment & joy', icon: 'character_happy' },
-    ],
+    titlePrefix: titleData.prefix,
+    titleAccent: titleData.accent,
+    thoughtText: thoughtText.slice(0, 55),
+    bracketHeader: 'Key principles in this video...',
+    bracketItems,
+    centerStatement,
+    heroLabel: (heroVisual?.label || 'CORE IDEA').slice(0, 16),
+    heroType: heroVisual?.id || 'lightbulb_idea',
+    sideNote,
+    bottomSubhead: 'Clear execution today... Real results tomorrow.',
+    bottomCards,
     showHand: true,
   };
 }

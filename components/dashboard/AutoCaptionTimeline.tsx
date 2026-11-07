@@ -135,7 +135,7 @@ export function AutoCaptionTimeline({
               isLight ? "text-slate-800 border-slate-200" : "text-slate-300 border-white/10"
             }`}
           >
-            <Clock size={14} className="text-[#FF7043]" />
+            <Clock size={14} className="text-[#3B82F6]" />
             <span>Timeline</span>
           </div>
 
@@ -148,7 +148,7 @@ export function AutoCaptionTimeline({
             }`}
             title="Add text layer"
           >
-            <Plus size={13} className="text-[#FF7043]" />
+            <Plus size={13} className="text-[#3B82F6]" />
             <span>+ Text</span>
           </button>
 
@@ -158,15 +158,15 @@ export function AutoCaptionTimeline({
             className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-black transition cursor-pointer ${
               behindPerson
                 ? isLight
-                  ? "bg-orange-50 border-orange-300 text-[#FF5722] shadow-2xs font-black"
-                  : "bg-[#FF5722]/15 border-[#FF5722]/50 text-[#FFA000] shadow-sm"
+                  ? "bg-blue-50 border-blue-300 text-[#0066FF] shadow-2xs font-black"
+                  : "bg-[#0066FF]/15 border-[#0066FF]/50 text-[#3B82F6] shadow-sm"
                 : isLight
                 ? "border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 : "border-white/10 bg-[#070B14] text-slate-300 hover:text-white hover:bg-[#131B2E]"
             }`}
             title="Place captions behind person depth layer"
           >
-            <User size={13} className={behindPerson ? "text-[#FF7043]" : isLight ? "text-slate-500" : "text-slate-400"} />
+            <User size={13} className={behindPerson ? "text-[#3B82F6]" : isLight ? "text-slate-500" : "text-slate-400"} />
             <span>Behind person</span>
           </button>
 
@@ -230,7 +230,7 @@ export function AutoCaptionTimeline({
           <button
             type="button"
             onClick={onTogglePlay}
-            className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-white hover:brightness-110 active:scale-95 transition cursor-pointer shadow-md shadow-[#FF5722]/20"
+            className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#0066FF] to-[#2563EB] text-white hover:brightness-110 active:scale-95 transition cursor-pointer shadow-md shadow-[#0066FF]/20"
             title={isPlaying ? "Pause playback" : "Start playback"}
           >
             {isPlaying ? <Pause size={14} className="fill-current" /> : <Play size={14} className="fill-current ml-0.5" />}
@@ -239,8 +239,8 @@ export function AutoCaptionTimeline({
           <span
             className={`font-mono text-xs font-black px-3 py-1.5 rounded-xl border ${
               isLight
-                ? "text-[#FF5722] bg-slate-50 border-slate-200"
-                : "text-[#FFA000] bg-[#070B14] border-white/10"
+                ? "text-[#0066FF] bg-slate-50 border-slate-200"
+                : "text-[#3B82F6] bg-[#070B14] border-white/10"
             }`}
           >
             {formatTime(currentTime)} / {formatTime(safeDuration)}
@@ -298,9 +298,9 @@ export function AutoCaptionTimeline({
           style={{ left: `${progressPercent}%` }}
         >
           {/* Top handle pill */}
-          <div className="h-4 w-3 rounded-full bg-[#FF5722] border-2 border-white shadow-lg -translate-y-1" />
+          <div className="h-4 w-3 rounded-full bg-[#0066FF] border-2 border-white shadow-lg -translate-y-1" />
           {/* Vertical needle line */}
-          <div className="w-[2px] flex-1 bg-gradient-to-b from-[#FF5722] via-[#FF7043] to-amber-400 shadow-md shadow-[#FF5722]/50" />
+          <div className="w-[2px] flex-1 bg-gradient-to-b from-[#0066FF] via-[#2563EB] to-[#3B82F6] shadow-md shadow-[#0066FF]/50" />
         </div>
 
         {/* TRACK 1: Word-by-Word Chips Track */}
@@ -311,7 +311,7 @@ export function AutoCaptionTimeline({
             }`}
           >
             <span className="flex items-center gap-1">
-              <Sparkles size={10} className="text-[#FF7043]" />
+              <Sparkles size={10} className="text-[#3B82F6]" />
               <span className={isLight ? "text-slate-800" : "text-slate-200"}>Word Synchronized Captions</span>
             </span>
             <span className={isLight ? "text-slate-500 font-medium" : "text-slate-400 font-medium"}>Click any word to seek</span>
@@ -335,11 +335,11 @@ export function AutoCaptionTimeline({
                     }}
                     className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-bold transition-all duration-150 cursor-pointer ${
                       isActive
-                        ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white font-black scale-105 shadow-md shadow-[#FF5722]/30 border border-amber-300"
+                        ? "bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-white font-black scale-105 shadow-md shadow-[#0066FF]/30 border border-blue-300"
                         : isPassed
                         ? isLight
                           ? "bg-slate-200 text-slate-800 border border-slate-300 hover:border-slate-400"
-                          : "bg-[#141C30] text-slate-300 border border-white/10 hover:border-[#FF5722]/40"
+                          : "bg-[#141C30] text-slate-300 border border-white/10 hover:border-[#0066FF]/40"
                         : isLight
                         ? "bg-white text-slate-700 border border-slate-200 hover:text-slate-900 hover:border-slate-300 shadow-2xs"
                         : "bg-[#090D18] text-slate-300 border border-white/5 hover:text-white hover:border-white/20"
@@ -376,7 +376,7 @@ export function AutoCaptionTimeline({
                     }}
                     className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-bold transition-all duration-150 cursor-pointer ${
                       isActive
-                        ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white font-black scale-105 shadow-md"
+                        ? "bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-white font-black scale-105 shadow-md"
                         : isLight
                         ? "bg-white text-slate-700 border border-slate-200 shadow-2xs"
                         : "bg-[#141C30] text-slate-300 border border-white/10 hover:text-white"
@@ -405,7 +405,7 @@ export function AutoCaptionTimeline({
                   className={`shrink-0 rounded-xl px-3 py-1 text-[11px] font-bold border transition cursor-pointer truncate max-w-[260px] ${
                     isActivePhrase
                       ? isLight
-                        ? "bg-orange-50 border-orange-300 text-[#FF5722] font-black shadow-2xs"
+                        ? "bg-blue-50 border-blue-300 text-[#0066FF] font-black shadow-2xs"
                         : "bg-indigo-600/25 border-indigo-500/60 text-indigo-200"
                       : isLight
                       ? "bg-white border-slate-200 text-slate-700 hover:text-slate-900 hover:border-slate-300 shadow-2xs"
@@ -441,7 +441,7 @@ export function AutoCaptionTimeline({
                   key={`wave-${barIdx}`}
                   className={`w-full rounded-full transition-all duration-100 ${
                     isPlayedBar
-                      ? "bg-gradient-to-t from-[#FF5722] to-[#FFA000]"
+                      ? "bg-gradient-to-t from-[#0066FF] to-[#2563EB]"
                       : isLight
                       ? "bg-slate-300/80"
                       : "bg-white/15"

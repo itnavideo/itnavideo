@@ -673,14 +673,14 @@ export default function ImageToVideoDashboardPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
         <p className="text-sm font-semibold tracking-wide text-slate-800">Loading Image to Video AI Studio...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#FF5722]/20 selection:text-[#FF5722] pb-12">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#0066FF]/20 selection:text-[#0066FF] pb-12">
       {/* Top Navigation Bar (Clean White Surface) */}
       <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
@@ -697,8 +697,8 @@ export default function ImageToVideoDashboardPage() {
 
             <BrandLogo size="sm" showBadge={false} variant="light" />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF5722]">
-              <Sparkles size={11} className="text-[#FF5722]" />
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-2.5 py-0.5 text-[11px] font-black text-[#0066FF]">
+              <Sparkles size={11} className="text-[#0066FF]" />
               Image to Video Studio
             </span>
           </div>
@@ -706,7 +706,7 @@ export default function ImageToVideoDashboardPage() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Timer badge while rendering */}
             {isWorking && (
-              <div className="flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1.5 text-xs font-black text-[#FF5722]">
+              <div className="flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3 py-1.5 text-xs font-black text-[#0066FF]">
                 <Clock size={13} className="animate-pulse" />
                 <span>{formatTimer(elapsedSeconds)}</span>
               </div>
@@ -714,12 +714,12 @@ export default function ImageToVideoDashboardPage() {
 
             {/* Credits badge */}
             <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
-              <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
+              <Zap size={14} className="text-[#0066FF] fill-[#0066FF]" />
               <span className="text-slate-500 hidden xs:inline">Balance:</span>
               <span className="text-slate-900 font-black">{billingEntitlement ? userRemainingCredits : "..."} Cr</span>
               <Link
                 href="/pricing"
-                className="ml-0.5 text-[11px] text-[#FF5722] hover:text-[#FFA000] underline font-black"
+                className="ml-0.5 text-[11px] text-[#0066FF] hover:text-[#3B82F6] underline font-black"
               >
                 +Add
               </Link>

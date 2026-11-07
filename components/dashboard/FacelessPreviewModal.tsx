@@ -203,7 +203,7 @@ export default function FacelessPreviewModal({
         {/* Header Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/60">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-orange-500/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/20 border border-orange-500/40 flex items-center justify-center text-[#3B82F6]">
               <Tv className="w-5 h-5" />
             </div>
             <div>
@@ -228,7 +228,7 @@ export default function FacelessPreviewModal({
             <button
               onClick={onConfirmRender}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs shadow-lg shadow-orange-500/20 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs shadow-lg shadow-[#0066FF]/25/20 transition-all disabled:opacity-50"
             >
               <Film className="w-4 h-4" />
               {isSubmitting ? "Starting Render..." : "Confirm & Render 1080p"}
@@ -283,7 +283,7 @@ export default function FacelessPreviewModal({
               <div className="flex items-center gap-3">
                 <button
                   onClick={togglePlay}
-                  className="w-9 h-9 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-all shadow-md shadow-orange-500/20"
+                  className="w-9 h-9 rounded-lg bg-orange-500 hover:bg-[#0052CC] text-white flex items-center justify-center transition-all shadow-md shadow-[#0066FF]/25/20"
                 >
                   {isPlaying ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white ml-0.5" />}
                 </button>
@@ -295,7 +295,7 @@ export default function FacelessPreviewModal({
                   <RotateCcw className="w-3.5 h-3.5" />
                 </button>
                 <div className="text-xs font-mono text-zinc-300">
-                  <span className="text-orange-400 font-bold">{currentTimeSec}s</span> / {durationSeconds.toFixed(1)}s
+                  <span className="text-[#3B82F6] font-bold">{currentTimeSec}s</span> / {durationSeconds.toFixed(1)}s
                 </div>
               </div>
 
@@ -314,7 +314,7 @@ export default function FacelessPreviewModal({
           <div className="lg:col-span-4 flex flex-col bg-zinc-900/30 overflow-hidden">
             <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Layers3 className="w-4 h-4 text-orange-400" />
+                <Layers3 className="w-4 h-4 text-[#3B82F6]" />
                 <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                   Storyboard Scenes ({activeScenes.length})
                 </h4>
@@ -334,7 +334,7 @@ export default function FacelessPreviewModal({
                     onClick={() => jumpToScene(startSec)}
                     className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
                       isActive
-                        ? "bg-orange-500/10 border-orange-500/50 shadow-md shadow-orange-500/5"
+                        ? "bg-blue-500/10 border-orange-500/50 shadow-md shadow-[#0066FF]/10"
                         : "bg-zinc-900/60 border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/50"
                     }`}
                   >
@@ -383,7 +383,7 @@ export default function FacelessPreviewModal({
             {/* Bottom Quick Advice */}
             <div className="p-3 border-t border-zinc-800 bg-zinc-900/60">
               <div className="flex items-start gap-2 text-[11px] text-zinc-400 leading-relaxed">
-                <Sparkles className="w-3.5 h-3.5 text-orange-400 flex-shrink-0 mt-0.5" />
+                <Sparkles className="w-3.5 h-3.5 text-[#3B82F6] flex-shrink-0 mt-0.5" />
                 <span>
                   Tip: Every scene dynamically renders in full 1080p widescreen with auto-ducked background audio.
                 </span>

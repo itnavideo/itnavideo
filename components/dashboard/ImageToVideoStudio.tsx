@@ -353,10 +353,10 @@ export function ImageToVideoStudio({
     <div className="w-full space-y-6">
       {/* Studio Header Card (Clean White Surface) */}
       <div className="relative rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs overflow-hidden">
-        <BorderBeam size={220} duration={14} delay={0} colorFrom="#FF5722" colorTo="#FFA000" />
+        <BorderBeam size={220} duration={14} delay={0} colorFrom="#0066FF" colorTo="#2563EB" />
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-black text-[#FF5722]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-black text-[#0066FF]">
               <Sparkles size={13} />
               <span>16:9 Cinema Widescreen · Clean White Studio</span>
             </div>
@@ -380,7 +380,7 @@ export function ImageToVideoStudio({
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center shadow-xs">
               <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Render Rate</span>
-              <span className="text-sm font-black text-[#FF5722]">
+              <span className="text-sm font-black text-[#0066FF]">
                 {calculatedCredits} Cr ({Math.ceil(effectiveDuration / 60)} min)
               </span>
             </div>
@@ -402,7 +402,7 @@ export function ImageToVideoStudio({
             onClick={() => setActiveTab('media')}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === 'media'
-                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#0066FF]/20'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
@@ -415,7 +415,7 @@ export function ImageToVideoStudio({
             onClick={() => setActiveTab('captions')}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === 'captions'
-                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#0066FF]/20'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
@@ -428,7 +428,7 @@ export function ImageToVideoStudio({
             onClick={() => setActiveTab('audio')}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === 'audio'
-                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#0066FF]/20'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
@@ -441,7 +441,7 @@ export function ImageToVideoStudio({
             onClick={() => setActiveTab('preview')}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === 'preview'
-                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#0066FF]/20'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
@@ -459,7 +459,7 @@ export function ImageToVideoStudio({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                <div className="p-2.5 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
                   <Mic size={20} />
                 </div>
                 <div>
@@ -487,9 +487,9 @@ export function ImageToVideoStudio({
             {!selectedAudio ? (
               <div
                 onClick={() => audioFileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-200 hover:border-[#FF5722] bg-slate-50 hover:bg-orange-50/30 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
+                className="border-2 border-dashed border-slate-200 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/30 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
               >
-                <div className="p-3.5 rounded-2xl bg-white text-slate-400 group-hover:text-[#FF5722] shadow-xs border border-slate-200 transition">
+                <div className="p-3.5 rounded-2xl bg-white text-slate-400 group-hover:text-[#0066FF] shadow-xs border border-slate-200 transition">
                   <UploadCloud size={28} />
                 </div>
                 <div>
@@ -500,7 +500,7 @@ export function ImageToVideoStudio({
             ) : (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5 w-full sm:w-auto">
-                  <div className="p-3 rounded-xl bg-white text-[#FF5722] border border-slate-200 shadow-xs">
+                  <div className="p-3 rounded-xl bg-white text-[#0066FF] border border-slate-200 shadow-xs">
                     <Volume2 size={20} />
                   </div>
                   <div className="truncate">
@@ -541,7 +541,7 @@ export function ImageToVideoStudio({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                <div className="p-2.5 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
                   <ImageIcon size={20} />
                 </div>
                 <div>
@@ -562,7 +562,7 @@ export function ImageToVideoStudio({
                 <button
                   type="button"
                   onClick={() => imageFileInputRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#FF5722] hover:bg-[#FF7043] text-white px-4 py-2 text-xs font-black shadow-md shadow-[#FF5722]/20 transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#FF5722] hover:bg-[#FF7043] text-white px-4 py-2 text-xs font-black shadow-md shadow-[#0066FF]/20 transition cursor-pointer"
                 >
                   <Plus size={14} />
                   <span>Upload Images</span>
@@ -585,9 +585,9 @@ export function ImageToVideoStudio({
             {imageFiles.length === 0 ? (
               <div
                 onClick={() => imageFileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-200 hover:border-[#FF5722] bg-slate-50 hover:bg-orange-50/30 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
+                className="border-2 border-dashed border-slate-200 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/30 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
               >
-                <div className="p-3.5 rounded-2xl bg-white text-slate-400 group-hover:text-[#FF5722] shadow-xs border border-slate-200 transition">
+                <div className="p-3.5 rounded-2xl bg-white text-slate-400 group-hover:text-[#0066FF] shadow-xs border border-slate-200 transition">
                   <ImageIcon size={28} />
                 </div>
                 <div>
@@ -631,7 +631,7 @@ export function ImageToVideoStudio({
                           value={imagePhrases[idx] || ''}
                           onChange={(e) => onChangeImagePhrase(idx, e.target.value)}
                           placeholder="Optional anchor phrase..."
-                          className="w-full text-[10px] rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-700 focus:outline-none focus:border-[#FF5722]"
+                          className="w-full text-[10px] rounded-lg border border-slate-200 bg-white px-2 py-1 text-slate-700 focus:outline-none focus:border-[#0066FF]"
                         />
                       )}
                     </div>
@@ -652,7 +652,7 @@ export function ImageToVideoStudio({
                   value={topicTitle}
                   onChange={(e) => onChangeTopicTitle && onChangeTopicTitle(e.target.value)}
                   placeholder="e.g. Journey to the Stars..."
-                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#FF5722] shadow-xs"
+                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#0066FF] shadow-xs"
                 />
               </div>
 
@@ -661,7 +661,7 @@ export function ImageToVideoStudio({
                 <select
                   value={fitMode}
                   onChange={(e) => onChangeFitMode && onChangeFitMode(e.target.value)}
-                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#FF5722] shadow-xs cursor-pointer"
+                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#0066FF] shadow-xs cursor-pointer"
                 >
                   <option value="cover">16:9 Cover (Cinematic Fill)</option>
                   <option value="blur-fill">Soft Blur Ambient Fill (Portrait Friendly)</option>
@@ -673,7 +673,7 @@ export function ImageToVideoStudio({
                 <select
                   value={cameraMotionPreset}
                   onChange={(e) => onChangeCameraMotionPreset && onChangeCameraMotionPreset(e.target.value)}
-                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#FF5722] shadow-xs cursor-pointer"
+                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#0066FF] shadow-xs cursor-pointer"
                 >
                   <option value="ken-burns">Ken Burns Smooth Zoom &amp; Pan</option>
                   <option value="gentle-push">Gentle Cinema Push-In</option>
@@ -724,7 +724,7 @@ export function ImageToVideoStudio({
                     onClick={() => onChangeSubtitleStyle && onChangeSubtitleStyle(style.id)}
                     className={`rounded-2xl border-2 p-4 cursor-pointer transition flex flex-col justify-between gap-3 ${
                       isSelected
-                        ? 'border-[#FF5722] bg-orange-50/50 shadow-md ring-2 ring-[#FF5722]/20'
+                        ? 'border-[#0066FF] bg-blue-50/50 shadow-md ring-2 ring-[#0066FF]/20'
                         : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'
                     }`}
                   >
@@ -774,7 +774,7 @@ export function ImageToVideoStudio({
 
               {/* Volume Slider Card */}
               <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2 rounded-2xl">
-                <Volume2 size={16} className="text-[#FF5722]" />
+                <Volume2 size={16} className="text-[#0066FF]" />
                 <span className="text-xs font-bold text-slate-700">BGM Volume:</span>
                 <input
                   type="range"
@@ -827,7 +827,7 @@ export function ImageToVideoStudio({
                     key={track.id}
                     className={`rounded-2xl border p-4 flex items-center justify-between gap-3 transition cursor-pointer ${
                       isSelected
-                        ? 'border-[#FF5722] bg-orange-50/40 shadow-xs'
+                        ? 'border-[#0066FF] bg-blue-50/40 shadow-xs'
                         : 'border-slate-200 bg-slate-50 hover:bg-white'
                     }`}
                     onClick={() => onChangeSelectedLibraryBgmUrl && onChangeSelectedLibraryBgmUrl(track.path)}
@@ -842,7 +842,7 @@ export function ImageToVideoStudio({
                         className={`p-2.5 rounded-xl transition cursor-pointer shadow-xs ${
                           isPlaying
                             ? 'bg-[#FF5722] text-white'
-                            : 'bg-white text-slate-700 hover:text-[#FF5722] border border-slate-200'
+                            : 'bg-white text-slate-700 hover:text-[#0066FF] border border-slate-200'
                         }`}
                       >
                         {isPlaying ? <Pause size={14} /> : <Play size={14} />}
@@ -909,7 +909,7 @@ export function ImageToVideoStudio({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                <div className="p-2 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
                   <FileText size={18} />
                 </div>
                 <div>
@@ -923,7 +923,7 @@ export function ImageToVideoStudio({
                 onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
                 className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
                   showTranscriptEditor
-                    ? 'border-orange-500 bg-orange-50 text-[#FF5722]'
+                    ? 'border-[#0066FF] bg-blue-50 text-[#0066FF]'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -938,7 +938,7 @@ export function ImageToVideoStudio({
                   value={editableTranscript}
                   onChange={(e) => setEditableTranscript(e.target.value)}
                   rows={4}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:border-[#FF5722] shadow-xs"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:border-[#0066FF] shadow-xs"
                   placeholder="Review or edit your spoken transcription words here..."
                 />
 
@@ -1075,7 +1075,7 @@ export function ImageToVideoStudio({
             )}
 
             {/* Compulsory Review Confirmation Checkbox */}
-            <div className="rounded-2xl border-2 border-orange-200 bg-orange-50/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -1095,7 +1095,7 @@ export function ImageToVideoStudio({
                 className={`rounded-xl px-4 py-2 text-xs font-black transition cursor-pointer ${
                   previewConfirmed
                     ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'bg-[#FF5722] hover:bg-[#FF7043] text-white shadow-md shadow-[#FF5722]/20'
+                    : 'bg-[#FF5722] hover:bg-[#FF7043] text-white shadow-md shadow-[#0066FF]/20'
                 }`}
               >
                 {previewConfirmed ? 'Verified ✓' : 'Confirm Preview Now'}
@@ -1112,7 +1112,7 @@ export function ImageToVideoStudio({
           <span className="ml-1 text-sm font-black text-slate-900">{detectedAudioDuration}s</span>
           <span className="mx-2 text-slate-300">·</span>
           <span className="text-xs font-bold text-slate-500">Credits Required:</span>
-          <span className="ml-1 text-sm font-black text-[#FF5722]">{calculatedCredits} Cr</span>
+          <span className="ml-1 text-sm font-black text-[#0066FF]">{calculatedCredits} Cr</span>
         </div>
 
         <button
@@ -1123,8 +1123,8 @@ export function ImageToVideoStudio({
             !previewConfirmed || !selectedAudio || imageFiles.length === 0
               ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
               : isRendering
-              ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white opacity-80 cursor-wait animate-pulse shadow-xl'
-              : 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer'
+              ? 'bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white opacity-80 cursor-wait animate-pulse shadow-xl'
+              : 'bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-xl shadow-[#0066FF]/30 hover:brightness-110 active:scale-95 cursor-pointer'
           }`}
         >
           {!previewConfirmed ? (

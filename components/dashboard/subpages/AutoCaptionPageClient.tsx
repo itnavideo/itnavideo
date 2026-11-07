@@ -622,7 +622,7 @@ export default function AutoCaptionPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#0B0D13] flex flex-col items-center justify-center text-zinc-400 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
         <p className="text-sm font-semibold tracking-wide text-zinc-300">Loading Auto Caption Studio...</p>
       </div>
     );
@@ -662,8 +662,8 @@ export default function AutoCaptionPage() {
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Credits badge */}
-            <div className="flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-bold shadow-2xs">
-              <Zap size={13} className="text-[#FF5722] fill-[#FF5722]" />
+            <div className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold shadow-2xs">
+              <Zap size={13} className="text-[#0066FF] fill-[#0066FF]" />
               <span className="text-slate-900 font-black">
                 {billingEntitlement && userRemainingCredits !== undefined ? `${userRemainingCredits} Cr` : "908 Credits"}
               </span>
@@ -740,7 +740,7 @@ export default function AutoCaptionPage() {
       {selectedFile && workflowStep === "editor" && (
         <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
           <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase text-[#FF5722] tracking-wider truncate">
+            <p className="text-[11px] font-black uppercase text-[#0066FF] tracking-wider truncate">
               {projectName || selectedFile.name}
             </p>
             <p className="text-[10px] text-slate-500 font-bold">
@@ -751,7 +751,7 @@ export default function AutoCaptionPage() {
             type="button"
             onClick={handleStartRender}
             disabled={!selectedFile || isWorking}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#0066FF]/30 active:scale-95 disabled:opacity-50"
           >
             <Download size={14} className="text-black" />
             <span>{isWorking ? "Rendering..." : "Download 1080p"}</span>

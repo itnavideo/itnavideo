@@ -28,7 +28,7 @@ export function WhiteboardMarkerDrawer({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center justify-between gap-3 px-3.5 py-3 rounded-2xl border border-white/10 bg-[#151E30] hover:border-[#FF6D00]/50 hover:bg-[#1A253C] transition-all text-left shadow-xs w-full cursor-pointer"
+        className="group flex items-center justify-between gap-3 px-3.5 py-3 rounded-2xl border border-white/10 bg-[#151E30] hover:border-[#0066FF]/50 hover:bg-[#1A253C] transition-all text-left shadow-xs w-full cursor-pointer"
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <div
@@ -53,7 +53,7 @@ export function WhiteboardMarkerDrawer({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-[#FFA726] transition-colors">
+        <div className="flex items-center gap-1.5 shrink-0 text-slate-400 group-hover:text-[#3B82F6] transition-colors">
           <span className="text-[11px] font-semibold hidden sm:inline-block">
             {isOpen ? "Close" : "Change"}
           </span>
@@ -85,7 +85,7 @@ export function WhiteboardMarkerDrawer({
                   }}
                   className={`flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#FF6D00]/15 border-[#FF6D00] ring-1 ring-[#FF6D00]/30 text-white"
+                      ? "bg-[#0066FF]/15 border-[#0066FF] ring-1 ring-[#0066FF]/30 text-white"
                       : "bg-[#151E30] border-white/10 hover:border-white/20 text-slate-300 hover:text-white"
                   }`}
                 >

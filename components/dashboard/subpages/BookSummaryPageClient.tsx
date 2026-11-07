@@ -484,7 +484,7 @@ export default function BookSummaryPageClient() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
         <p className="text-sm font-semibold text-slate-800">Loading Book Summary Studio...</p>
       </div>
     );
@@ -492,7 +492,7 @@ export default function BookSummaryPageClient() {
 
   // 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#FF5722]/20 selection:text-[#FF5722] pb-12">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#0066FF]/20 selection:text-[#0066FF] pb-12">
 
       {/*  Top Navigation Bar (Clean White Surface)  */}
       <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs">
@@ -511,7 +511,7 @@ export default function BookSummaryPageClient() {
             <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <BrandLogo size="sm" showBadge={false} variant="light" />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-2.5 py-0.5 text-[11px] font-black text-[#FF5722]">
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-2.5 py-0.5 text-[11px] font-black text-[#0066FF]">
               <BookOpen size={11} />
               Book Summary Studio
             </span>
@@ -521,7 +521,7 @@ export default function BookSummaryPageClient() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Timer badge while rendering */}
             {isWorking && (
-              <div className="flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1.5 text-xs font-black text-[#FF5722]">
+              <div className="flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3 py-1.5 text-xs font-black text-[#0066FF]">
                 <Clock size={13} className="animate-pulse" />
                 <span>{formatTimer(elapsedSeconds)}</span>
               </div>
@@ -529,14 +529,14 @@ export default function BookSummaryPageClient() {
 
             {/* Credits badge */}
             <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
-              <Zap size={14} className="text-[#FF5722] fill-[#FF5722]" />
+              <Zap size={14} className="text-[#0066FF] fill-[#0066FF]" />
               <span className="text-slate-500 hidden xs:inline">Balance:</span>
               <span className="text-slate-900 font-black">
                 {billingEntitlement ? userRemainingCredits : "..."} Cr
               </span>
               <Link
                 href="/pricing"
-                className="ml-0.5 text-[11px] text-[#FF5722] hover:text-[#FFA000] underline font-black"
+                className="ml-0.5 text-[11px] text-[#0066FF] hover:text-[#3B82F6] underline font-black"
               >
                 +Add
               </Link>
@@ -548,7 +548,7 @@ export default function BookSummaryPageClient() {
               onClick={() => setActiveTab(activeTab === "history" ? "studio" : "history")}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === "history"
-                  ? "border-[#FF5722]/40 bg-[#FF5722]/10 text-[#FF5722]"
+                  ? "border-[#0066FF]/40 bg-[#0066FF]/10 text-[#0066FF]"
                   : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900 shadow-xs"
               }`}
             >
@@ -563,14 +563,14 @@ export default function BookSummaryPageClient() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
         {/* Hero banner: Clean White Widescreen Studio Header */}
-        <div className="relative rounded-[28px] border border-slate-200/90 bg-gradient-to-r from-white via-slate-50 to-orange-50/40 p-6 sm:p-8 overflow-hidden shadow-xs">
+        <div className="relative rounded-[28px] border border-slate-200/90 bg-gradient-to-r from-white via-slate-50 to-blue-50/40 p-6 sm:p-8 overflow-hidden shadow-xs">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 z-10 relative">
             <div className="space-y-3 max-w-3xl">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
                 <button
                   type="button"
                   onClick={handleBackClick}
-                  className="inline-flex items-center gap-1.5 text-slate-500 hover:text-[#FF5722] transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-slate-500 hover:text-[#0066FF] transition cursor-pointer"
                 >
                   <ArrowLeft size={14} />
                   <span>Back to Video Modes</span>
@@ -580,7 +580,7 @@ export default function BookSummaryPageClient() {
               </div>
               <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 Book Summary{" "}
-                <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] bg-clip-text text-transparent">
                   Video Studio
                 </span>
               </h1>
@@ -594,7 +594,7 @@ export default function BookSummaryPageClient() {
               <div className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Format</div>
                 <div className="text-xs font-black text-slate-900 flex items-center gap-1 mt-0.5">
-                  <Sparkles size={12} className="text-[#FF5722]" />
+                  <Sparkles size={12} className="text-[#0066FF]" />
                   16:9 Widescreen
                 </div>
               </div>
@@ -604,7 +604,7 @@ export default function BookSummaryPageClient() {
               </div>
               <div className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pricing</div>
-                <div className="text-xs font-black text-[#FF5722] mt-0.5">1 Min = 1 Credit</div>
+                <div className="text-xs font-black text-[#0066FF] mt-0.5">1 Min = 1 Credit</div>
               </div>
             </div>
           </div>
@@ -649,7 +649,7 @@ export default function BookSummaryPageClient() {
               <button
                 type="button"
                 onClick={() => setActiveTab("studio")}
-                className="text-xs font-bold text-[#FF5722] hover:text-[#FFA000] transition"
+                className="text-xs font-bold text-[#0066FF] hover:text-[#3B82F6] transition"
               >
                 ← Back to Studio
               </button>
@@ -665,7 +665,7 @@ export default function BookSummaryPageClient() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("studio")}
-                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 text-sm font-black text-white shadow-md shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95"
+                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-5 py-2.5 text-sm font-black text-white shadow-md shadow-[#0066FF]/20 transition hover:brightness-110 active:scale-95"
                 >
                   <Sparkles size={14} />
                   Create Your First Book Summary
@@ -683,7 +683,7 @@ export default function BookSummaryPageClient() {
                   return (
                     <div
                       key={render.id}
-                      className="rounded-[28px] border border-slate-200 bg-white p-5 space-y-4 hover:border-[#FF5722]/40 hover:shadow-md transition-all duration-300 shadow-xs"
+                      className="rounded-[28px] border border-slate-200 bg-white p-5 space-y-4 hover:border-[#0066FF]/40 hover:shadow-md transition-all duration-300 shadow-xs"
                     >
                       {/* Thumbnail placeholder */}
                       <div className="aspect-video w-full rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
@@ -735,7 +735,7 @@ export default function BookSummaryPageClient() {
                               )
                             }
                             disabled={downloadingUrl === render.outputFile}
-                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3.5 py-1.5 text-xs font-black text-white shadow-xs shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-3.5 py-1.5 text-xs font-black text-white shadow-xs shadow-[#0066FF]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
                           >
                             <Download size={12} />
                             {downloadingUrl === render.outputFile ? "Downloading..." : "Download"}

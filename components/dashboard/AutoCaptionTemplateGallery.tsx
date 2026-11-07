@@ -66,7 +66,7 @@ export function AutoCaptionTemplateGallery() {
           "itnavideo_favorite_caption_styles",
           JSON.stringify(Array.from(next))
         );
-      } catch {}
+      } catch { }
       return next;
     });
   };
@@ -107,14 +107,14 @@ export function AutoCaptionTemplateGallery() {
   }, [allStyles, searchQuery, activeCategory, favorites]);
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-white selection:bg-[#FF5722] selection:text-white">
+    <div className="min-h-screen bg-[#070B14] text-white selection:bg-[#0066FF] selection:text-white">
       {/* Top Header & Navigation */}
       <header className="sticky top-0 z-50 bg-[#070B14]/90 backdrop-blur-xl border-b border-white/10 px-4 sm:px-8 py-4">
         <div className="max-w-[1700px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
               href="/dashboard/auto-caption"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#0E1526] hover:bg-[#131B2E] hover:border-[#FF5722]/50 px-3.5 py-2 text-xs font-black text-slate-300 hover:text-white transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#0E1526] hover:bg-[#131B2E] hover:border-[#0066FF]/50 px-3.5 py-2 text-xs font-black text-slate-300 hover:text-white transition"
             >
               <ArrowLeft size={14} />
               <span>Back to Studio</span>
@@ -123,7 +123,7 @@ export function AutoCaptionTemplateGallery() {
             <div>
               <h1 className="text-lg sm:text-2xl font-black text-white font-jakarta flex items-center gap-2">
                 Shorts Caption Template{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#3B82F6]">
                   Gallery
                 </span>
               </h1>
@@ -142,7 +142,7 @@ export function AutoCaptionTemplateGallery() {
                 placeholder="Search Shorts styles or fonts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#0E1526] pl-9 pr-8 py-2 text-xs font-semibold text-white placeholder-slate-400 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]/40 transition"
+                className="w-full rounded-xl border border-white/10 bg-[#0E1526] pl-9 pr-8 py-2 text-xs font-semibold text-white placeholder-slate-400 focus:border-[#0066FF] focus:outline-none focus:ring-1 focus:ring-[#0066FF]/40 transition"
               />
               {searchQuery && (
                 <button
@@ -157,7 +157,7 @@ export function AutoCaptionTemplateGallery() {
 
             <Link
               href="/dashboard/auto-caption"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2 text-xs font-black text-black shadow-lg shadow-[#FF5722]/20 hover:brightness-110 active:scale-95 transition"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#2563EB] px-4 py-2 text-xs font-black text-white shadow-lg shadow-[#0066FF]/20 hover:brightness-110 active:scale-95 transition"
             >
               <span>Open Studio</span>
               <ArrowRight size={13} />
@@ -175,11 +175,10 @@ export function AutoCaptionTemplateGallery() {
               key={tab.id}
               type="button"
               onClick={() => setActiveCategory(tab.id)}
-              className={`px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition cursor-pointer ${
-                activeCategory === tab.id
-                  ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/20 scale-[1.02]"
+              className={`px-4 py-2 rounded-xl text-xs font-black whitespace-nowrap transition cursor-pointer ${activeCategory === tab.id
+                  ? "bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-white shadow-md shadow-[#0066FF]/20 scale-[1.02]"
                   : "bg-[#0E1526] text-slate-300 border border-white/10 hover:border-white/25 hover:text-white"
-              }`}
+                }`}
             >
               {tab.label}
             </button>
@@ -201,14 +200,14 @@ export function AutoCaptionTemplateGallery() {
                 key={key}
                 onMouseEnter={() => setPlayingKey(key)}
                 onMouseLeave={() => setPlayingKey(null)}
-                className="group relative flex flex-col rounded-2xl border border-white/10 bg-[#0E1526] hover:border-[#FF5722]/50 transition-all duration-200 overflow-hidden shadow-xl hover:-translate-y-1"
+                className="group relative flex flex-col rounded-2xl border border-white/10 bg-[#0E1526] hover:border-[#0066FF]/50 transition-all duration-200 overflow-hidden shadow-xl hover:-translate-y-1"
               >
                 {/* 9:16 Video Player Container */}
                 <div className="relative aspect-[9/16] w-full bg-[#000000] overflow-hidden">
                   <video
                     ref={(el) => {
                       if (el) {
-                        if (isPlaying) el.play().catch(() => {});
+                        if (isPlaying) el.play().catch(() => { });
                         else {
                           el.pause();
                           el.currentTime = 0;
@@ -233,11 +232,10 @@ export function AutoCaptionTemplateGallery() {
                     <button
                       type="button"
                       onClick={(e) => toggleFavorite(e, key)}
-                      className={`pointer-events-auto flex h-6 w-6 items-center justify-center rounded-full transition cursor-pointer ${
-                        isFav
+                      className={`pointer-events-auto flex h-6 w-6 items-center justify-center rounded-full transition cursor-pointer ${isFav
                           ? "bg-amber-400 text-black shadow-md"
                           : "bg-black/60 text-slate-400 hover:text-amber-300"
-                      }`}
+                        }`}
                       title={isFav ? "Remove Favorite" : "Add Favorite"}
                     >
                       <Star size={11} className={isFav ? "fill-black" : ""} />
@@ -247,7 +245,7 @@ export function AutoCaptionTemplateGallery() {
                   {/* Center Play Button indicator */}
                   {!isPlaying && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 transition-transform group-hover:scale-110">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md group-hover:bg-[#FF5722] group-hover:text-black group-hover:border-transparent shadow-lg">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent shadow-lg">
                         <Play size={16} className="fill-current ml-0.5" />
                       </div>
                     </div>
@@ -281,7 +279,7 @@ export function AutoCaptionTemplateGallery() {
 
                   <Link
                     href={`/dashboard/auto-caption?style_id=${encodeURIComponent(key)}`}
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] py-2 text-[11px] font-black text-black shadow-md hover:brightness-110 active:scale-95 transition"
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#2563EB] py-2 text-[11px] font-black text-white shadow-md shadow-[#0066FF]/20 hover:brightness-110 active:scale-95 transition"
                   >
                     <span>Use This Style</span>
                     <ArrowRight size={11} />
@@ -307,7 +305,7 @@ export function AutoCaptionTemplateGallery() {
                 setSearchQuery("");
                 setActiveCategory("all");
               }}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] px-4 py-2 text-xs font-bold text-slate-200 hover:text-white hover:border-[#FF5722]/50 transition cursor-pointer"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] px-4 py-2 text-xs font-bold text-slate-200 hover:text-white hover:border-[#0066FF]/50 transition cursor-pointer"
             >
               Reset Filters
             </button>

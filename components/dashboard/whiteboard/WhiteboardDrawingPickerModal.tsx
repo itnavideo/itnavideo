@@ -54,7 +54,7 @@ export function WhiteboardDrawingPickerModal({
         {/* Header */}
         <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#FF6D00]/20 border border-[#FF6D00]/30 text-[#FFA726] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#0066FF]/20 border border-[#0066FF]/30 text-[#3B82F6] flex items-center justify-center">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
@@ -80,7 +80,7 @@ export function WhiteboardDrawingPickerModal({
               placeholder="Search drawings by name or concept (doctor, money, rocket, trophy...)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 rounded-xl border border-white/10 bg-[#070B14] text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#FF6D00] focus:ring-1 focus:ring-[#FF6D00]"
+              className="w-full pl-9 pr-8 py-2 rounded-xl border border-white/10 bg-[#070B14] text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF]"
             />
             {searchQuery && (
               <button
@@ -101,7 +101,7 @@ export function WhiteboardDrawingPickerModal({
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3 py-1 rounded-lg text-xs font-bold capitalize whitespace-nowrap transition cursor-pointer ${
                   selectedCategory === cat
-                    ? "bg-[#FF6D00] text-black font-black"
+                    ? "bg-[#0066FF] text-white font-bold"
                     : "bg-[#151E30] text-slate-300 hover:text-white"
                 }`}
               >
@@ -126,7 +126,7 @@ export function WhiteboardDrawingPickerModal({
                 }}
                 className={`flex flex-col items-center p-3.5 rounded-2xl border text-center transition-all cursor-pointer group ${
                   isSelected
-                    ? "bg-[#FF6D00]/15 border-[#FF6D00] ring-1 ring-[#FF6D00]/30 text-white"
+                    ? "bg-[#0066FF]/15 border-[#0066FF] ring-1 ring-[#0066FF]/30 text-white"
                     : "bg-[#151E30] border-white/10 hover:border-white/20 text-slate-300 hover:text-white"
                 }`}
               >
@@ -143,7 +143,7 @@ export function WhiteboardDrawingPickerModal({
                       <path
                         key={i}
                         d={stroke.d}
-                        stroke={stroke.colorKey === "accent" ? "#FF6D00" : stroke.colorKey === "highlight" ? "#FFA726" : stroke.colorKey === "danger" ? "#EF4444" : stroke.colorKey === "success" ? "#10B981" : "#FFFFFF"}
+                        stroke={stroke.colorKey === "accent" ? "#0066FF" : stroke.colorKey === "highlight" ? "#3B82F6" : stroke.colorKey === "danger" ? "#EF4444" : stroke.colorKey === "success" ? "#10B981" : "#FFFFFF"}
                       />
                     ))}
                   </svg>
@@ -157,7 +157,7 @@ export function WhiteboardDrawingPickerModal({
                 </span>
 
                 {isSelected && (
-                  <span className="mt-1 px-2 py-0.5 rounded-full bg-[#FF6D00] text-black text-[9px] font-black flex items-center gap-1">
+                  <span className="mt-1 px-2 py-0.5 rounded-full bg-[#0066FF] text-white text-[9px] font-bold flex items-center gap-1">
                     <Check className="w-2.5 h-2.5 stroke-[3]" />
                     Selected
                   </span>

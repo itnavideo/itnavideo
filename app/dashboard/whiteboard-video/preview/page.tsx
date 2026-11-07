@@ -38,7 +38,7 @@ const PREVIEW_DATA = {
         drawingId: "piggy_bank",
         label: "Seed Dream",
       },
-      accentColor: "#FF5722",
+      accentColor: "#0066FF",
     },
     {
       id: "wb-scene-2",
@@ -109,7 +109,7 @@ const PREVIEW_DATA = {
         metric: "Give up too early",
         context: "The inflection point where champions persist",
       },
-      accentColor: "#FFA000",
+      accentColor: "#3B82F6",
     },
     {
       id: "wb-scene-6",
@@ -171,7 +171,7 @@ const PREVIEW_DATA = {
         drawingId: "trophy_gold",
         label: "Ultimate Victory",
       },
-      accentColor: "#FF5722",
+      accentColor: "#0066FF",
     },
   ],
   showHand: true,

@@ -110,38 +110,41 @@ export default function BrandLogo({
               <tspan fill="#0066FF">Video</tspan>
             </text>
           </svg>
-          </svg>
+        </svg>
 
           {showBadge && (
-            <span className={`rounded-md border ${badgeStyle} ${s.badge} font-black uppercase tracking-wider shrink-0`}>
-              AI STUDIO
-            </span>
-          )}
-        </span>
-      )}
-      {showTagline && (
-        <span className={`mt-0.5 block ${s.tagline} font-medium leading-snug ${taglineColor}`}>
-          Create stunning videos with AI. No editing needed.
+        <span className={`rounded-md border ${badgeStyle} ${s.badge} font-black uppercase tracking-wider shrink-0`}>
+          AI STUDIO
         </span>
       )}
     </span>
+  )
+}
+{
+  showTagline && (
+    <span className={`mt-0.5 block ${s.tagline} font-medium leading-snug ${taglineColor}`}>
+      Create stunning videos with AI. No editing needed.
+    </span>
+  )
+}
+    </span >
   );
 
-  if (!href || href === '') {
-    return (
-      <span aria-label="ItnaVideo" className="group inline-flex items-center rounded-xl outline-none">
-        {content}
-      </span>
-    );
-  }
-
+if (!href || href === '') {
   return (
-    <Link
-      href={href}
-      aria-label="ItnaVideo"
-      className="group inline-flex items-center rounded-xl outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500"
-    >
+    <span aria-label="ItnaVideo" className="group inline-flex items-center rounded-xl outline-none">
       {content}
-    </Link>
+    </span>
   );
+}
+
+return (
+  <Link
+    href={href}
+    aria-label="ItnaVideo"
+    className="group inline-flex items-center rounded-xl outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500"
+  >
+    {content}
+  </Link>
+);
 }

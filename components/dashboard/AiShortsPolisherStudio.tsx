@@ -1167,7 +1167,7 @@ export function AiShortsPolisherStudio({
           <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-[#3B82F6] border border-blue-500/20">
                   <Sparkles size={18} />
                 </div>
                 <div>
@@ -1182,7 +1182,7 @@ export function AiShortsPolisherStudio({
               <button
                 type="button"
                 onClick={() => setCalloutTab("arrows")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "arrows" ? "bg-orange-500 text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "arrows" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
                   }`}
               >
                 <CornerDownLeft size={13} />
@@ -1191,7 +1191,7 @@ export function AiShortsPolisherStudio({
               <button
                 type="button"
                 onClick={() => setCalloutTab("formula")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "formula" ? "bg-orange-500 text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "formula" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
                   }`}
               >
                 <Calculator size={13} />
@@ -1200,7 +1200,7 @@ export function AiShortsPolisherStudio({
               <button
                 type="button"
                 onClick={() => setCalloutTab("comparison")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "comparison" ? "bg-orange-500 text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "comparison" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
                   }`}
               >
                 <Columns size={13} />
@@ -1219,7 +1219,7 @@ export function AiShortsPolisherStudio({
                     onChange={(e) =>
                       onCurvedArrowConfigChange?.({ ...curvedArrowConfig, enabled: e.target.checked })
                     }
-                    className="rounded border-zinc-700 bg-zinc-800 text-orange-500 focus:ring-orange-500 h-4 w-4"
+                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
                   />
                 </label>
 
@@ -1285,7 +1285,7 @@ export function AiShortsPolisherStudio({
                     onChange={(e) =>
                       onEquationFormulaConfigChange?.({ ...equationFormulaConfig, enabled: e.target.checked })
                     }
-                    className="rounded border-zinc-700 bg-zinc-800 text-orange-500 focus:ring-orange-500 h-4 w-4"
+                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
                   />
                 </label>
 
@@ -1367,7 +1367,7 @@ export function AiShortsPolisherStudio({
                     onChange={(e) =>
                       onComparisonBannerConfigChange?.({ ...comparisonBannerConfig, enabled: e.target.checked })
                     }
-                    className="rounded border-zinc-700 bg-zinc-800 text-orange-500 focus:ring-orange-500 h-4 w-4"
+                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
                   />
                 </label>
 

@@ -40,7 +40,7 @@ type TabType = "kinetic" | "templates";
 type KineticFilterCategory = "all" | "single-word" | "line" | "stack" | "typewriter" | "editorial";
 
 const COLOR_PRESETS = [
-  { name: "Flame Orange", hex: "#FF5722" },
+  { name: "Electric Blue", hex: "#0066FF" },
   { name: "Neon Gold", hex: "#FFE14D" },
   { name: "Electric Cyan", hex: "#00E5FF" },
   { name: "Hot Pink", hex: "#FF4081" },
@@ -175,7 +175,7 @@ export function AutoCaptionExploreModal({
         {/* ── Modal Header ── */}
         <div className="flex items-center justify-between px-5 sm:px-8 py-4 border-b border-slate-200 bg-slate-50/70 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-white shadow-sm shadow-[#FF5722]/30">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0052CC] to-[#0066FF] text-white shadow-sm shadow-[#0066FF]/30">
               <Sparkles size={20} />
             </div>
             <div>
@@ -183,7 +183,7 @@ export function AutoCaptionExploreModal({
                 <h2 className="text-base sm:text-lg font-black text-slate-900 font-jakarta">
                   Explore Styles &amp; Templates
                 </h2>
-                <span className="rounded-full bg-orange-100 text-[#FF5722] text-[10px] font-black px-2 py-0.5 border border-orange-200">
+                <span className="rounded-full bg-blue-100 text-[#0066FF] text-[10px] font-black px-2 py-0.5 border border-blue-200">
                   50+ Kinetic Styles
                 </span>
               </div>
@@ -205,7 +205,7 @@ export function AutoCaptionExploreModal({
                     : "hover:text-slate-900"
                 }`}
               >
-                <Type size={13} className="text-[#FF5722]" />
+                <Type size={13} className="text-[#0066FF]" />
                 <span>Caption Style Templates (Names Only)</span>
               </button>
               <button
@@ -213,7 +213,7 @@ export function AutoCaptionExploreModal({
                 onClick={() => setActiveTab("kinetic")}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl transition cursor-pointer ${
                   activeTab === "kinetic"
-                    ? "bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white shadow-xs font-black"
+                    ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-xs font-black"
                     : "hover:text-slate-900"
                 }`}
               >
@@ -239,7 +239,7 @@ export function AutoCaptionExploreModal({
             type="button"
             onClick={() => setActiveTab("templates")}
             className={`flex-1 py-2 text-xs font-bold rounded-lg text-center transition ${
-              activeTab === "templates" ? "bg-white text-[#FF5722] shadow-xs" : "text-slate-600"
+              activeTab === "templates" ? "bg-white text-[#0066FF] shadow-xs" : "text-slate-600"
             }`}
           >
             Style Templates (Names Only)
@@ -248,7 +248,7 @@ export function AutoCaptionExploreModal({
             type="button"
             onClick={() => setActiveTab("kinetic")}
             className={`flex-1 py-2 text-xs font-bold rounded-lg text-center transition ${
-              activeTab === "kinetic" ? "bg-white text-[#FF5722] shadow-xs" : "text-slate-600"
+              activeTab === "kinetic" ? "bg-white text-[#0066FF] shadow-xs" : "text-slate-600"
             }`}
           >
             Kinetic Styles (With Videos)
@@ -279,7 +279,7 @@ export function AutoCaptionExploreModal({
                       <span className="rounded-md bg-black/60 backdrop-blur-md px-2 py-0.5 text-[10px] font-black text-white/90 uppercase tracking-wider">
                         #{activeKinetic.index + 1} · {activeKinetic.name}
                       </span>
-                      <span className="rounded-md bg-[#FF5722]/80 backdrop-blur-md px-1.5 py-0.5 text-[9px] font-bold text-white uppercase">
+                      <span className="rounded-md bg-[#0066FF]/80 backdrop-blur-md px-1.5 py-0.5 text-[9px] font-bold text-white uppercase">
                         {activeKinetic.layout === "o"
                           ? "One Word"
                           : activeKinetic.layout === "l"
@@ -310,7 +310,7 @@ export function AutoCaptionExploreModal({
                         step={0.1}
                         value={currentTime}
                         onChange={(e) => setCurrentTime(parseFloat(e.target.value))}
-                        className="flex-1 accent-[#FF5722] cursor-pointer h-1.5 bg-slate-700 rounded-lg"
+                        className="flex-1 accent-[#0066FF] cursor-pointer h-1.5 bg-slate-700 rounded-lg"
                       />
                       <span className="text-[11px] font-mono text-slate-400 w-10 text-right">
                         {currentTime.toFixed(1)}s
@@ -320,7 +320,7 @@ export function AutoCaptionExploreModal({
                     {/* Color Presets */}
                     <div className="flex items-center justify-between pt-1">
                       <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
-                        <Palette size={11} className="text-[#FF5722]" /> Accent
+                        <Palette size={11} className="text-[#0066FF]" /> Accent
                       </span>
                       <div className="flex items-center gap-1.5">
                         {COLOR_PRESETS.map((c) => (
@@ -347,7 +347,7 @@ export function AutoCaptionExploreModal({
                   <button
                     type="button"
                     onClick={() => handleUseKinetic(activeKinetic.name)}
-                    className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white text-xs sm:text-sm font-black transition-all hover:brightness-105 active:scale-98 shadow-lg shadow-[#FF5722]/30 flex items-center justify-center gap-2 cursor-pointer font-jakarta"
+                    className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white text-xs sm:text-sm font-bold transition-all hover:brightness-105 active:scale-98 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 cursor-pointer font-jakarta"
                   >
                     <Sparkles size={15} />
                     <span>Use &quot;{activeKinetic.name}&quot; &amp; Start →</span>
@@ -372,7 +372,7 @@ export function AutoCaptionExploreModal({
                       placeholder="Search 50 styles (e.g., Pop, Glitch, Neon, Retro)..."
                       value={kineticSearch}
                       onChange={(e) => setKineticSearch(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#FF5722] focus:outline-none transition"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#0066FF] focus:outline-none transition"
                     />
                     {kineticSearch && (
                       <button
@@ -390,7 +390,7 @@ export function AutoCaptionExploreModal({
                       type="checkbox"
                       checked={autoSwitch}
                       onChange={(e) => setAutoSwitch(e.target.checked)}
-                      className="rounded text-[#FF5722] focus:ring-[#FF5722] h-4 w-4"
+                      className="rounded text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
                     />
                     <span>Auto-switch every 3.5s</span>
                   </label>
@@ -412,7 +412,7 @@ export function AutoCaptionExploreModal({
                       onClick={() => setKineticCategory(cat.id as KineticFilterCategory)}
                       className={`shrink-0 px-3 py-1.5 rounded-xl border transition cursor-pointer ${
                         kineticCategory === cat.id
-                          ? "bg-[#FF5722] border-[#FF5722] text-white shadow-xs font-black"
+                          ? "bg-[#0066FF] border-[#0066FF] text-white shadow-xs font-black"
                           : "border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
                       }`}
                     >
@@ -432,7 +432,7 @@ export function AutoCaptionExploreModal({
                           onClick={() => setActiveKineticIndex(style.index)}
                           className={`relative p-3 rounded-2xl border text-left cursor-pointer transition-all group ${
                             isSelected
-                              ? "border-[#FF5722] bg-orange-50/70 shadow-sm ring-2 ring-[#FF5722]/30"
+                              ? "border-[#0066FF] bg-blue-50/70 shadow-sm ring-2 ring-[#0066FF]/30"
                               : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/70"
                           }`}
                         >
@@ -440,7 +440,7 @@ export function AutoCaptionExploreModal({
                             <span
                               className={`text-[10px] font-mono font-black px-1.5 py-0.5 rounded-md ${
                                 isSelected
-                                  ? "bg-[#FF5722] text-white"
+                                  ? "bg-[#0066FF] text-white"
                                   : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
                               }`}
                             >
@@ -478,8 +478,8 @@ export function AutoCaptionExploreModal({
                               }}
                               className={`text-[10px] font-bold px-2 py-0.5 rounded-md transition cursor-pointer ${
                                 isSelected
-                                  ? "bg-[#FF5722] text-white hover:bg-[#E64A19]"
-                                  : "bg-slate-100 text-slate-700 hover:bg-[#FF5722] hover:text-white"
+                                  ? "bg-[#0066FF] text-white hover:bg-[#0052CC]"
+                                  : "bg-slate-100 text-slate-700 hover:bg-[#0066FF] hover:text-white"
                               }`}
                             >
                               Use Style
@@ -507,7 +507,7 @@ export function AutoCaptionExploreModal({
                     placeholder="Search templates (e.g., Hormozi, Beast, Glow, Minimal)..."
                     value={templateSearch}
                     onChange={(e) => setTemplateSearch(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#FF5722] focus:outline-none transition"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3.5 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:border-[#0066FF] focus:outline-none transition"
                   />
                 </div>
 
@@ -526,7 +526,7 @@ export function AutoCaptionExploreModal({
                       onClick={() => setTemplateCategory(tab.id)}
                       className={`shrink-0 px-3 py-1.5 rounded-xl border transition cursor-pointer ${
                         templateCategory === tab.id
-                          ? "bg-[#FF5722] border-[#FF5722] text-white shadow-xs font-black"
+                          ? "bg-[#0066FF] border-[#0066FF] text-white shadow-xs font-black"
                           : "border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
                       }`}
                     >
@@ -546,7 +546,7 @@ export function AutoCaptionExploreModal({
                   return (
                     <div
                       key={key}
-                      className="group relative rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs hover:shadow-md hover:border-orange-300 transition-all flex flex-col"
+                      className="group relative rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs hover:shadow-md hover:border-blue-300 transition-all flex flex-col"
                     >
                       {/* Video / Poster Box */}
                       <div className="relative aspect-[9/16] bg-slate-900 overflow-hidden">
@@ -568,7 +568,7 @@ export function AutoCaptionExploreModal({
                           <button
                             type="button"
                             onClick={() => handleUseTemplate(key)}
-                            className="h-10 w-10 rounded-full bg-[#FF5722] hover:bg-[#E64A19] text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition cursor-pointer"
+                            className="h-10 w-10 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition cursor-pointer"
                           >
                             <Play size={16} className="ml-0.5" />
                           </button>
@@ -589,7 +589,7 @@ export function AutoCaptionExploreModal({
                         <button
                           type="button"
                           onClick={() => handleUseTemplate(key)}
-                          className="w-full py-1.5 rounded-xl bg-orange-50 hover:bg-[#FF5722] hover:text-white border border-orange-200 text-xs font-bold text-[#FF5722] transition text-center cursor-pointer"
+                          className="w-full py-1.5 rounded-xl bg-blue-50 hover:bg-[#0066FF] hover:text-white border border-blue-200 text-xs font-bold text-[#0066FF] transition text-center cursor-pointer"
                         >
                           Use Template
                         </button>

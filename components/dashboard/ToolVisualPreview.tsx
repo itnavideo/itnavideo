@@ -86,20 +86,20 @@ export default function ToolVisualPreview({
     case "image-to-video":
       return (
         <div className={`relative w-full h-40 sm:h-44 rounded-xl bg-slate-900 overflow-hidden border border-slate-800 flex items-center justify-center ${className}`}>
-          <div className="absolute inset-0 bg-gradient-to-tr from-amber-900/40 via-slate-900 to-indigo-950/60 animate-pulse" />
-          <div className="relative z-10 w-11/12 h-4/5 rounded-lg border border-amber-500/30 bg-slate-950/80 p-3 flex flex-col justify-between shadow-2xl backdrop-blur-sm">
+          <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/40 via-slate-900 to-indigo-950/60 animate-pulse" />
+          <div className="relative z-10 w-11/12 h-4/5 rounded-lg border border-blue-500/30 bg-slate-950/80 p-3 flex flex-col justify-between shadow-2xl backdrop-blur-sm">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black tracking-wider text-amber-400 uppercase bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-[10px] font-black tracking-wider text-blue-400 uppercase bg-blue-500/20 border border-blue-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
                 <Sparkles className="w-2.5 h-2.5" /> 16:9 Cinema Parallax
               </span>
               <span className="text-[9px] font-mono text-slate-400">4K Render  30fps</span>
             </div>
             <div className="flex items-center gap-3 my-1">
-              <div className="w-10 h-11 rounded-md bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-black font-black text-xs shadow-md">
+              <div className="w-10 h-11 rounded-md bg-gradient-to-tr from-blue-600 to-[#0066FF] flex items-center justify-center text-white font-black text-xs shadow-md">
                 AI
               </div>
               <div className="flex-1 space-y-1.5">
-                <div className="h-2 bg-amber-400/30 rounded-full w-3/4 animate-pulse" />
+                <div className="h-2 bg-blue-400/30 rounded-full w-3/4 animate-pulse" />
                 <div className="h-2 bg-slate-700/60 rounded-full w-1/2" />
               </div>
             </div>
@@ -129,11 +129,11 @@ export default function ToolVisualPreview({
               <span className="text-[8px] font-extrabold text-emerald-400 bg-emerald-500/20 px-1.5 py-0.5 rounded-full">
                 9:16 REEL
               </span>
-              <Flame className="w-3 h-3 text-orange-400 animate-bounce" />
+              <Flame className="w-3 h-3 text-blue-400 animate-bounce" />
             </div>
             <div className="text-center space-y-1 my-1">
               <span className="block text-[10px] font-black text-slate-400">THIS IS HOW YOU</span>
-              <span className="inline-block text-xs font-black text-slate-900 bg-amber-400 px-2 py-0.5 rounded shadow-lg transform -rotate-2 scale-105 animate-pulse">
+              <span className="inline-block text-xs font-black text-white bg-[#0066FF] px-2 py-0.5 rounded shadow-lg transform -rotate-2 scale-105 animate-pulse">
                 GO VIRAL 
               </span>
             </div>

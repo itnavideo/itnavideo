@@ -320,7 +320,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5 mb-1.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-orange-50 text-orange-600 border border-orange-200">
+              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-[#0066FF] border border-blue-200">
                 <Split className="w-3.5 h-3.5" />
                 9:16 Vertical • 50/50 Dual Split
               </span>
@@ -344,7 +344,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition"
             >
-              <Eye className="w-4 h-4 text-orange-500" />
+              <Eye className="w-4 h-4 text-[#0066FF]" />
               Live Preview
             </button>
 
@@ -353,12 +353,12 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               disabled={!isReadyToRender}
               className={`relative inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm ${
                 isReadyToRender
-                  ? "bg-orange-500 hover:bg-orange-600 text-white cursor-pointer"
+                  ? "bg-[#0066FF] hover:bg-[#0052CC] text-white cursor-pointer"
                   : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
               }`}
             >
               {isReadyToRender && (
-                <BorderBeam size={80} duration={4} colorFrom="#FF5722" colorTo="#FFA000" />
+                <BorderBeam size={80} duration={4} colorFrom="#0066FF" colorTo="#2563EB" />
               )}
               {isGenerating ? (
                 <>
@@ -401,7 +401,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                   <span
                     className={`ml-1 px-1.5 py-0.5 rounded text-[10px] ${
                       isActive
-                        ? "bg-slate-800 text-orange-300"
+                        ? "bg-slate-800 text-blue-300"
                         : "bg-slate-100 text-slate-500"
                     }`}
                   >
@@ -432,7 +432,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                     value={topicTitle}
                     onChange={(e) => onTopicTitleChange(e.target.value)}
                     placeholder="e.g. ATOMIC HABITS: The 1% Rule Explained"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition"
                   />
                   <Tag className="absolute right-3.5 top-3 w-4 h-4 text-slate-400" />
                 </div>
@@ -445,7 +445,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               <div className="border border-slate-200 rounded-xl p-5 bg-slate-50/50">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center text-[#0066FF] font-bold text-xs">
                       <User className="w-4 h-4" />
                     </div>
                     <div>
@@ -480,7 +480,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                 {creatorVideoFile ? (
                   <div className="relative flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center text-orange-600">
+                      <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-[#0066FF]">
                         <Video className="w-5 h-5" />
                       </div>
                       <div>
@@ -517,11 +517,11 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                     onClick={() => creatorInputRef.current?.click()}
                     className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
                       isDraggingCreator
-                        ? "border-orange-500 bg-orange-50/50"
+                        ? "border-[#0066FF] bg-blue-50/50"
                         : "border-slate-300 hover:border-orange-400 bg-white"
                     }`}
                   >
-                    <UploadCloud className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+                    <UploadCloud className="w-8 h-8 text-[#0066FF] mx-auto mb-2" />
                     <p className="text-sm font-semibold text-slate-800">
                       Upload Creator Talking-Head Video
                     </p>
@@ -536,7 +536,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               <div className="border border-slate-200 rounded-xl p-5 bg-slate-50/50">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center text-[#0066FF] font-bold text-xs">
                       <Layers className="w-4 h-4" />
                     </div>
                     <div>
@@ -582,11 +582,11 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                   onClick={() => visualsInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
                     isDraggingVisuals
-                      ? "border-orange-500 bg-orange-50/50"
+                      ? "border-[#0066FF] bg-blue-50/50"
                       : "border-slate-300 hover:border-orange-400 bg-white"
                   }`}
                 >
-                  <Plus className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+                  <Plus className="w-8 h-8 text-[#0066FF] mx-auto mb-2" />
                   <p className="text-sm font-semibold text-slate-800">
                     Add Explanation Images & Video Clips
                   </p>
@@ -611,7 +611,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                           />
                         ) : (
                           <div className="w-full h-full bg-slate-900 flex items-center justify-center text-white text-xs">
-                            <Film className="w-5 h-5 text-orange-400 mb-1" />
+                            <Film className="w-5 h-5 text-[#3B82F6] mb-1" />
                           </div>
                         )}
                         <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-between p-2">
@@ -658,7 +658,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                       onClick={() => setCaptionCategoryFilter(cat)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
                         captionCategoryFilter === cat
-                          ? "bg-orange-500 text-white shadow-xs"
+                          ? "bg-[#0066FF] text-white shadow-xs"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       }`}
                     >
@@ -678,7 +678,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                       onClick={() => onSubtitleStyleChange(style.id)}
                       className={`p-3.5 rounded-xl border cursor-pointer transition relative ${
                         isSelected
-                          ? "border-orange-500 bg-orange-50/30 ring-2 ring-orange-500/20"
+                          ? "border-[#0066FF] bg-blue-50/30 ring-2 ring-orange-500/20"
                           : "border-slate-200 hover:border-slate-300 bg-white"
                       }`}
                     >
@@ -732,12 +732,12 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Volume2 className="w-4 h-4 text-orange-500" />
+                    <Volume2 className="w-4 h-4 text-[#0066FF]" />
                     <span className="text-xs font-bold text-slate-800">
                       Background Music Volume (Default: 12%)
                     </span>
                   </div>
-                  <span className="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
+                  <span className="text-xs font-bold text-[#0066FF] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                     {Math.round(bgmVolume * 100)}%
                   </span>
                 </div>
@@ -760,7 +760,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               {/* SFX Toggle */}
               <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-slate-50/50">
                 <div className="flex items-center gap-2.5">
-                  <Zap className="w-4 h-4 text-orange-500" />
+                  <Zap className="w-4 h-4 text-[#0066FF]" />
                   <div>
                     <p className="text-xs font-bold text-slate-800">
                       Subtle Motion Sound Effects (SFX)
@@ -773,7 +773,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                 <button
                   onClick={() => onEnableSfxChange(!enableSfx)}
                   className={`w-11 h-6 flex items-center rounded-full p-1 transition cursor-pointer ${
-                    enableSfx ? "bg-orange-500 justify-end" : "bg-slate-300 justify-start"
+                    enableSfx ? "bg-[#0066FF] justify-end" : "bg-slate-300 justify-start"
                   }`}
                 >
                   <div className="w-4 h-4 rounded-full bg-white shadow-xs" />
@@ -829,7 +829,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                         onClick={() => onBgmTrackIdChange(track.id)}
                         className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition ${
                           isSelected
-                            ? "border-orange-500 bg-orange-50/30 ring-1 ring-orange-500/30"
+                            ? "border-[#0066FF] bg-blue-50/30 ring-1 ring-orange-500/30"
                             : "border-slate-200 hover:border-slate-300 bg-white"
                         }`}
                       >
@@ -850,7 +850,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                             }}
                             className={`p-2 rounded-lg transition ${
                               isPlaying
-                                ? "bg-orange-500 text-white"
+                                ? "bg-[#0066FF] text-white"
                                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                             }`}
                             title={isPlaying ? "Pause audition" : "Play audition"}
@@ -888,7 +888,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                   value={editorialTranscript}
                   onChange={(e) => onEditorialTranscriptChange(e.target.value)}
                   placeholder="Paste or edit the spoken narration script here. Your subtitles will follow these exact words..."
-                  className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 font-mono transition"
+                  className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] font-mono transition"
                 />
                 <Edit3 className="absolute right-3.5 top-3.5 w-4 h-4 text-slate-400" />
               </div>
@@ -929,7 +929,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
           <div className="sticky top-6 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Tv className="w-3.5 h-3.5 text-orange-500" />
+                <Tv className="w-3.5 h-3.5 text-[#0066FF]" />
                 9:16 Live Preview (50/50 Split)
               </span>
               <button
@@ -938,12 +938,12 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               >
                 {isPlayingPreview ? (
                   <>
-                    <Pause className="w-3.5 h-3.5 text-orange-500" />
+                    <Pause className="w-3.5 h-3.5 text-[#0066FF]" />
                     Pause
                   </>
                 ) : (
                   <>
-                    <Play className="w-3.5 h-3.5 text-orange-500" />
+                    <Play className="w-3.5 h-3.5 text-[#0066FF]" />
                     Simulate
                   </>
                 )}
@@ -953,7 +953,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
             {/* 9:16 Vertical Canvas Container */}
             <div className="relative mx-auto w-full max-w-[280px] aspect-[9/16] rounded-2xl overflow-hidden shadow-md border-4 border-slate-900 bg-[#FAFAFA] flex flex-col">
               {/* TOP 50%: EXPLANATION ZONE */}
-              <div className="relative h-1/2 w-full bg-slate-100 overflow-hidden border-b border-orange-500/40">
+              <div className="relative h-1/2 w-full bg-slate-100 overflow-hidden border-b border-[#0066FF]/40">
                 {explanationItems.length > 0 ? (
                   <div className="w-full h-full relative">
                     {explanationItems[activeSlideIndex]?.type === "image" ? (
@@ -964,7 +964,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
                       />
                     ) : (
                       <div className="w-full h-full bg-slate-900 flex items-center justify-center">
-                        <Film className="w-8 h-8 text-orange-400" />
+                        <Film className="w-8 h-8 text-[#3B82F6]" />
                       </div>
                     )}
                     <div className="absolute top-2 left-2 bg-slate-900/80 text-white text-[9px] font-bold px-2 py-0.5 rounded backdrop-blur-xs">
@@ -985,7 +985,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               </div>
 
               {/* CENTER SPLIT DIVIDER BAR */}
-              <div className="relative z-10 w-full h-1 bg-gradient-to-r from-orange-500 via-amber-400 to-orange-500 shadow-sm flex items-center justify-center">
+              <div className="relative z-10 w-full h-1 bg-gradient-to-r from-[#0066FF] via-amber-400 to-[#2563EB] shadow-sm flex items-center justify-center">
                 <div className="absolute bg-slate-900 text-white text-[8px] font-bold px-2 py-0.5 rounded-full border border-orange-400 shadow-xs max-w-[85%] truncate">
                   {topicTitle.trim() || "50/50 EXPLAINER"}
                 </div>
@@ -1036,7 +1036,7 @@ export const SplitScreenExplainerStudio: React.FC<SplitScreenExplainerStudioProp
               {/* Live Scrubber Line */}
               <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-200">
                 <div
-                  className="h-full bg-orange-500 transition-all duration-100"
+                  className="h-full bg-[#0066FF] transition-all duration-100"
                   style={{ width: `${previewProgress}%` }}
                 />
               </div>

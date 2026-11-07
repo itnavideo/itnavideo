@@ -22,6 +22,7 @@ const GROQ_TRANSLATION_URL = 'https://api.groq.com/openai/v1/audio/translations'
 
 /** Convert user language selection to Groq Whisper language code */
 export function toGroqLanguageCode(lang: string): string | undefined {
+  if (!lang || lang.toLowerCase() === 'auto') return undefined;
   const map: Record<string, string> = {
     kn: 'kn', kannada: 'kn',
     hi: 'hi', hindi: 'hi', hinglish: 'hi',

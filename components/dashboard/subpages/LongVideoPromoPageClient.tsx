@@ -454,7 +454,7 @@ export default function LongVideoPromoPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-orange-500 selection:text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#0066FF] selection:text-white">
       {/* Premium Header */}
       <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -470,8 +470,8 @@ export default function LongVideoPromoPage() {
 
           <div className="flex items-center gap-4">
             {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-orange-500/20 bg-orange-500/10 px-4 py-1.5 text-xs font-black text-orange-400 shadow-md shadow-orange-500/5">
-                <Zap size={13} className="fill-orange-400" />
+              <div className="hidden sm:flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-1.5 text-xs font-black text-[#3B82F6] shadow-md shadow-[#0066FF]/10">
+                <Zap size={13} className="fill-[#3B82F6]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
             )}

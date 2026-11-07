@@ -423,7 +423,7 @@ export function AutoCaptionBeforeAfterPlayer({
                     onPause={() => setIsPlaying(false)}
                   />
                   <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
-                    <FileAudio size={12} className="text-[#FF7043]" />
+                    <FileAudio size={12} className="text-[#3B82F6]" />
                     <span className="truncate max-w-[120px]">{uploadedFile?.name}</span>
                   </div>
                 </>
@@ -459,7 +459,7 @@ export function AutoCaptionBeforeAfterPlayer({
                   title="Drag Up/Down to Reposition Captions"
                 >
                   {/* WhiteStair Interactive Caption Layer Bounding Box */}
-                  <div className="relative p-2 rounded-2xl border border-indigo-400/80 bg-indigo-500/10 hover:border-[#FF5722] hover:bg-[#FF5722]/10 transition-all duration-150 shadow-lg">
+                  <div className="relative p-2 rounded-2xl border border-blue-400/80 bg-blue-500/10 hover:border-[#0066FF] hover:bg-[#0066FF]/10 transition-all duration-150 shadow-lg">
                     {/* 4 Corner Anchor Handles (WhiteStair Signature) */}
                     <div className="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
                     <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
@@ -491,21 +491,21 @@ export function AutoCaptionBeforeAfterPlayer({
                         currentWordObj={currentWordObj}
                       />
                     ) : null}
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/drag:opacity-100 transition-opacity bg-black/90 text-[9px] text-[#FFA000] font-black px-2.5 py-0.5 rounded-full whitespace-nowrap pointer-events-none border border-[#FF5722]/40 shadow-lg">
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/drag:opacity-100 transition-opacity bg-black/90 text-[9px] text-blue-300 font-black px-2.5 py-0.5 rounded-full whitespace-nowrap pointer-events-none border border-[#0066FF]/40 shadow-lg">
                       ↕ Drag to Reposition (Top / Middle / Bottom)
                     </div>
                   </div>
                 </div>
                 {/* 9:16 Vertical Safe Zone Lines (WhiteStair Style) */}
                 {safeZones && (
-                  <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-3 border-2 border-dashed border-amber-400/40 rounded-[20px]">
-                    <div className="h-[12%] border-b border-dashed border-amber-400/35 flex items-start justify-end pr-1">
-                      <span className="text-[8px] font-mono text-amber-300/90 bg-black/70 px-1.5 py-0.5 rounded">
+                  <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-3 border-2 border-dashed border-blue-400/40 rounded-[20px]">
+                    <div className="h-[12%] border-b border-dashed border-blue-400/35 flex items-start justify-end pr-1">
+                      <span className="text-[8px] font-mono text-blue-300/90 bg-black/70 px-1.5 py-0.5 rounded">
                         Top Header Safe Zone
                       </span>
                     </div>
-                    <div className="h-[20%] border-t border-dashed border-amber-400/35 flex items-end justify-end pr-1 pb-1">
-                      <span className="text-[8px] font-mono text-amber-300/90 bg-black/70 px-1.5 py-0.5 rounded">
+                    <div className="h-[20%] border-t border-dashed border-blue-400/35 flex items-end justify-end pr-1 pb-1">
+                      <span className="text-[8px] font-mono text-blue-300/90 bg-black/70 px-1.5 py-0.5 rounded">
                         Bottom Scrubber Safe Zone
                       </span>
                     </div>
@@ -529,8 +529,8 @@ export function AutoCaptionBeforeAfterPlayer({
                 aria-label="Play video"
                 className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px] transition-all cursor-pointer group z-20"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FF5722] text-black shadow-2xl transition-transform group-hover:scale-110">
-                  <Play size={24} className="fill-current ml-1 text-black" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0066FF] text-white shadow-2xl transition-transform group-hover:scale-110">
+                  <Play size={24} className="fill-current ml-1 text-white" />
                 </div>
               </button>
             ) : null}
@@ -538,7 +538,7 @@ export function AutoCaptionBeforeAfterPlayer({
             {/* Bottom Scrub Progress Line */}
             <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 z-20">
               <div
-                className="h-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] transition-all duration-150"
+                className="h-full bg-gradient-to-r from-[#0066FF] to-[#3B82F6] transition-all duration-150"
                 style={{
                   width: duration > 0 ? `${(playbackTime / duration) * 100}%` : "0%",
                 }}
@@ -551,9 +551,9 @@ export function AutoCaptionBeforeAfterPlayer({
             <button
               type="button"
               onClick={togglePlay}
-              className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-[#FF7043] transition cursor-pointer font-bold"
+              className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-[#0066FF] transition cursor-pointer font-bold"
             >
-              {isPlaying ? <Pause size={14} className="text-[#FF7043]" /> : <Play size={14} className="fill-current text-[#FF7043]" />}
+              {isPlaying ? <Pause size={14} className="text-[#0066FF]" /> : <Play size={14} className="fill-current text-[#0066FF]" />}
               <span>{isPlaying ? "Pause" : "Play Preview"}</span>
             </button>
 
@@ -564,7 +564,7 @@ export function AutoCaptionBeforeAfterPlayer({
             <button
               type="button"
               onClick={toggleMute}
-              className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#FF7043] transition cursor-pointer"
+              className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#0066FF] transition cursor-pointer"
             >
               {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} className="text-emerald-500" />}
               <span>{isMuted ? "Unmute" : "Muted"}</span>

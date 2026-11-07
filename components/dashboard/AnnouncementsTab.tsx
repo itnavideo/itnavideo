@@ -20,7 +20,7 @@ export default function AnnouncementsTab() {
       date: "September 2026",
       title: "1080p Full HD Cloud Rendering",
       badge: "Performance",
-      badgeColor: "bg-amber-500/10 text-amber-700 border-amber-500/30",
+      badgeColor: "bg-blue-500/10 text-blue-400 border-blue-500/30",
       description:
         "All 10 creation studios now render directly on our dedicated serverless cloud render fleet. Export 1080p Full HD 30/60 FPS MP4 videos in ~30 seconds without putting any CPU or RAM stress on your laptop.",
       highlights: [
@@ -35,7 +35,7 @@ export default function AnnouncementsTab() {
       date: "September 2026",
       title: "Automated Instagram Reels Safe-Zone Calibration",
       badge: "Algorithm",
-      badgeColor: "bg-orange-500/10 text-[#FF5722] border-orange-500/30",
+      badgeColor: "bg-blue-500/10 text-[#0066FF] border-blue-500/30",
       description:
         "Auto Caption and Kinetic Typography templates now automatically position subtitles between Y=850px and Y=1250px, ensuring zero overlap with Instagram handles, captions boxes, audio pills, or TikTok side icons.",
       highlights: [
@@ -81,13 +81,13 @@ export default function AnnouncementsTab() {
     <div className="space-y-8 animate-fadeIn">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-[28px] bg-[#0D111D] border border-white/10 p-6 sm:p-8 shadow-2xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-orange-400 mb-3">
-          <Sparkles size={14} className="text-[#FF5722]" />
+        <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-blue-400 mb-3">
+          <Sparkles size={14} className="text-[#0066FF]" />
           <span>Product Updates &amp; Changelog</span>
         </div>
         <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
           What&apos;s New in{" "}
-          <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] bg-clip-text text-transparent">
             Itnavideo AI Studio
           </span>
         </h1>
@@ -103,11 +103,11 @@ export default function AnnouncementsTab() {
           return (
             <div
               key={index}
-              className="relative rounded-[28px] bg-[#121624] border border-white/10 p-6 sm:p-8 shadow-lg hover:shadow-xl hover:border-orange-500/50 transition-all duration-300"
+              className="relative rounded-[28px] bg-[#121624] border border-white/10 p-6 sm:p-8 shadow-lg hover:shadow-xl hover:border-blue-500/50 transition-all duration-300"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-500/30 flex items-center justify-center text-[#FF5722] shadow-md shadow-orange-500/10 shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-[#0066FF] shadow-md shadow-blue-500/10 shrink-0">
                     <Icon size={24} />
                   </div>
                   <div>

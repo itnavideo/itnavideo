@@ -158,7 +158,7 @@ export function FacelessStoryboardTimeline({
         <div className="flex items-center gap-2 self-start sm:self-auto">
           {uploadedAssets.length > 0 && (
             <div className="flex items-center gap-1.5 rounded-xl bg-white/[0.05] border border-white/[0.08] px-3 py-1.5 text-xs text-zinc-300">
-              <Sparkles size={13} className="text-orange-400" />
+              <Sparkles size={13} className="text-[#3B82F6]" />
               <span className="font-semibold text-white">{uploadedAssets.length}</span>
               <span>Uploaded Media</span>
             </div>
@@ -170,7 +170,7 @@ export function FacelessStoryboardTimeline({
       <div className="rounded-xl border border-white/[0.06] bg-[#101114] p-3 space-y-2">
         <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-400 px-1">
           <span className="flex items-center gap-1.5 text-zinc-300">
-            <Clock size={12} className="text-orange-400" />
+            <Clock size={12} className="text-[#3B82F6]" />
             <span>Interactive Timeline Sequence (Click to jump audio)</span>
           </span>
           <span className="font-mono text-zinc-500">
@@ -201,7 +201,7 @@ export function FacelessStoryboardTimeline({
                 }`}
               >
                 <div className="flex items-center justify-between text-[10px] mb-1.5">
-                  <span className="font-bold text-white group-hover:text-orange-400 transition">
+                  <span className="font-bold text-white group-hover:text-[#3B82F6] transition">
                     Scene #{scene.sceneNumber}
                   </span>
                   <span className="font-mono text-zinc-400 text-[9.5px]">
@@ -212,7 +212,7 @@ export function FacelessStoryboardTimeline({
                 <div className="w-full h-12 rounded-lg bg-black/60 relative overflow-hidden flex items-center justify-center mb-1.5 border border-white/[0.06]">
                   {hasAsset ? (
                     isVideo(assignedUrl) ? (
-                      <div className="flex items-center gap-1 text-[9px] font-bold text-orange-400">
+                      <div className="flex items-center gap-1 text-[9px] font-bold text-[#3B82F6]">
                         <Video size={13} />
                         <span>Video Clip</span>
                       </div>
@@ -268,7 +268,7 @@ export function FacelessStoryboardTimeline({
                 {/* 1. Header Row: Scene Number, Time Range, Layout Badge */}
                 <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 border-b border-white/[0.06] pb-2.5">
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-black border border-orange-500/25">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-[#3B82F6] text-xs font-black border border-orange-500/25">
                       {scene.sceneNumber < 10 ? `0${scene.sceneNumber}` : scene.sceneNumber}
                     </span>
                     <div>
@@ -318,7 +318,7 @@ export function FacelessStoryboardTimeline({
                     <div className="w-16 h-11 rounded-lg bg-black/60 border border-white/[0.08] relative overflow-hidden flex items-center justify-center shrink-0">
                       {hasAsset ? (
                         isVid ? (
-                          <div className="flex flex-col items-center text-orange-400">
+                          <div className="flex flex-col items-center text-[#3B82F6]">
                             <Video size={15} />
                             <span className="text-[7.5px] font-bold uppercase">Video</span>
                           </div>
@@ -360,7 +360,7 @@ export function FacelessStoryboardTimeline({
                     onClick={() => setActiveSwapSceneNumber(isModalOpen ? null : scene.sceneNumber)}
                     className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition cursor-pointer shrink-0 ${
                       isModalOpen
-                        ? "border-orange-500 bg-orange-500 text-white shadow-md shadow-orange-500/20"
+                        ? "border-orange-500 bg-orange-500 text-white shadow-md shadow-[#0066FF]/25/20"
                         : "border-white/[0.1] bg-white/[0.05] text-zinc-300 hover:text-white hover:bg-white/[0.1] hover:border-white/20"
                     }`}
                   >
@@ -442,7 +442,7 @@ export function FacelessStoryboardTimeline({
                               >
                                 <div className="w-full h-14 rounded-lg bg-black/50 overflow-hidden relative flex items-center justify-center mb-1">
                                   {isVidThumb ? (
-                                    <Video size={18} className="text-orange-400" />
+                                    <Video size={18} className="text-[#3B82F6]" />
                                   ) : (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img

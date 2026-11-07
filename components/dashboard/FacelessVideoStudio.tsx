@@ -420,7 +420,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
   return (
     <div className="relative rounded-[28px] border border-slate-200 bg-white p-5 sm:p-8 shadow-xl shadow-slate-200/40 min-w-0 max-w-full space-y-8 text-slate-900">
-      <BorderBeam size={320} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
+      <BorderBeam size={320} duration={14} colorFrom="#0066FF" colorTo="#2563EB" />
 
       {/* Hidden BGM preview audio */}
       <audio ref={bgmPreviewAudioRef} onEnded={() => setPlayingBgmPreview(null)} />
@@ -428,13 +428,13 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       {/* ── STUDIO HEADER STEPPER ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 sm:p-5">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="shrink-0 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] p-2.5 text-white shadow-md shadow-[#FF5722]/20">
+          <div className="shrink-0 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] p-2.5 text-white shadow-md shadow-[#0066FF]/20">
             <Film size={22} className="stroke-[2.5]" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900 truncate">16:9 Faceless Video Studio</h2>
-              <span className="inline-flex items-center gap-1 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#FF5722]">
+              <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#0066FF]">
                 1080p Widescreen
               </span>
             </div>
@@ -468,8 +468,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
       {/* Planning or Error Banner */}
       {isPlanning && (
-        <div className="rounded-2xl border border-orange-200 bg-orange-50/70 p-4 flex items-center gap-3 text-sm font-bold text-slate-800 shadow-xs animate-pulse">
-          <Sparkles size={18} className="animate-spin text-[#FF5722]" />
+        <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-4 flex items-center gap-3 text-sm font-bold text-slate-800 shadow-xs animate-pulse">
+          <Sparkles size={18} className="animate-spin text-[#0066FF]" />
           <span>{planningMessage || "Transcribing speech and structuring visual scene beats..."}</span>
         </div>
       )}
@@ -498,7 +498,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                   <Mic size={18} />
                 </div>
                 <div>
@@ -512,7 +512,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   <button
                     type="button"
                     onClick={handleLoadSampleDemo}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-orange-200 bg-orange-50 text-[11px] font-bold text-[#FF5722] hover:bg-orange-100 transition cursor-pointer shadow-xs"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-200 bg-blue-50 text-[11px] font-bold text-[#0066FF] hover:bg-blue-100 transition cursor-pointer shadow-xs"
                   >
                     <Sparkles size={12} />
                     <span>Try Sample Demo</span>
@@ -536,15 +536,15 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
               <button
                 type="button"
                 onClick={() => audioInputRef.current?.click()}
-                className="w-full h-44 border-2 border-dashed border-slate-200 hover:border-[#FF5722]/60 rounded-2xl bg-slate-50/70 hover:bg-orange-50/30 transition-all flex flex-col items-center justify-center gap-3 text-slate-500 hover:text-slate-900 cursor-pointer group"
+                className="w-full h-44 border-2 border-dashed border-slate-200 hover:border-[#0066FF]/60 rounded-2xl bg-slate-50/70 hover:bg-blue-50/30 transition-all flex flex-col items-center justify-center gap-3 text-slate-500 hover:text-slate-900 cursor-pointer group"
               >
-                <div className="rounded-full bg-white p-3 group-hover:scale-110 shadow-xs group-hover:bg-orange-50 transition-transform">
-                  <UploadCloud size={32} className="text-[#FF5722]" />
+                <div className="rounded-full bg-white p-3 group-hover:scale-110 shadow-xs group-hover:bg-blue-50 transition-transform">
+                  <UploadCloud size={32} className="text-[#0066FF]" />
                 </div>
                 <div className="text-center px-4">
                   <p className="text-sm font-bold text-slate-800">Click to Upload Voiceover Audio</p>
                   <p className="text-xs text-slate-500 mt-1">MP3, WAV, M4A, or MP4 • Max 5 Minutes (300s)</p>
-                  <span className="inline-block mt-2 font-mono text-[11px] text-[#FF5722] bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/20 font-bold">
+                  <span className="inline-block mt-2 font-mono text-[11px] text-[#0066FF] bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-bold">
                     1 Min = 1 Credit
                   </span>
                 </div>
@@ -603,7 +603,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                   <Video size={18} />
                 </div>
                 <div>
@@ -625,9 +625,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
               className="hidden"
             />
 
-            <div className="rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#FF5722]/50 bg-slate-50/60 p-5 flex flex-col items-center justify-center gap-3 text-center transition">
+            <div className="rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#0066FF]/50 bg-slate-50/60 p-5 flex flex-col items-center justify-center gap-3 text-center transition">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-white border border-slate-200 text-[#FF5722] shadow-xs">
+                <div className="p-2 rounded-xl bg-white border border-slate-200 text-[#0066FF] shadow-xs">
                   <Video size={20} />
                 </div>
                 <div className="p-2 rounded-xl bg-white border border-slate-200 text-amber-500 shadow-xs">
@@ -678,7 +678,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-6 shadow-sm">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                   <Music size={18} />
                 </div>
                 <div>
@@ -689,7 +689,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
               {/* Volume Pill Display */}
               <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full">
-                <Volume2 size={14} className="text-[#FF5722]" />
+                <Volume2 size={14} className="text-[#0066FF]" />
                 <span className="text-xs font-black text-slate-800">Volume: {activeBgmVolume}%</span>
               </div>
             </div>
@@ -698,10 +698,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
             <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                 <span className="flex items-center gap-1.5">
-                  <Sliders size={13} className="text-[#FF5722]" />
+                  <Sliders size={13} className="text-[#0066FF]" />
                   <span>Background Music Volume (Default: 12%)</span>
                 </span>
-                <span className="font-mono text-xs font-black text-[#FF5722] bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                <span className="font-mono text-xs font-black text-[#0066FF] bg-white px-2 py-0.5 rounded-md border border-slate-200">
                   {activeBgmVolume}%
                 </span>
               </div>
@@ -736,7 +736,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                     }}
                     className={`text-[10px] font-bold px-2 py-1 rounded-md border transition cursor-pointer ${
                       activeBgmVolume === p.val
-                        ? "bg-[#FF5722] text-white border-[#FF5722]"
+                        ? "bg-[#FF5722] text-white border-[#0066FF]"
                         : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
                     }`}
                   >
@@ -757,7 +757,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-4 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-[#FF5722] shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0066FF] shrink-0">
                   <Upload size={18} />
                 </div>
                 <div className="min-w-0">
@@ -817,7 +817,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       }}
                       className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2.5 ${
                         isSelected
-                          ? "border-orange-500 bg-orange-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500"
+                          ? "border-[#0066FF] bg-blue-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500"
                           : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
                       }`}
                     >
@@ -842,11 +842,11 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                             title="Listen to Preview"
                             className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition cursor-pointer shadow-xs"
                           >
-                            {isPlaying ? <Pause size={12} className="text-[#FF5722]" /> : <Play size={12} className="text-slate-600" />}
+                            {isPlaying ? <Pause size={12} className="text-[#0066FF]" /> : <Play size={12} className="text-slate-600" />}
                           </button>
                         )}
 
-                        {isSelected && <CheckCircle2 size={16} className="text-[#FF5722]" />}
+                        {isSelected && <CheckCircle2 size={16} className="text-[#0066FF]" />}
                       </div>
                     </div>
                   );
@@ -859,7 +859,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                   <Type size={18} />
                 </div>
                 <div>
@@ -877,7 +877,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                     onClick={() => setCaptionFilter(cat)}
                     className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border transition cursor-pointer ${
                       captionFilter === cat
-                        ? "bg-[#FF5722] text-white border-[#FF5722]"
+                        ? "bg-[#FF5722] text-white border-[#0066FF]"
                         : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                     }`}
                   >
@@ -898,7 +898,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                     onClick={() => onSubtitleStyleChange?.(theme.id)}
                     className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
                       isSelected
-                        ? "border-orange-500 bg-orange-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500"
+                        ? "border-[#0066FF] bg-blue-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500"
                         : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
                     }`}
                   >
@@ -924,7 +924,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                   <Film size={18} />
                 </div>
                 <div>
@@ -944,7 +944,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 value={topicTitle}
                 onChange={e => onTopicTitleChange?.(e.target.value)}
                 placeholder="e.g. 5 Habits That Changed My Life"
-                className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition shadow-xs"
+                className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition shadow-xs"
               />
             </div>
           </div>
@@ -954,7 +954,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
             <div className="flex items-center justify-between text-xs font-bold text-slate-600">
               <span>Aspect Ratio:</span>
               <span className="font-black text-slate-900 flex items-center gap-1">
-                <Sparkles size={12} className="text-[#FF5722]" />
+                <Sparkles size={12} className="text-[#0066FF]" />
                 16:9 Landscape Full HD (1920×1080)
               </span>
             </div>
@@ -976,7 +976,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
             </div>
             <div className="flex items-center justify-between text-xs font-bold text-slate-600 pt-2 border-t border-slate-200">
               <span>Credit Cost:</span>
-              <span className="font-mono text-sm font-black text-[#FF5722]">
+              <span className="font-mono text-sm font-black text-[#0066FF]">
                 {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""} (1 Min = 1 Cr)
               </span>
             </div>
@@ -993,7 +993,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
             <div>
               <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
                 <span>16:9 Scene Storyboard Timeline</span>
-                <span className="text-xs font-extrabold bg-orange-100 border border-orange-200 text-[#FF5722] px-2.5 py-0.5 rounded-full">
+                <span className="text-xs font-extrabold bg-blue-100 border border-blue-200 text-[#0066FF] px-2.5 py-0.5 rounded-full">
                   {sceneBlueprint.length} Active Scenes
                 </span>
               </h3>
@@ -1007,7 +1007,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
               onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
               className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition cursor-pointer ${
                 showTranscriptEditor
-                  ? "border-orange-500 bg-orange-50 text-[#FF5722]"
+                  ? "border-[#0066FF] bg-blue-50 text-[#0066FF]"
                   : "border-slate-200 bg-white text-slate-700 hover:bg-slate-100 shadow-xs"
               }`}
             >
@@ -1018,10 +1018,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
           {/* EDITORIAL TRANSCRIPT MARKDOWN EDITOR */}
           {showTranscriptEditor && (
-            <div className="rounded-[28px] border-2 border-orange-200 bg-white p-6 space-y-4 shadow-md">
+            <div className="rounded-[28px] border-2 border-blue-200 bg-white p-6 space-y-4 shadow-md">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                  <div className="p-2 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
                     <FileText size={18} />
                   </div>
                   <div>
@@ -1058,7 +1058,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 onChange={e => setEditableTranscript(e.target.value)}
                 rows={6}
                 placeholder="Spoken narration transcript..."
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition shadow-inner font-mono"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition shadow-inner font-mono"
               />
 
               <div className="flex items-center justify-between text-[11px] text-slate-500">
@@ -1069,10 +1069,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           )}
 
           {/* ── COMPULSORY INTERACTIVE 16:9 LIVE PREVIEW PLAYER ── */}
-          <div className="rounded-[28px] border-2 border-orange-200 bg-white p-6 sm:p-7 space-y-5 shadow-lg shadow-orange-500/5">
+          <div className="rounded-[28px] border-2 border-blue-200 bg-white p-6 sm:p-7 space-y-5 shadow-lg shadow-[#0066FF]/10">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-orange-500/10 text-[#FF5722] border border-orange-500/20">
+                <div className="p-2 rounded-xl bg-blue-500/10 text-[#0066FF] border border-blue-500/20">
                   <Eye size={18} />
                 </div>
                 <div>
@@ -1094,12 +1094,12 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   >
                     {isPreviewAudioPlaying ? (
                       <>
-                        <Pause size={13} className="text-[#FF5722]" />
+                        <Pause size={13} className="text-[#0066FF]" />
                         <span>Pause Audio Sync</span>
                       </>
                     ) : (
                       <>
-                        <Play size={13} className="text-[#FF5722]" />
+                        <Play size={13} className="text-[#0066FF]" />
                         <span>Play Audio Sync</span>
                       </>
                     )}
@@ -1137,13 +1137,13 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
               />
 
               {/* Soft Ambient Glows */}
-              <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+              <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
               <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
 
               {/* Scene Content inside Canvas */}
               {currentPreviewScene ? (
                 <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center justify-center space-y-4">
-                  <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-orange-100 text-[#FF5722] border border-orange-200">
+                  <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-blue-100 text-[#0066FF] border border-blue-200">
                     {currentPreviewScene.sceneType || "SCENE CARD"}
                   </span>
 
@@ -1201,7 +1201,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition cursor-pointer ${
                   previewConfirmed
                     ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
-                    : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20 hover:brightness-110 active:scale-95"
+                    : "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-md shadow-[#0066FF]/25/20 hover:brightness-110 active:scale-95"
                 }`}
               >
                 {previewConfirmed ? (
@@ -1239,8 +1239,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 !previewConfirmed
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
                   : isGenerating
-                  ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white opacity-80 cursor-wait animate-pulse shadow-xl"
-                  : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer"
+                  ? "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white opacity-80 cursor-wait animate-pulse shadow-xl"
+                  : "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-xl shadow-[#0066FF]/30 hover:brightness-110 active:scale-95 cursor-pointer"
               }`}
             >
               {!previewConfirmed ? (

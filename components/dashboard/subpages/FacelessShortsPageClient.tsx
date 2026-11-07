@@ -675,7 +675,7 @@ export default function FacelessShortsPageClient() {
   const etaSeconds = calculateEtaSeconds();
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 pb-12 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
+    <main className="min-h-screen bg-slate-50 text-slate-900 pb-12 selection:bg-[#0066FF]/20 selection:text-[#0066FF]">
       {/* TOP NAVIGATION (Clean White Surface) */}
       <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -693,7 +693,7 @@ export default function FacelessShortsPageClient() {
           <div className="flex items-center gap-3">
             {billingEntitlement && (
               <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-bold text-slate-800 shadow-xs">
-                <Zap size={13} className="text-[#FF5722] fill-[#FF5722]" />
+                <Zap size={13} className="text-[#FF5722] fill-[#0066FF]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
             )}
@@ -706,7 +706,7 @@ export default function FacelessShortsPageClient() {
         {/* Page Title & Badging */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-[11px] font-bold text-[#FF5722] shadow-xs mb-1.5">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-orange-50 px-3 py-1 text-[11px] font-bold text-[#FF5722] shadow-xs mb-1.5">
               <Sparkles size={12} className="text-[#FF5722]" />
               <span>9:16 Vertical Shorts Studio</span>
             </div>
@@ -835,7 +835,7 @@ export default function FacelessShortsPageClient() {
                     <a
                       href={render.outputFile}
                       download
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5722] hover:text-[#FFA000]"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5722] hover:text-[#3B82F6]"
                     >
                       <Download size={12} />
                       <span>Download</span>

@@ -667,7 +667,7 @@ export default function FacelessVideoPageClient() {
   const etaSeconds = calculateEtaSeconds();
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#FF5722]/20 selection:text-[#FF5722]">
+    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#0066FF]/20 selection:text-[#0066FF]">
       {/* ── TOP NAVIGATION ── */}
       <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex max-w-[1520px] h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -685,7 +685,7 @@ export default function FacelessVideoPageClient() {
           <div className="flex items-center gap-3">
             {billingEntitlement && (
               <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-semibold text-slate-800 shadow-xs">
-                <Zap size={13} className="text-[#FF5722]" />
+                <Zap size={13} className="text-[#0066FF]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
             )}
@@ -698,8 +698,8 @@ export default function FacelessVideoPageClient() {
         {/* Page Title & Badging */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-[11px] font-semibold text-[#FF5722] shadow-xs mb-1.5">
-              <Sparkles size={12} className="text-[#FF5722]" />
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-semibold text-[#0066FF] shadow-xs mb-1.5">
+              <Sparkles size={12} className="text-[#0066FF]" />
               <span>Flagship 16:9 Widescreen Studio</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
@@ -713,7 +713,7 @@ export default function FacelessVideoPageClient() {
           <div className="flex items-center gap-3 self-start sm:self-center">
             <Link
               href="/dashboard/faceless-video/preview"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-[#FF5722] text-xs font-bold transition shadow-xs"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-[#0066FF] text-xs font-bold transition shadow-xs"
             >
               <Tv className="w-4 h-4" />
               <span>Live 16:9 Studio Demo</span>
@@ -723,7 +723,7 @@ export default function FacelessVideoPageClient() {
               <button
                 type="button"
                 onClick={() => setIsPreviewModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold shadow-md shadow-orange-500/25 transition cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0066FF] hover:bg-[#0052CC] text-white text-xs font-bold shadow-md shadow-[#0066FF]/25 transition cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-white" />
                 <span>Preview My Storyboard ({plannedBlueprint.length})</span>
@@ -853,7 +853,7 @@ export default function FacelessVideoPageClient() {
                     <a
                       href={render.outputFile}
                       download
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5722] hover:text-orange-600"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-[#0066FF] hover:text-[#0066FF]"
                     >
                       <Download size={12} />
                       <span>Download</span>

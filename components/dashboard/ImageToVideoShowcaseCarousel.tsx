@@ -68,7 +68,7 @@ function ImageToVideoCard({ item, isPlaying, isMuted, onTogglePlay, onToggleMute
   return (
     <div
       onClick={handleVideoClick}
-      className="group relative flex-shrink-0 w-[290px] sm:w-[330px] md:w-[370px] aspect-video rounded-[22px] overflow-hidden border border-white/15 bg-[#070B14] shadow-xl hover:border-[#FF5722]/60 hover:shadow-2xl hover:shadow-[#FF5722]/20 transition-all duration-300 cursor-pointer select-none"
+      className="group relative flex-shrink-0 w-[290px] sm:w-[330px] md:w-[370px] aspect-video rounded-[22px] overflow-hidden border border-white/15 bg-[#070B14] shadow-xl hover:border-[#FF5722]/60 hover:shadow-2xl hover:shadow-[#0066FF]/20 transition-all duration-300 cursor-pointer select-none"
     >
       {/* 16:9 Widescreen Video or Poster */}
       {isPlaying ? (
@@ -94,7 +94,7 @@ function ImageToVideoCard({ item, isPlaying, isMuted, onTogglePlay, onToggleMute
           {/* Center Play Button Overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/30 transition">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black/75 border border-white/25 backdrop-blur-md group-hover:bg-gradient-to-r group-hover:from-[#FF5722] group-hover:to-[#FFA000] group-hover:scale-110 transition-all duration-300 shadow-2xl">
-              <Play size={20} className="ml-0.5 fill-white text-white group-hover:fill-black group-hover:text-black" />
+              <Play size={20} className="ml-0.5 fill-white text-white group-hover:fill-black group-hover:text-white" />
             </div>
           </div>
         </>
@@ -125,7 +125,7 @@ function ImageToVideoCard({ item, isPlaying, isMuted, onTogglePlay, onToggleMute
       {/* Title & 1080p Tag Overlaid Directly on Bottom of Card */}
       {!isPlaying && (
         <div className="absolute inset-x-0 bottom-0 p-3.5 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none z-20 flex items-center justify-between gap-2">
-          <span className="text-xs sm:text-sm font-black text-white truncate drop-shadow-md group-hover:text-[#FFA000] transition">
+          <span className="text-xs sm:text-sm font-black text-white truncate drop-shadow-md group-hover:text-[#3B82F6] transition">
             {item.title}
           </span>
           <span className="shrink-0 text-[9.5px] font-mono font-bold text-[#FFA000] bg-black/70 px-2.5 py-0.5 rounded-full border border-[#FF5722]/40">
@@ -158,7 +158,7 @@ export function ImageToVideoShowcaseCarousel() {
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-white/10">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 border border-[#FF5722]/30 text-[#FF7043]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#0066FF]/15 border border-[#FF5722]/30 text-[#FF7043]">
             <Film size={14} />
           </div>
           <div>

@@ -2291,7 +2291,7 @@ export async function POST(request: Request) {
             const wbSegments = buildWhiteboardSegments(wbWords, renderWindow.durationSeconds);
 
             const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
-            const activeTranscript = readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
+            const activeTranscript = readString(body.editorialTranscript) || readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
             const fontPersonality = readString(body.fontPersonality) || 'balsamiq';
             const markerColor = readString(body.markerColor) || 'auto';
             const handStyle = readString(body.handStyle) || 'right';

@@ -516,7 +516,7 @@ export function BackgroundPicker({
       {/*  HEADER  */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 text-xs font-bold border border-orange-500/30">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-[#3B82F6] text-xs font-bold border border-blue-500/30">
             <Palette size={14} />
           </span>
           <div>
@@ -587,7 +587,7 @@ export function BackgroundPicker({
                   onSelectTheme(hex.toUpperCase());
                 }
               }}
-              className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-orange-500/20 border border-orange-500/40 text-orange-300 hover:bg-orange-500 hover:text-white transition cursor-pointer"
+              className="px-2.5 py-1 text-[11px] font-bold rounded-md bg-blue-500/20 border border-orange-500/40 text-blue-300 hover:bg-orange-500 hover:text-white transition cursor-pointer"
             >
               Apply
             </button>
@@ -639,7 +639,7 @@ export function BackgroundPicker({
                 title={`${color.name}: ${color.description}`}
                 className={`group relative flex flex-col items-center gap-1 p-1 rounded-lg border transition-all cursor-pointer ${
                   isSelected
-                    ? "border-orange-500 bg-orange-500/20 ring-2 ring-orange-500/50 shadow-md shadow-orange-500/20 scale-105"
+                    ? "border-orange-500 bg-blue-500/20 ring-2 ring-orange-500/50 shadow-md shadow-[#0066FF]/25/20 scale-105"
                     : "border-white/10 bg-white/5 hover:border-white/25 hover:bg-white/10"
                 }`}
               >
@@ -664,7 +664,7 @@ export function BackgroundPicker({
                 {/* Swatch Label */}
                 <span
                   className={`text-[9.5px] font-bold tracking-tight truncate max-w-full ${
-                    isSelected ? "text-orange-400" : "text-zinc-400 group-hover:text-zinc-200"
+                    isSelected ? "text-[#3B82F6]" : "text-zinc-400 group-hover:text-zinc-200"
                   }`}
                 >
                   {color.shortName}
@@ -686,7 +686,7 @@ export function BackgroundPicker({
               onClick={() => setActiveCategory(cat.id)}
               className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
                 isActive
-                  ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
+                  ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-[#0066FF]/25/20"
                   : "bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10"
               }`}
             >
@@ -706,7 +706,7 @@ export function BackgroundPicker({
             onMouseLeave={() => setHoveredCardId(null)}
             className={`group relative rounded-xl border p-2.5 text-left transition cursor-pointer flex flex-col justify-between overflow-hidden ${
               selectedTheme === "custom-upload"
-                ? "border-orange-500 bg-[#161C2E] ring-2 ring-orange-500/40 shadow-lg shadow-orange-500/20"
+                ? "border-orange-500 bg-[#161C2E] ring-2 ring-orange-500/40 shadow-lg shadow-[#0066FF]/25/20"
                 : "border-white/10 bg-[#121624] hover:border-white/20"
             }`}
           >
@@ -754,7 +754,7 @@ export function BackgroundPicker({
               <span className="text-xs font-bold text-white truncate">
                 {customBgUrl ? "Custom Upload" : "Upload Own File"}
               </span>
-              <span className="rounded-md bg-white/5 border border-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-orange-400">
+              <span className="rounded-md bg-white/5 border border-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#3B82F6]">
                 User
               </span>
             </div>
@@ -777,7 +777,7 @@ export function BackgroundPicker({
                 onMouseLeave={() => setHoveredCardId(null)}
                 className={`group relative rounded-xl border p-2.5 text-left transition cursor-pointer flex flex-col justify-between overflow-hidden ${
                   isSelected
-                    ? "border-orange-500 bg-[#161C2E] ring-2 ring-orange-500/40 shadow-lg shadow-orange-500/20"
+                    ? "border-orange-500 bg-[#161C2E] ring-2 ring-orange-500/40 shadow-lg shadow-[#0066FF]/25/20"
                     : "border-white/10 bg-[#121624] hover:border-white/20"
                 }`}
               >

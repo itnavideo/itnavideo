@@ -40,7 +40,7 @@ export function WatermarkRemoverToggle({
       }}
       className={`group relative flex items-center justify-between gap-4 rounded-2xl border p-4 transition-all duration-200 cursor-pointer select-none ${
         enabled
-          ? 'border-orange-500/40 bg-gradient-to-r from-orange-500/[0.08] via-amber-500/[0.04] to-transparent shadow-lg shadow-orange-500/5'
+          ? 'border-blue-500/40 bg-gradient-to-r from-blue-500/[0.08] via-indigo-500/[0.04] to-transparent shadow-lg shadow-blue-500/5'
           : 'border-white/[0.08] bg-[#0C101A]/80 hover:border-white/15 hover:bg-[#0E1320]'
       } ${className}`}
     >
@@ -49,7 +49,7 @@ export function WatermarkRemoverToggle({
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${
             enabled
-              ? 'bg-gradient-to-tr from-[#FF5722] to-[#FFA000] text-white shadow-md shadow-orange-500/30'
+              ? 'bg-gradient-to-tr from-[#0052CC] to-[#0066FF] text-white shadow-md shadow-blue-500/30'
               : 'border border-white/10 bg-white/5 text-slate-400 group-hover:text-white'
           }`}
         >
@@ -65,7 +65,7 @@ export function WatermarkRemoverToggle({
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
                 enabled
-                  ? 'border border-orange-500/30 bg-orange-500/15 text-orange-400'
+                  ? 'border border-blue-500/30 bg-blue-500/15 text-blue-400'
                   : 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
               }`}
             >
@@ -83,13 +83,13 @@ export function WatermarkRemoverToggle({
         <div
           className={`relative h-6 w-11 rounded-full transition-colors duration-200 ease-in-out ${
             enabled
-              ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000]'
+              ? 'bg-gradient-to-r from-[#0052CC] to-[#0066FF]'
               : 'bg-zinc-800 border border-white/10'
           }`}
         >
           <span
             className={`inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out mt-0.5 ${
-              enabled ? 'translate-x-5 text-orange-600' : 'translate-x-0.5 text-zinc-400'
+              enabled ? 'translate-x-5 text-[#0066FF]' : 'translate-x-0.5 text-zinc-400'
             }`}
           >
             {enabled && <Check size={11} strokeWidth={3} />}

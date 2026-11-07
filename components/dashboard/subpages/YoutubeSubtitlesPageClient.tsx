@@ -1346,7 +1346,7 @@ export default function YoutubeSubtitlesPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#070B14] flex flex-col items-center justify-center text-slate-400 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#FF5722]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
         <p className="text-sm font-semibold tracking-wide text-slate-200">
           Loading YouTube Subtitle Studio...
         </p>
@@ -1355,7 +1355,7 @@ export default function YoutubeSubtitlesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-white flex flex-col selection:bg-[#FF5722]/30 selection:text-[#FFA000]">
+    <div className="min-h-screen bg-[#070B14] text-white flex flex-col selection:bg-[#0066FF]/30 selection:text-white">
       {/*  Top Navigation Bar  */}
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#070B14]/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -1372,8 +1372,8 @@ export default function YoutubeSubtitlesPage() {
 
             <BrandLogo size="sm" showBadge={false} variant="dark" />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3 py-1 text-[11px] font-black text-[#FFA000]">
-              <Sparkles size={11} className="text-[#FF5722]" />
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3 py-1 text-[11px] font-black text-[#3B82F6]">
+              <Sparkles size={11} className="text-[#0066FF]" />
               Studio #4  16:9 Widescreen
             </span>
           </div>
@@ -1381,14 +1381,14 @@ export default function YoutubeSubtitlesPage() {
           <div className="flex items-center gap-3">
             {/* Credits Balance Badge */}
             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#0E1526] px-3.5 py-1.5 text-xs font-bold">
-              <Zap size={14} className="text-[#FF7043] fill-[#FF7043]" />
+              <Zap size={14} className="text-[#3B82F6] fill-[#3B82F6]" />
               <span className="text-slate-400">Balance:</span>
               <span className="text-white font-black">
                 {billingEntitlement ? userRemainingCredits : "..."} Credits
               </span>
               <Link
                 href="/pricing"
-                className="ml-1 text-[11px] text-[#FFA000] hover:text-white underline font-black"
+                className="ml-1 text-[11px] text-[#3B82F6] hover:text-white underline font-black"
               >
                 +Add
               </Link>
@@ -1402,13 +1402,13 @@ export default function YoutubeSubtitlesPage() {
         {/* Header Banner & Value Proposition */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FFA000] mb-2">
-              <Sparkles size={13} className="text-[#FF5722]" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#3B82F6] mb-2">
+              <Sparkles size={13} className="text-[#0066FF]" />
               <span>Studio #4  YouTube Subtitle Generator</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
               YouTube Subtitle{" "}
-              <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] bg-clip-text text-transparent">
                 Generator
               </span>
             </h1>
@@ -1420,11 +1420,11 @@ export default function YoutubeSubtitlesPage() {
           {/* Quick Badges Stack */}
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             <span className="rounded-full border border-white/10 bg-[#0E1526] px-3.5 py-1.5 text-xs font-bold text-slate-200 flex items-center gap-1.5">
-              <Tv size={14} className="text-[#FF7043]" />
+              <Tv size={14} className="text-[#3B82F6]" />
               <span>16:9 Landscape Only</span>
             </span>
-            <span className="rounded-full border border-[#FF5722]/30 bg-[#FF5722]/10 px-3.5 py-1.5 text-xs font-bold text-[#FFA000] flex items-center gap-1.5">
-              <Clock size={14} className="text-[#FF5722]" />
+            <span className="rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3.5 py-1.5 text-xs font-bold text-[#3B82F6] flex items-center gap-1.5">
+              <Clock size={14} className="text-[#0066FF]" />
               <span>Max 5 Min (300s)</span>
             </span>
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-400 flex items-center gap-1.5">
@@ -1483,12 +1483,12 @@ export default function YoutubeSubtitlesPage() {
               <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] text-xs font-black border border-[#FF5722]/30">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#0066FF]/15 text-[#3B82F6] text-xs font-black border border-[#0066FF]/30">
                       1
                     </span>
                     <div>
                       <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                        <Upload size={16} className="text-[#FF7043]" />
+                        <Upload size={16} className="text-[#3B82F6]" />
                         <span>Upload 16:9 Video or Audio</span>
                       </h3>
                       <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1519,7 +1519,7 @@ export default function YoutubeSubtitlesPage() {
                   className={`w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl border-2 border-dashed p-4 transition-all cursor-pointer group ${
                     selectedFile
                       ? "border-emerald-500/50 bg-emerald-500/5"
-                      : "border-white/15 hover:border-[#FF5722]/60 bg-[#070B14]"
+                      : "border-white/15 hover:border-[#0066FF]/60 bg-[#070B14]"
                   }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
@@ -1527,7 +1527,7 @@ export default function YoutubeSubtitlesPage() {
                        className={`flex h-11 w-11 items-center justify-center rounded-xl border group-hover:scale-105 transition-transform shrink-0 ${
                         selectedFile
                           ? "border-emerald-500/30 bg-emerald-500/20 text-emerald-400"
-                          : "border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FFA000]"
+                          : "border-[#0066FF]/30 bg-[#0066FF]/10 text-[#3B82F6]"
                       }`}
                     >
                       {selectedFile ? <CheckCircle2 size={20} /> : <Upload size={20} />}
@@ -1554,7 +1554,7 @@ export default function YoutubeSubtitlesPage() {
                     </div>
                   </div>
 
-                  <span className="rounded-xl border border-[#FF5722]/30 bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black font-black text-xs px-4 py-2.5 hover:brightness-110 shadow-md shadow-[#FF5722]/20 transition shrink-0 flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto">
+                  <span className="rounded-xl border border-[#0066FF]/30 bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-black font-black text-xs px-4 py-2.5 hover:brightness-110 shadow-md shadow-[#0066FF]/20 transition shrink-0 flex items-center justify-center gap-1.5 cursor-pointer w-full sm:w-auto">
                     <Upload size={13} className="text-black" />
                     <span>{selectedFile ? "Change File" : "Browse Files"}</span>
                   </span>
@@ -1595,7 +1595,7 @@ export default function YoutubeSubtitlesPage() {
                 <div className="pt-2 border-t border-white/5 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-black uppercase text-slate-300 flex items-center gap-1.5">
-                      <Film size={12} className="text-[#FF7043]" />
+                      <Film size={12} className="text-[#3B82F6]" />
                       <span>Or Try With Sample Cloudinary Video:</span>
                     </span>
                     {selectedFile && (
@@ -1624,12 +1624,12 @@ export default function YoutubeSubtitlesPage() {
                           }}
                           className={`rounded-xl border p-2.5 text-left transition-all cursor-pointer flex flex-col justify-between ${
                             isActive
-                              ? "border-[#FF5722] bg-[#FF5722]/15 text-white shadow-md ring-1 ring-[#FF5722]"
+                              ? "border-[#0066FF] bg-[#0066FF]/15 text-white shadow-md ring-1 ring-[#0066FF]"
                               : "border-white/10 bg-[#070B14] text-slate-400 hover:text-white hover:border-white/20"
                           }`}
                         >
                           <div className="flex items-center justify-between w-full">
-                            <span className="text-[10px] font-bold uppercase text-[#FFA000]">
+                            <span className="text-[10px] font-bold uppercase text-[#3B82F6]">
                               {sample.category}
                             </span>
                             <span className="text-[9px] font-mono text-slate-400">
@@ -1648,16 +1648,16 @@ export default function YoutubeSubtitlesPage() {
 
               {/*  2. Spacious 16:9 Broadcast Subtitle Gallery  */}
               <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl space-y-4 relative overflow-hidden">
-                <BorderBeam size={220} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
+                <BorderBeam size={220} duration={14} colorFrom="#0066FF" colorTo="#3B82F6" />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] text-xs font-black border border-[#FF5722]/30">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#0066FF]/15 text-[#3B82F6] text-xs font-black border border-[#0066FF]/30">
                       2
                     </span>
                     <div>
                       <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                        <Film size={16} className="text-[#FF7043]" />
+                        <Film size={16} className="text-[#3B82F6]" />
                         <span>16:9 Subtitle Style Gallery</span>
                       </h3>
                       <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1677,7 +1677,7 @@ export default function YoutubeSubtitlesPage() {
                       placeholder="Search presets..."
                       value={presetSearch}
                       onChange={(e) => setPresetSearch(e.target.value)}
-                      className="w-full bg-[#070B14] text-xs text-white placeholder-slate-400 rounded-xl border border-white/20 pl-8 pr-3 py-2 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition"
+                      className="w-full bg-[#070B14] text-xs text-white placeholder-slate-400 rounded-xl border border-white/20 pl-8 pr-3 py-2 focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition"
                     />
                   </div>
                 </div>
@@ -1700,7 +1700,7 @@ export default function YoutubeSubtitlesPage() {
                         onClick={() => setSelectedCategory(cat.id)}
                         className={`rounded-full px-3 py-1 text-[11px] font-black transition cursor-pointer ${
                           active
-                            ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/25"
+                            ? "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-black shadow-md shadow-[#0066FF]/25"
                             : "bg-[#070B14] text-slate-400 border border-white/10 hover:text-white hover:border-white/20"
                         }`}
                       >
@@ -1721,20 +1721,20 @@ export default function YoutubeSubtitlesPage() {
                         onClick={() => handleSelectPreset(preset)}
                         className={`rounded-2xl border p-3.5 text-left transition-all cursor-pointer relative overflow-hidden group active:scale-[0.98] ${
                           active
-                            ? "border-[#FF5722] bg-[#FF5722]/15 text-white ring-2 ring-[#FF5722] shadow-xl shadow-[#FF5722]/20"
+                            ? "border-[#0066FF] bg-[#0066FF]/15 text-white ring-2 ring-[#0066FF] shadow-xl shadow-[#0066FF]/20"
                             : "border-white/10 bg-[#070B14] text-slate-400 hover:text-white hover:border-white/20"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1 gap-1">
                           <span
                             className={`text-xs font-black truncate ${
-                              active ? "text-[#FFA000]" : "text-white"
+                              active ? "text-[#3B82F6]" : "text-white"
                             }`}
                           >
                             {preset.title}
                           </span>
                           {active && (
-                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-black">
+                            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-black">
                               <Check size={10} strokeWidth={3} />
                             </span>
                           )}
@@ -1745,7 +1745,7 @@ export default function YoutubeSubtitlesPage() {
                         </p>
 
                         {/* Live Stylized Specimen Box */}
-                        <div className="relative w-full aspect-[16/7] rounded-xl border border-white/10 bg-[#03060C] overflow-hidden flex items-center justify-center p-2 group-hover:border-[#FF5722]/40 transition-colors">
+                        <div className="relative w-full aspect-[16/7] rounded-xl border border-white/10 bg-[#03060C] overflow-hidden flex items-center justify-center p-2 group-hover:border-[#0066FF]/40 transition-colors">
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 
                           <span
@@ -1778,12 +1778,12 @@ export default function YoutubeSubtitlesPage() {
               <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-xl space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-3">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#FF5722]/15 text-[#FFA000] text-xs font-black border border-[#FF5722]/30">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-[#0066FF]/15 text-[#3B82F6] text-xs font-black border border-[#0066FF]/30">
                       3
                     </span>
                     <div>
                       <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                        <SlidersHorizontal size={16} className="text-[#FF7043]" />
+                        <SlidersHorizontal size={16} className="text-[#3B82F6]" />
                         <span>Alignment &amp; Typography</span>
                       </h3>
                       <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1799,7 +1799,7 @@ export default function YoutubeSubtitlesPage() {
                       onClick={() => setActiveSettingsTab("typography")}
                       className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition cursor-pointer ${
                         activeSettingsTab === "typography"
-                          ? "bg-[#FF5722] text-black font-black"
+                          ? "bg-[#0066FF] text-black font-black"
                           : "text-slate-400 hover:text-white"
                       }`}
                     >
@@ -1810,7 +1810,7 @@ export default function YoutubeSubtitlesPage() {
                       onClick={() => setActiveSettingsTab("safezone")}
                       className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition cursor-pointer ${
                         activeSettingsTab === "safezone"
-                          ? "bg-[#FF5722] text-black font-black"
+                          ? "bg-[#0066FF] text-black font-black"
                           : "text-slate-400 hover:text-white"
                       }`}
                     >
@@ -1821,7 +1821,7 @@ export default function YoutubeSubtitlesPage() {
                       onClick={() => setActiveSettingsTab("language")}
                       className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold transition cursor-pointer ${
                         activeSettingsTab === "language"
-                          ? "bg-[#FF5722] text-black font-black"
+                          ? "bg-[#0066FF] text-black font-black"
                           : "text-slate-400 hover:text-white"
                       }`}
                     >
@@ -1838,7 +1838,7 @@ export default function YoutubeSubtitlesPage() {
                         Font Family Override
                       </label>
                       <select
-                        className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
+                        className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-3 py-2.5 focus:border-[#0066FF] focus:outline-none cursor-pointer font-bold"
                         value={captionFontFamily}
                         onChange={(e) => setCaptionFontFamily(e.target.value)}
                       >
@@ -1858,7 +1858,7 @@ export default function YoutubeSubtitlesPage() {
                       <div className="space-y-1">
                         <label className="text-[11px] font-bold text-slate-300 block">Font Size</label>
                         <select
-                          className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-2.5 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
+                          className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-2.5 py-2 focus:border-[#0066FF] focus:outline-none cursor-pointer font-bold"
                           value={captionFontSize}
                           onChange={(e) => setCaptionFontSize(e.target.value as any)}
                         >
@@ -1872,7 +1872,7 @@ export default function YoutubeSubtitlesPage() {
                       <div className="space-y-1">
                         <label className="text-[11px] font-bold text-slate-300 block">Position</label>
                         <select
-                          className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-2.5 py-2 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold"
+                          className="w-full rounded-xl border border-white/10 bg-[#070B14] text-slate-100 text-xs px-2.5 py-2 focus:border-[#0066FF] focus:outline-none cursor-pointer font-bold"
                           value={captionPosition}
                           onChange={(e) => setCaptionPosition(e.target.value as any)}
                         >
@@ -1908,7 +1908,7 @@ export default function YoutubeSubtitlesPage() {
                             onChange={(e) => setCaptionHighlightColor(e.target.value)}
                             className="h-6 w-6 rounded border border-slate-700 cursor-pointer p-0 bg-transparent shrink-0"
                           />
-                          <span className="font-mono text-xs font-bold text-[#FFA000] uppercase truncate">
+                          <span className="font-mono text-xs font-bold text-[#3B82F6] uppercase truncate">
                             {captionHighlightColor}
                           </span>
                         </div>
@@ -1927,7 +1927,7 @@ export default function YoutubeSubtitlesPage() {
                       <select
                         value={youtubeSubtitleSafeZone}
                         onChange={(e) => setYoutubeSubtitleSafeZone(e.target.value as any)}
-                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
+                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#0066FF] focus:outline-none cursor-pointer"
                       >
                         <option value="scrubber">14% Clearance (Recommended YouTube)</option>
                         <option value="standard">10% Standard Clearance</option>
@@ -1943,7 +1943,7 @@ export default function YoutubeSubtitlesPage() {
                       <select
                         value={youtubeSubtitleCase}
                         onChange={(e) => setYoutubeSubtitleCase(e.target.value as any)}
-                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
+                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#0066FF] focus:outline-none cursor-pointer"
                       >
                         <option value="natural">Natural Case (Sentence Case)</option>
                         <option value="uppercase">ALL UPPERCASE (Punchy Headlines)</option>
@@ -1963,7 +1963,7 @@ export default function YoutubeSubtitlesPage() {
                       <select
                         value={spokenLanguage}
                         onChange={(e) => setSpokenLanguage(e.target.value)}
-                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
+                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#0066FF] focus:outline-none cursor-pointer"
                       >
                         {AUDIO_SPOKEN_LANGUAGES.map((l) => (
                           <option key={l.id} value={l.id} className="bg-[#070B14] text-white">
@@ -1978,7 +1978,7 @@ export default function YoutubeSubtitlesPage() {
                       <select
                         value={captionLanguage}
                         onChange={(e) => setCaptionLanguage(e.target.value)}
-                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer"
+                        className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#0066FF] focus:outline-none cursor-pointer"
                       >
                         {SUBTITLE_OUTPUT_LANGUAGES.map((l) => (
                           <option key={l.id} value={l.id} className="bg-[#070B14] text-white">
@@ -2000,7 +2000,7 @@ export default function YoutubeSubtitlesPage() {
                   <div className="flex items-center gap-2 min-w-0">
                     <span
                       className={`flex h-2.5 w-2.5 rounded-full shrink-0 ${
-                        selectedFile ? "bg-emerald-400 animate-pulse" : "bg-[#FF5722] animate-pulse"
+                        selectedFile ? "bg-emerald-400 animate-pulse" : "bg-[#0066FF] animate-pulse"
                       }`}
                     />
                     <span className="text-xs font-black uppercase tracking-wider text-white truncate">
@@ -2011,7 +2011,7 @@ export default function YoutubeSubtitlesPage() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="rounded-full bg-[#FF5722]/10 border border-[#FF5722]/30 px-2.5 py-0.5 text-[10px] font-black text-[#FFA000]">
+                    <span className="rounded-full bg-[#0066FF]/10 border border-[#0066FF]/30 px-2.5 py-0.5 text-[10px] font-black text-[#3B82F6]">
                       1080p MP4
                     </span>
                   </div>
@@ -2043,8 +2043,8 @@ export default function YoutubeSubtitlesPage() {
 
                   {/* Top Live Indicator Badge */}
                   <div className="absolute top-3 left-3 z-20 pointer-events-none">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[#FFA000] text-[10px] font-extrabold uppercase px-3 py-1 tracking-wider shadow-md">
-                      <Sparkles size={11} className="text-[#FF5722]" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[#3B82F6] text-[10px] font-extrabold uppercase px-3 py-1 tracking-wider shadow-md">
+                      <Sparkles size={11} className="text-[#0066FF]" />
                       <span>{activePresetConfig.title}</span>
                     </span>
                   </div>
@@ -2102,7 +2102,7 @@ export default function YoutubeSubtitlesPage() {
                       aria-label="Play preview"
                       className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px] transition-all cursor-pointer group z-20"
                     >
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-2xl transition-transform group-hover:scale-110">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-black shadow-2xl transition-transform group-hover:scale-110">
                         <Play size={24} className="fill-current ml-1 text-black" />
                       </div>
                     </button>
@@ -2111,7 +2111,7 @@ export default function YoutubeSubtitlesPage() {
                   {/* Bottom Video Progress Scrub Line */}
                   <div className="absolute inset-x-0 bottom-1 h-1 bg-white/20 z-20">
                     <div
-                      className="h-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] transition-all duration-150"
+                      className="h-full bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] transition-all duration-150"
                       style={{
                         width:
                           previewDuration > 0
@@ -2127,12 +2127,12 @@ export default function YoutubeSubtitlesPage() {
                   <button
                     type="button"
                     onClick={togglePlay}
-                    className="inline-flex items-center gap-1.5 text-slate-200 hover:text-[#FFA000] transition cursor-pointer font-bold"
+                    className="inline-flex items-center gap-1.5 text-slate-200 hover:text-[#3B82F6] transition cursor-pointer font-bold"
                   >
                     {isPlaying ? (
-                      <Pause size={14} className="text-[#FF7043]" />
+                      <Pause size={14} className="text-[#3B82F6]" />
                     ) : (
-                      <Play size={14} className="fill-current text-[#FF7043]" />
+                      <Play size={14} className="fill-current text-[#3B82F6]" />
                     )}
                     <span>{isPlaying ? "Pause Preview" : "Play Preview"}</span>
                   </button>
@@ -2144,7 +2144,7 @@ export default function YoutubeSubtitlesPage() {
                   <button
                     type="button"
                     onClick={toggleMute}
-                    className="inline-flex items-center gap-1 text-slate-200 hover:text-[#FFA000] transition cursor-pointer"
+                    className="inline-flex items-center gap-1 text-slate-200 hover:text-[#3B82F6] transition cursor-pointer"
                   >
                     {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} className="text-emerald-400" />}
                     <span>{isMuted ? "Unmute Audio" : "Mute Audio"}</span>
@@ -2156,7 +2156,7 @@ export default function YoutubeSubtitlesPage() {
               <div className="rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-6 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
                   <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-white">
-                    <FileText size={15} className="text-[#FF7043]" />
+                    <FileText size={15} className="text-[#3B82F6]" />
                     <span>Dual Export Hub</span>
                   </div>
                   <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
@@ -2174,7 +2174,7 @@ export default function YoutubeSubtitlesPage() {
                   </div>
                   <div className="flex items-center justify-between text-slate-400 border-b border-white/5 pb-2">
                     <span>Active Subtitle Style</span>
-                    <span className="font-bold text-[#FFA000]">{activePresetConfig.title}</span>
+                    <span className="font-bold text-[#3B82F6]">{activePresetConfig.title}</span>
                   </div>
                   <div className="flex items-center justify-between text-slate-400 border-b border-white/5 pb-2">
                     <span>Credit Rate</span>
@@ -2190,7 +2190,7 @@ export default function YoutubeSubtitlesPage() {
                     type="button"
                     onClick={handleStartRender}
                     disabled={isWorking || isExportingSubtitles}
-                    className="w-full inline-flex min-h-[52px] items-center justify-between px-5 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-sm font-black text-black shadow-xl shadow-[#FF5722]/25 transition hover:brightness-110 active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full inline-flex min-h-[52px] items-center justify-between px-5 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-sm font-black text-black shadow-xl shadow-[#0066FF]/25 transition hover:brightness-110 active:scale-95 disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer"
                   >
                     <span className="flex items-center gap-2">
                       <Sparkles size={16} className="text-black" />
@@ -2210,9 +2210,9 @@ export default function YoutubeSubtitlesPage() {
                       className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-[#070B14] hover:bg-white/10 text-xs font-bold text-white transition disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer active:scale-95"
                     >
                       {isExportingSubtitles ? (
-                        <Loader2 size={13} className="animate-spin text-[#FFA000]" />
+                        <Loader2 size={13} className="animate-spin text-[#3B82F6]" />
                       ) : (
-                        <Download size={13} className="text-[#FF7043]" />
+                        <Download size={13} className="text-[#3B82F6]" />
                       )}
                       <span>Download .SRT</span>
                     </button>
@@ -2224,9 +2224,9 @@ export default function YoutubeSubtitlesPage() {
                       className="inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-2xl border border-white/10 bg-[#070B14] hover:bg-white/10 text-xs font-bold text-white transition disabled:opacity-45 disabled:cursor-not-allowed cursor-pointer active:scale-95"
                     >
                       {isExportingSubtitles ? (
-                        <Loader2 size={13} className="animate-spin text-[#FFA000]" />
+                        <Loader2 size={13} className="animate-spin text-[#3B82F6]" />
                       ) : (
-                        <Download size={13} className="text-[#FF7043]" />
+                        <Download size={13} className="text-[#3B82F6]" />
                       )}
                       <span>Download .VTT</span>
                     </button>
@@ -2248,7 +2248,7 @@ export default function YoutubeSubtitlesPage() {
       {jobStatus.state === "idle" && (
         <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-white/10 bg-[#0B0D13]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.8)]">
           <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase text-[#FFA000] tracking-wider truncate">
+            <p className="text-[11px] font-black uppercase text-[#3B82F6] tracking-wider truncate">
               {selectedFile ? selectedFile.name : activePresetConfig.title}
             </p>
             <p className="text-[10px] text-zinc-400 font-bold flex items-center gap-1.5">
@@ -2264,7 +2264,7 @@ export default function YoutubeSubtitlesPage() {
                 type="button"
                 onClick={handleStartRender}
                 disabled={isWorking}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#0066FF]/30 active:scale-95 disabled:opacity-50 cursor-pointer"
               >
                 <Sparkles size={14} className="text-black" />
                 <span>{isWorking ? "Rendering..." : "Render 16:9"}</span>
@@ -2273,7 +2273,7 @@ export default function YoutubeSubtitlesPage() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#FF5722]/30 active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#0066FF]/30 active:scale-95 cursor-pointer"
               >
                 <Upload size={14} className="text-black" />
                 <span>Upload Video</span>

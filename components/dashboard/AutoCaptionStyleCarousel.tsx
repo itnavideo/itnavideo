@@ -321,13 +321,13 @@ export function AutoCaptionStyleCarousel({
       <div className="rounded-[24px] border border-white/10 bg-[#0E1526] p-4 sm:p-5 shadow-xl space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/10 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/20">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#0066FF] via-[#2563EB] to-[#3B82F6] text-white shadow-md shadow-[#0066FF]/20">
               <Flame size={17} className="fill-black/30" />
             </div>
             <div>
               <h3 className="text-sm font-black uppercase tracking-wider text-white font-jakarta flex items-center gap-2">
                 Caption Style Previews
-                <span className="rounded-full bg-orange-500/15 border border-orange-500/30 text-[#FFA000] text-[10px] font-black px-2 py-0.5 uppercase tracking-wider">
+                <span className="rounded-full bg-blue-500/15 border border-blue-500/30 text-[#3B82F6] text-[10px] font-black px-2 py-0.5 uppercase tracking-wider">
                   8 live previews
                 </span>
               </h3>
@@ -340,7 +340,7 @@ export function AutoCaptionStyleCarousel({
           <div className="flex items-center gap-2.5">
             <Link
               href="/auto-caption/templates"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] hover:border-[#FF5722]/50 hover:bg-[#1A233A] px-3 py-1.5 text-xs font-bold text-[#FFA000] transition"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] hover:border-[#0066FF]/50 hover:bg-[#1A233A] px-3 py-1.5 text-xs font-bold text-[#3B82F6] transition"
             >
               <span>Full Shorts Style Gallery</span>
               <ExternalLink size={12} />
@@ -375,8 +375,8 @@ export function AutoCaptionStyleCarousel({
                 onMouseLeave={() => setPlayingDemoKey(null)}
                 className={`group relative flex-shrink-0 w-[140px] sm:w-[155px] aspect-[9/16] rounded-2xl border overflow-hidden cursor-pointer transition-all duration-200 snap-start select-none ${
                   isSelected
-                    ? "border-2 border-[#FF5722] bg-[#141C30] ring-4 ring-[#FF5722]/20 shadow-xl shadow-[#FF5722]/25 scale-[1.02] z-10"
-                    : "border-white/10 bg-[#070B14] hover:border-[#FF5722]/50 hover:bg-[#0E1526] hover:-translate-y-1"
+                    ? "border-2 border-[#0066FF] bg-[#141C30] ring-4 ring-[#0066FF]/20 shadow-xl shadow-[#0066FF]/25 scale-[1.02] z-10"
+                    : "border-white/10 bg-[#070B14] hover:border-[#0066FF]/50 hover:bg-[#0E1526] hover:-translate-y-1"
                 }`}
               >
                 {/* Video Tag with zero background bandwidth waste (preload=none) */}
@@ -406,7 +406,7 @@ export function AutoCaptionStyleCarousel({
                     {badge}
                   </span>
                   {isSelected && (
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FF5722] text-black shadow-md">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0066FF] text-white shadow-md">
                       <Check size={11} strokeWidth={3.5} />
                     </span>
                   )}
@@ -415,7 +415,7 @@ export function AutoCaptionStyleCarousel({
                 {/* Play / Mute Controls */}
                 <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none transition-opacity duration-200">
                   {!isPlaying && (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md group-hover:scale-110 group-hover:bg-[#FF5722] group-hover:text-black group-hover:border-transparent transition-transform shadow-lg">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 border border-white/20 text-white backdrop-blur-md group-hover:scale-110 group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition-transform shadow-lg">
                       <Play size={15} className="fill-current ml-0.5" />
                     </div>
                   )}
@@ -458,7 +458,7 @@ export function AutoCaptionStyleCarousel({
         {/* Gallery Header + Search */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5722] via-[#FF7043] to-[#FFA000] text-black shadow-md shadow-[#FF5722]/20">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#0066FF] via-[#2563EB] to-[#3B82F6] text-white shadow-md shadow-[#0066FF]/20">
               <Sparkles size={16} className="fill-black/20" />
             </div>
             <div>
@@ -494,7 +494,7 @@ export function AutoCaptionStyleCarousel({
                 placeholder="Search styles or fonts..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#070B14] pl-9 pr-8 py-2 text-xs font-semibold text-white placeholder-slate-400 focus:border-[#FF5722] focus:outline-none focus:ring-1 focus:ring-[#FF5722]/40 transition"
+                className="w-full rounded-xl border border-white/10 bg-[#070B14] pl-9 pr-8 py-2 text-xs font-semibold text-white placeholder-slate-400 focus:border-[#0066FF] focus:outline-none focus:ring-1 focus:ring-[#0066FF]/40 transition"
               />
               {searchQuery && (
                 <button
@@ -539,8 +539,8 @@ export function AutoCaptionStyleCarousel({
                 }}
                 className={`group relative flex flex-col justify-between rounded-2xl border cursor-pointer transition-all duration-200 select-none overflow-hidden ${
                   isSelected
-                    ? "border-2 border-[#FF5722] bg-[#141C30] ring-4 ring-[#FF5722]/20 shadow-xl shadow-[#FF5722]/25 scale-[1.02] z-10"
-                    : "border-white/10 bg-[#070B14] hover:border-[#FF5722]/50 hover:bg-[#131B2E] hover:-translate-y-0.5"
+                    ? "border-2 border-[#0066FF] bg-[#141C30] ring-4 ring-[#0066FF]/20 shadow-xl shadow-[#0066FF]/25 scale-[1.02] z-10"
+                    : "border-white/10 bg-[#070B14] hover:border-[#0066FF]/50 hover:bg-[#131B2E] hover:-translate-y-0.5"
                 }`}
               >
                 {/* Top Card Header: Category Badge + Favorite Star */}
@@ -551,7 +551,7 @@ export function AutoCaptionStyleCarousel({
 
                   <div className="flex items-center gap-1">
                     {isSelected && (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FF5722] text-black shadow-md">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0066FF] text-white shadow-md">
                         <Check size={11} strokeWidth={3.5} />
                       </span>
                     )}
@@ -625,7 +625,7 @@ export function AutoCaptionStyleCarousel({
                 setSearchQuery("");
                 setActiveCategory("all");
               }}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] px-4 py-2 text-xs font-bold text-slate-200 hover:text-white hover:border-[#FF5722]/50 transition cursor-pointer"
+              className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-[#131B2E] px-4 py-2 text-xs font-bold text-slate-200 hover:text-white hover:border-[#0066FF]/50 transition cursor-pointer"
             >
               Reset Filters
             </button>

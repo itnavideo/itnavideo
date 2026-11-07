@@ -333,7 +333,7 @@ export default function AiVideoPolisherPageClient() {
   };
 
   return (
-    <main className="min-h-screen bg-[#070A11] text-white selection:bg-orange-500 selection:text-white">
+    <main className="min-h-screen bg-[#070A11] text-white selection:bg-[#0066FF] selection:text-white">
       {/* Premium Header */}
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-md shadow-lg">
         <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -349,8 +349,8 @@ export default function AiVideoPolisherPageClient() {
 
           <div className="flex items-center gap-4">
             {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-400 shadow-xs">
-                <Zap size={13} className="fill-orange-400 text-orange-400" />
+              <div className="hidden sm:flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-bold text-[#3B82F6] shadow-xs">
+                <Zap size={13} className="fill-[#3B82F6] text-[#3B82F6]" />
                 <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
               </div>
             )}

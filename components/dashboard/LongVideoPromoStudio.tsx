@@ -339,8 +339,8 @@ export function LongVideoPromoStudio({
       <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3.5 py-1 text-xs font-bold text-orange-700">
-              <Tv size={13} className="text-orange-600" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-xs font-bold text-orange-700">
+              <Tv size={13} className="text-[#0066FF]" />
               <span>9:16 Vertical Promo Reel • Traffic Booster</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-sans">
@@ -369,7 +369,7 @@ export function LongVideoPromoStudio({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
                   <ImageIcon size={18} />
                 </div>
                 <div>
@@ -435,7 +435,7 @@ export function LongVideoPromoStudio({
                   <div
                     onDragOver={(e) => e.preventDefault()}
                     onDrop={handleThumbDrop}
-                    className="relative rounded-xl border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50 hover:bg-orange-50/20 p-6 text-center transition cursor-pointer"
+                    className="relative rounded-xl border-2 border-dashed border-slate-300 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/20 p-6 text-center transition cursor-pointer"
                   >
                     <input
                       type="file"
@@ -444,11 +444,11 @@ export function LongVideoPromoStudio({
                       className="absolute inset-0 opacity-0 cursor-pointer"
                     />
                     <div className="flex flex-col items-center gap-2">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-slate-200 shadow-xs text-orange-600">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-slate-200 shadow-xs text-[#0066FF]">
                         <Upload size={18} />
                       </div>
                       <p className="text-xs font-bold text-slate-800">
-                        Drop 16:9 cover image here, or <span className="text-orange-600 underline">browse</span>
+                        Drop 16:9 cover image here, or <span className="text-[#0066FF] underline">browse</span>
                       </p>
                       <p className="text-[11px] text-slate-400">Recommended 1280×720 PNG, JPG, or WebP</p>
                     </div>
@@ -500,7 +500,7 @@ export function LongVideoPromoStudio({
           {/* Section 2: Upload Promo Video Clip */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
                 <Film size={18} />
               </div>
               <div>
@@ -535,7 +535,7 @@ export function LongVideoPromoStudio({
               <div
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleVideoDrop}
-                className="relative rounded-xl border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50 hover:bg-orange-50/20 p-6 text-center transition cursor-pointer"
+                className="relative rounded-xl border-2 border-dashed border-slate-300 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/20 p-6 text-center transition cursor-pointer"
               >
                 <input
                   type="file"
@@ -544,11 +544,11 @@ export function LongVideoPromoStudio({
                   className="absolute inset-0 opacity-0 cursor-pointer"
                 />
                 <div className="flex flex-col items-center gap-2">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-slate-200 shadow-xs text-orange-600">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-slate-200 shadow-xs text-[#0066FF]">
                     <Video size={18} />
                   </div>
                   <p className="text-xs font-bold text-slate-800">
-                    Drop teaser video clip here, or <span className="text-orange-600 underline">browse</span>
+                    Drop teaser video clip here, or <span className="text-[#0066FF] underline">browse</span>
                   </p>
                   <p className="text-[11px] text-slate-400">Horizontal or vertical clips up to 90 seconds (1080p MP4)</p>
                 </div>
@@ -559,7 +559,7 @@ export function LongVideoPromoStudio({
           {/* Section 3: Promo Details (Title, Handle, Goal, CTA Style) */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
                 <Tv size={18} />
               </div>
               <div>
@@ -580,7 +580,7 @@ export function LongVideoPromoStudio({
                 value={promoTitle}
                 onChange={(e) => onPromoTitleChange(e.target.value)}
                 placeholder="e.g. How I Built a Profitable AI Business from Scratch"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-semibold focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-semibold focus:bg-white focus:border-[#0066FF] focus:outline-none transition shadow-2xs"
               />
             </div>
 
@@ -593,7 +593,7 @@ export function LongVideoPromoStudio({
                   value={promoCreatorHandle}
                   onChange={(e) => onPromoCreatorHandleChange(e.target.value)}
                   placeholder="@yourchannel"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:bg-white focus:border-[#0066FF] focus:outline-none transition shadow-2xs"
                 />
               </div>
 
@@ -606,7 +606,7 @@ export function LongVideoPromoStudio({
                   value={promoCtaText}
                   onChange={(e) => onPromoCtaTextChange && onPromoCtaTextChange(e.target.value)}
                   placeholder="Defaults to goal text"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:bg-white focus:border-[#0066FF] focus:outline-none transition shadow-2xs"
                 />
               </div>
             </div>
@@ -626,7 +626,7 @@ export function LongVideoPromoStudio({
                     onClick={() => handleGoalSelect(g.id as LongVideoPromoGoal)}
                     className={`rounded-xl border p-3 text-left transition ${
                       currentGoal === g.id
-                        ? "border-orange-500 bg-orange-50/50 shadow-xs"
+                        ? "border-[#0066FF] bg-blue-50/50 shadow-xs"
                         : "border-slate-200 bg-slate-50 hover:bg-white text-slate-700"
                     }`}
                   >
@@ -654,7 +654,7 @@ export function LongVideoPromoStudio({
                       onClick={() => handleCtaStyleSelect(s.id as any)}
                       className={`flex items-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition ${
                         activeCtaStyle === s.id
-                          ? "border-orange-500 bg-orange-50/40 text-slate-900 shadow-2xs"
+                          ? "border-[#0066FF] bg-blue-50/40 text-slate-900 shadow-2xs"
                           : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-white"
                       }`}
                     >
@@ -679,7 +679,7 @@ export function LongVideoPromoStudio({
                       onClick={() => handleBgModeSelect(bg.id as any)}
                       className={`rounded-xl border p-2.5 text-center text-xs font-bold transition ${
                         activeBgMode === bg.id
-                          ? "border-orange-500 bg-orange-50/50 text-orange-950 shadow-2xs"
+                          ? "border-[#0066FF] bg-blue-50/50 text-orange-950 shadow-2xs"
                           : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-white"
                       }`}
                     >
@@ -695,7 +695,7 @@ export function LongVideoPromoStudio({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
                   <Wand2 size={18} />
                 </div>
                 <div>
@@ -704,7 +704,7 @@ export function LongVideoPromoStudio({
                 </div>
               </div>
 
-              <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200">
+              <span className="text-[11px] font-bold text-[#0066FF] bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
                 Active: {activeCaptionStyle}
               </span>
             </div>
@@ -738,14 +738,14 @@ export function LongVideoPromoStudio({
                     onClick={() => handleCaptionStyleSelect(style.name)}
                     className={`flex flex-col items-start justify-between rounded-xl border p-3 text-left transition relative ${
                       isSelected
-                        ? "border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20"
+                        ? "border-[#0066FF] bg-blue-50/40 ring-2 ring-orange-500/20"
                         : "border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300"
                     }`}
                   >
                     <span className="text-xs font-black text-slate-900 leading-tight">{style.name}</span>
                     <div className="mt-2 flex items-center justify-between w-full">
                       <span className="text-[10px] font-semibold text-slate-500 uppercase">{style.category}</span>
-                      {isSelected && <Check size={13} className="text-orange-600 stroke-[3]" />}
+                      {isSelected && <Check size={13} className="text-[#0066FF] stroke-[3]" />}
                     </div>
                   </button>
                 );
@@ -757,7 +757,7 @@ export function LongVideoPromoStudio({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
                   <Music size={18} />
                 </div>
                 <div>
@@ -772,7 +772,7 @@ export function LongVideoPromoStudio({
                   type="checkbox"
                   checked={enableSfx}
                   onChange={(e) => onEnableSfxChange && onEnableSfxChange(e.target.checked)}
-                  className="rounded border-slate-300 text-orange-600 focus:ring-orange-500 h-3.5 w-3.5"
+                  className="rounded border-slate-300 text-[#0066FF] focus:ring-[#0066FF] h-3.5 w-3.5"
                 />
                 <span className="text-xs font-bold text-slate-700">SFX Whooshes</span>
               </label>
@@ -782,10 +782,10 @@ export function LongVideoPromoStudio({
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-bold text-slate-700 flex items-center gap-1.5">
-                  <Volume2 size={15} className="text-orange-600" />
+                  <Volume2 size={15} className="text-[#0066FF]" />
                   Background Music Volume
                 </span>
-                <span className="font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">
+                <span className="font-black text-[#0066FF] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
                   {Math.round(activeBgmVolume * 100)}% (12% Default)
                 </span>
               </div>
@@ -800,7 +800,7 @@ export function LongVideoPromoStudio({
               />
               <div className="flex justify-between text-[10px] text-slate-400 font-semibold">
                 <span>0% (Muted)</span>
-                <span className="text-orange-600 font-bold">12% Voice Safe</span>
+                <span className="text-[#0066FF] font-bold">12% Voice Safe</span>
                 <span>40% Loud</span>
               </div>
             </div>
@@ -816,7 +816,7 @@ export function LongVideoPromoStudio({
                     key={track.id}
                     className={`flex items-center justify-between rounded-xl border p-2.5 transition ${
                       isSelected
-                        ? "border-orange-500 bg-orange-50/40 ring-1 ring-orange-500/20"
+                        ? "border-[#0066FF] bg-blue-50/40 ring-1 ring-orange-500/20"
                         : "border-slate-200 bg-slate-50 hover:bg-white"
                     }`}
                   >
@@ -835,7 +835,7 @@ export function LongVideoPromoStudio({
                         onClick={() => toggleAudition(track)}
                         className={`p-1.5 rounded-lg border transition shrink-0 ${
                           isPlaying
-                            ? "bg-orange-500 text-white border-orange-600 animate-pulse"
+                            ? "bg-[#0066FF] text-white border-orange-600 animate-pulse"
                             : "bg-white text-slate-600 border-slate-200 hover:text-slate-900"
                         }`}
                         title={isPlaying ? "Pause preview" : "Play preview"}
@@ -853,7 +853,7 @@ export function LongVideoPromoStudio({
               <label className="text-xs font-bold text-slate-700 block mb-1.5">Or Upload Custom Background Music</label>
               <div className="flex items-center gap-3">
                 <label className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-xs font-bold text-slate-700 cursor-pointer transition shadow-2xs">
-                  <Upload size={14} className="text-orange-600" />
+                  <Upload size={14} className="text-[#0066FF]" />
                   <span>Choose MP3 / WAV</span>
                   <input
                     type="file"
@@ -878,7 +878,7 @@ export function LongVideoPromoStudio({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
                   <FileText size={18} />
                 </div>
                 <div>
@@ -893,7 +893,7 @@ export function LongVideoPromoStudio({
               value={editorialTranscript}
               onChange={(e) => onEditorialTranscriptChange && onEditorialTranscriptChange(e.target.value)}
               placeholder="Paste or edit the spoken dialogue text here to fix typos, technical keywords, or brand names..."
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-mono focus:bg-white focus:border-orange-500 focus:outline-none transition leading-relaxed shadow-2xs"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-mono focus:bg-white focus:border-[#0066FF] focus:outline-none transition leading-relaxed shadow-2xs"
             />
           </div>
         </div>
@@ -903,7 +903,7 @@ export function LongVideoPromoStudio({
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Eye size={16} className="text-orange-600" />
+                <Eye size={16} className="text-[#0066FF]" />
                 <h3 className="text-sm font-black text-slate-900 font-sans">Compulsory 9:16 Visual Preview</h3>
               </div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
@@ -960,7 +960,7 @@ export function LongVideoPromoStudio({
                   {promoTitle || "Your YouTube Video Title Goes Here"}
                 </h4>
                 {promoCreatorHandle && (
-                  <p className="text-[10px] font-bold text-orange-500 mt-0.5">{promoCreatorHandle}</p>
+                  <p className="text-[10px] font-bold text-[#0066FF] mt-0.5">{promoCreatorHandle}</p>
                 )}
               </div>
 
@@ -970,7 +970,7 @@ export function LongVideoPromoStudio({
                   <video src={videoLocalUrl} autoPlay loop muted playsInline className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex flex-col items-center justify-center text-slate-400 gap-1">
-                    <Film size={20} className="text-orange-500" />
+                    <Film size={20} className="text-[#0066FF]" />
                     <span className="text-[10px] font-semibold">Teaser Clip Preview</span>
                   </div>
                 )}
@@ -983,7 +983,7 @@ export function LongVideoPromoStudio({
 
                 {/* Mock Subtitle Preview with Active Caption Style */}
                 <div className="absolute bottom-2 inset-x-2 flex justify-center pointer-events-none">
-                  <div className="bg-black/85 backdrop-blur-md border border-orange-500/50 rounded-lg px-2 py-0.5 text-center shadow-md">
+                  <div className="bg-black/85 backdrop-blur-md border border-[#0066FF]/50 rounded-lg px-2 py-0.5 text-center shadow-md">
                     <span className="text-[10px] font-black text-amber-300 uppercase tracking-tight">
                       [{activeCaptionStyle}] VIRAL MOMENT
                     </span>
@@ -1017,7 +1017,7 @@ export function LongVideoPromoStudio({
                   type="checkbox"
                   checked={previewConfirmed}
                   onChange={(e) => setPreviewConfirmed(e.target.checked)}
-                  className="mt-0.5 rounded border-amber-400 text-orange-600 focus:ring-orange-500 h-4 w-4"
+                  className="mt-0.5 rounded border-amber-400 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
                 />
                 <span className="text-xs font-bold text-amber-950 leading-tight">
                   I have reviewed this 9:16 promo reel preview and approve generating the final render.
@@ -1035,7 +1035,7 @@ export function LongVideoPromoStudio({
               disabled={!isReadyToRender || !previewConfirmed || isGenerating}
               className={`w-full py-4 px-6 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                 isReadyToRender && previewConfirmed && !isGenerating
-                  ? "bg-orange-500 hover:bg-orange-600 text-white active:scale-[0.99] shadow-orange-500/25"
+                  ? "bg-[#0066FF] hover:bg-[#0052CC] text-white active:scale-[0.99] shadow-[#0066FF]/25"
                   : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
               }`}
             >

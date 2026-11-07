@@ -682,7 +682,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 space-y-6 shadow-xl shadow-slate-200/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="rounded-full bg-[#FF5722]/10 border border-[#FF5722]/30 p-2.5 text-[#FF5722]">
+                <div className="rounded-full bg-[#0066FF]/10 border border-[#0066FF]/30 p-2.5 text-[#0066FF]">
                   <FileText size={20} />
                 </div>
                 <div>
@@ -696,7 +696,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               {/* 1. Suggested YouTube Title */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#FF5722]">Suggested Title</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0066FF]">Suggested Title</span>
                   <button
                     onClick={() => copyToClipboard(plan.metadata.suggestedTitle, setCopiedTitle)}
                     className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
@@ -711,7 +711,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               {/* 2. YouTube Description */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#FF5722]">Description</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0066FF]">Description</span>
                   <button
                     onClick={() => copyToClipboard(plan.metadata.description, setCopiedDesc)}
                     className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
@@ -726,7 +726,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               {/* 3. Chapter Timestamps */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3 md:col-span-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#FF5722]">Chapter Timestamps</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0066FF]">Chapter Timestamps</span>
                   <button
                     onClick={() => {
                       const text = plan.metadata.chapters.map(c => `${c.timestamp} - ${c.title}`).join('\n');
@@ -741,7 +741,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {plan.metadata.chapters.map((chap, idx) => (
                     <div key={idx} className="flex items-center gap-3 text-sm text-slate-800 bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                      <span className="font-mono text-xs font-bold text-[#FF5722] bg-[#FF5722]/10 px-2 py-1 rounded-md border border-[#FF5722]/20">
+                      <span className="font-mono text-xs font-bold text-[#0066FF] bg-[#0066FF]/10 px-2 py-1 rounded-md border border-[#0066FF]/20">
                         {chap.timestamp}
                       </span>
                       <span className="font-medium truncate">{chap.title}</span>
@@ -759,7 +759,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   return (
     <div className="relative rounded-[28px] border border-slate-200/90 bg-white p-5 sm:p-8 shadow-xl shadow-slate-200/40 min-w-0 max-w-full overflow-x-hidden space-y-8 text-slate-900">
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={320} duration={14} colorFrom="#FF5722" colorTo="#FFA000" />
+      <BorderBeam size={320} duration={14} colorFrom="#0066FF" colorTo="#2563EB" />
 
       {/* Hidden BGM preview player */}
       <audio ref={bgmPreviewAudioRef} onEnded={() => setPlayingBgmPreview(null)} />
@@ -767,13 +767,13 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       {/* Studio Stage Stepper Banner (Clean Light Surface) */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 sm:p-5">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="shrink-0 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] p-2.5 text-white shadow-md shadow-[#FF5722]/20">
+          <div className="shrink-0 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] p-2.5 text-white shadow-md shadow-[#0066FF]/20">
             <BookOpen size={22} className="stroke-[2.5]" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="text-base sm:text-lg font-black text-slate-900 truncate">Book Summary Studio</h2>
-              <span className="inline-flex items-center gap-1 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#FF5722]">
+              <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#0066FF]">
                 16:9 Widescreen
               </span>
             </div>
@@ -802,7 +802,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             onClick={() => setStudioStep('inputs')}
             className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
               studioStep === 'inputs'
-                ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white font-black shadow-md shadow-[#FF5722]/20'
+                ? 'bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-white font-black shadow-md shadow-[#0066FF]/20'
                 : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
@@ -815,7 +815,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             onClick={() => plan && setStudioStep('storyboard')}
             className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
               studioStep === 'storyboard'
-                ? 'bg-gradient-to-r from-[#FF5722] to-[#FFA000] text-white font-black shadow-md shadow-[#FF5722]/20'
+                ? 'bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-white font-black shadow-md shadow-[#0066FF]/20'
                 : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed'
             }`}
           >
@@ -853,7 +853,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-4 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                       <Mic size={18} />
                     </div>
                     <div>
@@ -867,7 +867,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       <button
                         type="button"
                         onClick={handleLoadSampleDemo}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-orange-200 bg-orange-50 text-[11px] font-bold text-[#FF5722] hover:bg-orange-100 transition cursor-pointer shadow-xs"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-200 bg-blue-50 text-[11px] font-bold text-[#0066FF] hover:bg-blue-100 transition cursor-pointer shadow-xs"
                         title="Load ready-made demo narration for testing"
                       >
                         <Sparkles size={12} />
@@ -893,17 +893,17 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                     type="button"
                     onClick={() => audioInputRef.current?.click()}
                     disabled={isUploadingAudio}
-                    className="w-full h-44 border-2 border-dashed border-slate-200 hover:border-[#FF5722]/60 rounded-2xl bg-slate-50/70 hover:bg-orange-50/30 transition-all flex flex-col items-center justify-center gap-3 text-slate-500 hover:text-slate-900 cursor-pointer group"
+                    className="w-full h-44 border-2 border-dashed border-slate-200 hover:border-[#0066FF]/60 rounded-2xl bg-slate-50/70 hover:bg-blue-50/30 transition-all flex flex-col items-center justify-center gap-3 text-slate-500 hover:text-slate-900 cursor-pointer group"
                   >
-                    <div className="rounded-full bg-white p-3 group-hover:scale-110 shadow-xs group-hover:bg-orange-50 transition-transform">
-                      <UploadCloud size={32} className="text-[#FF5722]" />
+                    <div className="rounded-full bg-white p-3 group-hover:scale-110 shadow-xs group-hover:bg-blue-50 transition-transform">
+                      <UploadCloud size={32} className="text-[#0066FF]" />
                     </div>
                     <div className="text-center px-4">
                       <p className="text-sm font-bold text-slate-800">
                         {isUploadingAudio ? 'Uploading Narration Audio...' : 'Click to Upload Narration Audio'}
                       </p>
                       <p className="text-xs text-slate-500 mt-1">MP3, WAV, M4A, or MP4 audio • Max 5 Minutes (300s)</p>
-                      <span className="inline-block mt-2 font-mono text-[11px] text-[#FF5722] bg-orange-500/10 px-2.5 py-0.5 rounded-full border border-orange-500/20 font-bold">
+                      <span className="inline-block mt-2 font-mono text-[11px] text-[#0066FF] bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-bold">
                         1 Min = 1 Credit
                       </span>
                     </div>
@@ -975,7 +975,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-6 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                       <ImagePlus size={18} />
                     </div>
                     <div>
@@ -983,7 +983,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       <p className="text-[11px] text-slate-500">Book cover art, author portrait, and thematic visuals</p>
                     </div>
                   </div>
-                  <span className="text-[11px] font-extrabold uppercase bg-orange-50 border border-orange-200 text-[#FF5722] px-3 py-1 rounded-full">
+                  <span className="text-[11px] font-extrabold uppercase bg-blue-50 border border-blue-200 text-[#0066FF] px-3 py-1 rounded-full">
                     At Least 1 Image Required
                   </span>
                 </div>
@@ -994,7 +994,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-bold text-slate-700">Book Cover (Front Art)</label>
-                      <span className="text-[10px] text-orange-600 font-semibold">Recommended</span>
+                      <span className="text-[10px] text-[#0066FF] font-semibold">Recommended</span>
                     </div>
 
                     {!bookCoverUrl ? (
@@ -1002,10 +1002,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                         type="button"
                         onClick={() => coverInputRef.current?.click()}
                         disabled={isUploadingCover}
-                        className="w-full h-36 border border-slate-200 hover:border-[#FF5722]/50 rounded-2xl bg-slate-50/70 hover:bg-orange-50/20 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition cursor-pointer group"
+                        className="w-full h-36 border border-slate-200 hover:border-[#0066FF]/50 rounded-2xl bg-slate-50/70 hover:bg-blue-50/20 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition cursor-pointer group"
                       >
                         <div className="rounded-xl bg-white p-2.5 group-hover:scale-105 transition-transform shadow-xs">
-                          <BookOpen size={22} className="text-[#FF5722]" />
+                          <BookOpen size={22} className="text-[#0066FF]" />
                         </div>
                         <span className="text-xs font-bold text-slate-800">
                           {isUploadingCover ? 'Uploading Cover...' : 'Upload Book Cover'}
@@ -1026,7 +1026,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                           <button
                             type="button"
                             onClick={() => coverInputRef.current?.click()}
-                            className="mt-1 text-[11px] text-[#FF5722] hover:underline font-bold cursor-pointer"
+                            className="mt-1 text-[11px] text-[#0066FF] hover:underline font-bold cursor-pointer"
                           >
                             Change Cover
                           </button>
@@ -1056,10 +1056,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                         type="button"
                         onClick={() => authorInputRef.current?.click()}
                         disabled={isUploadingAuthor}
-                        className="w-full h-36 border border-slate-200 hover:border-[#FF5722]/50 rounded-2xl bg-slate-50/70 hover:bg-orange-50/20 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition cursor-pointer group"
+                        className="w-full h-36 border border-slate-200 hover:border-[#0066FF]/50 rounded-2xl bg-slate-50/70 hover:bg-blue-50/20 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition cursor-pointer group"
                       >
                         <div className="rounded-full bg-white p-2.5 group-hover:scale-105 transition-transform shadow-xs">
-                          <User size={22} className="text-[#FF5722]" />
+                          <User size={22} className="text-[#0066FF]" />
                         </div>
                         <span className="text-xs font-bold text-slate-800">
                           {isUploadingAuthor ? 'Uploading Portrait...' : 'Upload Author Photo'}
@@ -1078,7 +1078,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                           <button
                             type="button"
                             onClick={() => authorInputRef.current?.click()}
-                            className="mt-1 text-[11px] text-[#FF5722] hover:underline font-bold cursor-pointer"
+                            className="mt-1 text-[11px] text-[#0066FF] hover:underline font-bold cursor-pointer"
                           >
                             Change Photo
                           </button>
@@ -1108,7 +1108,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       type="button"
                       disabled={referenceImages.length >= 20 || isUploadingRef}
                       onClick={() => refImagesInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-200 bg-orange-50 text-xs font-bold text-[#FF5722] hover:bg-orange-100 disabled:opacity-40 transition cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#0066FF] hover:bg-blue-100 disabled:opacity-40 transition cursor-pointer"
                     >
                       <Plus size={13} />
                       <span>{isUploadingRef ? 'Uploading...' : 'Add Images'}</span>
@@ -1138,7 +1138,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-6 shadow-sm">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                       <Music size={18} />
                     </div>
                     <div>
@@ -1149,7 +1149,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
 
                   {/* Volume Pill Display */}
                   <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full">
-                    <Volume2 size={14} className="text-[#FF5722]" />
+                    <Volume2 size={14} className="text-[#0066FF]" />
                     <span className="text-xs font-black text-slate-800">BGM Volume: {bgmVolume}%</span>
                   </div>
                 </div>
@@ -1158,10 +1158,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                     <span className="flex items-center gap-1.5">
-                      <Sliders size={13} className="text-[#FF5722]" />
+                      <Sliders size={13} className="text-[#0066FF]" />
                       <span>Background Music Volume (Default: 12%)</span>
                     </span>
-                    <span className="font-mono text-xs font-black text-[#FF5722] bg-white px-2 py-0.5 rounded-md border border-slate-200">
+                    <span className="font-mono text-xs font-black text-[#0066FF] bg-white px-2 py-0.5 rounded-md border border-slate-200">
                       {bgmVolume}%
                     </span>
                   </div>
@@ -1190,7 +1190,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                         onClick={() => setBgmVolume(p.val)}
                         className={`text-[10px] font-bold px-2 py-1 rounded-md border transition cursor-pointer ${
                           bgmVolume === p.val
-                            ? 'bg-[#FF5722] text-white border-[#FF5722]'
+                            ? 'bg-[#FF5722] text-white border-[#0066FF]'
                             : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
@@ -1211,7 +1211,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
 
                 <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-4 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-[#FF5722] shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0066FF] shrink-0">
                       <Upload size={18} />
                     </div>
                     <div className="min-w-0">
@@ -1272,7 +1272,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                           }}
                           className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2.5 ${
                             isSelected
-                              ? 'border-orange-500 bg-orange-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500'
+                              ? 'border-[#0066FF] bg-blue-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500'
                               : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
                           }`}
                         >
@@ -1297,12 +1297,12 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                                 title="Listen to Preview"
                                 className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition cursor-pointer shadow-xs"
                               >
-                                {isPlaying ? <Pause size={12} className="text-[#FF5722]" /> : <Play size={12} className="text-slate-600" />}
+                                {isPlaying ? <Pause size={12} className="text-[#0066FF]" /> : <Play size={12} className="text-slate-600" />}
                               </button>
                             )}
 
                             {isSelected && (
-                              <CheckCircle2 size={16} className="text-[#FF5722]" />
+                              <CheckCircle2 size={16} className="text-[#0066FF]" />
                             )}
                           </div>
                         </div>
@@ -1316,7 +1316,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                       <Type size={18} />
                     </div>
                     <div>
@@ -1334,7 +1334,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                         onClick={() => setCaptionSearchFilter(cat)}
                         className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border transition cursor-pointer ${
                           captionSearchFilter === cat
-                            ? 'bg-[#FF5722] text-white border-[#FF5722]'
+                            ? 'bg-[#FF5722] text-white border-[#0066FF]'
                             : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                         }`}
                       >
@@ -1355,7 +1355,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                         onClick={() => setSelectedCaptionTheme(theme.id)}
                         className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
                           isSelected
-                            ? 'border-orange-500 bg-orange-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500'
+                            ? 'border-[#0066FF] bg-blue-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500'
                             : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
                         }`}
                       >
@@ -1381,7 +1381,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-orange-500/10 p-2 text-[#FF5722] border border-orange-500/20">
+                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
                       <BookOpen size={18} />
                     </div>
                     <div>
@@ -1402,7 +1402,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       value={bookTitle}
                       onChange={e => setBookTitle(e.target.value)}
                       placeholder="e.g. Atomic Habits, Psychology of Money"
-                      className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition shadow-xs"
+                      className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition shadow-xs"
                     />
                   </div>
 
@@ -1413,13 +1413,13 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                       value={authorName}
                       onChange={e => setAuthorName(e.target.value)}
                       placeholder="e.g. James Clear, Morgan Housel"
-                      className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition shadow-xs"
+                      className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition shadow-xs"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                      <Tag size={13} className="text-[#FF5722]" />
+                      <Tag size={13} className="text-[#0066FF]" />
                       <span>Book Genre / Topic Category</span>
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
@@ -1430,7 +1430,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                           onClick={() => setSelectedTopic(top.value)}
                           className={`px-3 py-2 rounded-xl text-xs font-bold text-left transition cursor-pointer border ${
                             selectedTopic === top.value
-                              ? 'border-orange-500 bg-orange-50 text-[#FF5722] shadow-xs'
+                              ? 'border-[#0066FF] bg-blue-50 text-[#0066FF] shadow-xs'
                               : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                           }`}
                         >
@@ -1447,7 +1447,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 <div className="flex items-center justify-between text-xs font-bold text-slate-600">
                   <span>Output Aspect Ratio:</span>
                   <span className="font-black text-slate-900 flex items-center gap-1">
-                    <Sparkles size={12} className="text-[#FF5722]" />
+                    <Sparkles size={12} className="text-[#0066FF]" />
                     16:9 Landscape Widescreen
                   </span>
                 </div>
@@ -1465,7 +1465,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 </div>
                 <div className="flex items-center justify-between text-xs font-bold text-slate-600 pt-2 border-t border-slate-200">
                   <span>Estimated Credit Cost:</span>
-                  <span className="font-mono text-sm font-black text-[#FF5722]">
+                  <span className="font-mono text-sm font-black text-[#0066FF]">
                     {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} (1 Min = 1 Cr)
                   </span>
                 </div>
@@ -1476,7 +1476,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 type="button"
                 onClick={handleAnalyzeAndBuildStoryboard}
                 disabled={isAnalyzing || !audioUrl}
-                className="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-6 py-4 text-base font-black text-white shadow-xl shadow-[#FF5722]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-6 py-4 text-base font-black text-white shadow-xl shadow-[#0066FF]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isAnalyzing ? (
                   <>
@@ -1504,7 +1504,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             <div>
               <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
                 <span>AI Storyboard &amp; Scene Timeline</span>
-                <span className="text-xs font-extrabold bg-orange-100 border border-orange-200 text-[#FF5722] px-2.5 py-0.5 rounded-full">
+                <span className="text-xs font-extrabold bg-blue-100 border border-blue-200 text-[#0066FF] px-2.5 py-0.5 rounded-full">
                   {activeScenes.length} Active Scenes
                 </span>
               </h3>
@@ -1519,7 +1519,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
                 className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition cursor-pointer ${
                   showTranscriptEditor
-                    ? 'border-orange-500 bg-orange-50 text-[#FF5722]'
+                    ? 'border-[#0066FF] bg-blue-50 text-[#0066FF]'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
                 }`}
               >
@@ -1530,7 +1530,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               <button
                 type="button"
                 onClick={handleAddKeyIdeaScene}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-4 py-2 text-xs font-bold text-[#FF5722] hover:bg-orange-100 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-bold text-[#0066FF] hover:bg-blue-100 transition cursor-pointer"
               >
                 <Plus size={14} />
                 <span>Add Key Takeaway Card</span>
@@ -1540,10 +1540,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
 
           {/* EDITORIAL TRANSCRIPT MARKDOWN EDITOR (Fix Spelling Mistakes & Typos) */}
           {showTranscriptEditor && (
-            <div className="rounded-[28px] border-2 border-orange-200 bg-white p-6 space-y-4 shadow-md">
+            <div className="rounded-[28px] border-2 border-blue-200 bg-white p-6 space-y-4 shadow-md">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                  <div className="p-2 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
                     <FileText size={18} />
                   </div>
                   <div>
@@ -1580,7 +1580,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 onChange={e => setEditableTranscript(e.target.value)}
                 rows={6}
                 placeholder="Spoken narration transcript..."
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] focus:outline-none transition shadow-inner font-mono"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition shadow-inner font-mono"
               />
 
               <div className="flex items-center justify-between text-[11px] text-slate-500">
@@ -1591,10 +1591,10 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
           )}
 
           {/* COMPULSORY INTERACTIVE 16:9 VISUAL PREVIEW PLAYER WITH AUDIO SYNC */}
-          <div className="rounded-[28px] border-2 border-orange-200 bg-white p-6 sm:p-7 space-y-5 shadow-lg shadow-orange-500/5">
+          <div className="rounded-[28px] border-2 border-blue-200 bg-white p-6 sm:p-7 space-y-5 shadow-lg shadow-[#0066FF]/10">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-orange-500/10 text-[#FF5722] border border-orange-500/20">
+                <div className="p-2 rounded-xl bg-blue-500/10 text-[#0066FF] border border-blue-500/20">
                   <Eye size={18} />
                 </div>
                 <div>
@@ -1617,12 +1617,12 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                   >
                     {isPreviewAudioPlaying ? (
                       <>
-                        <Pause size={13} className="text-[#FF5722]" />
+                        <Pause size={13} className="text-[#0066FF]" />
                         <span>Pause Audio Sync</span>
                       </>
                     ) : (
                       <>
-                        <Play size={13} className="text-[#FF5722]" />
+                        <Play size={13} className="text-[#0066FF]" />
                         <span>Play Audio Sync</span>
                       </>
                     )}
@@ -1660,14 +1660,14 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               />
 
               {/* Soft Ambient Glows */}
-              <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+              <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
               <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
 
               {/* Scene Content inside Canvas */}
               {currentPreviewScene ? (
                 <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center justify-center space-y-4">
                   {/* Category Pill */}
-                  <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-orange-100 text-[#FF5722] border border-orange-200">
+                  <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-blue-100 text-[#0066FF] border border-blue-200">
                     {currentPreviewScene.type === 'BOOK_COVER' ? '3D BOOK COVER INTRO' :
                      currentPreviewScene.type === 'LESSON_TITLE' ? 'CHAPTER TITLE' :
                      currentPreviewScene.type === 'KEY_IDEA' ? 'CORE TAKEAWAY' :
@@ -1686,7 +1686,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                           <img src={bookCoverUrl} alt="Cover" className="w-full h-full object-cover" />
                         </div>
                       ) : (
-                        <div className="w-20 h-28 rounded-r-md bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-black text-xs p-2 shadow-xl">
+                        <div className="w-20 h-28 rounded-r-md bg-gradient-to-br from-[#0066FF] to-amber-600 flex items-center justify-center text-white font-black text-xs p-2 shadow-xl">
                           {bookTitle || 'Book'}
                         </div>
                       )}
@@ -1757,7 +1757,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition cursor-pointer ${
                   previewReviewed
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                    : 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20 hover:brightness-110 active:scale-95'
+                    : 'bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-md shadow-[#0066FF]/25/20 hover:brightness-110 active:scale-95'
                 }`}
               >
                 {previewReviewed ? (
@@ -1783,13 +1783,13 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 className={`rounded-2xl border p-5 transition-all ${
                   scene.disabled
                     ? 'border-slate-200 bg-slate-100/60 opacity-50'
-                    : 'border-slate-200 bg-white hover:border-[#FF5722]/50 shadow-xs'
+                    : 'border-slate-200 bg-white hover:border-[#0066FF]/50 shadow-xs'
                 }`}
               >
                 <div className="flex items-center justify-between gap-4">
                   {/* Scene Time & Type Badge */}
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="font-mono text-xs font-black text-[#FF5722] bg-[#FF5722]/10 px-2.5 py-1 rounded-lg border border-[#FF5722]/20">
+                    <span className="font-mono text-xs font-black text-[#0066FF] bg-[#0066FF]/10 px-2.5 py-1 rounded-lg border border-[#0066FF]/20">
                       {formatTime(scene.startSeconds)} - {formatTime(scene.endSeconds)}
                     </span>
 
@@ -1797,7 +1797,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                     <select
                       value={scene.type}
                       onChange={e => handleUpdateSceneType(scene.id, e.target.value as BookSummarySceneType)}
-                      className="text-[10px] font-black uppercase px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 cursor-pointer focus:outline-none focus:border-orange-500"
+                      className="text-[10px] font-black uppercase px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 cursor-pointer focus:outline-none focus:border-[#0066FF]"
                     >
                       <option value="LESSON_TITLE">Chapter Title</option>
                       <option value="KEY_IDEA">Core Takeaway</option>
@@ -1849,7 +1849,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                         value={scene.text || ''}
                         onChange={e => handleUpdateSceneText(scene.id, e.target.value)}
                         placeholder="Scene Headline..."
-                        className="w-full mt-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-bold text-slate-900 focus:border-[#FF5722] focus:outline-none shadow-xs"
+                        className="w-full mt-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-bold text-slate-900 focus:border-[#0066FF] focus:outline-none shadow-xs"
                       />
                     </div>
                     <div>
@@ -1861,7 +1861,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                         value={scene.subtitle || ''}
                         onChange={e => handleUpdateSceneSubtitle(scene.id, e.target.value)}
                         placeholder="e.g. Core Principle #1..."
-                        className="w-full mt-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-700 focus:border-[#FF5722] focus:outline-none shadow-xs"
+                        className="w-full mt-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-700 focus:border-[#0066FF] focus:outline-none shadow-xs"
                       />
                     </div>
                   </div>
@@ -1891,8 +1891,8 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
                 !previewReviewed
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
                   : isSubmittingRender
-                  ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white opacity-80 cursor-wait animate-pulse shadow-xl"
-                  : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer"
+                  ? "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white opacity-80 cursor-wait animate-pulse shadow-xl"
+                  : "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-xl shadow-[#0066FF]/30 hover:brightness-110 active:scale-95 cursor-pointer"
               }`}
             >
               {!previewReviewed ? (
@@ -1919,7 +1919,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       {studioStep === 'inputs' && audioUrl && (
         <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
           <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase text-[#FF5722] tracking-wider truncate">
+            <p className="text-[11px] font-black uppercase text-[#0066FF] tracking-wider truncate">
               {bookTitle || 'Book Summary'}
             </p>
             <p className="text-[10px] text-slate-500 font-bold">
@@ -1930,7 +1930,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             type="button"
             onClick={handleAnalyzeAndBuildStoryboard}
             disabled={isAnalyzing}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#FF5722]/20 active:scale-95 disabled:opacity-50"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#0066FF]/20 active:scale-95 disabled:opacity-50"
           >
             {isAnalyzing ? (
               <>
@@ -1966,7 +1966,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-black shadow-lg transition ${
               !previewReviewed
                 ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-[#FF5722]/20 active:scale-95"
+                : "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-[#0066FF]/20 active:scale-95"
             }`}
           >
             {!previewReviewed ? (

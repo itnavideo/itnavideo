@@ -30,8 +30,8 @@ export default function CinemaLongToolsSection({
       {/* Section Header Banner */}
       <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-r from-[#12151F] via-[#181B26] to-[#0B0D13] shadow-2xl min-h-[120px] p-5 flex flex-col justify-between">
         <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-black tracking-wider text-amber-300">
-            <Film size={13} className="text-amber-400" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#0066FF]/40 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-black tracking-wider text-[#3B82F6]">
+            <Film size={13} className="text-[#3B82F6]" />
             <span>16:9 WIDESCREEN CINEMA & LONG-FORM</span>
           </div>
           <span className="rounded-full border border-white/20 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-black text-white">
@@ -41,7 +41,7 @@ export default function CinemaLongToolsSection({
         <div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
             16:9 Cinema &amp; Long-Form{' '}
-            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-[#FFA000] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] bg-clip-text text-transparent">
               Studios
             </span>
           </h2>
@@ -60,7 +60,7 @@ export default function CinemaLongToolsSection({
             <Link
               key={tool.id}
               href={tool.slug}
-              className="group relative flex flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#0E1526] shadow-xl hover:border-amber-400/80 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer"
+              className="group relative flex flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#0E1526] shadow-xl hover:border-[#0066FF]/80 hover:shadow-2xl hover:shadow-[#0066FF]/20 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer"
             >
               {/* Image Container 16:9 */}
               <div className="relative aspect-[16/9] w-full overflow-hidden bg-black/50">
@@ -77,14 +77,14 @@ export default function CinemaLongToolsSection({
               {/* Bottom Card Title & Action CTA */}
               <div className="flex items-center justify-between gap-3 p-4 bg-[#0E1526] border-t border-white/10">
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                  <h3 className="text-sm font-black text-white group-hover:text-[#3B82F6] transition-colors truncate">
                     {tool.title}
                   </h3>
                   <p className="text-[11px] font-medium text-slate-400 line-clamp-1 mt-0.5">
                     {tool.description}
                   </p>
                 </div>
-                <div className="flex items-center gap-1 shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-[#FF7043] px-3 py-1.5 text-[11px] font-black text-black shadow-md group-hover:brightness-110 transition-all">
+                <div className="flex items-center gap-1 shrink-0 rounded-full bg-gradient-to-r from-[#0052CC] to-[#0066FF] px-3 py-1.5 text-[11px] font-bold text-white shadow-md group-hover:brightness-110 transition-all">
                   <span>Open</span>
                   <ArrowRight size={13} strokeWidth={3} />
                 </div>

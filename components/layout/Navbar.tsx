@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { 
-  ChevronDown, 
-  Sparkles, 
-  LayoutDashboard, 
-  LogOut, 
-  User, 
-  CreditCard, 
+import {
+  ChevronDown,
+  Sparkles,
+  LayoutDashboard,
+  LogOut,
+  User,
+  CreditCard,
   X,
   Smartphone,
   Captions,
@@ -115,16 +115,15 @@ export default function Navbar() {
     <>
       <header
         ref={navRef}
-        className={`sticky top-0 z-50 w-full transition-all duration-300 px-4 py-3.5 md:px-8 border-b ${
-          isLightPage
+        className={`sticky top-0 z-50 w-full transition-all duration-300 px-4 py-3.5 md:px-8 border-b ${isLightPage
             ? scrolled
               ? 'border-slate-200 bg-white/95 text-slate-900 backdrop-blur-md shadow-xs'
               : 'border-slate-100 bg-white text-slate-900'
             : 'border-white/10 bg-black text-white'
-        }`}
+          }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          
+
           {/* LEFT: BRAND LOGO */}
           <div className="flex items-center gap-10">
             <BrandLogo size="sm" showBadge={false} variant={isLightPage ? 'light' : 'dark'} />
@@ -132,24 +131,22 @@ export default function Navbar() {
             {/* DESKTOP NAVIGATION LINKS */}
             {!isDashboard && (
               <nav className={`hidden lg:flex items-center gap-7 text-sm font-medium ${isLightPage ? 'text-slate-700' : 'text-zinc-300'}`}>
-                
+
                 {/* 1. Products Mega Menu Dropdown */}
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => toggleMenu('products')}
-                    className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${
-                      activeMenu === 'products'
+                    className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${activeMenu === 'products'
                         ? 'text-[#0066FF] font-bold'
                         : isLightPage
-                        ? 'text-slate-800 hover:text-[#0066FF]'
-                        : 'text-zinc-300 hover:text-white'
-                    }`}
+                          ? 'text-slate-800 hover:text-[#0066FF]'
+                          : 'text-zinc-300 hover:text-white'
+                      }`}
                   >
                     <span>Products</span>
-                    <ChevronDown size={14} className={`transition-transform duration-200 ${
-                      activeMenu === 'products' ? 'rotate-180 text-[#0066FF]' : 'text-slate-400'
-                    }`} />
+                    <ChevronDown size={14} className={`transition-transform duration-200 ${activeMenu === 'products' ? 'rotate-180 text-[#0066FF]' : 'text-slate-400'
+                      }`} />
                   </button>
 
                   {activeMenu === 'products' && (
@@ -242,43 +239,40 @@ export default function Navbar() {
                 </div>
 
                 {/* 2. Features */}
-                <Link 
-                  href="/features" 
-                  className={`transition font-semibold ${
-                    isActive('/features')
+                <Link
+                  href="/features"
+                  className={`transition font-semibold ${isActive('/features')
                       ? 'text-[#0066FF] font-bold'
-                      : isLightPage 
-                      ? 'text-slate-800 hover:text-[#0066FF]' 
-                      : 'text-zinc-300 hover:text-white'
-                  }`}
+                      : isLightPage
+                        ? 'text-slate-800 hover:text-[#0066FF]'
+                        : 'text-zinc-300 hover:text-white'
+                    }`}
                 >
                   Features
                 </Link>
 
                 {/* 3. Pricing */}
-                <Link 
-                  href="/pricing" 
-                  className={`transition font-semibold ${
-                    isActive('/pricing')
+                <Link
+                  href="/pricing"
+                  className={`transition font-semibold ${isActive('/pricing')
                       ? 'text-[#0066FF] font-bold'
-                      : isLightPage 
-                      ? 'text-slate-800 hover:text-[#0066FF]' 
-                      : 'text-zinc-300 hover:text-white'
-                  }`}
+                      : isLightPage
+                        ? 'text-slate-800 hover:text-[#0066FF]'
+                        : 'text-zinc-300 hover:text-white'
+                    }`}
                 >
                   Pricing
                 </Link>
 
                 {/* 4. Blog (Direct Top Level Link) */}
-                <Link 
-                  href="/blog" 
-                  className={`transition font-semibold ${
-                    isActive('/blog')
+                <Link
+                  href="/blog"
+                  className={`transition font-semibold ${isActive('/blog')
                       ? 'text-[#0066FF] font-bold'
-                      : isLightPage 
-                      ? 'text-slate-800 hover:text-[#0066FF]' 
-                      : 'text-zinc-300 hover:text-white'
-                  }`}
+                      : isLightPage
+                        ? 'text-slate-800 hover:text-[#0066FF]'
+                        : 'text-zinc-300 hover:text-white'
+                    }`}
                 >
                   Blog
                 </Link>
@@ -288,18 +282,16 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => toggleMenu('resources')}
-                    className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${
-                      activeMenu === 'resources'
+                    className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${activeMenu === 'resources'
                         ? 'text-[#0066FF] font-bold'
                         : isLightPage
-                        ? 'text-slate-800 hover:text-[#0066FF]'
-                        : 'text-zinc-300 hover:text-white'
-                    }`}
+                          ? 'text-slate-800 hover:text-[#0066FF]'
+                          : 'text-zinc-300 hover:text-white'
+                      }`}
                   >
                     <span>Resources</span>
-                    <ChevronDown size={14} className={`transition-transform duration-200 ${
-                      activeMenu === 'resources' ? 'rotate-180 text-[#0066FF]' : 'text-slate-400'
-                    }`} />
+                    <ChevronDown size={14} className={`transition-transform duration-200 ${activeMenu === 'resources' ? 'rotate-180 text-[#0066FF]' : 'text-slate-400'
+                      }`} />
                   </button>
 
                   {activeMenu === 'resources' && (
@@ -347,23 +339,20 @@ export default function Navbar() {
                 <button
                   type="button"
                   onClick={toggleUserMenu}
-                  className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 transition text-left cursor-pointer shadow-2xs ${
-                    isLightPage
+                  className={`flex items-center gap-2 rounded-xl border px-3 py-1.5 transition text-left cursor-pointer shadow-2xs ${isLightPage
                       ? 'border-slate-200 bg-slate-100 hover:bg-slate-200'
                       : 'border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-purple-500/50'
-                  }`}
+                    }`}
                 >
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-purple-600 to-pink-500 text-white font-black text-xs shadow-xs">
                     {user?.email ? user.email.charAt(0).toUpperCase() : <User size={13} />}
                   </div>
-                  <span className={`max-w-[110px] truncate text-xs font-bold capitalize ${
-                    isLightPage ? 'text-slate-900' : 'text-white'
-                  }`}>
+                  <span className={`max-w-[110px] truncate text-xs font-bold capitalize ${isLightPage ? 'text-slate-900' : 'text-white'
+                    }`}>
                     {user?.displayName || (user?.email?.split('@')[0] ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : 'Creator')}
                   </span>
-                  <ChevronDown size={12} className={`transition-transform duration-200 ${
-                    isLightPage ? 'text-slate-500' : 'text-zinc-400'
-                  } ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={12} className={`transition-transform duration-200 ${isLightPage ? 'text-slate-500' : 'text-zinc-400'
+                    } ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {userMenuOpen && (
@@ -411,9 +400,8 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <Link
                   href="/login"
-                  className={`text-sm font-semibold transition px-2 py-1 ${
-                    isLightPage ? 'text-slate-700 hover:text-slate-900' : 'text-zinc-300 hover:text-white'
-                  }`}
+                  className={`text-sm font-semibold transition px-2 py-1 ${isLightPage ? 'text-slate-700 hover:text-slate-900' : 'text-zinc-300 hover:text-white'
+                    }`}
                 >
                   Log In
                 </Link>
@@ -431,29 +419,25 @@ export default function Navbar() {
           {/* MOBILE HAMBURGER BUTTON */}
           <button
             type="button"
-            className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-xs active:scale-95 transition-all duration-300 hover:border-blue-500/50 lg:hidden cursor-pointer ${
-              isLightPage
+            className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-xs active:scale-95 transition-all duration-300 hover:border-blue-500/50 lg:hidden cursor-pointer ${isLightPage
                 ? 'border-slate-200 bg-slate-50 text-slate-900'
                 : 'border-white/10 bg-[#0F1117] text-white'
-            }`}
+              }`}
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
           >
             <div className="relative flex flex-col justify-between h-[13px] w-[18px]">
               <span
-                className={`h-[2px] w-full rounded-full transition-all duration-300 transform origin-left ${
-                  isLightPage ? 'bg-slate-900' : 'bg-white'
-                } ${isOpen ? 'rotate-45 translate-x-[2px] -translate-y-[1px] !bg-[#0066FF]' : ''}`}
+                className={`h-[2px] w-full rounded-full transition-all duration-300 transform origin-left ${isLightPage ? 'bg-slate-900' : 'bg-white'
+                  } ${isOpen ? 'rotate-45 translate-x-[2px] -translate-y-[1px] !bg-[#0066FF]' : ''}`}
               />
               <span
-                className={`h-[2px] w-[14px] rounded-full transition-all duration-300 ${
-                  isLightPage ? 'bg-slate-900' : 'bg-white'
-                } ${isOpen ? 'opacity-0 translate-x-2' : ''}`}
+                className={`h-[2px] w-[14px] rounded-full transition-all duration-300 ${isLightPage ? 'bg-slate-900' : 'bg-white'
+                  } ${isOpen ? 'opacity-0 translate-x-2' : ''}`}
               />
               <span
-                className={`h-[2px] w-full rounded-full transition-all duration-300 transform origin-left ${
-                  isLightPage ? 'bg-slate-900' : 'bg-white'
-                } ${isOpen ? '-rotate-45 translate-x-[2px] translate-y-[1px] !bg-[#0066FF]' : ''}`}
+                className={`h-[2px] w-full rounded-full transition-all duration-300 transform origin-left ${isLightPage ? 'bg-slate-900' : 'bg-white'
+                  } ${isOpen ? '-rotate-45 translate-x-[2px] translate-y-[1px] !bg-[#0066FF]' : ''}`}
               />
             </div>
           </button>
@@ -464,7 +448,7 @@ export default function Navbar() {
       {/* MOBILE FLYOUT DRAWER — CLEAN FULL-HEIGHT ACCORDION LAYOUT */}
       {isOpen && (
         <div className="fixed inset-0 z-[120] flex flex-col bg-white text-slate-900 lg:hidden animate-in fade-in duration-200">
-          
+
           {/* Top Brand & Close Bar */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
             <BrandLogo size="sm" showBadge={false} variant="light" />
@@ -480,7 +464,7 @@ export default function Navbar() {
 
           {/* Scrollable Navigation Body */}
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
-            
+
             {/* 1. Video Studios Accordion */}
             <div className="border-b border-slate-100 pb-2">
               <button
@@ -496,9 +480,8 @@ export default function Navbar() {
                 </span>
                 <ChevronDown
                   size={18}
-                  className={`text-slate-400 transition-transform duration-200 ${
-                    mobileStudiosOpen ? 'rotate-180 text-[#0066FF]' : ''
-                  }`}
+                  className={`text-slate-400 transition-transform duration-200 ${mobileStudiosOpen ? 'rotate-180 text-[#0066FF]' : ''
+                    }`}
                 />
               </button>
 
@@ -571,9 +554,8 @@ export default function Navbar() {
               <Link
                 href="/features"
                 onClick={closeMobileMenu}
-                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/features') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
-                }`}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${isActive('/features') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
+                  }`}
               >
                 <span>Features</span>
                 <ChevronRight size={17} className="text-slate-300" />
@@ -582,9 +564,8 @@ export default function Navbar() {
               <Link
                 href="/pricing"
                 onClick={closeMobileMenu}
-                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/pricing') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
-                }`}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${isActive('/pricing') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
+                  }`}
               >
                 <span>Pricing</span>
                 <ChevronRight size={17} className="text-slate-300" />
@@ -593,9 +574,8 @@ export default function Navbar() {
               <Link
                 href="/blog"
                 onClick={closeMobileMenu}
-                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/blog') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
-                }`}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${isActive('/blog') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
+                  }`}
               >
                 <span>Blog</span>
                 <ChevronRight size={17} className="text-slate-300" />
@@ -604,9 +584,8 @@ export default function Navbar() {
               <Link
                 href="/video-types"
                 onClick={closeMobileMenu}
-                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/video-types') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
-                }`}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${isActive('/video-types') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
+                  }`}
               >
                 <span>Video Types &amp; Specs</span>
                 <ChevronRight size={17} className="text-slate-300" />
@@ -615,9 +594,8 @@ export default function Navbar() {
               <Link
                 href="/about"
                 onClick={closeMobileMenu}
-                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/about') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
-                }`}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${isActive('/about') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
+                  }`}
               >
                 <span>About Us</span>
                 <ChevronRight size={17} className="text-slate-300" />
@@ -626,9 +604,8 @@ export default function Navbar() {
               <Link
                 href="/contact"
                 onClick={closeMobileMenu}
-                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/contact') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
-                }`}
+                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${isActive('/contact') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
+                  }`}
               >
                 <span>Contact Us</span>
                 <ChevronRight size={17} className="text-slate-300" />

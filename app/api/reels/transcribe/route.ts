@@ -14,7 +14,8 @@ export async function POST(request: Request) {
       const formData = await request.formData();
       const file = formData.get("file") as File | null;
       const fileName = String(formData.get("fileName") || file?.name || "uploaded_media.mp4");
-      const spokenLanguage = String(formData.get("spokenLanguage") || "auto").trim();
+      const spokenLanguageRaw = String(formData.get("spokenLanguage") || "auto").trim().toLowerCase();
+      const spokenLanguage = spokenLanguageRaw === "auto" ? undefined : spokenLanguageRaw;
 
       if (!file || file.size === 0) {
         return NextResponse.json(
@@ -58,7 +59,8 @@ export async function POST(request: Request) {
     // JSON body with mediaKey
     const body = await request.json().catch(() => ({}));
     const mediaKey = String(body.mediaKey || "").trim();
-    const spokenLanguage = String(body.spokenLanguage || "auto").trim();
+    const spokenLanguageRaw = String(body.spokenLanguage || "auto").trim().toLowerCase();
+    const spokenLanguage = spokenLanguageRaw === "auto" ? undefined : spokenLanguageRaw;
     const fileName = String(body.fileName || "uploaded_media.mp4").trim();
 
     if (!mediaKey) {

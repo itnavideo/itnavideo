@@ -345,10 +345,10 @@ export function FacelessShortsStudio({
     <div className="w-full space-y-6">
       {/* Studio Header Card (Clean White Surface) */}
       <div className="relative rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs overflow-hidden">
-        <BorderBeam size={220} duration={14} delay={0} colorFrom="#FF5722" colorTo="#FFA000" />
+        <BorderBeam size={220} duration={14} delay={0} colorFrom="#0066FF" colorTo="#2563EB" />
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-black text-[#FF5722]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-black text-[#0066FF]">
               <Sparkles size={13} />
               <span>9:16 Vertical Shorts · Clean White Studio</span>
             </div>
@@ -372,7 +372,7 @@ export function FacelessShortsStudio({
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center shadow-xs">
               <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Shorts Rate</span>
-              <span className="text-sm font-black text-[#FF5722]">1 Credit / Short (90s Max)</span>
+              <span className="text-sm font-black text-[#0066FF]">1 Credit / Short (90s Max)</span>
             </div>
           </div>
         </div>
@@ -403,7 +403,7 @@ export function FacelessShortsStudio({
             onClick={() => setActiveTab('media')}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === 'media'
-                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#0066FF]/20'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
@@ -416,7 +416,7 @@ export function FacelessShortsStudio({
             onClick={() => setActiveTab('captions')}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === 'captions'
-                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#0066FF]/20'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
@@ -429,7 +429,7 @@ export function FacelessShortsStudio({
             onClick={() => setActiveTab('audio')}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === 'audio'
-                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#0066FF]/20'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
@@ -442,7 +442,7 @@ export function FacelessShortsStudio({
             onClick={() => setActiveTab('preview')}
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition cursor-pointer ${
               activeTab === 'preview'
-                ? 'bg-[#FF5722] text-white shadow-md shadow-[#FF5722]/20'
+                ? 'bg-[#FF5722] text-white shadow-md shadow-[#0066FF]/20'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
             }`}
           >
@@ -460,7 +460,7 @@ export function FacelessShortsStudio({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                <div className="p-2.5 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
                   <UploadCloud size={20} />
                 </div>
                 <div>
@@ -488,9 +488,9 @@ export function FacelessShortsStudio({
             {!selectedFile ? (
               <div
                 onClick={() => audioFileInputRef.current?.click()}
-                className="border-2 border-dashed border-slate-200 hover:border-[#FF5722] bg-slate-50 hover:bg-orange-50/30 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
+                className="border-2 border-dashed border-slate-200 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/30 rounded-2xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-3 group"
               >
-                <div className="p-3.5 rounded-2xl bg-white text-slate-400 group-hover:text-[#FF5722] shadow-xs border border-slate-200 transition">
+                <div className="p-3.5 rounded-2xl bg-white text-slate-400 group-hover:text-[#0066FF] shadow-xs border border-slate-200 transition">
                   <UploadCloud size={28} />
                 </div>
                 <div>
@@ -501,7 +501,7 @@ export function FacelessShortsStudio({
             ) : (
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5 w-full sm:w-auto">
-                  <div className="p-3 rounded-xl bg-white text-[#FF5722] border border-slate-200 shadow-xs">
+                  <div className="p-3 rounded-xl bg-white text-[#0066FF] border border-slate-200 shadow-xs">
                     <Volume2 size={20} />
                   </div>
                   <div className="truncate">
@@ -542,7 +542,7 @@ export function FacelessShortsStudio({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                <div className="p-2.5 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
                   <Video size={20} />
                 </div>
                 <div>
@@ -574,7 +574,7 @@ export function FacelessShortsStudio({
                   onClick={() => imageFileInputRef.current?.click()}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 px-3.5 py-2 text-xs font-bold shadow-xs transition cursor-pointer"
                 >
-                  <ImageIcon size={14} className="text-[#FF5722]" />
+                  <ImageIcon size={14} className="text-[#0066FF]" />
                   <span>+ Add Images</span>
                 </button>
 
@@ -583,7 +583,7 @@ export function FacelessShortsStudio({
                   onClick={() => videoFileInputRef.current?.click()}
                   className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-800 px-3.5 py-2 text-xs font-bold shadow-xs transition cursor-pointer"
                 >
-                  <Video size={14} className="text-[#FF5722]" />
+                  <Video size={14} className="text-[#0066FF]" />
                   <span>+ Add Video Clips</span>
                 </button>
 
@@ -608,9 +608,9 @@ export function FacelessShortsStudio({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div
                   onClick={() => imageFileInputRef.current?.click()}
-                  className="border-2 border-dashed border-slate-200 hover:border-[#FF5722] bg-slate-50 hover:bg-orange-50/30 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 group"
+                  className="border-2 border-dashed border-slate-200 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/30 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 group"
                 >
-                  <div className="p-3 rounded-2xl bg-white text-slate-400 group-hover:text-[#FF5722] shadow-xs border border-slate-200">
+                  <div className="p-3 rounded-2xl bg-white text-slate-400 group-hover:text-[#0066FF] shadow-xs border border-slate-200">
                     <ImageIcon size={24} />
                   </div>
                   <p className="text-xs font-black text-slate-800">Upload Multiple Images</p>
@@ -619,9 +619,9 @@ export function FacelessShortsStudio({
 
                 <div
                   onClick={() => videoFileInputRef.current?.click()}
-                  className="border-2 border-dashed border-slate-200 hover:border-[#FF5722] bg-slate-50 hover:bg-orange-50/30 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 group"
+                  className="border-2 border-dashed border-slate-200 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/30 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2 group"
                 >
-                  <div className="p-3 rounded-2xl bg-white text-slate-400 group-hover:text-[#FF5722] shadow-xs border border-slate-200">
+                  <div className="p-3 rounded-2xl bg-white text-slate-400 group-hover:text-[#0066FF] shadow-xs border border-slate-200">
                     <Video size={24} />
                   </div>
                   <p className="text-xs font-black text-slate-800">Upload Video Clips</p>
@@ -714,7 +714,7 @@ export function FacelessShortsStudio({
                   value={topicTitle}
                   onChange={(e) => onTopicTitleChange && onTopicTitleChange(e.target.value)}
                   placeholder="e.g. 3 Habits of High Performers..."
-                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#FF5722] shadow-xs"
+                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#0066FF] shadow-xs"
                 />
               </div>
 
@@ -723,7 +723,7 @@ export function FacelessShortsStudio({
                 <select
                   value={backgroundTheme}
                   onChange={(e) => onBackgroundThemeChange && onBackgroundThemeChange(e.target.value)}
-                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#FF5722] shadow-xs cursor-pointer"
+                  className="w-full mt-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#0066FF] shadow-xs cursor-pointer"
                 >
                   <option value="solid-white">Clean Pure White (Recommended)</option>
                   <option value="warm-editorial">Warm Editorial Sand</option>
@@ -774,7 +774,7 @@ export function FacelessShortsStudio({
                     onClick={() => onSubtitleStyleChange && onSubtitleStyleChange(style.id)}
                     className={`rounded-2xl border-2 p-4 cursor-pointer transition flex flex-col justify-between gap-3 ${
                       isSelected
-                        ? 'border-[#FF5722] bg-orange-50/50 shadow-md ring-2 ring-[#FF5722]/20'
+                        ? 'border-[#0066FF] bg-blue-50/50 shadow-md ring-2 ring-[#0066FF]/20'
                         : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'
                     }`}
                   >
@@ -822,7 +822,7 @@ export function FacelessShortsStudio({
 
               {/* Volume Slider Card */}
               <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2 rounded-2xl">
-                <Volume2 size={16} className="text-[#FF5722]" />
+                <Volume2 size={16} className="text-[#0066FF]" />
                 <span className="text-xs font-bold text-slate-700">Volume:</span>
                 <input
                   type="range"
@@ -875,7 +875,7 @@ export function FacelessShortsStudio({
                     key={track.id}
                     className={`rounded-2xl border p-4 flex items-center justify-between gap-3 transition cursor-pointer ${
                       isSelected
-                        ? 'border-[#FF5722] bg-orange-50/40 shadow-xs'
+                        ? 'border-[#0066FF] bg-blue-50/40 shadow-xs'
                         : 'border-slate-200 bg-slate-50 hover:bg-white'
                     }`}
                     onClick={() => setSelectedBgmPath(track.path)}
@@ -890,7 +890,7 @@ export function FacelessShortsStudio({
                         className={`p-2.5 rounded-xl transition cursor-pointer shadow-xs ${
                           isPlaying
                             ? 'bg-[#FF5722] text-white'
-                            : 'bg-white text-slate-700 hover:text-[#FF5722] border border-slate-200'
+                            : 'bg-white text-slate-700 hover:text-[#0066FF] border border-slate-200'
                         }`}
                       >
                         {isPlaying ? <Pause size={14} /> : <Play size={14} />}
@@ -957,7 +957,7 @@ export function FacelessShortsStudio({
           <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-orange-50 text-[#FF5722] border border-orange-200">
+                <div className="p-2 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
                   <FileText size={18} />
                 </div>
                 <div>
@@ -971,7 +971,7 @@ export function FacelessShortsStudio({
                 onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
                 className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${
                   showTranscriptEditor
-                    ? 'border-orange-500 bg-orange-50 text-[#FF5722]'
+                    ? 'border-[#0066FF] bg-blue-50 text-[#0066FF]'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -986,7 +986,7 @@ export function FacelessShortsStudio({
                   value={editableTranscript}
                   onChange={(e) => setEditableTranscript(e.target.value)}
                   rows={4}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:border-[#FF5722] shadow-xs"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-medium text-slate-800 leading-relaxed focus:outline-none focus:border-[#0066FF] shadow-xs"
                   placeholder="Edit spoken words here..."
                 />
 
@@ -1069,7 +1069,7 @@ export function FacelessShortsStudio({
                   />
                 ) : (
                   <div className="p-6 text-center text-slate-400 space-y-2">
-                    <Tv size={36} className="mx-auto opacity-40 text-[#FF5722]" />
+                    <Tv size={36} className="mx-auto opacity-40 text-[#0066FF]" />
                     <p className="text-xs font-black text-slate-800">Dynamic 9:16 Scene</p>
                     <p className="text-[10px] text-slate-500">Vector graphics, illustrations &amp; typography will animate here</p>
                   </div>
@@ -1085,12 +1085,12 @@ export function FacelessShortsStudio({
                 </div>
 
                 {/* Top Flame Orange Progress Bar */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000]" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB]" />
               </div>
             </div>
 
             {/* Compulsory Review Confirmation Checkbox */}
-            <div className="rounded-2xl border-2 border-orange-200 bg-orange-50/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="rounded-2xl border-2 border-blue-200 bg-blue-50/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
@@ -1110,7 +1110,7 @@ export function FacelessShortsStudio({
                 className={`rounded-xl px-4 py-2 text-xs font-black transition cursor-pointer ${
                   previewConfirmed
                     ? 'bg-emerald-600 text-white shadow-xs'
-                    : 'bg-[#FF5722] hover:bg-[#FF7043] text-white shadow-md shadow-[#FF5722]/20'
+                    : 'bg-[#FF5722] hover:bg-[#FF7043] text-white shadow-md shadow-[#0066FF]/20'
                 }`}
               >
                 {previewConfirmed ? 'Verified ✓' : 'Confirm Preview Now'}
@@ -1130,7 +1130,7 @@ export function FacelessShortsStudio({
           <span className="ml-1 text-xs font-black text-slate-800">9:16 Vertical (1080×1920)</span>
           <span className="mx-2 text-slate-300">·</span>
           <span className="text-xs font-bold text-slate-500">Credits:</span>
-          <span className="ml-1 text-sm font-black text-[#FF5722]">1 Credit / Short</span>
+          <span className="ml-1 text-sm font-black text-[#0066FF]">1 Credit / Short</span>
         </div>
 
         <button
@@ -1156,8 +1156,8 @@ export function FacelessShortsStudio({
             !previewConfirmed || !selectedFile
               ? 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
               : isGenerating
-              ? 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white opacity-80 cursor-wait animate-pulse shadow-xl'
-              : 'bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-[#FF5722]/30 hover:brightness-110 active:scale-95 cursor-pointer'
+              ? 'bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white opacity-80 cursor-wait animate-pulse shadow-xl'
+              : 'bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-xl shadow-[#0066FF]/30 hover:brightness-110 active:scale-95 cursor-pointer'
           }`}
         >
           {!previewConfirmed ? (

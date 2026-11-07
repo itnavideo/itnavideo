@@ -17,7 +17,7 @@ export default function Hero() {
 
   return (
     <section className="relative overflow-hidden border-b border-slate-100 bg-white pt-8 pb-12 sm:pt-16 sm:pb-20 px-3.5 sm:px-6 lg:px-8 text-slate-900">
-      
+
       {/* ───────────────────────────────────────────────────────────── */}
       {/* ARCHITECTURAL GRID CANVAS WITH SOFT MESH AURAS                */}
       {/* ───────────────────────────────────────────────────────────── */}
@@ -109,7 +109,7 @@ export default function Hero() {
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="mt-6 sm:mt-10 mx-auto max-w-4xl px-1 sm:px-4">
           <div className="group relative rounded-2xl sm:rounded-3xl border border-stone-300/80 bg-white/95 p-2.5 sm:p-4 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.08)] backdrop-blur-md transition-all hover:border-blue-500/40">
-            
+
             {/* Top Showcase Toolbar */}
             <div className="flex items-center justify-between px-2 sm:px-3 py-1.5 mb-2 border-b border-stone-100 text-xs">
               <div className="flex items-center gap-2">
@@ -127,22 +127,20 @@ export default function Hero() {
                 <button
                   type="button"
                   onClick={() => setPreviewFormat('16:9')}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold transition-all cursor-pointer ${
-                    previewFormat === '16:9'
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold transition-all cursor-pointer ${previewFormat === '16:9'
                       ? 'bg-white text-slate-950 shadow-2xs'
                       : 'text-slate-500 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   16:9 Cinema
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreviewFormat('9:16')}
-                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold transition-all cursor-pointer ${
-                    previewFormat === '9:16'
+                  className={`px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold transition-all cursor-pointer ${previewFormat === '9:16'
                       ? 'bg-white text-slate-950 shadow-2xs'
                       : 'text-slate-500 hover:text-slate-900'
-                  }`}
+                    }`}
                 >
                   9:16 Shorts
                 </button>
@@ -151,7 +149,7 @@ export default function Hero() {
 
             {/* Video Frame Display */}
             <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-slate-950 aspect-[16/9] max-h-[360px] sm:max-h-[460px] flex items-center justify-center shadow-inner">
-              
+
               {/* Background Video Mock Image */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

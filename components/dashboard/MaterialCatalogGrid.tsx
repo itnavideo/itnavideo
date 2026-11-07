@@ -89,7 +89,7 @@ export function MaterialCatalogGrid({
         );
       case 'ai':
         return (
-          <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-600 dark:text-amber-400 backdrop-blur-md shadow-xs">
+          <span className="rounded-full bg-blue-500/15 border border-blue-500/30 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#0066FF] dark:text-[#3B82F6] backdrop-blur-md shadow-xs">
             AI
           </span>
         );
@@ -192,7 +192,7 @@ export function MaterialCatalogGrid({
 
             {/* Selected Pill */}
             {isSelected && (
-              <div className="absolute top-2.5 right-2.5 z-30 flex items-center gap-1 rounded-full bg-amber-400 px-2.5 py-1 text-[10px] font-black text-slate-950 shadow-md animate-in fade-in zoom-in-95">
+              <div className="absolute top-2.5 right-2.5 z-30 flex items-center gap-1 rounded-full bg-[#0066FF] px-2.5 py-1 text-[10px] font-black text-white shadow-md shadow-blue-500/25 animate-in fade-in zoom-in-95">
                 <Check size={12} strokeWidth={3} />
                 <span>ACTIVE</span>
               </div>
@@ -215,12 +215,12 @@ export function MaterialCatalogGrid({
           {/* M3 Card Bottom Surface */}
           <div className="flex items-center justify-between gap-2 px-3.5 py-3 bg-[#0B0F19] border-t border-white/10">
             <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-bold text-white tracking-tight truncate group-hover:text-amber-400 transition-colors">
+              <h3 className="text-sm font-bold text-white tracking-tight truncate group-hover:text-[#3B82F6] transition-colors">
                 {card.title}
               </h3>
               <div className="flex items-center gap-1.5 mt-0.5">
                 {card.creditCost ? (
-                  <p className="text-[11px] font-semibold text-amber-400 truncate">
+                  <p className="text-[11px] font-semibold text-[#3B82F6] truncate">
                     {card.creditCost}
                   </p>
                 ) : (
@@ -231,7 +231,7 @@ export function MaterialCatalogGrid({
               </div>
             </div>
 
-            <div className="shrink-0 flex items-center justify-center h-6 w-6 rounded-full bg-white/5 text-zinc-400 group-hover:bg-amber-400 group-hover:text-slate-950 transition-all duration-200">
+            <div className="shrink-0 flex items-center justify-center h-6 w-6 rounded-full bg-white/5 text-zinc-400 group-hover:bg-[#0066FF] group-hover:text-white transition-all duration-200">
               <ArrowUpRight size={13} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </div>
           </div>
@@ -250,7 +250,7 @@ export function MaterialCatalogGrid({
               <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                 Video Types
               </h1>
-              <span className="inline-flex items-center rounded-full bg-amber-400/10 border border-amber-400/20 px-2.5 py-0.5 text-xs font-mono font-bold text-amber-400">
+              <span className="inline-flex items-center rounded-full bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 text-xs font-mono font-bold text-[#3B82F6]">
                 {cards.length} Styles
               </span>
             </div>
@@ -264,10 +264,10 @@ export function MaterialCatalogGrid({
             onClick={() => document.getElementById("recent-projects")?.scrollIntoView({ behavior: "smooth" })}
             className="inline-flex self-start sm:self-auto items-center gap-2 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-1.5 text-xs font-bold text-zinc-200 transition-all duration-200 shadow-sm"
           >
-            <FolderOpen size={14} className="text-amber-400" />
+            <FolderOpen size={14} className="text-[#0066FF]" />
             <span>Saved Videos</span>
             {recentRendersCount > 0 && (
-              <span className="rounded-full bg-amber-400 px-2 py-0.2 text-[10px] font-black text-slate-950">
+              <span className="rounded-full bg-[#0066FF] px-2 py-0.2 text-[10px] font-black text-white">
                 {recentRendersCount}
               </span>
             )}
@@ -278,18 +278,18 @@ export function MaterialCatalogGrid({
         <div className="mt-2 mb-1 rounded-2xl border border-purple-500/20 bg-[#12111E] p-3.5 sm:p-4 backdrop-blur-md shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/20 text-[#FF9100] font-black text-sm border border-[#FF5722]/30 shadow-inner">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300 font-black text-sm border border-emerald-500/30 shadow-inner">
                 
               </span>
               <div>
                 <span className="font-extrabold text-white">Free Trial:</span>{' '}
                 <span className="text-zinc-300">
-                  Includes <strong className="text-[#FF9100] font-semibold">1 Free Watermarked Auto Caption Reel</strong> (9:16) to test AI sync. No credit card needed.
+                  Includes <strong className="text-emerald-400 font-semibold">1 Free Watermarked Auto Caption Reel</strong> (9:16) to test AI sync. No credit card needed.
                 </span>
               </div>
             </div>
             <div className="flex items-center gap-2.5 border-t sm:border-t-0 sm:border-l border-white/10 pt-2.5 sm:pt-0 sm:pl-4">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-[#FF5722]/20 text-[#FF9100] font-black text-sm border border-[#FF5722]/30 shadow-inner">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300 font-black text-sm border border-emerald-500/30 shadow-inner">
                 
               </span>
               <div className="flex-1">
@@ -300,7 +300,7 @@ export function MaterialCatalogGrid({
               </div>
               <Link
                 href="/pricing"
-                className="shrink-0 rounded-full bg-[#FF5722]/20 hover:bg-[#FF5722]/30 border border-[#FF5722]/40 px-3 py-1 text-[11px] font-bold text-[#FFA000] transition-colors whitespace-nowrap"
+                className="shrink-0 rounded-full bg-[#0066FF] hover:bg-[#0052CC] px-3 py-1 text-[11px] font-bold text-white shadow-md shadow-blue-500/20 transition-colors whitespace-nowrap"
               >
                 View Plans 
               </Link>
@@ -320,15 +320,15 @@ export function MaterialCatalogGrid({
                 onClick={() => onFilterChange(tab.key)}
                 className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 whitespace-nowrap active:scale-95 cursor-pointer ${
                   isActive
-                    ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 font-black scale-[1.02]'
+                    ? 'bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-md shadow-blue-500/20 font-black scale-[1.02]'
                     : 'bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/10'
                 }`}
               >
-                <Icon size={14} className={isActive ? 'text-slate-950' : 'text-zinc-400'} />
+                <Icon size={14} className={isActive ? 'text-white' : 'text-zinc-400'} />
                 <span>{tab.label}</span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-mono font-bold ${
-                    isActive ? 'bg-slate-950/20 text-slate-950' : 'bg-white/10 text-zinc-400'
+                    isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-zinc-400'
                   }`}
                 >
                   {tab.count}
@@ -345,7 +345,7 @@ export function MaterialCatalogGrid({
         {visibleLongCards.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3.5">
-              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              <span className="h-2 w-2 rounded-full bg-[#0066FF]" />
               <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
                 16:9 Landscape Videos
               </h2>
@@ -360,7 +360,7 @@ export function MaterialCatalogGrid({
         {visibleShortCards.length > 0 && (
           <div id="quick-tools" className="scroll-mt-24">
             <div className="flex items-center gap-2 mb-3.5">
-              <span className="h-2 w-2 rounded-full bg-amber-400" />
+              <span className="h-2 w-2 rounded-full bg-[#0066FF]" />
               <h2 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
                 9:16 Shorts & Reels
               </h2>

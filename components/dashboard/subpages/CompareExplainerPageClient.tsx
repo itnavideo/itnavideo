@@ -342,7 +342,7 @@ export default function CompareExplainerPage() {
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Compare Explainer
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-600 border border-orange-200">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-[#0066FF] border border-blue-200">
                 Side-by-Side Versus
               </span>
             </div>

@@ -295,7 +295,7 @@ export function WhiteboardStudio({
         ];
 
     const icons = ["lightning_bolt", "piggy_bank", "money_stack", "calendar_sheet", "trophy_gold", "rocket_launch", "star_badge"];
-    const colors = ["#2563EB", "#FF5722", "#059669", "#D97706", "#DC2626"];
+    const colors = ["#2563EB", "#0066FF", "#059669", "#D97706", "#DC2626"];
     const archetypes: WhiteboardScene["archetype"][] = [
       "keyword_slam",
       "hero_center",
@@ -379,13 +379,13 @@ export function WhiteboardStudio({
             onClick={() => setViewMode("workspace")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
               viewMode === "workspace"
-                ? "bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black font-black shadow-xs"
+                ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white font-bold shadow-xs"
                 : "text-slate-400 hover:text-white"
             }`}
           >
             <Edit3 className="w-3.5 h-3.5" />
             <span>Edit Video</span>
-            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-[#FF6D00]/20 text-[#FFA726] border border-[#FF6D00]/30">
+            <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-[#0066FF]/20 text-[#3B82F6] border border-[#0066FF]/30">
               Live
             </span>
           </button>
@@ -397,7 +397,7 @@ export function WhiteboardStudio({
         <div className="space-y-6">
           {/* Audio Upload Hero Card */}
           <div className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-[#0E1526]/90 p-6 sm:p-8 backdrop-blur-xl shadow-2xl transition-all duration-300 space-y-6">
-            <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#FF6D00]/10 blur-3xl transition-opacity group-hover:opacity-100" />
+            <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[#0066FF]/10 blur-3xl transition-opacity group-hover:opacity-100" />
 
             <div className="flex items-center justify-between pb-1">
               <div>
@@ -412,7 +412,7 @@ export function WhiteboardStudio({
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/5 border border-white/10 text-slate-300">
                   9:16 Vertical
                 </span>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#FF6D00]/10 border border-[#FF6D00]/30 text-[#FFA726]">
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#0066FF]/10 border border-[#0066FF]/30 text-[#3B82F6]">
                   1 Credit
                 </span>
               </div>
@@ -430,8 +430,8 @@ export function WhiteboardStudio({
                 onClick={() => audioInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center gap-4 ${
                   isDraggingFile
-                    ? "border-[#FF6D00] bg-[#FF6D00]/10 scale-[0.99]"
-                    : "border-white/15 bg-[#151E30]/50 hover:border-[#FF6D00]/50 hover:bg-[#151E30]/80"
+                    ? "border-[#0066FF] bg-[#0066FF]/10 scale-[0.99]"
+                    : "border-white/15 bg-[#151E30]/50 hover:border-[#0066FF]/50 hover:bg-[#151E30]/80"
                 }`}
               >
                 <input
@@ -442,7 +442,7 @@ export function WhiteboardStudio({
                   className="hidden"
                 />
 
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FF6D00]/20 to-[#FFA726]/10 border border-[#FF6D00]/30 text-[#FFA726] flex items-center justify-center shadow-lg shadow-[#FF6D00]/10 group-hover:scale-105 transition-transform">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0052CC]/20 to-[#0066FF]/10 border border-[#0066FF]/30 text-[#3B82F6] flex items-center justify-center shadow-lg shadow-[#0066FF]/10 group-hover:scale-105 transition-transform">
                   <AudioWaveform className="w-8 h-8" />
                 </div>
 
@@ -468,7 +468,7 @@ export function WhiteboardStudio({
                     <button
                       type="button"
                       onClick={togglePlayVoiceover}
-                      className="w-11 h-11 rounded-2xl bg-gradient-to-r from-[#FF6D00] to-[#FF8F00] text-black flex items-center justify-center shrink-0 shadow-lg shadow-[#FF6D00]/25 hover:brightness-110 active:scale-95 transition cursor-pointer"
+                      className="w-11 h-11 rounded-2xl bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25 hover:brightness-110 active:scale-95 transition cursor-pointer"
                     >
                       {isVoiceoverPlaying ? (
                         <Pause className="w-5 h-5 fill-black" />
@@ -481,7 +481,7 @@ export function WhiteboardStudio({
                         {selectedFile.name}
                       </div>
                       <div className="text-[11px] text-slate-400 font-mono flex items-center gap-2 mt-0.5">
-                        <span className="text-[#FFA726]">
+                        <span className="text-[#3B82F6]">
                           {formatTime(voiceoverCurrentTime)} / {formatTime(voiceoverDuration)}
                         </span>
                         <span>•</span>
@@ -531,7 +531,7 @@ export function WhiteboardStudio({
                       ) : transcribeState === "error" ? (
                         <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
                       ) : (
-                        <RefreshCw className="w-4 h-4 text-[#FFA726] animate-spin shrink-0" />
+                        <RefreshCw className="w-4 h-4 text-[#3B82F6] animate-spin shrink-0" />
                       )}
                       <span className="text-xs font-bold text-white">
                         {transcribeState === "uploading" && "Uploading Audio..."}
@@ -566,7 +566,7 @@ export function WhiteboardStudio({
                     value={editorialTranscript}
                     onChange={(e) => onEditorialTranscriptChange(e.target.value, true)}
                     placeholder={transcribeState === "transcribing" ? "Transcribing speech from your audio with Groq Whisper..." : "Transcription from your audio appears here. You can also type or edit any sentence to fine-tune each whiteboard scene..."}
-                    className="w-full p-3.5 rounded-xl border border-white/10 bg-[#0E1526] text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#FF6D00] focus:ring-1 focus:ring-[#FF6D00] leading-relaxed font-sans resize-none"
+                    className="w-full p-3.5 rounded-xl border border-white/10 bg-[#0E1526] text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] leading-relaxed font-sans resize-none"
                   />
                   <div className="flex items-center justify-between text-[11px] text-slate-400">
                     <span>You can edit sentences to fine-tune each whiteboard scene</span>
@@ -626,7 +626,7 @@ export function WhiteboardStudio({
                 type="button"
                 onClick={() => onEnableSfxChange(!enableSfx)}
                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  enableSfx ? "bg-[#FF6D00]" : "bg-white/15"
+                  enableSfx ? "bg-[#0066FF]" : "bg-white/15"
                 }`}
               >
                 <span
@@ -656,7 +656,7 @@ export function WhiteboardStudio({
                 className="px-5 py-3 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer active:scale-95"
                 title="Edit video composition and layers"
               >
-                <Edit3 className="w-4 h-4 text-[#FFA726]" />
+                <Edit3 className="w-4 h-4 text-[#3B82F6]" />
                 <span>Edit Video</span>
               </button>
 
@@ -666,18 +666,18 @@ export function WhiteboardStudio({
                 disabled={!isReadyToCreate}
                 className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 rounded-xl text-xs font-black transition-all shadow-lg active:scale-95 cursor-pointer ${
                   isReadyToCreate
-                    ? "bg-gradient-to-r from-[#FF6D00] via-[#FF8F00] to-[#FFA726] text-black hover:brightness-110 shadow-[#FF6D00]/25"
+                    ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white hover:brightness-110 shadow-blue-500/25"
                     : "bg-white/5 text-slate-500 border border-white/10 cursor-not-allowed opacity-50"
                 }`}
               >
                 {isGenerating ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-black" />
+                    <RefreshCw className="w-4 h-4 animate-spin text-white" />
                     <span>Creating Video...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 fill-black" />
+                    <Sparkles className="w-4 h-4 fill-white text-white" />
                     <span>Create Video</span>
                   </>
                 )}

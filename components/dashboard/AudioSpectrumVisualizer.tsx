@@ -17,7 +17,7 @@ export function AudioSpectrumVisualizer({
 
   return (
     <div className="flex items-center gap-1 h-6 px-3 py-1 rounded-full bg-[#151E30] border border-white/10 select-none">
-      <span className="text-[10px] font-black uppercase tracking-wider text-[#FF9100] mr-1">
+      <span className="text-[10px] font-black uppercase tracking-wider text-[#3B82F6] mr-1">
         {isTranscribing ? "Neural Audio" : isPlaying ? "Live Wave" : "Audio Active"}
       </span>
       <div className="flex items-end gap-0.5 h-4">
@@ -41,7 +41,7 @@ export function AudioSpectrumVisualizer({
                 animationDuration: isTranscribing ? "0.6s" : "0.9s",
                 animationDelay: `${delay}s`,
               }}
-              className={`w-0.5 rounded-full bg-gradient-to-t from-[#FF5722] to-[#FFA000] transition-all duration-200 ${
+              className={`w-0.5 rounded-full bg-gradient-to-t from-[#0066FF] to-[#2563EB] transition-all duration-200 ${
                 isPlaying || isTranscribing ? `animate-pulse ${heightClass}` : "h-1.5 opacity-40"
               }`}
             />

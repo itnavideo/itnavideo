@@ -64,8 +64,8 @@ export default function ShortsReelsToolsSection({
       {/* Section Header Banner */}
       <div className="relative overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-r from-[#12151F] via-[#181B26] to-[#0B0D13] shadow-2xl min-h-[120px] p-5 flex flex-col justify-between">
         <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5722]/40 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-black tracking-wider text-[#FF9100]">
-            <Smartphone size={13} className="text-[#FF9100]" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#0066FF]/40 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-black tracking-wider text-[#3B82F6]">
+            <Smartphone size={13} className="text-[#3B82F6]" />
             <span>9:16 (REELS/SHORTS/TIKTOK)</span>
           </div>
           <span className="rounded-full border border-white/20 bg-black/50 backdrop-blur-md px-3 py-1 text-[11px] font-black text-white">
@@ -75,7 +75,7 @@ export default function ShortsReelsToolsSection({
         <div>
           <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white font-heading">
             9:16 (Reels/Shorts/Tiktok){' '}
-            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] bg-clip-text text-transparent">
               Studios
             </span>
           </h2>
@@ -94,7 +94,7 @@ export default function ShortsReelsToolsSection({
             <Link
               key={tool.id}
               href={tool.slug}
-              className="group relative flex flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#0E1526] shadow-xl hover:border-[#FF5722]/80 hover:shadow-2xl hover:shadow-[#FF5722]/20 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer"
+              className="group relative flex flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[#0E1526] shadow-xl hover:border-[#0066FF]/80 hover:shadow-2xl hover:shadow-[#0066FF]/20 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer"
             >
               {/* Image Container 9:16 (Full Uncropped Display) */}
               <div className="relative aspect-[9/16] w-full overflow-hidden bg-black flex items-center justify-center">
@@ -119,7 +119,7 @@ export default function ShortsReelsToolsSection({
               {/* Bottom Card Title & Action CTA */}
               <div className="flex flex-col justify-between p-3.5 bg-[#0E1526] border-t border-white/10 flex-1">
                 <div>
-                  <h3 className="text-sm font-bold text-white group-hover:text-[#FFA000] transition-colors truncate font-heading">
+                  <h3 className="text-sm font-bold text-white group-hover:text-[#3B82F6] transition-colors truncate font-heading">
                     {tool.title}
                   </h3>
                   <p className="text-[11px] font-medium text-slate-400 line-clamp-2 mt-0.5">
@@ -128,7 +128,7 @@ export default function ShortsReelsToolsSection({
                 </div>
                 <div className="flex items-center justify-between gap-1 mt-3 pt-2 border-t border-white/5">
                   <span className="text-[10px] text-slate-400 font-mono">1 Credit</span>
-                  <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-[#FF5722] to-[#FF7043] px-2.5 py-1 text-[10px] font-black text-black shadow-md group-hover:brightness-110 transition-all">
+                  <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-[#0052CC] to-[#0066FF] px-2.5 py-1 text-[10px] font-bold text-white shadow-md group-hover:brightness-110 transition-all">
                     <span>Open</span>
                     <ArrowRight size={11} strokeWidth={3} />
                   </div>

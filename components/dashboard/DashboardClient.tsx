@@ -109,8 +109,8 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     category: "long",
     aspectRatio: "16:9",
     icon: Sparkles,
-    iconBgClass: "bg-amber-500/15 border border-amber-500/30",
-    iconColorClass: "text-amber-600",
+    iconBgClass: "bg-blue-500/15 border border-blue-500/30",
+    iconColorClass: "text-[#0066FF]",
     description: "Transform scripts and photos into cinematic 16:9 storytelling videos with motion pacing.",
     badge: "Parallax Motion",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg",
@@ -151,8 +151,8 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     category: "social",
     aspectRatio: "9:16",
     icon: Smartphone,
-    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
-    iconColorClass: "text-orange-600",
+    iconBgClass: "bg-blue-500/15 border border-blue-500/30",
+    iconColorClass: "text-[#0066FF]",
     description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
     badge: "Reels & Shorts Co-Pilot",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737273/Enthusiastic_Creator_Explaining_Ideas_nvg1do.png",
@@ -177,8 +177,8 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     category: "social",
     aspectRatio: "9:16",
     icon: Captions,
-    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
-    iconColorClass: "text-orange-500",
+    iconBgClass: "bg-blue-500/15 border border-blue-500/30",
+    iconColorClass: "text-[#0066FF]",
     description: "Add viral animated captions with word-by-word highlights and emoji accents.",
     badge: "FREE · 5/Day",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
@@ -431,7 +431,7 @@ export default function DashboardClient() {
   );
 
   return (
-    <div className="min-h-screen bg-[#08080A] text-white selection:bg-[#FF5722]/30 selection:text-white max-w-full overflow-x-hidden relative font-sans">
+    <div className="min-h-screen bg-[#08080A] text-white selection:bg-[#0066FF]/30 selection:text-white max-w-full overflow-x-hidden relative font-sans">
       {/* Vibrant Multi-Color Ambient Mesh Glows (Warm Flame & Violet) */}
       <div
         aria-hidden="true"
@@ -501,10 +501,10 @@ export default function DashboardClient() {
             <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 href="/pricing"
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/15 to-orange-500/10 border border-orange-500/40 hover:border-orange-500/70 transition-all text-xs font-bold text-orange-200 shadow-xs group cursor-pointer"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-blue-500/20 via-indigo-500/15 to-blue-500/10 border border-blue-500/40 hover:border-blue-500/70 transition-all text-xs font-bold text-blue-200 shadow-xs group cursor-pointer"
               >
-                <Zap className="w-3.5 h-3.5 text-[#FF5722] fill-[#FF5722] animate-pulse group-hover:scale-110 transition-transform" />
-                <span className="text-orange-300 font-black">
+                <Zap className="w-3.5 h-3.5 text-[#0066FF] fill-[#0066FF] animate-pulse group-hover:scale-110 transition-transform" />
+                <span className="text-blue-300 font-black">
                   {remainingCredits !== null ? `${remainingCredits} Credits` : (isFounder ? "908 Credits" : "...")}
                 </span>
                 {isFounder ? (
@@ -512,7 +512,7 @@ export default function DashboardClient() {
                     Founder
                   </span>
                 ) : (
-                  <span className="hidden sm:inline-block rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
+                  <span className="hidden sm:inline-block rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
                     +Add
                   </span>
                 )}
@@ -524,13 +524,13 @@ export default function DashboardClient() {
                   className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-zinc-300 hover:text-white px-3.5 py-1.5 rounded-xl border border-white/10 bg-[#181820] hover:bg-[#20202A] transition shadow-xs"
                 >
                   <span>Upgrade Plan</span>
-                  <ArrowUpRight size={13} className="text-[#FF5722]" />
+                  <ArrowUpRight size={13} className="text-[#0066FF]" />
                 </Link>
               )}
               {!user && (
                 <Link
                   href="/login"
-                  className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white text-xs font-bold hover:brightness-110 transition shadow-md shadow-orange-500/20"
+                  className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white text-xs font-bold hover:brightness-110 transition shadow-md shadow-blue-500/20"
                 >
                   Sign In
                 </Link>
@@ -582,7 +582,7 @@ export default function DashboardClient() {
                     onClick={() => setActiveCategory("all")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "all"
-                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
+                        ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/20"
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -592,7 +592,7 @@ export default function DashboardClient() {
                     onClick={() => setActiveCategory("social")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "social"
-                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
+                        ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/20"
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -602,7 +602,7 @@ export default function DashboardClient() {
                     onClick={() => setActiveCategory("long")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "long"
-                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
+                        ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/20"
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -612,7 +612,7 @@ export default function DashboardClient() {
                     onClick={() => setActiveCategory("utility")}
                     className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === "utility"
-                        ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/20"
+                        ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/20"
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -628,7 +628,7 @@ export default function DashboardClient() {
                     placeholder="Search video studios..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#121217] border border-white/10 focus:border-[#FF5722] focus:ring-2 focus:ring-[#FF5722]/20 focus:outline-none text-xs text-white placeholder:text-zinc-500 transition-all font-medium shadow-xs"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#121217] border border-white/10 focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20 focus:outline-none text-xs text-white placeholder:text-zinc-500 transition-all font-medium shadow-xs"
                   />
                 </div>
               </div>
@@ -655,7 +655,7 @@ export default function DashboardClient() {
 
                     <button
                       onClick={() => setDashboardTab("history")}
-                      className="self-start sm:self-auto inline-flex items-center gap-1 text-xs font-bold text-[#FFA000] hover:text-[#FF7043] transition cursor-pointer"
+                      className="self-start sm:self-auto inline-flex items-center gap-1 text-xs font-bold text-[#3B82F6] hover:text-[#60A5FA] transition cursor-pointer"
                     >
                       <span>View All in Export Library</span>
                       <ChevronRight size={14} />
@@ -671,7 +671,7 @@ export default function DashboardClient() {
                       return (
                         <div
                           key={render.renderId}
-                          className="group relative flex flex-col justify-between rounded-2xl border border-white/10 p-4 bg-[#121624] hover:bg-[#161C2E] hover:border-orange-500/40 transition-all shadow-md"
+                          className="group relative flex flex-col justify-between rounded-2xl border border-white/10 p-4 bg-[#121624] hover:bg-[#161C2E] hover:border-blue-500/40 transition-all shadow-md"
                         >
                           <div>
                             <div className="flex items-center justify-between gap-2 mb-2">
@@ -679,12 +679,12 @@ export default function DashboardClient() {
                                 {render.aspectRatio || (render.mode?.toLowerCase().includes("faceless") || render.mode?.toLowerCase().includes("summary") ? "16:9" : "9:16")}
                               </span>
                               <span className="inline-flex items-center gap-1 text-[10px] font-mono font-medium text-zinc-400">
-                                <Clock3 size={11} className="text-[#FF5722]" />
+                                <Clock3 size={11} className="text-[#0066FF]" />
                                 <span>48h Cloud</span>
                               </span>
                             </div>
 
-                            <h3 className="text-xs font-bold text-white line-clamp-1 group-hover:text-[#FFA000] transition-colors">
+                            <h3 className="text-xs font-bold text-white line-clamp-1 group-hover:text-[#3B82F6] transition-colors">
                               {displayTitle}
                             </h3>
                             <p className="text-[11px] text-zinc-400 mt-0.5">
@@ -704,7 +704,7 @@ export default function DashboardClient() {
                             <button
                               type="button"
                               onClick={() => setQrModalVideo({ url: videoUrl, title: displayTitle })}
-                              className="inline-flex items-center justify-center p-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition cursor-pointer"
+                              className="inline-flex items-center justify-center p-2 rounded-xl border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 transition cursor-pointer"
                               title="Scan QR to download on phone"
                             >
                               <Smartphone size={14} />
@@ -735,8 +735,8 @@ export default function DashboardClient() {
                   {/* Clean Spacious Header Banner */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
-                        <Sparkles size={13} className="text-[#FF5722]" />
+                      <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
+                        <Sparkles size={13} className="text-[#0066FF]" />
                         <span>16:9 Widescreen Cinema Studios</span>
                       </div>
                       <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
@@ -750,7 +750,7 @@ export default function DashboardClient() {
                     <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
                       <Link
                         href="/video-types"
-                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors mr-1"
+                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors mr-1"
                       >
                         <BookOpen size={13} />
                         <span>Specs &amp; Guides</span>
@@ -759,7 +759,7 @@ export default function DashboardClient() {
                       <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300">
                         1920×1080 Full HD
                       </span>
-                      <span className="px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/30 text-[#FFA000]">
+                      <span className="px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-[#3B82F6]">
                         1 Credit / Min • Max 5 min
                       </span>
                     </div>
@@ -773,10 +773,10 @@ export default function DashboardClient() {
                         <Link
                           key={item.id}
                           href={item.slug}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/60 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500/60 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-blue-500/20 active:scale-[0.98] cursor-pointer shadow-md"
                         >
                           {/* 16:9 Featured Widescreen Image Stage */}
-                          <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#0B0B0E] mb-4 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-orange-500/50 transition-colors">
+                          <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#0B0B0E] mb-4 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
                             <img
                               src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png", 600)}
                               alt={item.title}
@@ -797,7 +797,7 @@ export default function DashboardClient() {
 
                             {/* Center Play Button on Hover */}
                             <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-orange-500/50 scale-90 group-hover:scale-100 transition-transform">
+                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-xl shadow-blue-500/50 scale-90 group-hover:scale-100 transition-transform">
                                 <Play size={18} className="fill-current text-white ml-0.5" />
                               </div>
                             </div>
@@ -810,7 +810,7 @@ export default function DashboardClient() {
                                 <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
                                   <Icon size={15} />
                                 </div>
-                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-[#FFA000] transition-colors line-clamp-2">
+                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-[#3B82F6] transition-colors line-clamp-2">
                                   {item.title}
                                 </h3>
                               </div>
@@ -825,7 +825,7 @@ export default function DashboardClient() {
                               <span className={`text-[10px] font-mono font-bold ${item.id === "youtube-subtitles" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
                                 {item.id === "youtube-subtitles" ? "FREE • 5/Day" : "1 Credit / Min"}
                               </span>
-                              <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/20 group-hover:translate-x-0.5 transition-all">
+                              <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-3 py-1.5 rounded-xl shadow-md shadow-blue-500/20 group-hover:translate-x-0.5 transition-all">
                                 <span>Create</span>
                                 <ChevronRight size={13} />
                               </span>
@@ -848,8 +848,8 @@ export default function DashboardClient() {
                   {/* Clean Spacious Header Banner */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
                     <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
-                        <Sparkles size={13} className="text-[#FF5722]" />
+                      <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 text-xs font-bold text-blue-400 uppercase tracking-wider mb-2">
+                        <Sparkles size={13} className="text-[#0066FF]" />
                         <span>9:16 Vertical Shorts &amp; Reels</span>
                       </div>
                       <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
@@ -863,7 +863,7 @@ export default function DashboardClient() {
                     <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
                       <Link
                         href="/video-types"
-                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors mr-1"
+                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors mr-1"
                       >
                         <BookOpen size={13} />
                         <span>Specs &amp; Guides</span>
@@ -888,10 +888,10 @@ export default function DashboardClient() {
                         <Link
                           key={item.id}
                           href={item.slug}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/60 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500/60 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-blue-500/20 active:scale-[0.98] cursor-pointer shadow-md"
                         >
                           {/* 9:16 Featured Vertical Smartphone Preview Stage (Full Uncropped Display) */}
-                          <div className="relative aspect-[9/16] w-full rounded-2xl bg-[#0B0B0E] mb-3.5 border border-white/10 overflow-hidden shadow-inner flex flex-col items-center justify-center group-hover:border-orange-500/50 transition-colors">
+                          <div className="relative aspect-[9/16] w-full rounded-2xl bg-[#0B0B0E] mb-3.5 border border-white/10 overflow-hidden shadow-inner flex flex-col items-center justify-center group-hover:border-blue-500/50 transition-colors">
                             {/* Ambient Blurred Background Glow Layer */}
                             <img
                               src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png", 120)}
@@ -920,7 +920,7 @@ export default function DashboardClient() {
 
                             {/* Center Play Button on Hover */}
                             <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/30 backdrop-blur-[2px]">
-                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-xl shadow-orange-500/50 scale-90 group-hover:scale-100 transition-transform">
+                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-xl shadow-blue-500/50 scale-90 group-hover:scale-100 transition-transform">
                                 <Play size={18} className="fill-current text-white ml-0.5" />
                               </div>
                             </div>
@@ -933,7 +933,7 @@ export default function DashboardClient() {
                                 <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
                                   <Icon size={14} />
                                 </div>
-                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-[#FFA000] transition-colors line-clamp-2">
+                                <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-[#3B82F6] transition-colors line-clamp-2">
                                   {item.title}
                                 </h3>
                               </div>
@@ -948,7 +948,7 @@ export default function DashboardClient() {
                               <span className={`text-[10px] font-mono font-bold ${item.id === "auto-caption" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
                                 {item.id === "auto-caption" ? "FREE • 5/Day" : (isClips ? "1 Credit / Clip" : "1 Credit / Video")}
                               </span>
-                              <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/20 group-hover:translate-x-0.5 transition-all">
+                              <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-3 py-1.5 rounded-xl shadow-md shadow-blue-500/20 group-hover:translate-x-0.5 transition-all">
                                 <span>Create</span>
                                 <ChevronRight size={13} />
                               </span>
@@ -1061,7 +1061,7 @@ export default function DashboardClient() {
                             <span className="text-[11px] font-mono font-bold text-teal-400 px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/20">
                               1 Credit / Video
                             </span>
-                            <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
+                            <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/25 group-hover:translate-x-0.5 transition-all">
                               <span>Open Audio Studio</span>
                               <ChevronRight size={14} />
                             </div>
@@ -1086,7 +1086,7 @@ export default function DashboardClient() {
                       setSearchQuery("");
                       setActiveCategory("all");
                     }}
-                    className="mt-3 text-xs text-[#FFA000] font-bold hover:underline cursor-pointer"
+                    className="mt-3 text-xs text-[#3B82F6] font-bold hover:underline cursor-pointer"
                   >
                     Clear filters
                   </button>

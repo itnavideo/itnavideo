@@ -143,7 +143,7 @@ export function buildFallbackStoryboard(options: {
         endSeconds,
         prompt: '',
         sceneType: 'typography',
-        typographyPrimary: i === 8 ? 'THE 1% RULE' : i === 16 ? '$10,000 / MO' : i === 24 ? 'CRITICAL SHIFT' : 'TURNING POINT',
+        typographyPrimary: transcript ? (transcript.split(/[.!?\n]+/).map(s => s.trim()).filter(Boolean)[Math.floor(i / 8)]?.slice(0, 24).toUpperCase() || 'CORE INSIGHT') : 'CORE INSIGHT',
         typographySecondary: 'Key Insight from the Journey',
         typographyAccent: `POINT 0${Math.floor(i / 8)}`,
         cameraMotion: motion,
