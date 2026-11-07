@@ -18,7 +18,7 @@
 | **Mobile-First CRO** | **70% Mobile / 30% Desktop**. Sticky Mobile Action Bar appears briefly on upward scroll, with safe-area padding | ✅ Verified |
 | **Regional Audio** | Transcribed via Groq &rarr; Translated to English keywords to match stock B-roll &rarr; Roman Hinglish subtitles | ✅ Verified |
 | **Subtitles Script** | Clean Roman Hinglish (English alphabet) only — Zero Devanagari script | ✅ Verified |
-| **Brand Colors** | White canvas (`#FFFFFF`), Obsidian dark (`#070B14`), Flame Orange (`#FF5722` &rarr; `#FFA000`) | ✅ Verified |
+| **Brand Colors** | White canvas (`#FFFFFF`), Obsidian dark (`#070B14`), Electric Royal Blue (`#0066FF` / `#2563EB`), subtle slate borders (`#E2E8F0`), Emerald success (`#10B981`) | ✅ Verified |
 
 ---
 
@@ -86,13 +86,19 @@ app/page.tsx
 ### Component Details
 
 #### 1. Hero Section (`components/landing/Hero.tsx`)
-- **Theme**: Crisp white canvas with warm ambient glow.
-- **Visual**: Cloudinary 3D AI Video Engine window (`Hero_Section_Feature_Illustration_3D_AI_Video_Engine_Visual_simsct.png`).
-- **CTAs**: Primary `Start Creating Free →` (`/dashboard`), Secondary `Explore All 12 Studios` (`#video-types`).
+- **Theme**: Crisp white canvas with soft royal blue mesh auras.
+- **Dynamic Live Preview Frame**:
+  - Automatically switches dimensions when creator toggles format:
+    - **16:9 Cinema**: Renders 16:9 widescreen player frame (`aspect-[16/9]`, max height 480px) with YouTube tags and bottom subtitle bar.
+    - **9:16 Shorts**: Switches smoothly to a phone-style vertical frame (`aspect-[9/16]`, max width 320px, height 500px) so the vertical reel is displayed uncropped.
+- **CTAs**: Primary `Start Creating Video Free →` (`/dashboard`), Secondary `Explore All 14 Studios` (`#video-types`).
+- **Trust Elements**: 5 Free Videos Every Day (= 150 Free Videos/Month), No Credit Card Required, 4.9/5 stars rating.
 
 #### 2. Platform Marquee Ticker (`components/landing/PlatformMarqueeTicker.tsx`)
-- Auto-scrolling marquee with dual aspect ratios: `1920×1080 Widescreen YouTube (Up to 5 Min)` and `1080×1920 Shorts & Reels (Up to 90s)`.
-- Features `Hindi & Regional Audio to English B-Roll` with clean `EN / HI` Roman script icon.
+- High-impact infinite marquee with dual aspect ratios: `16:9 Widescreen` and `9:16 Shorts & Reels`.
+- Card height enlarged to **280px (mobile) / 340px (tablet) / 380px (desktop)** for prominent visibility.
+- All 13 studios mapped with true native aspect ratio (zero image cropping), direct Cloudinary edge CDN delivery, and automatic fallback image protection.
+- Studio badge pills in Electric Royal Blue (`#0066FF`).
 
 #### 3. 16:9 Cinema & YouTube Studio (`components/landing/FacelessVideoFlagshipShowcase.tsx`)
 - Dedicated 16:9 Widescreen showcase.
@@ -115,12 +121,12 @@ app/page.tsx
   - **Tab 1: Kinetic Subtitles (9:16)**: Live playable video presets (Hormozi, MrBeast, Submagic, etc.).
   - **Tab 2: Image to Video AI (16:9)**: Live playable cinematic parallax videos.
 
-#### 7. 12 Studios Hub Architecture (`components/landing/TenStudiosHubArchitecture.tsx`)
-- Obsidian dark theme (`#0c0a09`, `#070B14`) with ambient Flame Orange & Sunset Amber glow.
+#### 7. 14 Studios Hub Architecture (`components/landing/TenStudiosHubArchitecture.tsx`)
+- Obsidian dark theme (`#0c0a09`, `#070B14`) with ambient Royal Blue glow (`rgba(0, 102, 255, 0.12)`).
 - **Unified Mobile & Desktop Format Capsule Bar**:
-  - Replaces clunky 2x2 mobile boxes with a sleek, horizontally-scrollable glass capsule pill bar (`bg-zinc-950/95`, `border-white/10`).
-  - Active Tab: Vibrant Flame Orange gradient (`from-[#FF5722] to-[#E64A19]`) with white typography, white icon, and high-contrast count badge.
-  - 4 Categorical filter tabs: `📱 9:16 Shorts & Reels (8)`, `📺 16:9 YouTube Cinema (4)`, `🎙️ Studio Audio Cleaner (1)`, `✨ All Studios (13)`.
+  - Sleek, horizontally-scrollable glass capsule pill bar (`bg-zinc-950/95`, `border-white/10`).
+  - Active Tab: Electric Royal Blue gradient (`from-[#0066FF] to-[#2563EB]`, `border-blue-500/90`, `rgba(0, 102, 255, 0.45)`) with white typography, white icon, and high-contrast count badge.
+  - 4 Categorical filter tabs: `📱 9:16 Shorts & Reels (8)`, `📺 16:9 YouTube Cinema (5)`, `🎙️ Studio Audio Cleaner (1)`, `✨ All Studios (14)`.
 - Cards with live Cloudinary preview images and direct studio links.
 
 #### 8. Pricing Section (`components/landing/PricingSection.tsx`)

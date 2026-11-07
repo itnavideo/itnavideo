@@ -222,3 +222,32 @@ export interface WhiteboardVideoProps {
      - Polished mobile responsiveness with floating docked action bar for instant 1-tap generation.
 
 
+
+
+---
+
+## 10. Transcription Audit & Real Speech Extraction (Zero Canned Script Guarantee)
+
+### 1. Root Cause Analysis of "Demo Script" Bug
+- Previously, `services/ai/whiteboardPlanner.ts` contained 4 hardcoded fallback scripts with generic terms ("Medical emergencies", "Why You Should Save Money?", "Life has uncertainties").
+- When AI calls encountered depleted Gemini quotas or Groq language validation errors (`language: "auto"` causing 400 Bad Request), the planner fell back to static demo scripts instead of using the user's spoken words.
+
+### 2. Comprehensive Fixes Applied
+1. **Dynamic Spoken Transcript Sentence Parsing**:
+   - `services/ai/whiteboardPlanner.ts` now splits the user's uploaded speech transcript directly into dynamic scenes:
+     - Spoken words drive `titlePrefix` and `titleAccent`.
+     - First key sentence populates the character's thought bubble.
+     - Spoken points are dynamically extracted into curly bracket list items.
+     - Core speech takeaway forms the center callout statement.
+     - Spoken sentences are partitioned into bottom benefit cards.
+   - Canned fallback scripts have been completely eradicated.
+2. **Groq Language Code Normalization**:
+   - Stripped `language: "auto"` to `undefined` in `app/api/reels/transcribe/route.ts` and `services/ai/groqTranscription.ts`, allowing Whisper native auto-detection without 400 Bad Request errors.
+3. **Multi-Field Editorial Transcript Wiring**:
+   - `app/api/reels/jobs/route.ts` now reads `editorialTranscript`, `editedTranscript`, and `customTranscript` seamlessly.
+4. **Audition Playback Fix in Whiteboard Music Drawer**:
+   - Increased audition volume from 12% (`0.12`) to a clear, audible 75% (`0.75`) in `WhiteboardMusicDrawer.tsx` so preview playback is easily heard on laptop speakers.
+5. **Render Polling & Status Transition**:
+   - `WhiteboardVideoPageClient.tsx` verifies `data.done`, `data.state === "ready"`, and `data.outputFile` before completing, eliminating premature resets back to the initial dashboard.
+6. **Modern Studio Palette (Electric Royal Blue)**:
+   - Migrated Whiteboard studio tabs, preview markers, drawer toggles, and buttons from legacy orange to Electric Royal Blue (`#0066FF` / `#2563EB`).
