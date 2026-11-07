@@ -38,13 +38,13 @@ export default function StickyMobileActionBar() {
       className="fixed bottom-0 inset-x-0 z-50 md:hidden p-2.5 pb-[max(0.65rem,env(safe-area-inset-bottom))] transition-transform duration-300 ease-out animate-in slide-in-from-bottom"
     >
       <div className="relative mx-auto flex items-center justify-between gap-3 rounded-2xl border border-white/15 bg-[#090D18]/95 px-3.5 py-2.5 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
-        {/* Subtle orange accent glow behind */}
-        <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-orange-500/60 to-transparent" />
+        {/* Subtle blue accent glow behind */}
+        <div className="pointer-events-none absolute inset-x-4 top-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
 
         {/* Left value / trust prompt */}
         <div className="flex flex-col min-w-0 pr-1">
-          <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-orange-400">
-            <Zap size={12} className="text-[#FF5722] fill-[#FF5722]" />
+          <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-blue-400">
+            <Zap size={12} className="text-[#0066FF] fill-[#0066FF]" />
             <span>14 Studios</span>
           </div>
           <span className="text-[11px] font-bold text-white truncate">
@@ -55,7 +55,7 @@ export default function StickyMobileActionBar() {
         {/* Right CTA Button */}
         <Link
           href="/dashboard"
-          className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-500/25 hover:brightness-110 active:scale-95 transition-all"
+          className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-blue-500/25 hover:brightness-110 active:scale-95 transition-all"
         >
           <Sparkles size={13} className="text-white" />
           <span>Get Started</span>

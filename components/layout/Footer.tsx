@@ -105,9 +105,9 @@ export default function Footer() {
             <div className="flex flex-col gap-2 pt-1">
               <a 
                 href="mailto:rohi@itnavideo.com" 
-                className="inline-flex items-center gap-2 text-xs font-semibold text-orange-600 transition hover:text-orange-700"
+                className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 transition hover:text-blue-700"
               >
-                <Mail size={13} className="text-[#FF5722]" />
+                <Mail size={13} className="text-[#0066FF]" />
                 rohi@itnavideo.com
               </a>
               <span className="text-[11px] text-slate-500">
@@ -127,7 +127,7 @@ export default function Footer() {
                     rel="me noopener noreferrer" 
                     aria-label={item.label} 
                     title={item.label} 
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition duration-200 hover:border-orange-500/50 hover:bg-orange-50/50 hover:text-orange-950 active:scale-95 shadow-2xs"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition duration-200 hover:border-blue-500/50 hover:bg-blue-50/50 hover:text-blue-950 active:scale-95 shadow-2xs"
                   >
                     <Icon size={14} />
                   </a>
@@ -147,12 +147,12 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="group inline-flex items-center text-xs text-slate-600 transition duration-200 hover:translate-x-0.5 hover:text-orange-600"
+                      className="group inline-flex items-center text-xs text-slate-600 transition duration-200 hover:translate-x-0.5 hover:text-blue-600"
                     >
                       <span>{link.label}</span>
                       <ArrowUpRight 
                         size={11} 
-                        className="ml-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-[#FF5722]" 
+                        className="ml-0.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-[#0066FF]" 
                       />
                     </Link>
                   </li>
@@ -172,9 +172,9 @@ export default function Footer() {
             <div className="flex items-center gap-2">
               <a 
                 href="mailto:rohi@itnavideo.com" 
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600"
               >
-                <Mail size={13} className="text-[#FF5722]" />
+                <Mail size={13} className="text-[#0066FF]" />
                 rohi@itnavideo.com
               </a>
             </div>
@@ -188,7 +188,7 @@ export default function Footer() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     aria-label={item.label} 
-                    className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:border-orange-500/50 hover:bg-orange-50/50 hover:text-orange-950 active:scale-95 shadow-2xs"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition hover:border-blue-500/50 hover:bg-blue-50/50 hover:text-blue-950 active:scale-95 shadow-2xs"
                   >
                     <Icon size={14} />
                   </a>
@@ -207,8 +207,8 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-slate-200/80 pt-8 text-[11px] text-slate-500 sm:flex-row">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-1 text-[10px] font-bold text-orange-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#FF5722]" />
+            <span className="flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold text-blue-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#0066FF]" />
               Cloud rendering
             </span>
             <span>© 2026 Itnavideo AI. Bangalore, India.</span>
@@ -243,7 +243,7 @@ function FooterAccordion({ title, links }: { title: string; links: Array<{ label
         <span>{title}</span>
         <ChevronDown 
           size={14} 
-          className={`text-slate-400 transition-transform duration-200 ${open ? 'rotate-180 text-orange-600' : ''}`} 
+          className={`text-slate-400 transition-transform duration-200 ${open ? 'rotate-180 text-blue-600' : ''}`} 
         />
       </button>
       {open ? (
@@ -252,10 +252,10 @@ function FooterAccordion({ title, links }: { title: string; links: Array<{ label
             <li key={link.href}>
               <Link 
                 href={link.href} 
-                className="flex items-center text-xs text-slate-600 transition hover:text-orange-600"
+                className="flex items-center text-xs text-slate-600 transition hover:text-blue-600"
               >
                 <span>{link.label}</span>
-                <ArrowUpRight size={10} className="ml-1 opacity-70 text-[#FF5722]" />
+                <ArrowUpRight size={10} className="ml-1 opacity-70 text-[#0066FF]" />
               </Link>
             </li>
           ))}

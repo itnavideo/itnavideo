@@ -8,26 +8,26 @@ import { Sparkles, CheckCircle2, ArrowRight, Zap, UploadCloud } from 'lucide-rea
 export default function TransformationShowcaseSection() {
   return (
     <section className="relative overflow-hidden bg-white pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
-      {/* Soft Multi-Hue Ambient Mesh Auras (Liinks.co style living atmosphere) */}
+      {/* Soft Multi-Hue Ambient Mesh Auras */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -left-10 top-1/4 h-[420px] w-[500px] rounded-full opacity-60 blur-3xl"
+        className="pointer-events-none absolute -left-10 top-1/4 h-[420px] w-[500px] rounded-full opacity-50 blur-3xl"
         style={{
-          background: 'radial-gradient(circle, rgba(255, 138, 101, 0.15) 0%, rgba(255, 183, 77, 0.08) 50%, transparent 75%)',
+          background: 'radial-gradient(circle, rgba(0, 102, 255, 0.10) 0%, rgba(59, 130, 246, 0.05) 50%, transparent 75%)',
         }}
       />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-10 top-1/3 h-[450px] w-[520px] rounded-full opacity-50 blur-3xl"
         style={{
-          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(56, 189, 248, 0.06) 50%, transparent 75%)',
+          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.07) 0%, rgba(56, 189, 248, 0.06) 50%, transparent 75%)',
         }}
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[750px] max-w-full opacity-70 blur-2xl"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[750px] max-w-full opacity-60 blur-2xl"
         style={{
-          background: 'radial-gradient(ellipse 65% 55% at 50% 50%, rgba(255, 112, 67, 0.11) 0%, rgba(255, 179, 0, 0.05) 45%, transparent 75%)',
+          background: 'radial-gradient(ellipse 65% 55% at 50% 50%, rgba(0, 102, 255, 0.08) 0%, rgba(37, 99, 235, 0.04) 45%, transparent 75%)',
         }}
       />
 
@@ -37,7 +37,7 @@ export default function TransformationShowcaseSection() {
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] font-sans">
             From Video Editing Frustration{' '}
             <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
               to Instant AI Creation
             </span>
           </h2>
@@ -69,16 +69,16 @@ export default function TransformationShowcaseSection() {
 
         {/* 3 Core Value Pillars */}
         <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 hover:-translate-y-1">
+          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between mb-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0 group-hover:scale-105 transition-transform">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0 group-hover:scale-105 transition-transform">
                 <UploadCloud size={18} />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-orange-700 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
                 Step 1: Upload
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-orange-600 transition-colors">
+            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors">
               Audio or Video Upload Only
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed font-medium">
@@ -86,16 +86,16 @@ export default function TransformationShowcaseSection() {
             </p>
           </div>
 
-          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 hover:-translate-y-1">
+          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between mb-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0 group-hover:scale-105 transition-transform">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0 group-hover:scale-105 transition-transform">
                 <Sparkles size={18} />
               </div>
-              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-orange-700 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
                 Step 2: AI Planning
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-orange-600 transition-colors">
+            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors">
               Speech-Driven Scene Assembly
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed font-medium">
@@ -103,16 +103,16 @@ export default function TransformationShowcaseSection() {
             </p>
           </div>
 
-          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-orange-500/50 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 hover:-translate-y-1">
+          <div className="group rounded-2xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-xs hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between mb-3.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0 group-hover:scale-105 transition-transform">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0 group-hover:scale-105 transition-transform">
                 <CheckCircle2 size={18} />
               </div>
               <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                 Step 3: Instant Export
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-orange-600 transition-colors">
+            <h3 className="text-sm sm:text-base font-extrabold text-slate-900 mb-1.5 group-hover:text-blue-600 transition-colors">
               1080p Cloud Renders
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed font-medium">
@@ -125,7 +125,7 @@ export default function TransformationShowcaseSection() {
         <div className="mt-10 text-center flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <a
             href="#video-types"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-orange-500/20 hover:shadow-orange-500/30 hover:brightness-105 transition-all active:scale-95"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 hover:brightness-105 transition-all active:scale-95"
           >
             <span className="hidden sm:inline">Explore All 14 Purpose-Built AI Video Studios Below</span>
             <span className="sm:hidden">Explore All 14 Video Studios</span>

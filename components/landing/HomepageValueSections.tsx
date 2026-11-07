@@ -32,8 +32,8 @@ export function HomepageTrustStrip() {
     <section aria-label="Platform facts" className="border-b border-stone-200/80 bg-white px-4 py-5 sm:px-6">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 lg:grid-cols-4">
         {facts.map(({ label, Icon }) => (
-          <div key={label} className="flex items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white px-3.5 py-3 text-center text-xs font-bold text-slate-700 shadow-xs transition hover:border-orange-500/30 hover:text-orange-900 hover:bg-orange-50/30">
-            <Icon size={15} className="shrink-0 text-[#FF5722]" />
+          <div key={label} className="flex items-center justify-center gap-2.5 rounded-xl border border-stone-200/80 bg-white px-3.5 py-3 text-center text-xs font-bold text-slate-700 shadow-xs transition hover:border-blue-500/30 hover:text-blue-900 hover:bg-blue-50/30">
+            <Icon size={15} className="shrink-0 text-[#0066FF]" />
             <span>{label}</span>
           </div>
         ))}
@@ -44,7 +44,7 @@ export function HomepageTrustStrip() {
 
 function StepIcon1() {
   return (
-    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0">
+    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0">
       <Upload size={20} strokeWidth={2.2} />
     </div>
   );
@@ -52,7 +52,7 @@ function StepIcon1() {
 
 function StepIcon2() {
   return (
-    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0">
+    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0">
       <Sparkles size={20} strokeWidth={2.2} />
     </div>
   );
@@ -60,7 +60,7 @@ function StepIcon2() {
 
 function StepIcon3() {
   return (
-    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0">
+    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0">
       <Settings2 size={20} strokeWidth={2.2} />
     </div>
   );
@@ -68,7 +68,7 @@ function StepIcon3() {
 
 function StepIcon4() {
   return (
-    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 shrink-0">
+    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-600 shrink-0">
       <CheckCircle2 size={20} strokeWidth={2.2} />
     </div>
   );
@@ -112,7 +112,7 @@ export function PlatformJourney() {
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
             Simple 4-Step Creation.{' '}
-            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
               Zero Timeline Lag.
             </span>
           </h2>
@@ -247,18 +247,18 @@ export function WhyItnavideo() {
             className="mt-7 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-6 py-3.5 text-xs sm:text-sm font-bold text-slate-800 shadow-xs transition hover:bg-stone-50 active:scale-95"
           >
             <span>Compare all {HOMEPAGE_WORKFLOW_COUNT} video studios</span>
-            <ArrowRight size={15} className="text-[#FF5722]" />
+            <ArrowRight size={15} className="text-[#0066FF]" />
           </Link>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {stats.map(({ stat, title, subtext, Icon }) => (
-            <article key={title} className="group rounded-2xl border border-stone-200/80 bg-white p-5 sm:p-6 shadow-xs transition-all duration-200 hover:border-orange-500/30 hover:shadow-sm">
+            <article key={title} className="group rounded-2xl border border-stone-200/80 bg-white p-5 sm:p-6 shadow-xs transition-all duration-200 hover:border-blue-500/30 hover:shadow-sm">
               <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-orange-500/20 bg-orange-500/10 text-orange-600 transition shrink-0">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-600 transition shrink-0">
                   <Icon size={18} />
                 </span>
-                <span className="rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-700 transition">
+                <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-bold text-blue-700 transition">
                   {stat}
                 </span>
               </div>
@@ -281,16 +281,16 @@ export function HomepageFinalCta() {
         {/* Ambient Halo behind CTA */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] max-w-full opacity-60 blur-3xl"
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[350px] w-[600px] max-w-full opacity-50 blur-3xl"
           style={{
-            backgroundImage: 'radial-gradient(circle, rgba(255, 138, 101, 0.16) 0%, rgba(255, 183, 77, 0.08) 50%, transparent 75%)',
+            backgroundImage: 'radial-gradient(circle, rgba(0, 102, 255, 0.12) 0%, rgba(59, 130, 246, 0.06) 50%, transparent 75%)',
           }}
         />
 
         <div className="relative z-10 mx-auto max-w-3xl">
           <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl font-sans">
             Ready to create your first{' '}
-            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
               AI video?
             </span>
           </h2>
@@ -304,14 +304,14 @@ export function HomepageFinalCta() {
             {/* Desktop Pill */}
             <div className="hidden sm:flex rounded-full border border-stone-300/90 bg-stone-50/80 p-2 shadow-md items-center gap-2">
               <div className="flex items-center gap-2 px-3 py-1 text-slate-500 text-sm font-medium w-auto">
-                <span className="font-mono text-orange-600 font-black tracking-tight select-none text-sm shrink-0">
+                <span className="font-mono text-[#0066FF] font-black tracking-tight select-none text-sm shrink-0">
                   itnavideo.com/
                 </span>
                 <div className="relative flex-1 min-w-0">
                   <select
                     value={selectedMode}
                     onChange={(e) => setSelectedMode(e.target.value)}
-                    className="w-full bg-white border border-stone-200 text-slate-900 font-bold rounded-full px-3 py-1.5 text-sm cursor-pointer outline-none focus:ring-2 focus:ring-orange-500/30 transition-colors truncate"
+                    className="w-full bg-white border border-stone-200 text-slate-900 font-bold rounded-full px-3 py-1.5 text-sm cursor-pointer outline-none focus:ring-2 focus:ring-blue-500/30 transition-colors truncate"
                   >
                     <option value="facelessVideo">16:9 YouTube Faceless Video</option>
                     <option value="autoCaption">9:16 Viral Auto Caption Reel</option>
@@ -324,7 +324,7 @@ export function HomepageFinalCta() {
 
               <Link
                 href={`/dashboard?mode=${selectedMode}`}
-                className="ml-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] px-8 py-3 text-sm font-black text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
+                className="ml-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-8 py-3 text-sm font-black text-white shadow-md hover:brightness-110 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
               >
                 <span>Start Creating Free</span>
                 <ArrowRight size={15} strokeWidth={2.5} />
@@ -335,7 +335,7 @@ export function HomepageFinalCta() {
             <div className="block sm:hidden space-y-2.5">
               <Link
                 href={`/dashboard?mode=${selectedMode}`}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] py-3.5 px-6 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] py-3.5 px-6 text-sm font-black text-white shadow-lg shadow-blue-500/25 active:scale-98 transition-all"
               >
                 <Sparkles size={16} />
                 <span>Start Creating Free</span>
@@ -343,7 +343,7 @@ export function HomepageFinalCta() {
               </Link>
 
               <div className="flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white p-1.5 shadow-2xs">
-                <span className="font-mono text-orange-600 font-extrabold text-[10px] pl-1.5 shrink-0">
+                <span className="font-mono text-[#0066FF] font-extrabold text-[10px] pl-1.5 shrink-0">
                   Studio:
                 </span>
                 <select

@@ -357,7 +357,7 @@ export default function TenStudiosHubArchitecture() {
           
           <h2 className="text-2xl font-normal tracking-tight text-white sm:text-5xl font-serif" style={{ color: '#ffffff' }}>
             AI Video Studios{' '}
-            <span className="italic bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent font-normal">
+            <span className="italic bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent font-normal">
               &amp; Workflows
             </span>
           </h2>
@@ -382,13 +382,13 @@ export default function TenStudiosHubArchitecture() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`group relative flex items-center gap-1.5 sm:gap-2.5 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-300 cursor-pointer border whitespace-nowrap shrink-0 ${
                       isActive
-                        ? 'border-orange-500/90 bg-gradient-to-r from-[#FF5722] to-[#E64A19] text-white shadow-lg shadow-[#FF5722]/35'
+                        ? 'border-blue-500/90 bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-lg shadow-[#0066FF]/35'
                         : 'border-transparent text-zinc-400 hover:text-white hover:bg-white/5'
                     }`}
                     style={
                       isActive
                         ? {
-                            boxShadow: '0 8px 24px -4px rgba(255, 87, 34, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3)',
+                            boxShadow: '0 8px 24px -4px rgba(0, 102, 255, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.3)',
                           }
                         : undefined
                     }
@@ -440,7 +440,7 @@ export default function TenStudiosHubArchitecture() {
             {/* Stage Header Banner */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-5 sm:pb-6 border-b border-stone-800/80">
               <div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-orange-500/15 border border-orange-500/30 px-3 py-1 text-[11px] font-mono font-bold text-orange-400 uppercase tracking-wider mb-2">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 px-3 py-1 text-[11px] font-mono font-bold text-blue-400 uppercase tracking-wider mb-2">
                   <Smartphone size={12} />
                   <span>9:16 Vertical Smartphone Format</span>
                 </div>
@@ -456,7 +456,7 @@ export default function TenStudiosHubArchitecture() {
               <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-bold shrink-0">
                 <Link
                   href="/video-types"
-                  className="inline-flex items-center gap-1 text-[11px] font-sans font-bold text-orange-400 hover:text-orange-300 transition-colors mr-1"
+                  className="inline-flex items-center gap-1 text-[11px] font-sans font-bold text-blue-400 hover:text-blue-300 transition-colors mr-1"
                 >
                   <BookOpen size={13} />
                   <span>View Dedicated Guides</span>
@@ -484,7 +484,7 @@ export default function TenStudiosHubArchitecture() {
                 return (
                   <div
                     key={item.id}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-800/90 bg-[#191412] hover:border-orange-500/50 hover:bg-[#201916] transition-all duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-xl hover:shadow-orange-500/10"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-800/90 bg-[#111827] hover:border-blue-500/50 hover:bg-[#1f2937] transition-all duration-300 hover:-translate-y-1.5 shadow-sm hover:shadow-xl hover:shadow-blue-500/10"
                     style={{ backgroundColor: '#191412' }}
                   >
                     <div>
@@ -521,7 +521,7 @@ export default function TenStudiosHubArchitecture() {
                           {/* Top Badges */}
                           <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-20 flex items-center gap-1.5">
                             {item.isPopular && (
-                              <span className="rounded-full bg-gradient-to-r from-[#FF5722] to-[#FFA000] px-2 py-0.5 text-[8px] font-black text-white uppercase tracking-wider shadow-sm ring-1 ring-white/20">
+                              <span className="rounded-full bg-gradient-to-r from-[#0052CC] to-[#2563EB] px-2 py-0.5 text-[8px] font-black text-white uppercase tracking-wider shadow-sm ring-1 ring-white/20">
                                 Popular
                               </span>
                             )}
@@ -533,7 +533,7 @@ export default function TenStudiosHubArchitecture() {
                               9:16
                             </span>
                             {item.badgeLabel && (
-                              <span className="hidden sm:inline px-1.5 py-0.5 rounded-full bg-orange-500/20 text-[8px] font-bold text-orange-300 border border-orange-500/30 backdrop-blur-md">
+                              <span className="hidden sm:inline px-1.5 py-0.5 rounded-full bg-blue-500/20 text-[8px] font-bold text-blue-300 border border-blue-500/30 backdrop-blur-md">
                                 {item.badgeLabel}
                               </span>
                             )}
@@ -548,7 +548,7 @@ export default function TenStudiosHubArchitecture() {
                             <div className={`flex h-6 w-6 items-center justify-center rounded-md ${item.iconBgClass} ${item.iconColorClass} shrink-0`}>
                               <Icon size={13} />
                             </div>
-                            <h4 className="text-xs sm:text-sm font-extrabold text-white tracking-tight group-hover/title:text-orange-400 transition-colors line-clamp-1">
+                            <h4 className="text-xs sm:text-sm font-extrabold text-white tracking-tight group-hover/title:text-blue-400 transition-colors line-clamp-1">
                               {item.name}
                             </h4>
                           </div>
@@ -573,7 +573,7 @@ export default function TenStudiosHubArchitecture() {
                       <Link
                         href={item.href}
                         title={`Create video with ${item.name}`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 px-1.5 py-1.5 text-[10px] sm:text-[11px] font-bold text-white shadow-xs transition-all hover:brightness-110 active:scale-95 text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-[#0052CC] to-[#0066FF] hover:from-[#004099] hover:to-[#0052CC] px-1.5 py-1.5 text-[10px] sm:text-[11px] font-bold text-white shadow-xs transition-all hover:brightness-110 active:scale-95 text-center"
                       >
                         <span className="truncate">Create Video</span>
                         <ArrowRight size={11} className="shrink-0" />
@@ -890,11 +890,11 @@ export default function TenStudiosHubArchitecture() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 pb-2">
           <div className="relative group">
             {/* Ambient Pulsing Glow Halo */}
-            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] opacity-40 blur-lg transition duration-500 group-hover:opacity-75 group-hover:blur-xl" />
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] opacity-35 blur-lg transition duration-500 group-hover:opacity-70 group-hover:blur-xl" />
             
             <Link
               href="/dashboard"
-              className="relative inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 sm:px-9 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 hover:brightness-110 active:scale-95"
+              className="relative inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-8 sm:px-9 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-200 hover:brightness-110 active:scale-95"
             >
               <Sparkles size={16} className="text-white fill-white" />
               <span>Launch Any Studio Now</span>
@@ -906,7 +906,7 @@ export default function TenStudiosHubArchitecture() {
             href="/video-types"
             className="inline-flex items-center justify-center gap-2 rounded-full border border-stone-800 bg-[#171210] hover:bg-stone-800 hover:border-stone-700 px-7 sm:px-8 py-3.5 sm:py-4 text-xs sm:text-sm font-bold text-stone-200 hover:text-white transition-all duration-200 shadow-md active:scale-95"
           >
-            <BookOpen size={15} className="text-orange-400" />
+            <BookOpen size={15} className="text-blue-400" />
             <span>Explore All 10 Dedicated Pages &amp; Specs</span>
             <ChevronRight size={15} className="text-stone-400" />
           </Link>

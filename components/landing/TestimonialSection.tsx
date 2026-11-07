@@ -103,14 +103,14 @@ export default function TestimonialSection() {
         className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[550px] w-[950px] max-w-full opacity-60 blur-3xl"
         style={{
           background:
-            'radial-gradient(ellipse 75% 65% at 50% 50%, rgba(255, 138, 101, 0.14) 0%, rgba(255, 183, 77, 0.08) 45%, rgba(168, 85, 247, 0.04) 70%, transparent 85%)',
+            'radial-gradient(ellipse 75% 65% at 50% 50%, rgba(0, 102, 255, 0.10) 0%, rgba(59, 130, 246, 0.05) 45%, rgba(168, 85, 247, 0.04) 70%, transparent 85%)',
         }}
       />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-20 top-1/3 h-[420px] w-[500px] rounded-full opacity-45 blur-3xl"
         style={{
-          background: 'radial-gradient(circle, rgba(255, 112, 67, 0.10) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(0, 102, 255, 0.08) 0%, transparent 70%)',
         }}
       />
       <div
@@ -127,7 +127,7 @@ export default function TestimonialSection() {
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] font-sans">
             Created in minutes,{' '}
             <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
               loved for years
             </span>
           </h2>
@@ -142,7 +142,7 @@ export default function TestimonialSection() {
           {CREATOR_REVIEWS.map((review) => (
             <div
               key={review.id}
-              className="group relative flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:border-orange-500/40 hover:shadow-[0_20px_35px_-10px_rgba(255,87,34,0.12)] hover:-translate-y-1.5 transition-all duration-300 select-none"
+              className="group relative flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:border-blue-500/40 hover:shadow-[0_20px_35px_-10px_rgba(0,102,255,0.12)] hover:-translate-y-1.5 transition-all duration-300 select-none"
             >
               <div>
                 {/* 5 Glowing Gold Stars & Feature Tag */}
@@ -153,7 +153,7 @@ export default function TestimonialSection() {
                     ))}
                   </div>
 
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-orange-800 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-800 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">
                     {review.highlightTag}
                   </span>
                 </div>
@@ -166,7 +166,7 @@ export default function TestimonialSection() {
 
               {/* Creator Attribution with Real Avatar Image */}
               <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-3">
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-orange-300/60 shadow-xs ring-2 ring-white">
+                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-blue-300/60 shadow-xs ring-2 ring-white">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={getOptimizedAvatarUrl(review.avatarUrl, 96)}

@@ -172,13 +172,13 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700 shadow-xs">
-            <Sparkles size={14} className="text-[#FF5722]" />
+            <Sparkles size={14} className="text-[#0066FF]" />
             <span>Transparent Creator Pricing</span>
           </div>
 
           <h2 className="mt-4 text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight font-sans">
             Simple, Powerful{" "}
-            <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
               AI Video Plans
             </span>
           </h2>
@@ -242,7 +242,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
         </div>
 
         {message && (
-          <p className="mx-auto mt-6 max-w-xl rounded-2xl border border-orange-500/30 bg-orange-50 px-4 py-3 text-center text-sm font-semibold text-orange-950">
+          <p className="mx-auto mt-6 max-w-xl rounded-2xl border border-blue-500/30 bg-blue-50 px-4 py-3 text-center text-sm font-semibold text-blue-950">
             {message}
           </p>
         )}
@@ -259,13 +259,13 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                 key={plan.id}
                 className={`relative flex flex-col rounded-3xl transition-all duration-300 p-6 sm:p-8 bg-white ${
                   isPopular
-                    ? "border-2 border-orange-500 ring-4 ring-orange-500/15 shadow-xl shadow-orange-500/10 lg:scale-[1.02] z-10"
+                    ? "border-2 border-blue-600 ring-4 ring-blue-500/15 shadow-xl shadow-blue-500/10 lg:scale-[1.02] z-10"
                     : "border border-stone-200/90 shadow-xs hover:border-stone-300 hover:shadow-md"
                 }`}
               >
                 {/* Most Popular Floating Pill Badge */}
                 {isPopular && (
-                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-4 py-0.5 text-[11px] font-bold text-white shadow-md">
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-4 py-0.5 text-[11px] font-bold text-white shadow-md">
                     Most Popular
                   </span>
                 )}
@@ -313,7 +313,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                   onClick={() => buyPlan(plan)}
                   className={`mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 px-5 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                     isPopular
-                      ? "bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white shadow-md shadow-orange-500/25 hover:brightness-110 active:scale-98"
+                      ? "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-md shadow-blue-500/25 hover:brightness-110 active:scale-98"
                       : "bg-[#18181b] hover:bg-black text-white shadow-xs active:scale-98"
                   }`}
                 >
@@ -327,18 +327,18 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
 
         {/* Simple Credit Rate & Guarantee Trust Bar */}
         <div className="mt-12 flex flex-col items-center justify-center gap-3">
-          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-800 shadow-xs">
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-bold text-blue-800 shadow-xs">
             <span>Simple Pricing Rule:</span>
-            <span className="font-extrabold text-orange-950">1 Credit = 1 Minute YouTube Video</span>
-            <span className="text-orange-400">•</span>
-            <span className="font-extrabold text-orange-950">1 Credit = 1 Vertical Short / Clip</span>
-            <span className="text-orange-400">•</span>
-            <span className="font-extrabold text-orange-950">1 Credit = 1 Audio Clean</span>
+            <span className="font-extrabold text-blue-950">1 Credit = 1 Minute YouTube Video</span>
+            <span className="text-blue-400">•</span>
+            <span className="font-extrabold text-blue-950">1 Credit = 1 Vertical Short / Clip</span>
+            <span className="text-blue-400">•</span>
+            <span className="font-extrabold text-blue-950">1 Credit = 1 Audio Clean</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600 mt-1">
             <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-[#FF5722]" />
+              <ShieldCheck size={16} className="text-[#0066FF]" />
               <span>100% Secure Checkout via Razorpay</span>
             </div>
             <span>•</span>

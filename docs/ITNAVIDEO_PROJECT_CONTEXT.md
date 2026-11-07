@@ -93,16 +93,16 @@ Turn raw creator content into publish-ready 9:16 reels or a preserved 16:9 long-
 
 ## Design System
 
-### Color System (Google Analytics Specification — Mandatory)
+### Color System (Modern Studio Specification — Electric Royal Blue)
 
 ```
 Background dark:   #070B14 (deep obsidian base)
 Container dark:    #0E1526 (elevated surface container)
 Container highlight:#151E30 (high surface container)
 Background light:  #FFFFFF / #F8FAFC (clean light canvas)
-Primary highlight: #FF6D00 (signature Google Analytics vibrant orange)
-Primary mid accent:#FF8F00 (smooth warm transition orange)
-Primary warm gold: #FFA726 (highlight tail for gradient headlines)
+Primary brand:      #0066FF (signature Veed/Descript electric royal blue)
+Primary mid accent: #0052CC (deep cobalt interactive press/hover)
+Primary light:      #3B82F6 (luminous blue accent)
 Text primary dark: #FFFFFF / #F1F5F9 (high legibility dark text)
 Text primary light:#0F172A / #1E293B (slate body and headings)
 Text muted:        #64748B / #94A3B8 (subtitles, metadata)

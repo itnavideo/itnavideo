@@ -32,23 +32,23 @@ export default function Hero() {
       {/* Multi-Hue Soft Ambient Mesh Auras */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -left-20 top-0 h-[360px] sm:h-[420px] w-[420px] sm:w-[500px] rounded-full opacity-60 blur-3xl"
+        className="pointer-events-none absolute -left-20 top-0 h-[360px] sm:h-[420px] w-[420px] sm:w-[500px] rounded-full opacity-50 blur-3xl"
         style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255, 138, 101, 0.16) 0%, rgba(255, 183, 77, 0.08) 50%, transparent 75%)',
+          backgroundImage: 'radial-gradient(circle, rgba(0, 102, 255, 0.12) 0%, rgba(59, 130, 246, 0.06) 50%, transparent 75%)',
         }}
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-20 top-10 h-[380px] sm:h-[450px] w-[440px] sm:w-[520px] rounded-full opacity-55 blur-3xl"
+        className="pointer-events-none absolute -right-20 top-10 h-[380px] sm:h-[450px] w-[440px] sm:w-[520px] rounded-full opacity-50 blur-3xl"
         style={{
-          backgroundImage: 'radial-gradient(circle, rgba(168, 85, 247, 0.09) 0%, rgba(56, 189, 248, 0.07) 50%, transparent 75%)',
+          backgroundImage: 'radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(56, 189, 248, 0.08) 50%, transparent 75%)',
         }}
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 bottom-0 h-[320px] sm:h-[380px] w-[880px] max-w-full -translate-x-1/2 opacity-75 blur-2xl"
+        className="pointer-events-none absolute left-1/2 bottom-0 h-[320px] sm:h-[380px] w-[880px] max-w-full -translate-x-1/2 opacity-70 blur-2xl"
         style={{
-          backgroundImage: 'radial-gradient(ellipse 70% 60% at 50% 90%, rgba(255,87,34,0.14) 0%, rgba(255,160,0,0.07) 45%, transparent 80%)',
+          backgroundImage: 'radial-gradient(ellipse 70% 60% at 50% 90%, rgba(0, 102, 255, 0.10) 0%, rgba(37, 99, 235, 0.05) 45%, transparent 80%)',
         }}
       />
 
@@ -60,7 +60,7 @@ export default function Hero() {
         <h1 className="text-3xl sm:text-6xl md:text-7xl lg:text-[76px] font-black tracking-tight sm:tracking-[-0.03em] text-slate-950 leading-[1.12] sm:leading-[1.08] max-w-4xl mx-auto font-sans">
           Don&apos;t edit,{' '}
           <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-[#D84315] via-[#FF5722] to-[#FFA000] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#3B82F6] bg-clip-text text-transparent">
             just speak.
           </span>
         </h1>
@@ -76,7 +76,7 @@ export default function Hero() {
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 max-w-md mx-auto px-2">
           <Link
             href="/dashboard"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl sm:rounded-full bg-gradient-to-r from-[#FF5722] via-[#F4511E] to-[#E64A19] px-7 sm:px-9 py-3.5 sm:py-4 text-sm sm:text-base font-black text-white shadow-[0_12px_28px_-6px_rgba(255,87,34,0.35)] hover:shadow-[0_16px_36px_-6px_rgba(255,87,34,0.45)] hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl sm:rounded-full bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-7 sm:px-9 py-3.5 sm:py-4 text-sm sm:text-base font-black text-white shadow-[0_12px_28px_-6px_rgba(0,102,255,0.35)] hover:shadow-[0_16px_36px_-6px_rgba(0,102,255,0.45)] hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"
           >
             <Sparkles size={16} className="text-white" />
             <span>Start Creating Video Free</span>
@@ -108,7 +108,7 @@ export default function Hero() {
         {/* INTERACTIVE AI VIDEO SHOWCASE PREVIEW CARD                    */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="mt-6 sm:mt-10 mx-auto max-w-4xl px-1 sm:px-4">
-          <div className="group relative rounded-2xl sm:rounded-3xl border border-stone-300/80 bg-white/95 p-2.5 sm:p-4 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.08)] backdrop-blur-md transition-all hover:border-orange-500/40">
+          <div className="group relative rounded-2xl sm:rounded-3xl border border-stone-300/80 bg-white/95 p-2.5 sm:p-4 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.08)] backdrop-blur-md transition-all hover:border-blue-500/40">
             
             {/* Top Showcase Toolbar */}
             <div className="flex items-center justify-between px-2 sm:px-3 py-1.5 mb-2 border-b border-stone-100 text-xs">
@@ -117,7 +117,7 @@ export default function Hero() {
                 <span className="font-extrabold text-slate-900 text-[11px] sm:text-xs">
                   AI Generation Live Preview
                 </span>
-                <span className="hidden sm:inline-block rounded-full bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 text-[10px] font-bold text-orange-700">
+                <span className="hidden sm:inline-block rounded-full bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-700">
                   {previewFormat === '16:9' ? '16:9 Widescreen (1080p)' : '9:16 Vertical (1080×1920)'}
                 </span>
               </div>
@@ -178,7 +178,7 @@ export default function Hero() {
                   <Tv size={11} className="text-orange-400" />
                   {previewFormat === '16:9' ? 'YouTube 1080p' : 'Reels 60 FPS'}
                 </span>
-                <span className="rounded-md bg-orange-600 px-2 py-0.5 text-[10px] sm:text-xs font-mono font-bold text-white shadow-xs">
+                <span className="rounded-md bg-blue-600 px-2 py-0.5 text-[10px] sm:text-xs font-mono font-bold text-white shadow-xs">
                   {previewFormat === '16:9' ? '3:45 Duration' : '0:42 Reel'}
                 </span>
               </div>
@@ -186,10 +186,10 @@ export default function Hero() {
               {/* Center Play Button Overlay */}
               <Link
                 href={previewFormat === '16:9' ? '/dashboard/faceless-video' : '/dashboard/auto-caption'}
-                className="group/play absolute z-10 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/95 text-[#FF5722] shadow-[0_8px_30px_rgba(255,87,34,0.45)] hover:scale-110 active:scale-95 transition-all duration-300"
+                className="group/play absolute z-10 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-white/95 text-[#0066FF] shadow-[0_8px_30px_rgba(0,102,255,0.40)] hover:scale-110 active:scale-95 transition-all duration-300"
                 title="Launch in studio"
               >
-                <Play size={22} className="ml-1 fill-[#FF5722] sm:scale-110" />
+                <Play size={22} className="ml-1 fill-[#0066FF] sm:scale-110" />
               </Link>
 
               {/* Bottom Interactive Subtitle Strip & Waveform */}
@@ -200,7 +200,7 @@ export default function Hero() {
                     {previewFormat === '16:9' ? (
                       <>
                         &ldquo;Rule #1: Never risk capital on{' '}
-                        <span className="text-amber-400 bg-amber-400/20 px-1 rounded border border-amber-400/30">
+                        <span className="text-blue-400 bg-blue-500/20 px-1 rounded border border-blue-400/30">
                           untested assets
                         </span>
                         ...&rdquo;
@@ -208,7 +208,7 @@ export default function Hero() {
                     ) : (
                       <>
                         &ldquo;STOP wasting hours! This{' '}
-                        <span className="text-[#FF5722] bg-orange-500/20 px-1 rounded border border-orange-500/30">
+                        <span className="text-[#0066FF] bg-blue-500/20 px-1 rounded border border-blue-500/30">
                           AI CREATES
                         </span>{' '}
                         viral reels...&rdquo;
@@ -219,12 +219,12 @@ export default function Hero() {
 
                 {/* Animated Audio Waveform */}
                 <div className="flex items-center gap-1 text-[10px] sm:text-xs font-mono text-white/90 bg-black/50 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/10">
-                  <Volume2 size={12} className="text-orange-400 shrink-0" />
+                  <Volume2 size={12} className="text-blue-400 shrink-0" />
                   <div className="flex items-end gap-0.5 h-3">
-                    <span className="w-0.5 bg-orange-400 h-1.5 rounded-full animate-pulse" />
-                    <span className="w-0.5 bg-orange-500 h-3 rounded-full animate-pulse" />
-                    <span className="w-0.5 bg-amber-400 h-2 rounded-full animate-pulse" />
-                    <span className="w-0.5 bg-orange-400 h-2.5 rounded-full animate-pulse" />
+                    <span className="w-0.5 bg-blue-400 h-1.5 rounded-full animate-pulse" />
+                    <span className="w-0.5 bg-blue-500 h-3 rounded-full animate-pulse" />
+                    <span className="w-0.5 bg-sky-400 h-2 rounded-full animate-pulse" />
+                    <span className="w-0.5 bg-blue-400 h-2.5 rounded-full animate-pulse" />
                     <span className="w-0.5 bg-white h-1.5 rounded-full animate-pulse" />
                   </div>
                   <span className="text-[10px] text-zinc-300">Speech Synced</span>
@@ -237,7 +237,7 @@ export default function Hero() {
               <span>Automated B-roll Visuals • Subtitles &bull; Sound Effects</span>
               <Link
                 href={previewFormat === '16:9' ? '/dashboard/faceless-video' : '/dashboard/auto-caption'}
-                className="font-bold text-orange-600 hover:text-orange-700 inline-flex items-center gap-1"
+                className="font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1"
               >
                 <span>Launch this Studio</span>
                 <ArrowRight size={12} />

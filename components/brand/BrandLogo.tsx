@@ -35,8 +35,8 @@ export default function BrandLogo({
   const isLight = variant === 'light';
 
   const badgeStyle = isLight
-    ? 'border-[#FF5722]/30 bg-[#FF5722]/10 text-[#FF5722]'
-    : 'border-[#FFA000]/40 bg-[#FFA000]/15 text-[#FFA000] shadow-xs';
+    ? 'border-[#0066FF]/30 bg-[#0066FF]/10 text-[#0066FF]'
+    : 'border-[#3B82F6]/40 bg-[#3B82F6]/15 text-[#60A5FA] shadow-xs';
 
   const taglineColor = isLight ? 'text-slate-600' : 'text-zinc-400';
 
@@ -54,11 +54,11 @@ export default function BrandLogo({
         >
           <defs>
             <linearGradient id="brandLogoGradIcon" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FF6D00" />
-              <stop offset="100%" stopColor="#FFA726" />
+              <stop offset="0%" stopColor="#0052CC" />
+              <stop offset="100%" stopColor="#2563EB" />
             </linearGradient>
             <filter id="brandLogoGlowIcon" x="-30%" y="-30%" width="160%" height="160%">
-              <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#FF6D00" floodOpacity="0.35" />
+              <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#0066FF" floodOpacity="0.35" />
             </filter>
           </defs>
           <g transform="translate(10, 9)" filter="url(#brandLogoGlowIcon)">
@@ -81,11 +81,11 @@ export default function BrandLogo({
           >
             <defs>
               <linearGradient id={isLight ? "brandGradLight" : "brandGradDark"} x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FF6D00" />
-                <stop offset="100%" stopColor="#FFA726" />
+                <stop offset="0%" stopColor="#0052CC" />
+                <stop offset="100%" stopColor="#2563EB" />
               </linearGradient>
               <filter id={isLight ? "brandGlowLight" : "brandGlowDark"} x="-30%" y="-30%" width="160%" height="160%">
-                <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#FF6D00" floodOpacity={isLight ? "0.3" : "0.45"} />
+                <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#0066FF" floodOpacity={isLight ? "0.3" : "0.45"} />
               </filter>
             </defs>
 
@@ -107,8 +107,9 @@ export default function BrandLogo({
               letterSpacing="-1"
             >
               <tspan fill={isLight ? "#0E1526" : "#FFFFFF"}>Itna</tspan>
-              <tspan fill="#FF6D00">Video</tspan>
+              <tspan fill="#0066FF">Video</tspan>
             </text>
+          </svg>
           </svg>
 
           {showBadge && (
@@ -138,7 +139,7 @@ export default function BrandLogo({
     <Link
       href={href}
       aria-label="ItnaVideo"
-      className="group inline-flex items-center rounded-xl outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-orange-400"
+      className="group inline-flex items-center rounded-xl outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-blue-500"
     >
       {content}
     </Link>

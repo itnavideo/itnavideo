@@ -140,15 +140,15 @@ export default function Navbar() {
                     onClick={() => toggleMenu('products')}
                     className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${
                       activeMenu === 'products'
-                        ? 'text-[#FF5722] font-bold'
+                        ? 'text-[#0066FF] font-bold'
                         : isLightPage
-                        ? 'text-slate-800 hover:text-[#FF5722]'
+                        ? 'text-slate-800 hover:text-[#0066FF]'
                         : 'text-zinc-300 hover:text-white'
                     }`}
                   >
                     <span>Products</span>
                     <ChevronDown size={14} className={`transition-transform duration-200 ${
-                      activeMenu === 'products' ? 'rotate-180 text-[#FF5722]' : 'text-slate-400'
+                      activeMenu === 'products' ? 'rotate-180 text-[#0066FF]' : 'text-slate-400'
                     }`} />
                   </button>
 
@@ -161,7 +161,7 @@ export default function Navbar() {
                       <div className="grid grid-cols-2 gap-4 pb-3">
                         {/* Column 1: Short Video Studios (9:16) */}
                         <div className="space-y-1.5">
-                          <span className="text-[11px] font-extrabold text-[#FF5722] uppercase tracking-wider block px-1">
+                          <span className="text-[11px] font-extrabold text-[#0066FF] uppercase tracking-wider block px-1">
                             📱 9:16 Shorts &amp; Reels
                           </span>
 
@@ -170,13 +170,13 @@ export default function Navbar() {
                               key={studio.label}
                               href={studio.href}
                               onClick={() => setActiveMenu(null)}
-                              className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                              className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-blue-50/70 transition-colors group"
                             >
-                              <span className="p-2 bg-orange-100 text-orange-600 rounded-lg text-base flex items-center justify-center shrink-0">
+                              <span className="p-2 bg-blue-50 text-blue-600 rounded-lg text-base flex items-center justify-center shrink-0">
                                 {studio.emoji}
                               </span>
                               <div>
-                                <h4 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-[#FF5722] transition-colors leading-snug">
+                                <h4 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-[#0066FF] transition-colors leading-snug">
                                   {studio.label}
                                 </h4>
                                 <p className="text-[11px] text-gray-500 font-medium leading-tight mt-0.5">{studio.desc}</p>
@@ -187,7 +187,7 @@ export default function Navbar() {
 
                         {/* Column 2: Widescreen & Long Form (16:9) */}
                         <div className="space-y-1.5">
-                          <span className="text-[11px] font-extrabold text-amber-600 uppercase tracking-wider block px-1">
+                          <span className="text-[11px] font-extrabold text-blue-700 uppercase tracking-wider block px-1">
                             🖥️ 16:9 Cinema &amp; Long-Form
                           </span>
 
@@ -196,13 +196,13 @@ export default function Navbar() {
                               key={studio.label}
                               href={studio.href}
                               onClick={() => setActiveMenu(null)}
-                              className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-orange-50/70 transition-colors group"
+                              className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-blue-50/70 transition-colors group"
                             >
-                              <span className="p-2 bg-amber-100 text-amber-700 rounded-lg text-base flex items-center justify-center shrink-0">
+                              <span className="p-2 bg-slate-100 text-slate-700 rounded-lg text-base flex items-center justify-center shrink-0">
                                 {studio.emoji}
                               </span>
                               <div>
-                                <h4 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-[#FF5722] transition-colors leading-snug">
+                                <h4 className="text-xs sm:text-sm font-bold text-gray-900 group-hover:text-[#0066FF] transition-colors leading-snug">
                                   {studio.label}
                                 </h4>
                                 <p className="text-[11px] text-gray-500 font-medium leading-tight mt-0.5">{studio.desc}</p>
@@ -221,7 +221,7 @@ export default function Navbar() {
                           <Link
                             href="/video-types"
                             onClick={() => setActiveMenu(null)}
-                            className="font-bold text-slate-700 hover:text-[#FF5722] flex items-center gap-1 text-xs transition-colors"
+                            className="font-bold text-slate-700 hover:text-[#0066FF] flex items-center gap-1 text-xs transition-colors"
                           >
                             <span>Browse All Video Types &amp; Specs</span>
                             <ArrowRight size={13} />
@@ -230,7 +230,7 @@ export default function Navbar() {
                           <Link
                             href="/dashboard"
                             onClick={() => setActiveMenu(null)}
-                            className="font-bold text-[#FF5722] hover:text-[#E64A19] flex items-center gap-1 text-xs"
+                            className="font-bold text-[#0066FF] hover:text-[#0052CC] flex items-center gap-1 text-xs"
                           >
                             <span>Open Dashboard</span>
                             <ArrowRight size={13} />
@@ -246,9 +246,9 @@ export default function Navbar() {
                   href="/features" 
                   className={`transition font-semibold ${
                     isActive('/features')
-                      ? 'text-[#FF5722] font-bold'
+                      ? 'text-[#0066FF] font-bold'
                       : isLightPage 
-                      ? 'text-slate-800 hover:text-[#FF5722]' 
+                      ? 'text-slate-800 hover:text-[#0066FF]' 
                       : 'text-zinc-300 hover:text-white'
                   }`}
                 >
@@ -260,9 +260,9 @@ export default function Navbar() {
                   href="/pricing" 
                   className={`transition font-semibold ${
                     isActive('/pricing')
-                      ? 'text-[#FF5722] font-bold'
+                      ? 'text-[#0066FF] font-bold'
                       : isLightPage 
-                      ? 'text-slate-800 hover:text-[#FF5722]' 
+                      ? 'text-slate-800 hover:text-[#0066FF]' 
                       : 'text-zinc-300 hover:text-white'
                   }`}
                 >
@@ -274,9 +274,9 @@ export default function Navbar() {
                   href="/blog" 
                   className={`transition font-semibold ${
                     isActive('/blog')
-                      ? 'text-[#FF5722] font-bold'
+                      ? 'text-[#0066FF] font-bold'
                       : isLightPage 
-                      ? 'text-slate-800 hover:text-[#FF5722]' 
+                      ? 'text-slate-800 hover:text-[#0066FF]' 
                       : 'text-zinc-300 hover:text-white'
                   }`}
                 >
@@ -290,15 +290,15 @@ export default function Navbar() {
                     onClick={() => toggleMenu('resources')}
                     className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${
                       activeMenu === 'resources'
-                        ? 'text-[#FF5722] font-bold'
+                        ? 'text-[#0066FF] font-bold'
                         : isLightPage
-                        ? 'text-slate-800 hover:text-[#FF5722]'
+                        ? 'text-slate-800 hover:text-[#0066FF]'
                         : 'text-zinc-300 hover:text-white'
                     }`}
                   >
                     <span>Resources</span>
                     <ChevronDown size={14} className={`transition-transform duration-200 ${
-                      activeMenu === 'resources' ? 'rotate-180 text-[#FF5722]' : 'text-slate-400'
+                      activeMenu === 'resources' ? 'rotate-180 text-[#0066FF]' : 'text-slate-400'
                     }`} />
                   </button>
 
@@ -315,13 +315,13 @@ export default function Navbar() {
                               key={item.label}
                               href={item.href}
                               onClick={() => setActiveMenu(null)}
-                              className="flex items-start gap-3 rounded-xl p-2.5 transition hover:bg-orange-50/70 group"
+                              className="flex items-start gap-3 rounded-xl p-2.5 transition hover:bg-blue-50/70 group"
                             >
-                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-orange-200/80 bg-orange-50 text-[#FF5722] group-hover:bg-[#FF5722] group-hover:text-white group-hover:border-transparent transition">
+                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-blue-200/80 bg-blue-50 text-[#0066FF] group-hover:bg-[#0066FF] group-hover:text-white group-hover:border-transparent transition">
                                 <Icon size={16} />
                               </div>
                               <div>
-                                <p className="text-xs font-bold text-gray-900 group-hover:text-[#FF5722] transition-colors">
+                                <p className="text-xs font-bold text-gray-900 group-hover:text-[#0066FF] transition-colors">
                                   {item.label}
                                 </p>
                                 <p className="text-[11px] font-medium leading-snug mt-0.5 text-gray-500">
@@ -381,7 +381,7 @@ export default function Navbar() {
                       onClick={() => setUserMenuOpen(false)}
                       className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition"
                     >
-                      <LayoutDashboard size={14} className="text-[#FF5722]" />
+                      <LayoutDashboard size={14} className="text-[#0066FF]" />
                       <span>Dashboard</span>
                     </Link>
 
@@ -390,7 +390,7 @@ export default function Navbar() {
                       onClick={() => setUserMenuOpen(false)}
                       className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition"
                     >
-                      <CreditCard size={14} className="text-[#FF5722]" />
+                      <CreditCard size={14} className="text-[#0066FF]" />
                       <span>Billing &amp; Videos</span>
                     </Link>
 
@@ -419,7 +419,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-5 sm:px-6 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 hover:brightness-110 hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-5 sm:px-6 py-2.5 text-xs font-black text-white shadow-md shadow-blue-500/25 hover:shadow-blue-500/40 hover:brightness-110 hover:-translate-y-0.5 active:scale-95 transition-all duration-200"
                 >
                   <Sparkles size={13} className="fill-white stroke-white" />
                   <span>Get Started</span>
@@ -431,7 +431,7 @@ export default function Navbar() {
           {/* MOBILE HAMBURGER BUTTON */}
           <button
             type="button"
-            className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-xs active:scale-95 transition-all duration-300 hover:border-orange-500/50 lg:hidden cursor-pointer ${
+            className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-xs active:scale-95 transition-all duration-300 hover:border-blue-500/50 lg:hidden cursor-pointer ${
               isLightPage
                 ? 'border-slate-200 bg-slate-50 text-slate-900'
                 : 'border-white/10 bg-[#0F1117] text-white'
@@ -443,7 +443,7 @@ export default function Navbar() {
               <span
                 className={`h-[2px] w-full rounded-full transition-all duration-300 transform origin-left ${
                   isLightPage ? 'bg-slate-900' : 'bg-white'
-                } ${isOpen ? 'rotate-45 translate-x-[2px] -translate-y-[1px] !bg-[#FF5722]' : ''}`}
+                } ${isOpen ? 'rotate-45 translate-x-[2px] -translate-y-[1px] !bg-[#0066FF]' : ''}`}
               />
               <span
                 className={`h-[2px] w-[14px] rounded-full transition-all duration-300 ${
@@ -453,7 +453,7 @@ export default function Navbar() {
               <span
                 className={`h-[2px] w-full rounded-full transition-all duration-300 transform origin-left ${
                   isLightPage ? 'bg-slate-900' : 'bg-white'
-                } ${isOpen ? '-rotate-45 translate-x-[2px] translate-y-[1px] !bg-[#FF5722]' : ''}`}
+                } ${isOpen ? '-rotate-45 translate-x-[2px] translate-y-[1px] !bg-[#0066FF]' : ''}`}
               />
             </div>
           </button>
@@ -486,18 +486,18 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setMobileStudiosOpen((prev) => !prev)}
-                className="flex w-full items-center justify-between py-3 text-base font-bold text-slate-900 hover:text-[#FF5722] transition-colors cursor-pointer"
+                className="flex w-full items-center justify-between py-3 text-base font-bold text-slate-900 hover:text-[#0066FF] transition-colors cursor-pointer"
               >
                 <span className="flex items-center gap-2">
                   <span>Video Studios</span>
-                  <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[11px] font-bold text-[#FF5722]">
+                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-[#0066FF]">
                     10 Modes
                   </span>
                 </span>
                 <ChevronDown
                   size={18}
                   className={`text-slate-400 transition-transform duration-200 ${
-                    mobileStudiosOpen ? 'rotate-180 text-[#FF5722]' : ''
+                    mobileStudiosOpen ? 'rotate-180 text-[#0066FF]' : ''
                   }`}
                 />
               </button>
@@ -506,7 +506,7 @@ export default function Navbar() {
                 <div className="space-y-4 pt-1 pb-3 animate-in fade-in slide-in-from-top-2 duration-150">
                   {/* 9:16 Shorts */}
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#FF5722] px-2 block mb-1.5">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#0066FF] px-2 block mb-1.5">
                       📱 9:16 Shorts &amp; Reels
                     </span>
                     <div className="space-y-1">
@@ -515,9 +515,9 @@ export default function Navbar() {
                           key={item.label}
                           href={item.href}
                           onClick={closeMobileMenu}
-                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition"
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50/70 transition"
                         >
-                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 text-base shrink-0">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-base shrink-0">
                             {item.emoji}
                           </span>
                           <div className="min-w-0">
@@ -531,7 +531,7 @@ export default function Navbar() {
 
                   {/* 16:9 Cinema & Long-Form */}
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-600 px-2 block mb-1.5">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-blue-700 px-2 block mb-1.5">
                       🖥️ 16:9 Cinema &amp; Long-Form
                     </span>
                     <div className="space-y-1">
@@ -540,9 +540,9 @@ export default function Navbar() {
                           key={item.label}
                           href={item.href}
                           onClick={closeMobileMenu}
-                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-orange-50/70 transition"
+                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-blue-50/70 transition"
                         >
-                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-base shrink-0">
+                          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-base shrink-0">
                             {item.emoji}
                           </span>
                           <div className="min-w-0">
@@ -557,7 +557,7 @@ export default function Navbar() {
                   <Link
                     href="/video-types"
                     onClick={closeMobileMenu}
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-orange-50/70 text-xs font-bold text-[#FF5722] hover:bg-orange-100 transition"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-blue-50/70 text-xs font-bold text-[#0066FF] hover:bg-blue-100 transition"
                   >
                     <span>Browse All 10 Video Types &amp; Specs</span>
                     <ArrowRight size={14} />
@@ -572,7 +572,7 @@ export default function Navbar() {
                 href="/features"
                 onClick={closeMobileMenu}
                 className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/features') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                  isActive('/features') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
                 }`}
               >
                 <span>Features</span>
@@ -583,7 +583,7 @@ export default function Navbar() {
                 href="/pricing"
                 onClick={closeMobileMenu}
                 className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/pricing') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                  isActive('/pricing') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
                 }`}
               >
                 <span>Pricing</span>
@@ -594,7 +594,7 @@ export default function Navbar() {
                 href="/blog"
                 onClick={closeMobileMenu}
                 className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/blog') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                  isActive('/blog') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
                 }`}
               >
                 <span>Blog</span>
@@ -605,7 +605,7 @@ export default function Navbar() {
                 href="/video-types"
                 onClick={closeMobileMenu}
                 className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/video-types') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                  isActive('/video-types') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
                 }`}
               >
                 <span>Video Types &amp; Specs</span>
@@ -616,7 +616,7 @@ export default function Navbar() {
                 href="/about"
                 onClick={closeMobileMenu}
                 className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/about') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                  isActive('/about') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
                 }`}
               >
                 <span>About Us</span>
@@ -627,7 +627,7 @@ export default function Navbar() {
                 href="/contact"
                 onClick={closeMobileMenu}
                 className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${
-                  isActive('/contact') ? 'text-[#FF5722]' : 'text-slate-900 hover:text-[#FF5722]'
+                  isActive('/contact') ? 'text-[#0066FF]' : 'text-slate-900 hover:text-[#0066FF]'
                 }`}
               >
                 <span>Contact Us</span>
@@ -643,7 +643,7 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={closeMobileMenu}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] py-3.5 text-sm font-black text-white shadow-lg shadow-blue-500/25 active:scale-98 transition-all"
                 >
                   <Sparkles size={16} />
                   <span>Open Dashboard</span>
@@ -662,7 +662,7 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={closeMobileMenu}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] py-3.5 text-sm font-black text-white shadow-lg shadow-orange-500/25 active:scale-98 transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] py-3.5 text-sm font-black text-white shadow-lg shadow-blue-500/25 active:scale-98 transition-all"
                 >
                   <Sparkles size={16} />
                   <span>Get Started</span>
