@@ -148,7 +148,13 @@ export default function Hero() {
             </div>
 
             {/* Video Frame Display */}
-            <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-slate-950 aspect-[16/9] max-h-[360px] sm:max-h-[460px] flex items-center justify-center shadow-inner">
+            <div
+              className={`relative overflow-hidden rounded-xl sm:rounded-2xl bg-slate-950 flex items-center justify-center shadow-inner transition-all duration-300 mx-auto ${
+                previewFormat === '16:9'
+                  ? 'aspect-[16/9] w-full max-h-[380px] sm:max-h-[480px]'
+                  : 'aspect-[9/16] w-full max-w-[280px] sm:max-w-[320px] h-[430px] sm:h-[500px]'
+              }`}
+            >
 
               {/* Background Video Mock Image */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -160,9 +166,9 @@ export default function Hero() {
                   960
                 )}
                 alt={previewFormat === '16:9' ? '16:9 YouTube Faceless Video' : '9:16 Auto Caption Reel'}
-                className="w-full h-full object-cover opacity-90 transition-all duration-500 select-none"
-                width={960}
-                height={540}
+                className="w-full h-full object-cover opacity-95 transition-all duration-500 select-none"
+                width={previewFormat === '16:9' ? 960 : 540}
+                height={previewFormat === '16:9' ? 540 : 960}
                 fetchPriority="high"
                 decoding="async"
               />
@@ -173,7 +179,7 @@ export default function Hero() {
               {/* Top Video Tags */}
               <div className="absolute top-2.5 sm:top-4 inset-x-2.5 sm:inset-x-4 flex items-center justify-between text-white pointer-events-none">
                 <span className="inline-flex items-center gap-1 rounded-md bg-black/60 backdrop-blur-md px-2 py-0.5 text-[10px] sm:text-xs font-mono font-bold border border-white/10">
-                  <Tv size={11} className="text-orange-400" />
+                  <Tv size={11} className="text-blue-400" />
                   {previewFormat === '16:9' ? 'YouTube 1080p' : 'Reels 60 FPS'}
                 </span>
                 <span className="rounded-md bg-blue-600 px-2 py-0.5 text-[10px] sm:text-xs font-mono font-bold text-white shadow-xs">
