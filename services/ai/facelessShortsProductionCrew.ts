@@ -17,7 +17,7 @@ import { buildDeterministicSentenceTimeline } from './sentenceTimelineBuilder';
 import { ALL_SVG_CONCEPT_IDS, resolveSvgFromMasterCatalog } from '@/lib/visuals/svgMasterCatalog';
 import { getAllLibraryImages } from './aiImageLibrary';
 import { directSentenceVisuals } from './sentenceSemanticDirector';
-import { buildContextualEmojiEvents } from '../../remotion/components/library/KineticEmojiLayer';
+import { buildContextualEmojiEvents } from './contextualEmojiEngine';
 
 export interface TranscriptChunk {
   text: string;
