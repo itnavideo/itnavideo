@@ -13,21 +13,21 @@ export default function TransformationShowcaseSection() {
         aria-hidden="true"
         className="pointer-events-none absolute -left-10 top-1/4 h-[420px] w-[500px] rounded-full opacity-50 blur-3xl"
         style={{
-          background: 'radial-gradient(circle, rgba(0, 102, 255, 0.10) 0%, rgba(59, 130, 246, 0.05) 50%, transparent 75%)',
+          background: 'radial-gradient(circle, rgba(249, 115, 22, 0.08) 0%, rgba(251, 146, 60, 0.04) 50%, transparent 75%)',
         }}
       />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-10 top-1/3 h-[450px] w-[520px] rounded-full opacity-50 blur-3xl"
         style={{
-          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.07) 0%, rgba(56, 189, 248, 0.06) 50%, transparent 75%)',
+          background: 'radial-gradient(circle, rgba(245, 158, 11, 0.07) 0%, rgba(251, 191, 36, 0.04) 50%, transparent 75%)',
         }}
       />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[450px] w-[750px] max-w-full opacity-60 blur-2xl"
         style={{
-          background: 'radial-gradient(ellipse 65% 55% at 50% 50%, rgba(0, 102, 255, 0.08) 0%, rgba(37, 99, 235, 0.04) 45%, transparent 75%)',
+          background: 'radial-gradient(ellipse 65% 55% at 50% 50%, rgba(249, 115, 22, 0.07) 0%, rgba(234, 88, 12, 0.03) 45%, transparent 75%)',
         }}
       />
 

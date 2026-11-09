@@ -1,37 +1,20 @@
 "use client";
 
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { CompareExplainerStudio } from "@/components/dashboard/CompareExplainerStudio";
-import { useAuth } from "@/components/auth/AuthContext";
-import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
-import {
-  ArrowLeft,
-  Sparkles,
-  Zap,
-  Film,
-  Download,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  RefreshCw,
-  Columns,
-  Upload,
-  Clapperboard,
-  History,
-  Swords,
-} from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { useAuth } from "@/components/auth/AuthContext";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 
 type BillingEntitlement = {
   active: boolean;
   planId: string;
   planName: string;
   monthlyVideoLimit: number;
-  expiresAt?: string | number;
   usage?: {
     used: number;
     limit: number;
@@ -47,22 +30,12 @@ type JobStatus = {
   renderId?: string;
   bucketName?: string;
   title?: string;
-  diagnostics?: string[];
-};
-
-type RecentRender = {
-  id: string;
-  title: string;
-  mode: string;
-  outputFile: string;
-  createdAt: number;
-  expiresAt: number;
 };
 
 export default function CompareExplainerPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(true);
 
   // Compare Studio form states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -86,27 +59,14 @@ export default function CompareExplainerPage() {
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
-  const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
 
   // Cancel modal state
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
   const renderRequestInFlightRef = useRef(false);
-
-  // Timer for elapsed seconds
-  useEffect(() => {
-    if (jobStatus.state !== "rendering" && jobStatus.state !== "uploading") {
-      setElapsedSeconds(0);
-      return;
-    }
-    const interval = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [jobStatus.state]);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auth check
   useEffect(() => {
@@ -120,7 +80,11 @@ export default function CompareExplainerPage() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
+        const res = await fetch(
+          `/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(
+            user?.email || ""
+          )}`
+        );
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
@@ -142,101 +106,53 @@ export default function CompareExplainerPage() {
     fetchBilling();
   }, [user]);
 
-  // Poll for render progress if rendering
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (jobStatus.state === "rendering" && jobStatus.renderId) {
-      interval = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/reels/jobs/status?renderId=${jobStatus.renderId}`);
-          if (!res.ok) return;
-          const data = await res.json();
-          if (data.status === "completed" || data.status === "ready") {
-            setJobStatus((prev) => ({
-              ...prev,
-              state: "ready",
-              progress: 1,
-              outputFile: data.outputFile || data.url,
-              message: "Render complete! Your Compare Explainer is ready to download.",
-            }));
-          } else if (data.status === "failed" || data.status === "error") {
-            setJobStatus((prev) => ({
-              ...prev,
-              state: "error",
-              message: data.error || "Render encountered an error. Please try again.",
-            }));
-          } else if (data.progress !== undefined) {
-            setJobStatus((prev) => ({
-              ...prev,
-              progress: Math.max(0.4, data.progress),
-              message: data.stageMessage || "Composing versus animation on AWS Lambda...",
-            }));
-          }
-        } catch {}
-      }, 3000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [jobStatus.state, jobStatus.renderId]);
-
+  // Start Render Job
   const handleStartRender = async () => {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/compare-explainer");
       return;
     }
     if (!selectedFile) {
-      alert("Please upload a voiceover audio file first.");
+      alert("Please upload your comparison voiceover audio first.");
       return;
     }
-    if (comparisonFiles.length !== 2) {
-      alert("Please upload exactly two split-screen compare images.");
+    if (comparisonFiles.length < 2) {
+      alert("Please upload both left and right comparison images.");
       return;
     }
+
     if (renderRequestInFlightRef.current) return;
     renderRequestInFlightRef.current = true;
     setIsSubmitting(true);
 
     try {
-      if (typeof window !== "undefined") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
       setJobStatus({
         state: "uploading",
-        message: "Uploading speech voiceover and compare images to secure cloud container...",
-        progress: 0.08,
+        message: "Uploading speech voiceover and compare images to cloud storage...",
+        progress: 0.1,
       });
 
-      // 1. Upload main audio voiceover
-      const mediaKey = await uploadFileViaPresign(selectedFile, {
-        prefix: "compare/audio",
-      });
+      // 1. Upload audio voiceover
+      const mediaKeyUpload = await uploadFileViaPresign(selectedFile, "compare", user.id);
+      const mediaKey = mediaKeyUpload.url || mediaKeyUpload.key || String(mediaKeyUpload);
 
       // 2. Upload comparison images
       setJobStatus({
         state: "uploading",
         message: "Uploading left and right comparison images...",
-        progress: 0.18,
+        progress: 0.2,
       });
 
       const comparisonUploads = await Promise.all(
-        comparisonFiles.map((file) =>
-          uploadFileViaPresign(file, { prefix: "compare/images" })
-        )
+        comparisonFiles.map((file) => uploadFileViaPresign(file, "compare", user.id))
       );
+      const comparisonUrls = comparisonUploads.map((u) => u.url || u.key || String(u));
 
       // 3. Upload Custom BGM if provided
       let customBgmUrl: string | undefined = undefined;
       if (customBgmFile) {
-        setJobStatus({
-          state: "uploading",
-          message: "Uploading custom background audio track...",
-          progress: 0.28,
-        });
-        const bgmUpload = await uploadFileViaPresign(customBgmFile, {
-          prefix: "compare/bgm",
-        });
-        customBgmUrl = bgmUpload.url;
+        const bgmUpload = await uploadFileViaPresign(customBgmFile, "compare", user.id);
+        customBgmUrl = bgmUpload.url || bgmUpload.key || String(bgmUpload);
       }
 
       // 4. Submit Render Job
@@ -252,8 +168,8 @@ export default function CompareExplainerPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mediaKey: mediaKey.url,
-          sourceAudioUrl: mediaKey.url,
+          mediaKey,
+          sourceAudioUrl: mediaKey,
           fileName: selectedFile.name,
           contentType: selectedFile.type || "audio/mpeg",
           mediaType: "audio",
@@ -263,8 +179,8 @@ export default function CompareExplainerPage() {
           topicTitle: plannedTitle,
           userId: user.id,
           userEmail: user.email || undefined,
-          comparisonImageKeys: comparisonUploads.map((u) => u.url),
-          comparisonImageUrls: comparisonUploads.map((u) => u.url),
+          comparisonImageKeys: comparisonUrls,
+          comparisonImageUrls: comparisonUrls,
           compareLeftTitle: compareLeftTitle.trim(),
           compareRightTitle: compareRightTitle.trim(),
           compareTheme,
@@ -290,23 +206,76 @@ export default function CompareExplainerPage() {
       const renderId = jobPayload.renderId || jobPayload.jobId;
       const bucketName = jobPayload.bucketName;
 
-      // 5. Poll render status
       setJobStatus({
         state: "rendering",
-        message: "Rendering 9:16 Compare Explainer on AWS Lambda...",
+        message: "Rendering 9:16 Compare Explainer shorts on AWS Lambda...",
         progress: 0.45,
         renderId,
         bucketName,
         title: plannedTitle,
       });
+
+      // Poll status
+      let attempts = 0;
+      const MAX_ATTEMPTS = 600;
+
+      pollIntervalRef.current = setInterval(async () => {
+        attempts++;
+        if (attempts > MAX_ATTEMPTS) {
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+          renderRequestInFlightRef.current = false;
+          setIsSubmitting(false);
+          setJobStatus({
+            state: "error",
+            message: "Render took longer than expected. Please check your Projects shortly.",
+          });
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/reels/jobs/status?renderId=${encodeURIComponent(renderId)}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          const isDone = Boolean(data.done || data.state === "ready" || data.state === "completed" || data.outputFile);
+          const isFailed = Boolean(data.state === "error" || data.state === "failed");
+
+          if (isDone && data.outputFile) {
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            renderRequestInFlightRef.current = false;
+            setIsSubmitting(false);
+
+            setJobStatus({
+              state: "ready",
+              progress: 1,
+              outputFile: data.outputFile,
+              title: plannedTitle,
+              message: "Your 9:16 Compare Explainer video is ready to download!",
+            });
+          } else if (isFailed) {
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            renderRequestInFlightRef.current = false;
+            setIsSubmitting(false);
+
+            setJobStatus({
+              state: "error",
+              message: data.error || "Render encountered an error. Please retry.",
+            });
+          } else if (data.progress !== undefined) {
+            setJobStatus((prev) => ({
+              ...prev,
+              progress: Math.max(0.45, Number(data.progress)),
+              message: data.stageMessage || "Assembling dual-subject split screen frames...",
+            }));
+          }
+        } catch { }
+      }, 3000);
     } catch (err: any) {
+      renderRequestInFlightRef.current = false;
+      setIsSubmitting(false);
       setJobStatus({
         state: "error",
         message: err.message || "Failed to process video render. Please retry.",
       });
-    } finally {
-      renderRequestInFlightRef.current = false;
-      setIsSubmitting(false);
     }
   };
 
@@ -318,70 +287,93 @@ export default function CompareExplainerPage() {
           method: "POST",
         });
       }
-    } catch {}
+    } catch { }
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+    renderRequestInFlightRef.current = false;
+    setIsSubmitting(false);
     setJobStatus({ state: "idle" });
     setIsCancelling(false);
     setShowCancelModal(false);
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+        <p className="text-sm font-semibold text-slate-800">Loading Compare Explainer Studio...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      {/* Top Header: Clean White */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
+      {/* Top Navigation Bar (Clean White Surface - Full Bleed, matching Image to Video AI) */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 transition"
-              title="Back to Dashboard"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-            <BrandLogo variant="light" />
-            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-200">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Compare Explainer
-              </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-[#0066FF] border border-blue-200">
-                Side-by-Side Versus
-              </span>
+
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Compare Explainer AI</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {billingEntitlement && (
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
-                <span className="font-semibold text-slate-700">
-                  {billingEntitlement.planName || "Creator"} Plan
-                </span>
-                <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <span className="text-slate-500">
-                  {billingEntitlement.usage?.remaining ?? 10} Credits Left
-                </span>
-              </div>
-            )}
-            <Link
-              href="/dashboard"
-              className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition"
-            >
-              Studio Hub
-            </Link>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Credits badge */}
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
+              >
+                +Add
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
-        {jobStatus.state !== "idle" && jobStatus.state !== "error" ? (
-          <div className="max-w-2xl mx-auto py-12">
+      {/* Main Canvas - Full Screen Fluid Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
+        {jobStatus.state !== "idle" ? (
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="compare"
-              status={jobStatus.state}
-              progress={jobStatus.progress || 0}
-              message={jobStatus.message}
-              outputUrl={jobStatus.outputFile}
+              status={{
+                state: jobStatus.state === "uploading" ? "uploading" : jobStatus.state === "starting" ? "starting" : jobStatus.state === "rendering" ? "rendering" : jobStatus.state === "ready" ? "ready" : "error",
+                message: jobStatus.message || "Generating 9:16 Compare Explainer video...",
+                progress: jobStatus.progress,
+                outputFile: jobStatus.outputFile,
+                title: jobStatus.title || topicTitle || "Compare Explainer Video",
+              }}
+              title={jobStatus.title || topicTitle || "Compare Explainer Video"}
+              fileName={selectedFile?.name}
+              onRetry={() => handleStartRender()}
+              onReset={() => {
+                setSelectedFile(null);
+                setComparisonFiles([]);
+                setJobStatus({ state: "idle" });
+              }}
               onCancel={() => setShowCancelModal(true)}
-              onReset={() => setJobStatus({ state: "idle" })}
             />
           </div>
         ) : (
@@ -419,6 +411,8 @@ export default function CompareExplainerPage() {
             onGenerate={handleStartRender}
             isGenerating={isSubmitting || (jobStatus.state !== "idle" && jobStatus.state !== "ready")}
             renderedVideoUrl={jobStatus.outputFile}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
           />
         )}
       </main>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Mic,
   FileText,
@@ -30,9 +30,10 @@ import {
   Edit3,
   Layers,
   Activity,
+  Zap,
+  Radio,
+  ArrowUpRight,
 } from "lucide-react";
-import { BorderBeam } from "@/components/magicui/BorderBeam";
-import { StudioWorkflowRoadmap } from "@/components/dashboard/StudioWorkflowRoadmap";
 import type {
   AudioCleanOptions,
   AudioCleanResult,
@@ -52,7 +53,10 @@ export type AudioCleanStudioAnalysis = AudioAnalysisResult & {
   rawTranscript?: AudioTranscriptData;
 };
 
-export type AudioCleanStudioResult = Omit<AudioCleanResult, "outputUrl" | "originalDuration" | "cleanedDuration" | "stats"> & {
+export type AudioCleanStudioResult = Omit<
+  AudioCleanResult,
+  "outputUrl" | "originalDuration" | "cleanedDuration" | "stats"
+> & {
   outputUrl: string;
   originalDuration: number;
   cleanedDuration: number;
@@ -86,19 +90,21 @@ export function AudioCleanStudio({
   audioCleanAnalysis,
   setAudioCleanAnalysis,
   isAnalyzingAudio,
+  onReanalyzeWithScript,
   audioCleanResult,
   onCleanAudio,
   isCleaning,
   onReset,
   onBackToEdit,
 }: AudioCleanStudioProps) {
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  // 4-Step Stepper State
+  const [currentStep, setCurrentStep] = useState<"upload" | "pacing" | "transcript" | "master">("upload");
   const [showPauseList, setShowPauseList] = useState(false);
   const [copiedScript, setCopiedScript] = useState(false);
   const [compareMode, setCompareMode] = useState<"after" | "before">("after");
   const [isDragging, setIsDragging] = useState(false);
   const [hasDownloaded, setHasDownloaded] = useState(false);
-  
+
   // Audio playback state
   const [isPlayingBefore, setIsPlayingBefore] = useState(false);
   const [isPlayingAfter, setIsPlayingAfter] = useState(false);
@@ -109,11 +115,10 @@ export function AudioCleanStudio({
 
   const rawAudioRef = useRef<HTMLAudioElement | null>(null);
   const cleanAudioRef = useRef<HTMLAudioElement | null>(null);
-
   const [rawAudioUrl, setRawAudioUrl] = useState<string | null>(null);
 
-  // Audio Blob URL Memory Protection: revoke object URL on file change or unmount
-  React.useEffect(() => {
+  // Audio Blob URL Memory Protection
+  useEffect(() => {
     if (!selectedFile) {
       setRawAudioUrl(null);
       return;
@@ -124,6 +129,17 @@ export function AudioCleanStudio({
       URL.revokeObjectURL(url);
     };
   }, [selectedFile]);
+
+  // Automatically navigate steps based on pipeline progression
+  useEffect(() => {
+    if (audioCleanResult) {
+      setCurrentStep("master");
+    } else if (audioCleanAnalysis && !isAnalyzingAudio) {
+      if (currentStep === "upload") {
+        setCurrentStep("pacing");
+      }
+    }
+  }, [audioCleanResult, audioCleanAnalysis, isAnalyzingAudio]);
 
   // Handle playing Before audio with proportional A/B scrub sync
   const handleTogglePlayBefore = () => {
@@ -143,9 +159,10 @@ export function AudioCleanStudio({
         setIsPlayingAfter(false);
       }
       setCompareMode("before");
-      rawAudioRef.current.play().then(() => {
-        setIsPlayingBefore(true);
-      }).catch(() => {});
+      rawAudioRef.current
+        .play()
+        .then(() => setIsPlayingBefore(true))
+        .catch(() => { });
     }
   };
 
@@ -167,13 +184,14 @@ export function AudioCleanStudio({
         setIsPlayingBefore(false);
       }
       setCompareMode("after");
-      cleanAudioRef.current.play().then(() => {
-        setIsPlayingAfter(true);
-      }).catch(() => {});
+      cleanAudioRef.current
+        .play()
+        .then(() => setIsPlayingAfter(true))
+        .catch(() => { });
     }
   };
 
-  // Complete State Reset Handler for Clean Another Audio
+  // Complete State Reset Handler
   const handleFullReset = () => {
     if (rawAudioRef.current) {
       rawAudioRef.current.pause();
@@ -189,9 +207,8 @@ export function AudioCleanStudio({
     setCurrentTimeAfter(0);
     setHasDownloaded(false);
     setCopiedScript(false);
-    if (onReset) {
-      onReset();
-    }
+    setCurrentStep("upload");
+    if (onReset) onReset();
   };
 
   // Instant seamless A/B toggle
@@ -211,7 +228,10 @@ export function AudioCleanStudio({
       }
       if (rawAudioRef.current) {
         rawAudioRef.current.currentTime = targetTime;
-        rawAudioRef.current.play().then(() => setIsPlayingBefore(true)).catch(() => {});
+        rawAudioRef.current
+          .play()
+          .then(() => setIsPlayingBefore(true))
+          .catch(() => { });
       }
     } else {
       const currentRawTime = rawAudioRef.current?.currentTime || 0;
@@ -225,12 +245,14 @@ export function AudioCleanStudio({
       }
       if (cleanAudioRef.current) {
         cleanAudioRef.current.currentTime = targetTime;
-        cleanAudioRef.current.play().then(() => setIsPlayingAfter(true)).catch(() => {});
+        cleanAudioRef.current
+          .play()
+          .then(() => setIsPlayingAfter(true))
+          .catch(() => { });
       }
     }
   };
 
-  // Format seconds to mm:ss
   const formatTime = (seconds: number) => {
     if (!seconds || isNaN(seconds)) return "00:00";
     const mins = Math.floor(seconds / 60);
@@ -279,7 +301,7 @@ export function AudioCleanStudio({
         handleMarkdownChange(text);
       }
     } catch {
-      // Ignore if clipboard permission not granted
+      // Ignore if clipboard permission denied
     }
   };
 
@@ -290,13 +312,6 @@ export function AudioCleanStudio({
       setCopiedScript(true);
       setTimeout(() => setCopiedScript(false), 2000);
     }
-  };
-
-  const handleToggleOption = (key: keyof AudioCleanStudioOptions) => {
-    setAudioCleanOptions((prev: AudioCleanStudioOptions) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
   };
 
   const wordCount = useMemo(() => {
@@ -314,765 +329,877 @@ export function AudioCleanStudio({
     return [];
   }, [audioCleanAnalysis]);
 
-  const exportFmt = audioCleanOptions.exportFormat || "mp3";
+  const exportFmt = audioCleanOptions?.exportFormat || "mp3";
 
   return (
-    <div className="relative rounded-[28px] border border-white/10 bg-[#111218] p-5 sm:p-7 shadow-2xl min-w-0 max-w-full overflow-x-hidden space-y-7 text-white">
-      {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#0066FF" colorTo="#2563EB" />
-
-
-      {/*  STEP 1: UPLOAD ZONE (Only active when no file or re-uploading)  */}
-      {!audioCleanAnalysis && !isAnalyzingAudio && !audioCleanResult && (
-        <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl sm:p-8 space-y-6">
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
-            }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDragging(false);
-              const file = e.dataTransfer.files?.[0];
-              if (file) onSelectFile(file);
-            }}
-            className={`relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-10 text-center transition-all ${
-              isDragging
-                ? "border-[#0066FF] bg-[#0066FF]/10 scale-[1.01]"
-                : selectedFile
-                  ? "border-emerald-500/40 bg-[#161720]/80"
-                  : "border-white/15 bg-[#161720]/50 hover:border-[#0066FF]/50 hover:bg-[#161720]"
-            }`}
-          >
-            {selectedFile ? (
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-lg">
-                  <FileAudio size={32} />
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center gap-2">
-                    <p className="text-base font-bold text-white">{selectedFile.name}</p>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[11px] font-bold text-emerald-400 border border-emerald-500/30">
-                      <Check size={12} /> Ready
-                    </span>
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB  Audio track detected
-                  </p>
-                </div>
-                <label className="mt-2 inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold text-zinc-200 transition hover:bg-white/10 hover:border-white/30">
-                  <Upload size={13} />
-                  Change Audio File
-                  <input
-                    type="file"
-                    accept="audio/*,video/*,.mp3,.m4a,.wav,.aac,.mp4,.mov"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) onSelectFile(file);
-                    }}
-                  />
-                </label>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0066FF]/10 text-[#3B82F6] border border-[#0066FF]/20 shadow-md">
-                  <Upload size={28} className="text-[#3B82F6]" />
-                </div>
-                <div className="space-y-1 text-center">
-                  <h3 className="text-lg sm:text-xl font-black text-white">
-                    Upload your audio or video
-                  </h3>
-                  <p className="text-xs sm:text-sm text-zinc-400 max-w-md mx-auto">
-                    Remove unwanted pauses and silence while keeping your voice natural.
-                  </p>
-                </div>
-                <div className="flex flex-col items-center gap-2.5 mt-2">
-                  <label className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-8 py-3 text-sm font-black text-white shadow-xl shadow-[#0066FF]/25 transition hover:brightness-110 active:scale-95">
-                    <Upload size={16} />
-                    Upload Audio or Video
-                    <input
-                      type="file"
-                      accept="audio/*,video/*,.mp3,.m4a,.wav,.aac,.mp4,.mov"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) onSelectFile(file);
-                      }}
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const sampleBlob = new Blob([new Uint8Array(1024)], { type: "audio/mp3" });
-                      const sampleFile = new File([sampleBlob], "sample_podcast_recording.mp3", { type: "audio/mp3" });
-                      onSelectFile(sampleFile);
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-bold text-zinc-300 transition hover:bg-white/10 hover:text-white cursor-pointer mt-1"
-                  >
-                    <Sparkles size={13} className="text-[#3B82F6]" />
-                    <span>Or test with a sample audio</span>
-                  </button>
-                  <p className="text-[11px] text-zinc-500 mt-1">
-                    Audio: MP3  WAV  M4A  AAC &nbsp;|&nbsp; Video: MP4  MOV (Auto extracted)
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/*  STEP 2: TRANSCRIBING & SILENCE DETECTION PROGRESS CARD  */}
-      {isAnalyzingAudio && (
-        <div className="rounded-[28px] border border-white/10 bg-[#111218] p-10 text-center shadow-xl space-y-4">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#0066FF]/10 text-[#3B82F6] border border-[#0066FF]/20">
-            <RefreshCw size={26} className="animate-spin" />
-          </div>
+    <div className="h-full flex flex-col bg-white overflow-hidden text-slate-800">
+      {/* ── ROW 1: STUDIO HEADER & 4-STEP STEPPER BAR ── */}
+      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3.5 shrink-0 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          {/* Studio Title */}
           <div>
-            <h3 className="text-lg font-bold text-white">Transcribing &amp; Scanning Audio Timeline...</h3>
-            <p className="mt-1 text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
-              Generating word-level timestamps and detecting all silence intervals across your recording.
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <Mic size={18} className="text-blue-600" />
+                AI Audio Cleaner &amp; Studio
+              </h1>
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700">
+                <ShieldCheck size={12} className="text-emerald-600" />
+                100% Voice Preserved
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 font-medium">
+              Remove awkward pauses and dead air without altering your natural voice tone or pitch.
             </p>
           </div>
-        </div>
-      )}
 
-      {/*  STEP 3: REVIEW / EDIT TRANSCRIPT & SMART PAUSE CONTROLS  */}
-      {audioCleanAnalysis && !isAnalyzingAudio && !audioCleanResult && (
-        <div className="space-y-6">
-          {/* Main Review & Edit Card */}
-          <div className="rounded-[28px] border border-white/10 bg-[#111218] shadow-2xl overflow-hidden">
-            {/* Top Stats Ribbon */}
-            <div className="flex flex-col gap-3 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6 bg-[#161720]">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3 py-1 text-xs font-black text-blue-300 uppercase tracking-wider">
-                  <Edit3 size={13} className="text-blue-300" />
-                  Review &amp; Edit Script
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111218] px-3 py-1 text-xs font-semibold text-zinc-200">
-                  <FileText size={12} className="text-zinc-400" />
-                  {wordCount} Words
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#111218] px-3 py-1 text-xs font-semibold text-zinc-200">
-                  <Clock size={12} className="text-zinc-400" />
-                  Original: {formatTime(audioCleanAnalysis.originalDuration)}  Estimated Clean: {formatTime(audioCleanAnalysis.estimatedCleanDuration)}
-                </span>
-                {detectedPauses.length > 0 && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-300">
-                    <Scissors size={12} />
-                    {detectedPauses.length} Silence Gaps Detected
-                  </span>
-                )}
-              </div>
+          {/* Stepper Navigation Pills */}
+          <div className="flex items-center gap-1 sm:gap-1.5 self-center sm:self-auto overflow-x-auto no-scrollbar py-0.5">
+            {[
+              { id: "upload", label: "Upload", icon: Upload, completed: !!selectedFile },
+              { id: "pacing", label: "Pacing", icon: Sliders, completed: !!audioCleanOptions?.pacing },
+              { id: "transcript", label: "Transcript", icon: FileText, completed: !!audioCleanAnalysis },
+              { id: "master", label: "Master", icon: Music2, completed: !!audioCleanResult },
+            ].map((step, idx) => {
+              const Icon = step.icon;
+              const isActive = currentStep === step.id;
+              const isDone = step.completed && !isActive;
 
-              {/* Action Buttons: Paste, Reset, Copy */}
-              <div className="flex flex-wrap items-center gap-2">
+              return (
                 <button
+                  key={step.id}
                   type="button"
-                  onClick={handlePasteClipboard}
-                  title="Paste script from clipboard"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-zinc-300 transition hover:bg-white/10 cursor-pointer"
+                  onClick={() => setCurrentStep(step.id as any)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isActive
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : isDone
+                        ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
+                        : "bg-transparent text-slate-400 hover:text-slate-600"
+                    }`}
                 >
-                  <ClipboardPaste size={13} className="text-amber-400" />
-                  <span>Paste Script</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleResetToOriginal}
-                  title="Reset to original transcript"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-zinc-300 transition hover:bg-white/10 cursor-pointer"
-                >
-                  <RotateCcw size={13} className="text-zinc-400" />
-                  <span>Reset</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleCopyScript}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/20 cursor-pointer"
-                >
-                  {copiedScript ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                  {copiedScript ? "Copied" : "Copy Markdown"}
-                </button>
-              </div>
-            </div>
-
-            {/* Editable Markdown Textarea */}
-            <div className="p-5 sm:p-6 space-y-3">
-              <div className="relative rounded-2xl border border-white/10 bg-[#090A0F] p-4 focus-within:border-[#0066FF]/60 transition">
-                <textarea
-                  value={currentMarkdown}
-                  onChange={(e) => handleMarkdownChange(e.target.value)}
-                  placeholder="Review the generated transcript, correct any typos, format headings, or paste your pre-written script..."
-                  rows={10}
-                  className="w-full resize-y bg-transparent font-mono text-xs leading-relaxed text-zinc-200 placeholder:text-zinc-600 focus:outline-none selection:bg-[#0066FF]/30 selection:text-white"
-                />
-              </div>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-zinc-400 gap-2 px-1">
-                <span>
-                   <strong>Script Review:</strong> You can edit words, correct transcription mistakes, or paste your exact script. The original voice is 100% preserved.
-                </span>
-                <span className="font-mono text-zinc-500 shrink-0">{currentMarkdown.length} characters</span>
-              </div>
-            </div>
-
-            {/* Video Narration Pacing Selector (Image-to-Video Retention Tuning) */}
-            <div className="border-t border-white/10 p-5 sm:p-6 bg-[#161720] space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Smart Pause Compression Pacing
-                  </h4>
-                  <p className="text-[11px] text-zinc-400 mt-0.5">
-                    Calibrated specifically for Image to Video AI (visuals changing every 56 seconds)
-                  </p>
-                </div>
-                <span className="text-[11px] text-[#3B82F6] font-bold hidden sm:inline">
-                   Recommended: Fast Retention
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  {
-                    id: "fast",
-                    label: "⚡ Fast Retention (300ms Standard)",
-                    desc: "Cuts every pause >300ms across the audio down to a tight 100ms gap. Eliminates all awkward silences for high-retention video.",
-                  },
-                  {
-                    id: "natural",
-                    label: "🎙️ Natural Conversational",
-                    desc: "Cuts pauses >300ms down to ~140ms. Maintains smooth natural speech flow without boring pauses.",
-                  },
-                  {
-                    id: "relaxed",
-                    label: "☕ Relaxed Flow",
-                    desc: "Cuts pauses >450ms down to ~200ms. Suitable for slower educational audio and podcasts.",
-                  },
-                ].map((p) => {
-                  const isSelected = (audioCleanOptions.pacing || "fast") === p.id;
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => setAudioCleanOptions((prev: AudioCleanStudioOptions) => ({ ...prev, pacing: p.id as "fast" | "natural" | "relaxed" }))}
-                      className={`rounded-2xl border p-3.5 text-left transition cursor-pointer ${
-                        isSelected
-                          ? "border-[#0066FF] bg-[#0066FF]/10 text-white shadow-lg shadow-[#0066FF]/15"
-                          : "border-white/5 bg-[#161720] text-zinc-400 hover:text-white hover:border-white/15"
+                  <span
+                    className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${isActive
+                        ? "bg-white text-blue-600"
+                        : isDone
+                          ? "bg-emerald-500 text-white"
+                          : "bg-slate-200 text-slate-600"
                       }`}
-                    >
-                      <p className={`text-xs font-black ${isSelected ? "text-[#3B82F6]" : "text-white"}`}>
-                        {p.label}
-                      </p>
-                      <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                        {p.desc}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Detected Silence Timeline Inspector (Collapsible) */}
-            {detectedPauses.length > 0 && (
-              <div className="border-t border-white/10 p-5 sm:p-6 bg-[#111218]">
-                <button
-                  type="button"
-                  onClick={() => setShowPauseList(!showPauseList)}
-                  className="flex w-full items-center justify-between text-left text-xs font-bold text-zinc-300 hover:text-white cursor-pointer"
-                >
-                  <span className="flex items-center gap-2">
-                    <Activity size={14} className="text-[#3B82F6]" />
-                    <span>View Detected Pauses Across Timeline ({detectedPauses.length} silence regions)</span>
+                  >
+                    {isDone ? <Check size={10} strokeWidth={3} /> : idx + 1}
                   </span>
-                  {showPauseList ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                  <span>{step.label}</span>
                 </button>
+              );
+            })}
+          </div>
 
-                {showPauseList && (
-                  <div className="mt-4 max-h-60 overflow-y-auto space-y-2 pr-1 no-scrollbar">
-                    {detectedPauses.map((pause) => (
-                      <div
-                        key={pause.id}
-                        className="flex items-center justify-between rounded-xl border border-white/5 bg-[#161720] px-3.5 py-2 text-xs"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="font-mono text-[10px] font-bold text-zinc-400 bg-white/5 px-2 py-0.5 rounded">
-                            #{pause.index}
-                          </span>
-                          <span className="font-mono text-zinc-300 text-[11px]">
-                            {formatTime(pause.start)}  {formatTime(pause.end)}
-                          </span>
-                          <span className="truncate text-zinc-400 text-[11px]">{pause.description}</span>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="font-mono text-[11px] font-bold text-amber-400">
-                            -{pause.cutDuration.toFixed(2)}s cut
-                          </span>
-                          <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                            leaves {pause.compressedGap.toFixed(2)}s
-                          </span>
-                        </div>
+          {/* Pricing Allowance Badge */}
+          <div className="hidden lg:flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
+              <Zap size={13} className="text-blue-600 fill-blue-600" />
+              1 Credit • Up to 12 Mins
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── ROW 2: STEP CONTENT (SCROLLABLE WORKSPACE) ── */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <div className="max-w-5xl mx-auto space-y-6">
+
+          {/* ──────────────── STEP 1: UPLOAD AUDIO / VIDEO ──────────────── */}
+          {currentStep === "upload" && (
+            <div className="space-y-6">
+              <div
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) onSelectFile(file);
+                }}
+                className={`relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-10 text-center transition-all ${isDragging
+                    ? "border-blue-500 bg-blue-50/70 scale-[1.01]"
+                    : selectedFile
+                      ? "border-emerald-400 bg-emerald-50/40"
+                      : "border-slate-300 bg-slate-50/60 hover:border-blue-400 hover:bg-slate-50"
+                  }`}
+              >
+                {selectedFile ? (
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 border border-emerald-300 shadow-xs">
+                      <FileAudio size={32} />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-center gap-2">
+                        <p className="text-base font-bold text-slate-900">{selectedFile.name}</p>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-300">
+                          <Check size={12} /> Ready
+                        </span>
                       </div>
-                    ))}
+                      <p className="text-xs text-slate-500">
+                        {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • Audio track ready for silence scanning
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 mt-3">
+                      <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 shadow-2xs">
+                        <Upload size={13} />
+                        Change Audio File
+                        <input
+                          type="file"
+                          accept="audio/*,video/*,.mp3,.m4a,.wav,.aac,.mp4,.mov"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) onSelectFile(file);
+                          }}
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep("pacing")}
+                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer"
+                      >
+                        <span>Configure Pacing</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 shadow-xs">
+                      <Upload size={28} className="text-blue-600" />
+                    </div>
+                    <div className="space-y-1 text-center">
+                      <h3 className="text-lg sm:text-xl font-black text-slate-900">
+                        Upload your voiceover or video
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+                        Remove dead air and awkward silences while keeping your voice tone 100% natural.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-2.5 mt-2">
+                      <label className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 px-8 py-3.5 text-sm font-black text-white shadow-md shadow-blue-600/20 transition active:scale-95 cursor-pointer">
+                        <Upload size={16} />
+                        Upload Audio or Video
+                        <input
+                          type="file"
+                          accept="audio/*,video/*,.mp3,.m4a,.wav,.aac,.mp4,.mov"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) onSelectFile(file);
+                          }}
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const sampleBlob = new Blob([new Uint8Array(1024)], { type: "audio/mp3" });
+                          const sampleFile = new File([sampleBlob], "sample_voiceover_recording.mp3", {
+                            type: "audio/mp3",
+                          });
+                          onSelectFile(sampleFile);
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 cursor-pointer shadow-2xs mt-1"
+                      >
+                        <Sparkles size={13} className="text-blue-600" />
+                        <span>Or test with sample audio</span>
+                      </button>
+
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Audio: MP3 • WAV • M4A • AAC &nbsp;|&nbsp; Video: MP4 • MOV (Auto extracted) • Up to 12 mins
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
-            )}
 
-            {/* Primary Action Button (Start Audio Cleaning) */}
-            <div className="border-t border-white/10 p-6 bg-[#161720] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="space-y-0.5 text-center sm:text-left">
-                <p className="text-xs font-bold text-white flex items-center justify-center sm:justify-start gap-1.5">
-                  <Sparkles size={13} className="text-[#3B82F6]" />
-                  Ready to clean audio with smart pause removal
-                </p>
-                <p className="text-[11px] text-zinc-400">
-                  Outputs 1080p-synchronized clean audio with zero pitch shift or voice alteration.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                disabled={isCleaning}
-                onClick={onCleanAudio}
-                className="group relative flex h-13 w-full sm:w-auto items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-8 text-sm font-black text-white shadow-xl shadow-[#0066FF]/25 transition-all hover:brightness-110 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
-              >
-                <Sparkles size={17} className="transition group-hover:rotate-12" />
-                <span>Clean Audio &amp; Remove Silences ({detectedPauses.length} Gaps)</span>
-                <ArrowRight size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/*  STEP 4: CLEANING SPINNER  */}
-      {isCleaning && (
-        <div className="rounded-[28px] border border-white/10 bg-[#111218] p-10 text-center shadow-xl space-y-4">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#0066FF]/10 text-[#3B82F6] border border-[#0066FF]/20">
-            <Scissors size={26} className="animate-pulse" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-white">Compressing Pauses &amp; Splicing Audio...</h3>
-            <p className="mt-1 text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
-              Applying sample-accurate FFmpeg cuts with 8ms anti-pop crossfades. 100% of your original voice is preserved.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/*  STEP 5: PREVIEW & DOWNLOAD (LIVE A/B COMPARE)  */}
-      {audioCleanResult && (
-        <div className="rounded-[28px] border border-white/10 bg-[#111218] p-6 shadow-2xl sm:p-8 space-y-6">
-          {/* Header & Stats Bar */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0066FF]/10 text-[#3B82F6] border border-[#0066FF]/20">
-                <Music2 size={24} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="text-lg font-bold text-white">Your Cleaned Audio is Ready</h4>
-                  <span className="rounded-full bg-[#0066FF]/20 border border-[#0066FF]/40 px-2.5 py-0.5 text-[11px] font-bold text-[#3B82F6]">
-                    Smart Silence Cut
-                  </span>
+              {/* Analysis Loading Card */}
+              {isAnalyzingAudio && (
+                <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-8 text-center space-y-3">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                    <RefreshCw size={22} className="animate-spin" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">Transcribing &amp; Scanning Audio Timeline...</h3>
+                    <p className="mt-1 text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                      Measuring speech cadence and mapping all silence gaps across the recording.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-zinc-400">
-                  Play both Before &amp; After tracks below to listen and compare how your audio sounded before vs now.
-                </p>
-              </div>
-            </div>
-
-            {/* Quick Stat Highlights & Top Reset Button */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              <div className="flex flex-wrap items-center gap-2 bg-black/40 border border-white/10 rounded-2xl px-3.5 py-2 text-xs">
-                <span className="text-zinc-400">Time Saved:</span>
-                <span className="font-bold text-[#3B82F6] font-mono">
-                  {audioCleanResult.stats?.durationSavedSeconds
-                    ? `${audioCleanResult.stats.durationSavedSeconds.toFixed(1)}s`
-                    : `${Math.max(0, audioCleanResult.originalDuration - audioCleanResult.cleanedDuration).toFixed(1)}s`}
-                </span>
-                <span className="text-zinc-600"></span>
-                <span className="text-zinc-400">Format:</span>
-                <span className="font-black text-[#3B82F6] font-mono uppercase">{exportFmt}</span>
-                {Boolean(audioCleanResult.stats?.silencesCut) && (
-                  <>
-                    <span className="text-zinc-600"></span>
-                    <span className="text-zinc-400">Gaps Cut:</span>
-                    <span className="font-bold text-amber-400 font-mono">{audioCleanResult.stats?.silencesCut}</span>
-                  </>
-                )}
-              </div>
-
-              {onReset && (
-                <button
-                  type="button"
-                  onClick={handleFullReset}
-                  className="inline-flex items-center gap-1.5 rounded-2xl border border-white/20 bg-white/10 hover:bg-white/20 px-3.5 py-2 text-xs font-bold text-white transition cursor-pointer active:scale-95 shadow-sm"
-                  title="Upload a new audio file without refreshing"
-                >
-                  <Plus size={14} className="text-[#3B82F6]" />
-                  <span>Upload New Audio</span>
-                </button>
               )}
             </div>
-          </div>
+          )}
 
-          {/*  DUAL AUDIO PLAYERS: SIDE-BY-SIDE BEFORE & AFTER  */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/*  CARD 1: BEFORE (ORIGINAL AUDIO) */}
-            <div
-              className={`rounded-2xl border p-5 transition-all ${
-                isPlayingBefore
-                  ? "border-rose-500 bg-rose-950/20 shadow-xl shadow-rose-500/10"
-                  : "border-white/10 bg-[#161720] hover:border-white/20"
-              }`}
-            >
-              {/* Card Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className={`h-3 w-3 rounded-full ${isPlayingBefore ? "bg-rose-500 animate-ping" : "bg-rose-400"}`} />
-                  <div>
-                    <h5 className="text-sm font-bold text-white flex items-center gap-1.5">
-                       Before <span className="text-xs text-rose-300 font-medium">(Original Recording)</span>
-                    </h5>
-                    <p className="text-[11px] text-zinc-400">With dead air pauses and silences</p>
-                  </div>
-                </div>
-                <span className="rounded-full bg-rose-500/20 border border-rose-500/30 px-2.5 py-1 text-xs font-mono font-bold text-rose-300">
-                  {formatTime(durationBefore || audioCleanResult.originalDuration)}
-                </span>
-              </div>
-
-              {/* Player Controls & Scrubber */}
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center gap-3">
-                  {/* Play / Pause Button */}
-                  <button
-                    type="button"
-                    onClick={handleTogglePlayBefore}
-                    disabled={!rawAudioUrl}
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer active:scale-90 ${
-                      isPlayingBefore
-                        ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
-                        : "bg-white/10 text-rose-300 hover:bg-rose-500 hover:text-white"
-                    } disabled:opacity-40 disabled:cursor-not-allowed`}
-                    title={isPlayingBefore ? "Pause Before Audio" : "Play Before Audio"}
-                  >
-                    {isPlayingBefore ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
-                  </button>
-
-                  {/* Scrubber & Time Display */}
-                  <div className="flex-1 space-y-1">
-                    <input
-                      type="range"
-                      min="0"
-                      max={durationBefore || audioCleanResult.originalDuration || 1}
-                      step="0.05"
-                      value={currentTimeBefore}
-                      onChange={(e) => {
-                        const newTime = parseFloat(e.target.value);
-                        setCurrentTimeBefore(newTime);
-                        if (rawAudioRef.current) rawAudioRef.current.currentTime = newTime;
-                      }}
-                      className="w-full h-1.5 bg-white/15 rounded-lg appearance-none cursor-pointer accent-rose-500"
-                    />
-                    <div className="flex justify-between text-[11px] font-mono text-zinc-400">
-                      <span className={isPlayingBefore ? "text-rose-300 font-bold" : ""}>
-                        {formatTime(currentTimeBefore)}
-                      </span>
-                      <span>{formatTime(durationBefore || audioCleanResult.originalDuration)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Animated Equalizer Waveform Indicator */}
-                <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-2 border border-white/5">
-                  <span className="text-[11px] text-zinc-400">
-                    {isPlayingBefore ? "Playing Original Track..." : "Click Play to listen to raw audio"}
-                  </span>
-                  <div className="flex items-center gap-0.5 h-4">
-                    {[40, 70, 30, 90, 60, 45, 80].map((h, i) => (
-                      <span
-                        key={i}
-                        className={`w-1 rounded-full transition-all duration-300 ${
-                          isPlayingBefore ? "bg-rose-400 animate-pulse" : "bg-zinc-700"
-                        }`}
-                        style={{ height: isPlayingBefore ? `${h}%` : "20%" }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Hidden HTML Audio Element */}
-              <audio
-                ref={rawAudioRef}
-                src={rawAudioUrl || audioCleanResult.outputUrl}
-                onTimeUpdate={() => setCurrentTimeBefore(rawAudioRef.current?.currentTime || 0)}
-                onLoadedMetadata={() => setDurationBefore(rawAudioRef.current?.duration || audioCleanResult.originalDuration)}
-                onEnded={() => setIsPlayingBefore(false)}
-                onPlay={() => {
-                  setIsPlayingBefore(true);
-                  setIsPlayingAfter(false);
-                }}
-                onPause={() => setIsPlayingBefore(false)}
-                className="hidden"
-              />
-            </div>
-
-            {/*  CARD 2: AFTER (CLEANED STUDIO MASTER) */}
-            <div
-              className={`rounded-2xl border p-5 transition-all ${
-                isPlayingAfter
-                  ? "border-[#0066FF] bg-[#0066FF]/10 shadow-xl shadow-[#0066FF]/15"
-                  : "border-[#0066FF]/40 bg-[#161720] hover:border-[#0066FF]/60"
-              }`}
-            >
-              {/* Card Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className={`h-3 w-3 rounded-full ${isPlayingAfter ? "bg-[#FF5722] animate-ping" : "bg-[#FF9100]"}`} />
-                  <div>
-                    <h5 className="text-sm font-bold text-white flex items-center gap-1.5">
-                       After <span className="text-xs text-[#3B82F6] font-medium">(Silences Cut &amp; Voice Preserved)</span>
-                    </h5>
-                    <p className="text-[11px] text-zinc-400">100% natural voice  Smooth fast flow</p>
-                  </div>
-                </div>
-                <span className="rounded-full bg-[#0066FF]/20 border border-[#0066FF]/30 px-2.5 py-1 text-xs font-mono font-bold text-[#3B82F6]">
-                  {formatTime(durationAfter || audioCleanResult.cleanedDuration)}
-                </span>
-              </div>
-
-              {/* Player Controls & Scrubber */}
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center gap-3">
-                  {/* Play / Pause Button */}
-                  <button
-                    type="button"
-                    onClick={handleTogglePlayAfter}
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer active:scale-90 ${
-                      isPlayingAfter
-                        ? "bg-gradient-to-r from-[#0066FF] to-[#3B82F6] text-black shadow-lg shadow-[#0066FF]/30"
-                        : "bg-[#0066FF]/20 text-[#3B82F6] hover:bg-[#FF5722] hover:text-black"
-                    }`}
-                    title={isPlayingAfter ? "Pause Cleaned Audio" : "Play Cleaned Audio"}
-                  >
-                    {isPlayingAfter ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
-                  </button>
-
-                  {/* Scrubber & Time Display */}
-                  <div className="flex-1 space-y-1">
-                    <input
-                      type="range"
-                      min="0"
-                      max={durationAfter || audioCleanResult.cleanedDuration || 1}
-                      step="0.05"
-                      value={currentTimeAfter}
-                      onChange={(e) => {
-                        const newTime = parseFloat(e.target.value);
-                        setCurrentTimeAfter(newTime);
-                        if (cleanAudioRef.current) cleanAudioRef.current.currentTime = newTime;
-                      }}
-                      className="w-full h-1.5 bg-white/15 rounded-lg appearance-none cursor-pointer accent-[#FF5722]"
-                    />
-                    <div className="flex justify-between text-[11px] font-mono text-zinc-400">
-                      <span className={isPlayingAfter ? "text-[#3B82F6] font-bold" : ""}>
-                        {formatTime(currentTimeAfter)}
-                      </span>
-                      <span>{formatTime(durationAfter || audioCleanResult.cleanedDuration)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Animated Equalizer Waveform Indicator */}
-                <div className="flex items-center justify-between rounded-xl bg-black/40 px-3 py-2 border border-white/5">
-                  <span className="text-[11px] text-zinc-400">
-                    {isPlayingAfter ? "Playing Clean Studio Master..." : "Click Play to listen to cleaned audio"}
-                  </span>
-                  <div className="flex items-center gap-0.5 h-4">
-                    {[50, 85, 45, 95, 75, 60, 90].map((h, i) => (
-                      <span
-                        key={i}
-                        className={`w-1 rounded-full transition-all duration-300 ${
-                          isPlayingAfter ? "bg-[#FF5722] animate-pulse" : "bg-zinc-700"
-                        }`}
-                        style={{ height: isPlayingAfter ? `${h}%` : "20%" }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Hidden HTML Audio Element */}
-              <audio
-                ref={cleanAudioRef}
-                src={audioCleanResult.outputUrl}
-                onTimeUpdate={() => setCurrentTimeAfter(cleanAudioRef.current?.currentTime || 0)}
-                onLoadedMetadata={() => setDurationAfter(cleanAudioRef.current?.duration || audioCleanResult.cleanedDuration)}
-                onEnded={() => setIsPlayingAfter(false)}
-                onPlay={() => {
-                  setIsPlayingAfter(true);
-                  setIsPlayingBefore(false);
-                }}
-                onPause={() => setIsPlayingAfter(false)}
-                className="hidden"
-              />
-            </div>
-          </div>
-
-          {/*  INSTANT A/B COMPARISON SWITCHER BAR  */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-black/50 border border-white/10">
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <button
-                type="button"
-                onClick={handleInstantABSwitch}
-                disabled={!rawAudioUrl}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-[#2563EB]/20 border border-amber-500/40 hover:bg-amber-500/30 text-xs font-bold text-amber-300 transition active:scale-95 cursor-pointer disabled:opacity-50"
-                title="Seamlessly switch playback between Before and After to hear the difference"
-              >
-                <ArrowRightLeft size={15} className="text-[#3B82F6]" />
-                <span>Instant A/B Audio Switch</span>
-              </button>
-              <div className="text-xs">
-                <span className="text-zinc-400">Current Track: </span>
-                <span className={`font-bold ${compareMode === "after" ? "text-[#3B82F6]" : "text-rose-400"}`}>
-                  {compareMode === "after" ? " Cleaned (Gaps Cut)" : " Original (Before)"}
-                </span>
-              </div>
-            </div>
-
-            {/* Quick Status Info */}
-            <div className="flex items-center gap-2 text-xs text-zinc-400">
-              <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
-              <span>Exact vocal timbre &amp; frequency response preserved</span>
-            </div>
-          </div>
-
-          {/*  POST-DOWNLOAD PROMPT / NEW UPLOAD BANNER  */}
-          {hasDownloaded && (
-            <div className="rounded-2xl border border-[#0066FF]/40 bg-gradient-to-r from-[#0066FF]/15 via-black/40 to-[#FF5722]/10 p-5 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-300">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0066FF]/20 text-[#3B82F6] border border-[#0066FF]/40">
-                  <CheckCircle2 size={20} />
-                </div>
+          {/* ──────────────── STEP 2: PACING & MASTERING OPTIONS ──────────────── */}
+          {currentStep === "pacing" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
                 <div>
-                  <h5 className="text-sm font-bold text-white">Audio Downloaded Successfully!</h5>
-                  <p className="text-xs text-zinc-300">
-                    Ready to clean another voiceover or video recording? Click below to upload a new file.
+                  <h3 className="text-base font-bold text-slate-900">Select Voice Pacing &amp; Silence Threshold</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Choose how aggressively dead air should be trimmed across the spoken timeline.
                   </p>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                {onReset && (
+                {/* 3 Pacing Presets */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                  {[
+                    {
+                      id: "fast",
+                      title: "⚡ Fast Retention",
+                      timing: "300ms trigger → 100ms gap",
+                      desc: "Cuts every pause >300ms down to a crisp 100ms buffer. Eliminates dead air for high-retention video.",
+                      recommended: true,
+                    },
+                    {
+                      id: "natural",
+                      title: "🎙️ Natural Flow",
+                      timing: "300ms trigger → 140ms gap",
+                      desc: "Maintains smooth natural speech cadence while trimming excessive hesitation.",
+                      recommended: false,
+                    },
+                    {
+                      id: "relaxed",
+                      title: "☕ Relaxed Cadence",
+                      timing: "450ms trigger → 200ms gap",
+                      desc: "Subtle pause trimming suitable for audiobooks, calm interviews, and relaxed lectures.",
+                      recommended: false,
+                    },
+                  ].map((p) => {
+                    const isSelected = (audioCleanOptions?.pacing || "fast") === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() =>
+                          setAudioCleanOptions?.((prev: any) => ({
+                            ...prev,
+                            pacing: p.id,
+                          }))
+                        }
+                        className={`relative rounded-xl border p-4 text-left transition-all cursor-pointer ${isSelected
+                            ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-500/20"
+                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/70"
+                          }`}
+                      >
+                        {p.recommended && (
+                          <span className="absolute top-3 right-3 text-[10px] font-black uppercase tracking-wider text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full">
+                            Recommended
+                          </span>
+                        )}
+                        <h4 className="text-sm font-bold text-slate-900">{p.title}</h4>
+                        <p className="text-[11px] font-mono font-semibold text-blue-600 mt-1">{p.timing}</p>
+                        <p className="text-xs text-slate-600 mt-2 leading-relaxed">{p.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Export Format & Vocal Tuning */}
+                <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Export Format */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 block mb-2">Master Audio Export Format</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: "mp3", label: "MP3 320kbps", sub: "Universal" },
+                        { id: "wav", label: "WAV Lossless", sub: "Production" },
+                        { id: "m4a", label: "M4A AAC", sub: "Apple Master" },
+                      ].map((fmt) => {
+                        const isFmt = (audioCleanOptions?.exportFormat || "mp3") === fmt.id;
+                        return (
+                          <button
+                            key={fmt.id}
+                            type="button"
+                            onClick={() =>
+                              setAudioCleanOptions?.((prev: any) => ({
+                                ...prev,
+                                exportFormat: fmt.id,
+                              }))
+                            }
+                            className={`rounded-xl border p-2.5 text-center transition cursor-pointer ${isFmt
+                                ? "border-blue-600 bg-blue-50 text-blue-900 font-bold"
+                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              }`}
+                          >
+                            <p className="text-xs font-bold">{fmt.label}</p>
+                            <p className="text-[10px] text-slate-500">{fmt.sub}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Vocal Tone */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 block mb-2">Vocal Character</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: "natural", label: "Natural Original", desc: "100% Intact" },
+                        { id: "clarity", label: "Studio Clarity", desc: "+2dB Highs" },
+                        { id: "warmth", label: "Warmth Boost", desc: "Pro Podcast" },
+                      ].map((v) => {
+                        const isTone = (audioCleanOptions?.vocalTone || "natural") === v.id;
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() =>
+                              setAudioCleanOptions?.((prev: any) => ({
+                                ...prev,
+                                vocalTone: v.id,
+                              }))
+                            }
+                            className={`rounded-xl border p-2.5 text-center transition cursor-pointer ${isTone
+                                ? "border-blue-600 bg-blue-50 text-blue-900 font-bold"
+                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              }`}
+                          >
+                            <p className="text-xs font-bold">{v.label}</p>
+                            <p className="text-[10px] text-slate-500">{v.desc}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step 2 Bottom Navigation */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={handleFullReset}
-                    className="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-5 py-2.5 text-xs font-black text-black shadow-md transition hover:brightness-110 active:scale-95 cursor-pointer"
+                    onClick={() => setCurrentStep("upload")}
+                    className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
                   >
-                    <Plus size={15} />
-                    <span>Upload &amp; Clean Another Audio</span>
+                    ← Back to Upload
                   </button>
-                )}
-                {onBackToEdit && (
+
                   <button
                     type="button"
-                    onClick={onBackToEdit}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 hover:bg-white/15 px-3.5 py-2.5 text-xs font-bold text-zinc-200 transition cursor-pointer"
+                    onClick={() => setCurrentStep("transcript")}
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer"
                   >
-                    <Edit3 size={13} />
-                    <span>Re-edit</span>
+                    <span>Next: Review Transcript</span>
+                    <ArrowRight size={14} />
                   </button>
-                )}
+                </div>
               </div>
             </div>
           )}
 
-          {/*  BOTTOM ACTIONS: DOWNLOAD, SEND TO STUDIO, RE-EDIT  */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-[#161720] border border-white/10">
-            <div className="flex items-center gap-2 text-xs text-zinc-400">
-              <FileAudio size={15} className="text-[#3B82F6]" />
-              <span>Studio Master Export  100% Quality</span>
+          {/* ──────────────── STEP 3: TRANSCRIPT REVIEW & CLEAN TRIGGER ──────────────── */}
+          {currentStep === "transcript" && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-hidden">
+                {/* Transcript Header Ribbon */}
+                <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 bg-slate-50">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-100/70 px-3 py-1 text-xs font-bold text-blue-800">
+                      <Edit3 size={13} className="text-blue-700" />
+                      Review &amp; Edit Spoken Script
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                      <FileText size={12} className="text-slate-400" />
+                      {wordCount} Words
+                    </span>
+                    {audioCleanAnalysis?.originalDuration && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                        <Clock size={12} className="text-slate-400" />
+                        Original: {formatTime(audioCleanAnalysis.originalDuration)}
+                      </span>
+                    )}
+                    {detectedPauses.length > 0 && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                        <Scissors size={12} className="text-amber-700" />
+                        {detectedPauses.length} Gaps Detected
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Transcript Action Buttons */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handlePasteClipboard}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer shadow-2xs"
+                    >
+                      <ClipboardPaste size={13} className="text-amber-600" />
+                      <span>Paste Script</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleResetToOriginal}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer shadow-2xs"
+                    >
+                      <RotateCcw size={13} className="text-slate-500" />
+                      <span>Reset</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleCopyScript}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition cursor-pointer shadow-2xs"
+                    >
+                      {copiedScript ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                      <span>{copiedScript ? "Copied" : "Copy"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Editable Textarea */}
+                <div className="p-5 sm:p-6 space-y-3">
+                  <div className="relative rounded-xl border border-slate-200 bg-slate-50 p-3 focus-within:border-blue-500 focus-within:bg-white transition">
+                    <textarea
+                      value={currentMarkdown}
+                      onChange={(e) => handleMarkdownChange(e.target.value)}
+                      placeholder="Transcript will appear here once audio analysis completes. You can correct misspelled brand names, technical terms, or paste your pre-written script..."
+                      rows={10}
+                      className="w-full resize-y bg-transparent font-mono text-xs leading-relaxed text-slate-800 placeholder:text-slate-400 focus:outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-500 gap-2">
+                    <span>
+                      💡 <strong>Voice Preservation Guarantee:</strong> Only dead air pauses are removed. Your tone, cadence, and vocal character remain 100% natural.
+                    </span>
+                    <span className="font-mono text-slate-400 shrink-0">{currentMarkdown.length} characters</span>
+                  </div>
+                </div>
+
+                {/* Collapsible Detected Pauses Timeline Inspector */}
+                {detectedPauses.length > 0 && (
+                  <div className="border-t border-slate-200 p-4 sm:p-6 bg-slate-50/50">
+                    <button
+                      type="button"
+                      onClick={() => setShowPauseList(!showPauseList)}
+                      className="flex w-full items-center justify-between text-left text-xs font-bold text-slate-700 hover:text-slate-900 cursor-pointer"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Activity size={14} className="text-blue-600" />
+                        <span>View Detected Silence Regions ({detectedPauses.length} timeline gaps)</span>
+                      </span>
+                      {showPauseList ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                    </button>
+
+                    {showPauseList && (
+                      <div className="mt-3 max-h-56 overflow-y-auto space-y-1.5 pr-1 no-scrollbar">
+                        {detectedPauses.map((pause) => (
+                          <div
+                            key={pause.id}
+                            className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-2xs"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span className="font-mono text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                                #{pause.index}
+                              </span>
+                              <span className="font-mono text-slate-700 text-[11px]">
+                                {formatTime(pause.start)} → {formatTime(pause.end)}
+                              </span>
+                              <span className="truncate text-slate-500 text-[11px]">{pause.description}</span>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="font-mono text-[11px] font-bold text-amber-700">
+                                -{pause.cutDuration.toFixed(2)}s cut
+                              </span>
+                              <span className="font-mono text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                leaves {pause.compressedGap.toFixed(2)}s
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Clean Audio CTA Footer */}
+                <div className="border-t border-slate-200 p-5 sm:p-6 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-center sm:text-left">
+                    <p className="text-xs font-bold text-slate-800 flex items-center justify-center sm:justify-start gap-1.5">
+                      <Sparkles size={13} className="text-blue-600" />
+                      Ready to clean audio with smart pause removal
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Non-destructive FFmpeg slicing with 8ms anti-pop crossfades.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <button
+                      type="button"
+                      disabled={isCleaning || !audioCleanAnalysis}
+                      onClick={onCleanAudio}
+                      className="group flex-1 sm:flex-none flex items-center justify-center gap-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-8 py-3 text-sm font-black text-white shadow-md shadow-blue-600/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    >
+                      {isCleaning ? (
+                        <>
+                          <RefreshCw size={16} className="animate-spin" />
+                          <span>Cleaning Audio Pauses...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles size={16} className="transition group-hover:rotate-12" />
+                          <span>Clean Audio &amp; Remove Silences ({detectedPauses.length} Gaps)</span>
+                          <ArrowRight size={15} />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
+          )}
 
-            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
-              {/* Send to Image-to-Video Studio Button */}
-              <a
-                href={`/dashboard/image-to-video?audioUrl=${encodeURIComponent(audioCleanResult.outputUrl)}`}
-                className="inline-flex items-center gap-2 rounded-2xl border border-[#0066FF]/40 bg-[#0066FF]/10 hover:bg-[#0066FF]/20 px-5 py-3 text-xs font-bold text-[#3B82F6] transition active:scale-95 cursor-pointer"
-              >
-                <Sparkles size={15} />
-                <span>Send to Image AI Studio</span>
-              </a>
+          {/* ──────────────── STEP 4: MASTER PREVIEW & LIVE A/B COMPARE ──────────────── */}
+          {currentStep === "master" && (
+            <div className="space-y-6">
+              {audioCleanResult ? (
+                <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
+                  {/* Master Header & Time Saved Bar */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 border border-emerald-300 shadow-2xs">
+                        <CheckCircle2 size={24} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base sm:text-lg font-black text-slate-900">Your Cleaned Audio is Ready</h3>
+                          <span className="rounded-full bg-blue-100 border border-blue-300 px-2.5 py-0.5 text-[11px] font-bold text-blue-800">
+                            Studio Master
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">
+                          Audition and compare both tracks below to hear the before and after difference.
+                        </p>
+                      </div>
+                    </div>
 
-              {/* Primary Download Button */}
-              <a
-                href={`/api/download?url=${encodeURIComponent(audioCleanResult.outputUrl)}&filename=${encodeURIComponent(`itnavideo-clean-audio.${exportFmt}`)}`}
-                download={`itnavideo-clean-audio.${exportFmt}`}
-                onClick={() => setHasDownloaded(true)}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-6 py-3 text-xs font-black text-black shadow-lg shadow-[#0066FF]/25 transition hover:brightness-110 active:scale-95 cursor-pointer"
-              >
-                <Download size={15} />
-                <span>Download Clean Audio ({exportFmt.toUpperCase()})</span>
-              </a>
+                    {/* Stats Pill */}
+                    <div className="flex flex-wrap items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs">
+                      <span className="text-slate-500">Time Saved:</span>
+                      <span className="font-bold text-blue-600 font-mono">
+                        {audioCleanResult.stats?.durationSavedSeconds
+                          ? `${audioCleanResult.stats.durationSavedSeconds.toFixed(1)}s`
+                          : `${Math.max(0, audioCleanResult.originalDuration - audioCleanResult.cleanedDuration).toFixed(1)}s`}
+                      </span>
+                      <span className="text-slate-300">•</span>
+                      <span className="text-slate-500">Format:</span>
+                      <span className="font-black text-slate-800 font-mono uppercase">{exportFmt}</span>
+                      {Boolean(audioCleanResult.stats?.silencesCut) && (
+                        <>
+                          <span className="text-slate-300">•</span>
+                          <span className="text-slate-500">Gaps Cut:</span>
+                          <span className="font-bold text-amber-600 font-mono">
+                            {audioCleanResult.stats?.silencesCut}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
 
-              {/* Re-edit Script Button */}
-              {onBackToEdit && (
-                <button
-                  type="button"
-                  onClick={onBackToEdit}
-                  className="inline-flex items-center gap-1.5 rounded-2xl border border-white/15 bg-white/5 hover:bg-white/10 px-4 py-3 text-xs font-bold text-zinc-300 transition cursor-pointer active:scale-95"
-                >
-                  <Edit3 size={14} />
-                  <span>Re-edit Script</span>
-                </button>
-              )}
+                  {/* DUAL AUDIO PLAYERS: SIDE-BY-SIDE BEFORE & AFTER */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* CARD 1: BEFORE (ORIGINAL AUDIO) */}
+                    <div
+                      className={`rounded-2xl border p-5 transition-all ${isPlayingBefore
+                          ? "border-rose-400 bg-rose-50/50 shadow-xs"
+                          : "border-slate-200 bg-slate-50/60 hover:border-slate-300"
+                        }`}
+                    >
+                      <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`h-2.5 w-2.5 rounded-full ${isPlayingBefore ? "bg-rose-500 animate-ping" : "bg-rose-400"
+                              }`}
+                          />
+                          <div>
+                            <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                              🔴 Before <span className="text-slate-500 font-normal">(Original Recording)</span>
+                            </h4>
+                            <p className="text-[10px] text-slate-500">Contains dead air pauses</p>
+                          </div>
+                        </div>
+                        <span className="rounded-full bg-rose-100 border border-rose-200 px-2.5 py-0.5 text-xs font-mono font-bold text-rose-800">
+                          {formatTime(durationBefore || audioCleanResult.originalDuration)}
+                        </span>
+                      </div>
 
-              {/* Clean Another / Upload New Audio Button */}
-              {onReset && (
-                <button
-                  type="button"
-                  onClick={handleFullReset}
-                  className="inline-flex items-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-3 text-xs font-bold text-zinc-300 transition cursor-pointer active:scale-95"
-                  title="Upload a new audio file without reloading the page"
-                >
-                  <RotateCcw size={14} />
-                  <span>Clean Another</span>
-                </button>
+                      <div className="mt-4 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={handleTogglePlayBefore}
+                            disabled={!rawAudioUrl}
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer shadow-xs active:scale-95 ${isPlayingBefore
+                                ? "bg-rose-600 text-white"
+                                : "bg-white text-rose-700 border border-slate-300 hover:bg-rose-50"
+                              } disabled:opacity-40`}
+                          >
+                            {isPlayingBefore ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                          </button>
+
+                          <div className="flex-1 space-y-1">
+                            <input
+                              type="range"
+                              min="0"
+                              max={durationBefore || audioCleanResult.originalDuration || 1}
+                              step="0.05"
+                              value={currentTimeBefore}
+                              onChange={(e) => {
+                                const newTime = parseFloat(e.target.value);
+                                setCurrentTimeBefore(newTime);
+                                if (rawAudioRef.current) rawAudioRef.current.currentTime = newTime;
+                              }}
+                              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
+                            />
+                            <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                              <span className={isPlayingBefore ? "text-rose-700 font-bold" : ""}>
+                                {formatTime(currentTimeBefore)}
+                              </span>
+                              <span>{formatTime(durationBefore || audioCleanResult.originalDuration)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Visual EQ Bars */}
+                        <div className="flex items-center justify-between rounded-xl bg-white px-3 py-2 border border-slate-200">
+                          <span className="text-[11px] text-slate-500">
+                            {isPlayingBefore ? "Playing Original Track..." : "Click Play to audition raw audio"}
+                          </span>
+                          <div className="flex items-center gap-0.5 h-3.5">
+                            {[40, 70, 30, 90, 60, 45, 80].map((h, i) => (
+                              <span
+                                key={i}
+                                className={`w-1 rounded-full transition-all duration-300 ${isPlayingBefore ? "bg-rose-500 animate-pulse" : "bg-slate-300"
+                                  }`}
+                                style={{ height: isPlayingBefore ? `${h}%` : "25%" }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <audio
+                        ref={rawAudioRef}
+                        src={rawAudioUrl || audioCleanResult.outputUrl}
+                        onTimeUpdate={() => setCurrentTimeBefore(rawAudioRef.current?.currentTime || 0)}
+                        onLoadedMetadata={() =>
+                          setDurationBefore(rawAudioRef.current?.duration || audioCleanResult.originalDuration)
+                        }
+                        onEnded={() => setIsPlayingBefore(false)}
+                        onPlay={() => {
+                          setIsPlayingBefore(true);
+                          setIsPlayingAfter(false);
+                        }}
+                        onPause={() => setIsPlayingBefore(false)}
+                        className="hidden"
+                      />
+                    </div>
+
+                    {/* CARD 2: AFTER (CLEANED STUDIO MASTER) */}
+                    <div
+                      className={`rounded-2xl border p-5 transition-all ${isPlayingAfter
+                          ? "border-blue-400 bg-blue-50/50 shadow-xs"
+                          : "border-blue-200 bg-blue-50/30 hover:border-blue-300"
+                        }`}
+                    >
+                      <div className="flex items-center justify-between border-b border-blue-200/80 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`h-2.5 w-2.5 rounded-full ${isPlayingAfter ? "bg-blue-600 animate-ping" : "bg-blue-500"
+                              }`}
+                          />
+                          <div>
+                            <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                              ✨ After <span className="text-blue-700 font-normal">(Silences Cut • Clean Master)</span>
+                            </h4>
+                            <p className="text-[10px] text-slate-500">100% natural voice preserved</p>
+                          </div>
+                        </div>
+                        <span className="rounded-full bg-blue-100 border border-blue-300 px-2.5 py-0.5 text-xs font-mono font-bold text-blue-800">
+                          {formatTime(durationAfter || audioCleanResult.cleanedDuration)}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={handleTogglePlayAfter}
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer shadow-xs active:scale-95 ${isPlayingAfter
+                                ? "bg-blue-600 text-white"
+                                : "bg-white text-blue-700 border border-blue-300 hover:bg-blue-50"
+                              }`}
+                          >
+                            {isPlayingAfter ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                          </button>
+
+                          <div className="flex-1 space-y-1">
+                            <input
+                              type="range"
+                              min="0"
+                              max={durationAfter || audioCleanResult.cleanedDuration || 1}
+                              step="0.05"
+                              value={currentTimeAfter}
+                              onChange={(e) => {
+                                const newTime = parseFloat(e.target.value);
+                                setCurrentTimeAfter(newTime);
+                                if (cleanAudioRef.current) cleanAudioRef.current.currentTime = newTime;
+                              }}
+                              className="w-full h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+                            <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                              <span className={isPlayingAfter ? "text-blue-700 font-bold" : ""}>
+                                {formatTime(currentTimeAfter)}
+                              </span>
+                              <span>{formatTime(durationAfter || audioCleanResult.cleanedDuration)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Visual EQ Bars */}
+                        <div className="flex items-center justify-between rounded-xl bg-white px-3 py-2 border border-blue-200">
+                          <span className="text-[11px] text-slate-500">
+                            {isPlayingAfter ? "Playing Clean Studio Master..." : "Click Play to audition cleaned track"}
+                          </span>
+                          <div className="flex items-center gap-0.5 h-3.5">
+                            {[50, 85, 45, 95, 75, 60, 90].map((h, i) => (
+                              <span
+                                key={i}
+                                className={`w-1 rounded-full transition-all duration-300 ${isPlayingAfter ? "bg-blue-600 animate-pulse" : "bg-slate-300"
+                                  }`}
+                                style={{ height: isPlayingAfter ? `${h}%` : "25%" }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <audio
+                        ref={cleanAudioRef}
+                        src={audioCleanResult.outputUrl}
+                        onTimeUpdate={() => setCurrentTimeAfter(cleanAudioRef.current?.currentTime || 0)}
+                        onLoadedMetadata={() =>
+                          setDurationAfter(cleanAudioRef.current?.duration || audioCleanResult.cleanedDuration)
+                        }
+                        onEnded={() => setIsPlayingAfter(false)}
+                        onPlay={() => {
+                          setIsPlayingAfter(true);
+                          setIsPlayingBefore(false);
+                        }}
+                        onPause={() => setIsPlayingAfter(false)}
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+
+                  {/* INSTANT A/B COMPARISON SWITCHER BAR */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <button
+                        type="button"
+                        onClick={handleInstantABSwitch}
+                        disabled={!rawAudioUrl}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs font-bold text-slate-800 transition active:scale-95 cursor-pointer shadow-2xs disabled:opacity-50"
+                      >
+                        <ArrowRightLeft size={14} className="text-blue-600" />
+                        <span>Instant A/B Audio Switch</span>
+                      </button>
+                      <div className="text-xs">
+                        <span className="text-slate-500">Auditioning: </span>
+                        <span
+                          className={`font-bold ${compareMode === "after" ? "text-blue-600" : "text-rose-600"}`}
+                        >
+                          {compareMode === "after" ? "✨ Cleaned (Pauses Cut)" : "🔴 Original (Before)"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <ShieldCheck size={14} className="text-emerald-600 shrink-0" />
+                      <span>Original vocal frequency &amp; timbre 100% intact</span>
+                    </div>
+                  </div>
+
+                  {/* BOTTOM ACTION BAR */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep("transcript")}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 transition cursor-pointer shadow-2xs"
+                      >
+                        <Edit3 size={13} />
+                        <span>Re-edit Script</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleFullReset}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 transition cursor-pointer shadow-2xs"
+                      >
+                        <RotateCcw size={13} />
+                        <span>Clean Another</span>
+                      </button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+                      {/* Send to Image AI Studio */}
+                      <a
+                        href={`/dashboard/image-to-video?audioUrl=${encodeURIComponent(audioCleanResult.outputUrl)}`}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100/70 px-4 py-2.5 text-xs font-bold text-blue-700 transition active:scale-95"
+                      >
+                        <Sparkles size={14} />
+                        <span>Send to Image AI Studio</span>
+                      </a>
+
+                      {/* Download Master Button */}
+                      <a
+                        href={`/api/download?url=${encodeURIComponent(audioCleanResult.outputUrl)}&filename=${encodeURIComponent(`itnavideo-clean-audio.${exportFmt}`)}`}
+                        download={`itnavideo-clean-audio.${exportFmt}`}
+                        onClick={() => setHasDownloaded(true)}
+                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-2.5 text-xs font-black text-white shadow-md shadow-blue-600/20 transition active:scale-95 cursor-pointer"
+                      >
+                        <Download size={14} />
+                        <span>Download Clean Audio ({exportFmt.toUpperCase()})</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-12 text-center space-y-3">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 shadow-2xs">
+                    <Music2 size={26} />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-800">No Cleaned Audio Yet</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Complete Step 1 (Upload) and Step 3 (Review Script), then click &quot;Clean Audio&quot; to generate your master.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(audioCleanAnalysis ? "transcript" : "upload")}
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white hover:bg-blue-700 transition cursor-pointer"
+                  >
+                    <span>{audioCleanAnalysis ? "Go to Transcript" : "Go to Upload"}</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Mobile Sticky Action Bar */}
-      {audioCleanAnalysis && !isCleaning && !audioCleanResult && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-white/10 bg-[#0B0D13]/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
-          <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase text-[#3B82F6] tracking-wider truncate">
-              {selectedFile?.name || "Audio Cleanup"}
-            </p>
-            <p className="text-[10px] text-zinc-400 font-bold">
-              1 Credit • {detectedPauses.length} Pauses Cut
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onCleanAudio}
-            disabled={isCleaning}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#0066FF]/30 active:scale-95 disabled:opacity-50"
-          >
-            <Sparkles size={14} className="text-black" />
-            <span>Clean Audio</span>
-          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -77,6 +77,19 @@ export interface VideoToolCard {
 
 export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
   {
+    id: "ai-video-generator",
+    title: "AI Video Generator",
+    slug: "/dashboard/ai-video-generator",
+    category: "long",
+    aspectRatio: "16:9",
+    icon: Sparkles,
+    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
+    iconColorClass: "text-orange-500",
+    description: "Prompt-to-production studio: AI Creative Director, multitrack timeline editor & 1080p cloud render.",
+    badge: "Coming Soon",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png",
+  },
+  {
     id: "youtube-subtitles",
     title: "YouTube Subtitles Generator",
     slug: "/dashboard/youtube-subtitles",
@@ -481,7 +494,7 @@ export default function DashboardClient() {
                 <Menu size={20} />
               </button>
 
-              <BrandLogo size="sm" showBadge={false} variant="dark" />
+              <BrandLogo size="sm" showBadge={false} variant="dark" className="lg:hidden" />
 
               <div className="flex items-center gap-2">
                 <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#181820] border border-white/10 text-xs text-zinc-300">
@@ -717,6 +730,111 @@ export default function DashboardClient() {
               {/* SECTION 2: 16:9 VIDEO TYPES (CINEMA STUDIOS)              */}
               {/*  */}
                             {/* ---------------------------------------------------- */}
+              {/* SECTION 0: FEATURED FLAGSHIP - AI VIDEO GENERATOR    */}
+              {/* (TOP ON DASHBOARD BEFORE AUDIO CLEANER)             */}
+              {/* ---------------------------------------------------- */}
+              {(activeCategory === "all" || activeCategory === "long") && searchQuery === "" && (
+                <div className="rounded-[32px] border border-orange-500/30 bg-gradient-to-b from-[#181216] via-[#101014] to-[#101014] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-white/10 pb-5">
+                    <div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
+                        <Sparkles size={13} className="text-orange-400" />
+                        <span>Flagship Studio · Prompt to Production</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
+                        AI Video Generator
+                      </h2>
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400">
+                        Describe your idea, optionally attach media, and generate a 16:9 widescreen video with cinematic visuals, narration, and kinetic typography.
+                      </p>
+                    </div>
+
+                    <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-mono font-black uppercase tracking-wider self-start sm:self-center flex items-center gap-2 shadow-xs">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      <span>Coming Soon · In Active Development</span>
+                    </span>
+                  </div>
+
+                  <Link
+                    href="/dashboard/ai-video-generator"
+                    className="group relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 rounded-[28px] border border-white/10 bg-[#15151D] hover:bg-[#1C1C26] p-4 sm:p-6 hover:border-orange-500/60 transition-all duration-300 active:scale-[0.99] shadow-xl hover:shadow-2xl hover:shadow-orange-500/15 cursor-pointer overflow-hidden"
+                  >
+                    {/* Left: 16:9 Studio Preview Image */}
+                    <div className="relative aspect-[16/9] w-full lg:w-96 shrink-0 rounded-2xl bg-[#0B0B0E] border border-white/10 overflow-hidden shadow-inner group-hover:border-orange-500/50 transition-colors">
+                      <img
+                        src={optimizeCloudinary("https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png", 640)}
+                        alt="AI Video Generator"
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                      {/* Coming Soon Badge Tag on Image */}
+                      <div className="absolute top-2.5 right-2.5 z-10">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-black/85 border border-amber-500/40 text-amber-300 backdrop-blur-md shadow-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          Coming Soon
+                        </span>
+                      </div>
+
+                      {/* Center Play / Preview Button on Hover */}
+                      <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
+                          <Play size={20} className="fill-current text-white ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Middle: Title, Description, & Feature Highlights */}
+                    <div className="flex flex-col flex-1 justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-500">
+                            <Sparkles size={18} />
+                          </div>
+                          <h3 className="text-lg sm:text-xl font-black text-white tracking-tight group-hover:text-orange-300 transition-colors">
+                            AI Video Generator (16:9 Cinema)
+                          </h3>
+                        </div>
+
+                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                          Prompt-to-production studio: AI plans complete scenes, matches footage, records voiceover, and builds kinetic captions with full multitrack timeline control.
+                        </p>
+                      </div>
+
+                      {/* Feature Badges */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/30 text-[11px] font-semibold text-orange-300">
+                          16:9 Widescreen Cinema
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
+                          Prompt to Video
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
+                          Multitrack Timeline
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-semibold text-emerald-400">
+                          100% Free Draft Preview
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right / Bottom: Price & Open CTA Button */}
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10 shrink-0">
+                      <span className="text-[11px] font-mono font-bold text-orange-400 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                        1 Min = 1 Credit
+                      </span>
+                      <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
+                        <span>Preview Studio (Coming Soon)</span>
+                        <ChevronRight size={14} />
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              )}
+
+              {/* ---------------------------------------------------- */}
               {/* SECTION 1: AUDIO STUDIO & UTILITIES (TOP ON DASHBOARD)       */}
               {/* ---------------------------------------------------- */}
               {showUtilitySection && (

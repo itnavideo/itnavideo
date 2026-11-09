@@ -69,13 +69,13 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
   const scale = interpolate(enterSpring, [0, 1], [0.85, 1]);
   const opacity = interpolate(enterSpring, [0, 1], [0, 1]);
 
-  // Position calculation
+  // Position calculation (Shorts Safe Zone: bottom set to 360px to clear YouTube Shorts & Reels UI overlays)
   const positionStyles: React.CSSProperties =
     position === 'top'
       ? { top: 75, bottom: 'auto' }
       : position === 'center'
       ? { top: '46%', bottom: 'auto', transform: 'translateY(-50%)' }
-      : { bottom: 65, top: 'auto' };
+      : { bottom: 360, top: 'auto' };
 
   // Ensure word-level timings are always available for dynamic karaoke highlighting (pure computation, no conditional hooks)
   const wordsList =

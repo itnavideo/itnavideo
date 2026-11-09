@@ -85,3 +85,20 @@ export const WB_MAX_CHARS_PER_LINE = 30;
 - **Enhanced 9:16 Simulator**: Live draft preview features SVG stickman sketches, handwriting font rendering, and animated marker sketching tips.
 - **Editorial Transcript**: Spoken script editor for fixing speech typos before scene planning.
 - **Compulsory Live Preview Gate**: Users must verify the whiteboard layout and font before cloud rendering.
+
+---
+
+## 5. Unified Visual Design System & 6 Master Themes Integration
+
+The Whiteboard Video pipeline is fully integrated with the 12-System Unified Visual Design System (`services/design/visualDesignSystem.ts` and `remotion/theme/VideoVisualTheme.ts`):
+
+- **6 Master Themes**:
+  1. `educational` (Default / Recommended): Warm, engaging classroom feel with balanced contrast and vibrant markers.
+  2. `modern-saas`: Crisp, high-clarity tech aesthetic with sharp borders and vibrant blue markers.
+  3. `bold-kinetic`: High contrast punchy palette with intense accents and energetic tempo.
+  4. `premium-finance`: Sophisticated executive navy and emerald palette.
+  5. `editorial-minimal`: Understated, paper-like minimalism with slate and neutral tones.
+  6. `futuristic-tech`: Sleek dark-mode chalkboard/blueprint styling with neon cyan accents.
+- **Remotion Theme Provider**: Root template wraps entire composition in `<VideoVisualThemeProvider theme={visualTheme}>`.
+- **Dynamic Archetype Harmonization**: `DynamicWhiteboardSceneDirector` automatically adapts marker ink colors, accent lines, and canvas frame borders to the active theme palette when `markerColor === 'auto'`.
+- **Studio Theme Selector**: Step 3 (Style) features a dedicated 6 Master Themes grid with live color swatches and typography pairing badges.

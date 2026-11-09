@@ -1,6 +1,5 @@
 "use client";
 
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,7 +14,7 @@ import {
 } from "@/components/dashboard/AiShortsPolisherStudio";
 import { useAuth } from "@/components/auth/AuthContext";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
-import { ArrowLeft, Sparkles, Zap, Smartphone } from "lucide-react";
+import { ArrowLeft, Zap, Loader2 } from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 
 type BillingEntitlement = {
@@ -112,7 +111,9 @@ export default function AiShortsPolisherPageClient() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
+        const res = await fetch(
+          `/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`
+        );
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
@@ -177,7 +178,7 @@ export default function AiShortsPolisherPageClient() {
         progress: 0.15,
       });
 
-      // 1. Parallel Upload of primary clips & overlay layers (2.5x speed boost)
+      // 1. Parallel Upload of primary clips & overlay layers
       const primaryUploadPromises = primaryMediaList.map(async (item) => {
         const key = await uploadFileViaPresign(item.file, "aiShortsPolisher", user.id);
         return { id: item.id, url: key, type: item.type };
@@ -210,7 +211,7 @@ export default function AiShortsPolisherPageClient() {
       const firstMedia = primaryMediaList[0];
       const mediaKey = uploadedMediaItems[0].url;
 
-      // 2. Submit Render Job with Dedicated aiShortsPolisher mode
+      // 2. Submit Render Job
       setJobStatus({
         state: "starting",
         message: "Applying high-retention silence cuts and kinetic punch-ins...",
@@ -265,7 +266,7 @@ export default function AiShortsPolisherPageClient() {
 
       setJobStatus({
         state: "rendering",
-        message: "Rendering 1080×1920 60fps vertical Shorts with punch-ins & viral captions...",
+        message: "Rendering 1080×1920 vertical Shorts with punch-ins & viral captions...",
         progress: 0.55,
         renderId,
         bucketName,
@@ -279,6 +280,7 @@ export default function AiShortsPolisherPageClient() {
         if (attempts > 120) {
           clearInterval(pollInterval);
           renderRequestInFlightRef.current = false;
+          setIsSubmitting(false);
           setJobStatus({
             state: "error",
             message: "Render timed out. Please check your dashboard history shortly.",
@@ -288,13 +290,14 @@ export default function AiShortsPolisherPageClient() {
 
         try {
           const statusRes = await fetch(
-            `/api/reels/jobs/status?renderId=${encodeURIComponent(renderId)}&bucketName=${encodeURIComponent(bucketName || "")}&userId=${encodeURIComponent(user.id)}&mode=aiShortsPolisher`
+            `/api/reels/jobs/status?renderId=${encodeURIComponent(renderId)}&bucketName=${encodeURIComponent(bucketName)}&userId=${encodeURIComponent(user.id)}&mode=aiShortsPolisher&title=${encodeURIComponent(plannedTitle)}`
           );
           const statusPayload = await statusRes.json().catch(() => ({}));
 
-          if (statusPayload.done && statusPayload.outputFile) {
+          if (statusPayload.state === "ready" || statusPayload.state === "done") {
             clearInterval(pollInterval);
             renderRequestInFlightRef.current = false;
+            setIsSubmitting(false);
             setJobStatus({
               state: "ready",
               message: "Your viral polished 9:16 Shorts video is ready!",
@@ -306,6 +309,7 @@ export default function AiShortsPolisherPageClient() {
           } else if (statusPayload.state === "error") {
             clearInterval(pollInterval);
             renderRequestInFlightRef.current = false;
+            setIsSubmitting(false);
             setJobStatus({
               state: "error",
               message: statusPayload.error || "Rendering encountered an error. Please try again.",
@@ -321,9 +325,9 @@ export default function AiShortsPolisherPageClient() {
           console.warn("Poll error:", err);
         }
       }, 3500);
-
     } catch (err: any) {
       renderRequestInFlightRef.current = false;
+      setIsSubmitting(false);
       setJobStatus({
         state: "error",
         message: err?.message || "Failed to submit shorts polisher job.",
@@ -331,36 +335,74 @@ export default function AiShortsPolisherPageClient() {
     }
   };
 
+  const handleReset = () => {
+    setPrimaryMediaList([]);
+    setOverlayLayerList([]);
+    setIsSubmitting(false);
+    setJobStatus({ state: "idle" });
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+        <p className="text-sm font-semibold text-slate-800">Loading AI Shorts Polisher Studio...</p>
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-[#070A11] text-white selection:bg-purple-500 selection:text-white">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-md shadow-lg">
-        <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-purple-500/20 selection:text-purple-600 overflow-hidden font-sans">
+      {/* Top Navigation Bar - Unified Full Bleed Canvas */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-2xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 hover:border-white/20 hover:text-white transition active:scale-95"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-            <BrandLogo size="sm" variant="dark" />
+
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">AI Shorts Polisher</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-xs font-bold text-purple-400 shadow-xs">
-                <Zap size={13} className="fill-purple-400 text-purple-400" />
-                <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
-              </div>
-            )}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Credits badge */}
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-2xs text-slate-800">
+              <Zap size={14} className="text-purple-600 fill-purple-600" />
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-purple-600 hover:text-purple-500 underline font-black"
+              >
+                +Add
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Container with Rule 8 Dedicated Stepper */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
-        {jobStatus.state !== "idle" && (
-          <div className="max-w-3xl mx-auto py-4">
+      {/* Main Studio Viewport */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
+        {jobStatus.state !== "idle" ? (
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="aiShortsPolisher"
               status={{
@@ -373,20 +415,10 @@ export default function AiShortsPolisherPageClient() {
               title={jobStatus.title || videoTitle || "AI Shorts Polisher"}
               fileName={primaryMediaList[0]?.name}
               onRetry={handleStartRender}
-              onReset={() => {
-                if (typeof window !== "undefined") {
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }
-                setPrimaryMediaList([]);
-                setOverlayLayerList([]);
-                setIsSubmitting(false);
-                setJobStatus({ state: "idle" });
-              }}
+              onReset={handleReset}
             />
           </div>
-        )}
-
-        {jobStatus.state === "idle" && (
+        ) : (
           <AiShortsPolisherStudio
             primaryMediaList={primaryMediaList}
             onPrimaryMediaListChange={setPrimaryMediaList}
@@ -426,9 +458,11 @@ export default function AiShortsPolisherPageClient() {
             onComparisonBannerConfigChange={setComparisonBannerConfig}
             onGenerate={handleStartRender}
             isGenerating={isSubmitting || jobStatus.state !== "idle"}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
           />
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

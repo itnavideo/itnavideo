@@ -12,11 +12,34 @@ import {
   Upload,
   Check,
   Play,
+  Pause,
   RotateCcw,
   FileVideo,
   CheckCircle2,
   Globe,
   Mic,
+  Volume2,
+  VolumeX,
+  Music,
+  Sliders,
+  SlidersHorizontal,
+  Flame,
+  Zap,
+  Download,
+  ArrowRight,
+  Clock,
+  Settings2,
+  Maximize2,
+  Minimize2,
+  ShieldCheck,
+  Type,
+  Eye,
+  Layers,
+  ArrowLeft,
+  FileAudio,
+  Headphones,
+  UploadCloud,
+  X,
 } from "lucide-react";
 import {
   KINETIC_STYLES,
@@ -25,8 +48,18 @@ import {
   type KineticStyleDefinition,
 } from "@/lib/captions/kineticStyles";
 import { KineticCaptionLiveRenderer } from "@/components/captions/KineticCaptionLiveRenderer";
+import { AutoCaptionTimeline, CaptionWordItem } from "@/components/dashboard/AutoCaptionTimeline";
+import {
+  AWS_BGM_TRACKS,
+  getBgmTrackAudioUrl,
+  THIRTY_TWO_CAPTION_STYLES,
+  STYLE_PREVIEW_WORDS,
+  renderPreviewCaptionWords,
+  type CaptionStyleItem,
+  type LibraryBgmTrack,
+} from "@/components/dashboard/ImageToVideoStudio";
 
-// Audio Spoken Language Options
+// ── Audio Spoken Language Options ──
 export const AUDIO_SPOKEN_LANGUAGES = [
   { id: "auto", label: "Auto Detect (Recommended)" },
   { id: "hi", label: "Hindi / Hinglish (Spoken)" },
@@ -52,75 +85,51 @@ export const CAPTION_LANGUAGES = [
   { id: "id", label: "Indonesian (Bahasa)" },
 ];
 
-export interface CaptionStyleItem {
-  id: string;
-  name: string;
-  presetKey: string;
-  category: "popular" | "popular bold" | "bold" | "popular minimal" | "minimal";
-  filterCategory: "All" | "Popular" | "Minimal" | "Bold";
+// ── 4-Step Guided Video Studio Roadmap ──
+export const AUTO_CAPTION_STEPS = [
+  { step: 1, title: "Upload", desc: "Video & Audio" },
+  { step: 2, title: "Music", desc: "Soundtrack & Volume" },
+  { step: 3, title: "Style", desc: "Captions & Kinetics" },
+  { step: 4, title: "Preview", desc: "Studio Monitor & Timeline" },
+] as const;
+
+// 32 Sound Wave visualizer bars
+const WAVE_BARS = [
+  25, 45, 65, 30, 85, 95, 40, 70, 55, 80, 100, 60, 45, 90, 75, 35,
+  60, 85, 50, 95, 70, 40, 65, 80, 55, 90, 45, 70, 85, 35, 60, 40
+];
+
+function generateSrt(words: Array<{ text: string; start: number; end: number }>): string {
+  if (!words || words.length === 0) return '';
+  const chunks: Array<{ start: number; end: number; text: string }> = [];
+  const CHUNK_SIZE = 4;
+  for (let i = 0; i < words.length; i += CHUNK_SIZE) {
+    const slice = words.slice(i, i + CHUNK_SIZE);
+    chunks.push({
+      start: slice[0].start,
+      end: slice[slice.length - 1].end,
+      text: slice.map(w => w.text).join(' '),
+    });
+  }
+
+  const formatSrtTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const ms = Math.floor((seconds % 1) * 1000);
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')},${ms.toString().padStart(3, '0')}`;
+  };
+
+  return chunks.map((c, idx) => {
+    return `${idx + 1}\n${formatSrtTime(c.start)} --> ${formatSrtTime(c.end)}\n${c.text}\n`;
+  }).join('\n');
 }
 
-// Curated Caption Style Names (Matching Reference Screenshot Sequence)
-export const CAPTION_NAME_STYLES: CaptionStyleItem[] = [
-  { id: "pop-word", name: "Pop Word", presetKey: "Pop Word", category: "popular bold", filterCategory: "Bold" },
-  { id: "karaoke-line", name: "Karaoke Line", presetKey: "Karaoke Line", category: "popular", filterCategory: "Popular" },
-  { id: "box-highlight", name: "Box Highlight", presetKey: "Box Highlight", category: "popular bold", filterCategory: "Bold" },
-  { id: "neon-glow", name: "Neon Glow", presetKey: "Neon Glow", category: "bold", filterCategory: "Bold" },
-  { id: "typewriter", name: "Typewriter", presetKey: "Typewriter", category: "minimal", filterCategory: "Minimal" },
-  { id: "slam-headline", name: "Slam Headline", presetKey: "Slam Headline", category: "popular bold", filterCategory: "Bold" },
-  { id: "word-stack", name: "Word Stack", presetKey: "Word Stack", category: "popular", filterCategory: "Popular" },
-  { id: "editorial-mix", name: "Editorial Mix", presetKey: "Editorial Mix", category: "popular minimal", filterCategory: "Minimal" },
-  { id: "pill-highlight", name: "Pill Highlight", presetKey: "Pill Highlight", category: "popular minimal", filterCategory: "Minimal" },
-  { id: "subtitle-classic", name: "Subtitle Classic", presetKey: "Subtitle Classic", category: "minimal", filterCategory: "Minimal" },
-  { id: "highlighter", name: "Highlighter", presetKey: "Highlighter", category: "bold", filterCategory: "Bold" },
-  { id: "underline-track", name: "Underline Track", presetKey: "Underline Track", category: "minimal", filterCategory: "Minimal" },
-  { id: "color-fill", name: "Color Fill", presetKey: "Color Fill", category: "popular", filterCategory: "Popular" },
-  { id: "hormozi-pop", name: "Hormozi Viral Pop", presetKey: "Hormozi Viral Pop", category: "popular bold", filterCategory: "Bold" },
-  { id: "mrbeast-impact", name: "MrBeast Shorts Impact", presetKey: "MrBeast Shorts Impact", category: "popular bold", filterCategory: "Bold" },
-  { id: "solo-word-pop", name: "Solo Word Pop", presetKey: "Solo Word Pop", category: "popular", filterCategory: "Popular" },
-  { id: "crazy-kinetic", name: "Crazy Kinetic", presetKey: "Crazy Kinetic", category: "bold", filterCategory: "Bold" },
-  { id: "submagic-glow", name: "Submagic Glow", presetKey: "Submagic Glow", category: "bold", filterCategory: "Bold" },
-  { id: "simple-clean", name: "Simple Clean", presetKey: "Simple Clean", category: "minimal", filterCategory: "Minimal" },
-  { id: "ali-abdaal", name: "Ali Abdaal Modern", presetKey: "Ali Abdaal Modern", category: "popular minimal", filterCategory: "Minimal" },
-  { id: "doctor-pill", name: "Doctor Pill", presetKey: "Doctor Pill", category: "minimal", filterCategory: "Minimal" },
-  { id: "luxe-serif", name: "Devane Luxury Serif", presetKey: "Devane Luxury Serif", category: "minimal", filterCategory: "Minimal" },
-  { id: "cinema-classic", name: "Cinema Classic", presetKey: "Cinema Classic", category: "minimal", filterCategory: "Minimal" },
-  { id: "podcast-studio", name: "Podcast Studio Master", presetKey: "Podcast Studio Master", category: "popular", filterCategory: "Popular" },
-  { id: "deep-discussion", name: "Deep Discussion", presetKey: "Deep Discussion", category: "minimal", filterCategory: "Minimal" },
-  { id: "discipline-bold", name: "Discipline Bold", presetKey: "Discipline Bold", category: "bold", filterCategory: "Bold" },
-  { id: "red-wipe", name: "Red Wipe Highlight", presetKey: "Red Wipe Highlight", category: "bold", filterCategory: "Bold" },
-  { id: "spark-yellow", name: "Spark Yellow", presetKey: "Spark Yellow", category: "popular bold", filterCategory: "Bold" },
-  { id: "scribble-notes", name: "Scribble Handwritten", presetKey: "Scribble Handwritten", category: "popular", filterCategory: "Popular" },
-  { id: "editorial-dark-gold", name: "Editorial Dark Gold", presetKey: "Editorial Dark Gold", category: "popular minimal", filterCategory: "Minimal" },
-  { id: "gradient-word", name: "Gradient Word", presetKey: "Gradient Word", category: "popular bold", filterCategory: "Bold" },
-  { id: "zoom-punch", name: "Zoom Punch", presetKey: "Zoom Punch", category: "popular bold", filterCategory: "Bold" },
-];
-
-// Curated order for Tab 2 Kinetic matching reference screenshot
-const PREFERRED_KINETIC_ORDER = [
-  "Editorial Mix",
-  "Slam Headline",
-  "Word Stack",
-  "Pop Word",
-  "Gradient Word",
-  "Editorial Dark Gold",
-  "Zoom Punch",
-  "Terminal Typewriter",
-  "Drop Bounce",
-  "Marker Tag",
-  "Glitch",
-  "Flip Card",
-  "Blur Reveal",
-  "Spin In",
-  "Outline Only",
-  "Serif Italic",
-  "Retro Shadow",
-  "Sticker",
-  "3D Extrude",
-  "Terminal Tag",
-  "Heartbeat",
-  "Underline Swipe",
-];
+function generateVtt(words: Array<{ text: string; start: number; end: number }>): string {
+  if (!words || words.length === 0) return 'WEBVTT\n\n';
+  const srt = generateSrt(words);
+  return 'WEBVTT\n\n' + srt.replace(/,/g, '.');
+}
 
 export interface AutoCaptionDualTabStudioProps {
   selectedFile: File | null;
@@ -141,6 +150,10 @@ export interface AutoCaptionDualTabStudioProps {
   onRemoveAiWatermarkChange?: (enabled: boolean) => void;
   canvasBackgroundColor?: string;
   onCanvasBackgroundColorChange?: (color: string) => void;
+  selectedBgmTrack?: any;
+  onSelectBgmTrack?: (track: any) => void;
+  bgmVolume?: number;
+  onChangeBgmVolume?: (volume: number) => void;
 }
 
 export function AutoCaptionDualTabStudio({
@@ -162,7 +175,13 @@ export function AutoCaptionDualTabStudio({
   onRemoveAiWatermarkChange,
   canvasBackgroundColor = "#070B14",
   onCanvasBackgroundColorChange,
+  bgmVolume: propBgmVolume = 0.15,
+  onChangeBgmVolume,
 }: AutoCaptionDualTabStudioProps) {
+  // ── 4-Step Guided Video Studio State (Unified with ImageToVideoStudio) ──
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+
+  // Studio Settings
   const [localSpokenLang, setLocalSpokenLang] = useState<string>("auto");
   const [localCaptionLang, setLocalCaptionLang] = useState<string>("same");
   const [isHeroDragging, setIsHeroDragging] = useState(false);
@@ -172,101 +191,197 @@ export function AutoCaptionDualTabStudio({
   const handleSpokenLangChange = onSpokenLanguageChange || setLocalSpokenLang;
   const handleCaptionLangChange = onCaptionLanguageChange || setLocalCaptionLang;
 
-  // Top 2-Part Tab: "captions" (Names Only) | "kinetic" (With Videos)
-  const [activeTab, setActiveTab] = useState<"captions" | "kinetic">(() => {
-    return isKineticCaptionStyle(captionStyle) ? "kinetic" : "captions";
-  });
+  // Step 2 Audio & Music States
+  const [selectedBgmId, setSelectedBgmId] = useState<string>("parasail");
+  const [localBgmVolume, setLocalBgmVolume] = useState<number>(propBgmVolume);
+  const currentBgmVolume = onChangeBgmVolume ? propBgmVolume : localBgmVolume;
+  const handleBgmVolumeChange = (vol: number) => {
+    setLocalBgmVolume(vol);
+    if (onChangeBgmVolume) onChangeBgmVolume(vol);
+  };
 
-  // Captions Tab Filters & Search
-  const [captionFilter, setCaptionFilter] = useState<"All" | "Popular" | "Minimal" | "Bold">("All");
+  const [bgmCategory, setBgmCategory] = useState<string>("All");
+  const [playingBgmId, setPlayingBgmId] = useState<string | null>(null);
+  const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [wordClickSound, setWordClickSound] = useState<boolean>(true);
+  const [autoDucking, setAutoDucking] = useState<boolean>(true);
+  const [audioCleaningEnabled, setAudioCleaningEnabled] = useState<boolean>(true);
+
+  // Step 3 Captions Filter & Search
+  const [captionCategory, setCaptionCategory] = useState<string>("All");
   const [captionSearch, setCaptionSearch] = useState<string>("");
+  const [hoveredStyleId, setHoveredStyleId] = useState<string | null>(null);
+  const [previewWordStep, setPreviewWordStep] = useState<number>(0);
 
-  // Kinetic Tab Filters
-  const [kineticTag, setKineticTag] = useState<string>("All");
-  const [kineticVideoType, setKineticVideoType] = useState<string>("walking");
-  const [hoveredKineticId, setHoveredKineticId] = useState<string | null>(null);
+  // Step 4 Inspector & Playback Controls
+  const [captionPosition, setCaptionPosition] = useState<"top" | "center" | "bottom">("bottom");
+  const [accentColor, setAccentColor] = useState<string>("#FFE14D");
+  const [captionFontSize, setCaptionFontSize] = useState<"small" | "medium" | "large">("medium");
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [playbackTime, setPlaybackTime] = useState<number>(1.2);
+  const [showWordReplacer, setShowWordReplacer] = useState<boolean>(false);
 
-  // Transcript Accordion
-  const [showTranscript, setShowTranscript] = useState<boolean>(false);
-
-  // Hidden File Input for Replace Button
+  // Hidden File Inputs & Refs
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const audioInputRef = useRef<HTMLInputElement | null>(null);
+  const videoPlayerRef = useRef<HTMLVideoElement | null>(null);
+
   const [localCanvasBg, setLocalCanvasBg] = useState<string>(canvasBackgroundColor || "#070B14");
   const canvasBg = canvasBackgroundColor || localCanvasBg;
   const handleCanvasBgChange = onCanvasBackgroundColorChange || setLocalCanvasBg;
-  const isAudioFile = Boolean(selectedFile && (selectedFile.type.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(selectedFile.name)));
 
-  // Looping Playback Timer for Live Previews (0s -> 6s)
-  const [playbackTime, setPlaybackTime] = useState<number>(1.2);
+  const isAudioFile = Boolean(
+    selectedFile &&
+    (selectedFile.type.startsWith("audio/") ||
+      /\.(mp3|wav|m4a|aac|ogg|flac)$/i.test(selectedFile.name))
+  );
+
+  // Real Blob URL for user's uploaded video or fallback to sample
+  const filePreviewUrl = useMemo(() => {
+    if (!selectedFile) return "/visuals/homepage/autocaption.mp4";
+    if (isAudioFile) return "";
+    try {
+      return URL.createObjectURL(selectedFile);
+    } catch {
+      return "/visuals/homepage/autocaption.mp4";
+    }
+  }, [selectedFile, isAudioFile]);
+
+  // Clean up object URL on change/unmount
   useEffect(() => {
+    return () => {
+      if (filePreviewUrl && filePreviewUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(filePreviewUrl);
+      }
+    };
+  }, [filePreviewUrl]);
+
+  // Total Duration
+  const totalDuration = mediaDurationSeconds > 0 ? mediaDurationSeconds : 32;
+
+  // Real-time Playback Loop for Monitor
+  useEffect(() => {
+    if (!isPlaying) return;
     let animId: number;
     let lastTime = performance.now();
     const loop = (now: number) => {
       const dt = (now - lastTime) / 1000;
       lastTime = now;
-      setPlaybackTime((prev) => (prev + dt > 6 ? 0 : prev + dt));
+      setPlaybackTime((prev) => {
+        const next = prev + dt;
+        return next > totalDuration ? 0 : next;
+      });
       animId = requestAnimationFrame(loop);
     };
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
+  }, [isPlaying, totalDuration]);
+
+  // Periodic Word Animation Loop for Caption Cards (Step 3)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPreviewWordStep((prev) => (prev + 1) % 3);
+    }, 700);
+    return () => clearInterval(timer);
   }, []);
 
-  // Filtered Captions (Tab 1)
-  const filteredCaptions = useMemo(() => {
-    return CAPTION_NAME_STYLES.filter((item) => {
-      if (captionFilter !== "All" && item.filterCategory !== captionFilter) {
+  // Sync Video Element with Playback Time
+  useEffect(() => {
+    if (videoPlayerRef.current && isPlaying) {
+      if (videoPlayerRef.current.paused) {
+        videoPlayerRef.current.play().catch(() => { });
+      }
+    } else if (videoPlayerRef.current && !isPlaying) {
+      videoPlayerRef.current.pause();
+    }
+  }, [isPlaying]);
+
+  // Background Music Audition Player
+  const handleTogglePlayBgm = (track: LibraryBgmTrack) => {
+    if (track.id === "none") {
+      if (bgmAudioRef.current) {
+        bgmAudioRef.current.pause();
+      }
+      setPlayingBgmId(null);
+      setSelectedBgmId("none");
+      return;
+    }
+
+    if (playingBgmId === track.id) {
+      if (bgmAudioRef.current) {
+        bgmAudioRef.current.pause();
+      }
+      setPlayingBgmId(null);
+    } else {
+      if (bgmAudioRef.current) {
+        bgmAudioRef.current.pause();
+      }
+      const audioUrl = getBgmTrackAudioUrl(track.path);
+      const audio = new Audio(audioUrl);
+      audio.volume = currentBgmVolume;
+      audio.onended = () => setPlayingBgmId(null);
+      audio.play().catch((e) => console.warn("Audio playback failed:", e));
+      bgmAudioRef.current = audio;
+      setPlayingBgmId(track.id);
+      setSelectedBgmId(track.id);
+    }
+  };
+
+  // Clean up BGM audio on unmount
+  useEffect(() => {
+    return () => {
+      if (bgmAudioRef.current) {
+        bgmAudioRef.current.pause();
+      }
+    };
+  }, []);
+
+  // Filtered BGM Tracks
+  const filteredBgmTracks = useMemo(() => {
+    return AWS_BGM_TRACKS.filter((track) => {
+      if (bgmCategory !== "All" && track.category !== bgmCategory) {
+        return false;
+      }
+      return true;
+    });
+  }, [bgmCategory]);
+
+  // Filtered Caption Styles (from 32 Master Styles)
+  const filteredCaptionStyles = useMemo(() => {
+    return THIRTY_TWO_CAPTION_STYLES.filter((style) => {
+      if (captionCategory !== "All" && style.category !== captionCategory) {
         return false;
       }
       if (captionSearch.trim()) {
         const q = captionSearch.toLowerCase().trim();
-        return item.name.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
+        return (
+          style.name.toLowerCase().includes(q) ||
+          (style.desc && style.desc.toLowerCase().includes(q)) ||
+          (style.category && style.category.toLowerCase().includes(q))
+        );
       }
       return true;
     });
-  }, [captionFilter, captionSearch]);
+  }, [captionCategory, captionSearch]);
 
-  // Filtered Kinetic Styles (Tab 2) sorted to match reference screenshot
-  const filteredKineticStyles = useMemo(() => {
-    let list = [...KINETIC_STYLES];
-    // Sort so preferred order comes first
-    list.sort((a, b) => {
-      const idxA = PREFERRED_KINETIC_ORDER.indexOf(a.name);
-      const idxB = PREFERRED_KINETIC_ORDER.indexOf(b.name);
-      if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-      if (idxA !== -1) return -1;
-      if (idxB !== -1) return 1;
-      return a.index - b.index;
-    });
-
-    if (kineticTag === "All") return list;
-    if (kineticTag === "Walking") return list.filter((s) => s.layout === "o" || s.layout === "e");
-    if (kineticTag === "Sitting") return list.filter((s) => s.layout === "l" || s.layout === "e" || s.layout === "s");
-    if (kineticTag === "Podcast") return list.filter((s) => s.layout === "s" || s.layout === "t");
-    if (kineticTag === "Motivational") return list.filter((s) => s.layout === "o" || s.layout === "s");
-    return list;
-  }, [kineticTag]);
-
-  // Auto-pick recommendation
-  const handleAutoPick = () => {
-    const popularPicks = ["Editorial Mix", "Slam Headline", "Word Stack", "Zoom Punch", "Pop Word", "Gradient Word"];
-    const randomPick = popularPicks[Math.floor(Math.random() * popularPicks.length)];
-    onCaptionStyleChange(randomPick);
-  };
-
-  // Video status display text
+  // Video info display text
   const videoFileName = selectedFile?.name || "sample_walking.mp4";
-  const videoDurationText = mediaDurationSeconds > 0
-    ? `0:${Math.round(mediaDurationSeconds).toString().padStart(2, "0")}`
-    : "0:32";
+  const videoDurationText =
+    mediaDurationSeconds > 0
+      ? `0:${Math.round(mediaDurationSeconds).toString().padStart(2, "0")}`
+      : "0:32";
 
-  // Demo words for live phone preview
-  const demoWords = useMemo(() => {
+  // Demo words for live phone preview & timeline
+  const demoWords: CaptionWordItem[] = useMemo(() => {
     if (previewCaptions && previewCaptions.length > 0) {
-      const flattened: any[] = [];
+      const flattened: CaptionWordItem[] = [];
       previewCaptions.forEach((c) => {
         if (c.words && c.words.length > 0) {
-          flattened.push(...c.words);
+          c.words.forEach((w: any) => {
+            flattened.push({ word: w.word || w.text, start: w.start, end: w.end });
+          });
         } else {
           flattened.push({ word: c.text, start: c.start, end: c.end });
         }
@@ -278,861 +393,1309 @@ export function AutoCaptionDualTabStudio({
       { word: "stopped", start: 0.4, end: 0.9 },
       { word: "waiting", start: 0.9, end: 1.5 },
       { word: "for", start: 1.5, end: 1.9 },
-      { word: "perfect.", start: 1.9, end: 3.2, isKeyword: true },
+      { word: "perfect.", start: 1.9, end: 3.2 },
       { word: "And", start: 3.2, end: 3.5 },
       { word: "started", start: 3.5, end: 4.1 },
-      { word: "building", start: 4.1, end: 4.8, isKeyword: true },
+      { word: "building", start: 4.1, end: 4.8 },
       { word: "now.", start: 4.8, end: 5.8 },
     ];
   }, [previewCaptions]);
 
-  // Brand purple color definition
-  const BRAND_PURPLE = "#0066FF";
+  // Format seconds into MM:SS
+  const formatTime = (sec: number) => {
+    if (isNaN(sec) || sec < 0) return "0:00";
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  };
+
+  const handleDownloadSubtitles = (format: 'srt' | 'vtt') => {
+    try {
+      const content = format === 'srt' ? generateSrt(demoWords) : generateVtt(demoWords);
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, '') : 'subtitles'}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.warn('Failed to download subtitles:', err);
+    }
+  };
 
   return (
-    <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-4 font-sans select-none">
-      {/* Hidden File Input for Replace / Upload */}
+    <div className="h-full w-full flex flex-col overflow-hidden bg-white text-slate-900 select-text font-sans">
+      {/* Hidden File Inputs */}
       <input
         ref={fileInputRef}
         type="file"
         accept="video/*,audio/*"
         className="hidden"
         onChange={(e) => {
-          if (e.target.files?.[0]) {
-            onSelectFile(e.target.files[0]);
-          }
+          if (e.target.files?.[0]) onSelectFile(e.target.files[0]);
           e.currentTarget.value = "";
         }}
       />
-
-      {/* Hidden Audio File Input */}
       <input
         ref={audioInputRef}
         type="file"
         accept="audio/*,.mp3,.wav,.m4a,.aac"
         className="hidden"
         onChange={(e) => {
-          if (e.target.files?.[0]) {
-            onSelectFile(e.target.files[0]);
-          }
+          if (e.target.files?.[0]) onSelectFile(e.target.files[0]);
           e.currentTarget.value = "";
         }}
       />
 
-      {/* Top Header: Breadcrumbs + Title + Subtitle */}
-      <div>
-        <div className="text-xs text-slate-500 mb-0.5">
-          <Link href="/dashboard" className="hover:text-slate-800 transition">Video Types</Link>
-          <span className="mx-1.5 text-slate-400">&gt;</span>
-          <span className="text-slate-700 font-semibold">Auto Captions</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-jakarta">
-          Auto Captions
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium">
-          Upload your video or use a sample clip, then compare kinetic styles and download your 1080p reel.
-        </p>
-      </div>
-
-      {/* ── BIG HERO UPLOAD SECTION AT TOP (Generous space, clean & premium) ── */}
-      <section className="w-full rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 shadow-sm space-y-6 transition-all">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-100">
-          <div>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 font-jakarta flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100 text-[#0066FF] text-xs font-black">
-                1
-              </span>
-              <span>Upload Video or Try Sample Clip</span>
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-              Upload your video or audio to automatically generate styled kinetic captions with Groq Whisper AI.
-            </p>
-          </div>
-          {selectedFile && (
-            <span className="inline-flex items-center gap-1.5 self-start sm:self-auto rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold text-emerald-700 shadow-2xs">
-              <CheckCircle2 size={13} className="text-emerald-600" />
-              Active Media Loaded
-            </span>
-          )}
-        </div>
-
-        {/* Upload Dropzone or Active Media Card */}
-        {!selectedFile ? (
-          <div
-            onClick={() => !isWorking && fileInputRef.current?.click()}
-            onDragOver={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsHeroDragging(true);
-            }}
-            onDragLeave={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsHeroDragging(false);
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setIsHeroDragging(false);
-              if (e.dataTransfer.files?.[0]) onSelectFile(e.dataTransfer.files[0]);
-            }}
-            className={`relative flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-8 sm:p-12 text-center transition-all cursor-pointer group ${
-              isHeroDragging
-                ? "border-[#0066FF] bg-blue-50/70 scale-[1.005]"
-                : "border-slate-300/80 bg-slate-50/60 hover:bg-blue-50/30 hover:border-[#0066FF]/60"
-            }`}
-          >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 text-[#0066FF] group-hover:scale-110 transition-transform shadow-sm">
-              <Upload size={28} />
+      {/* ========================================================================= */}
+      {/* ROW 1: HEADER & STEPPER NAVIGATION BAR (Fixed height, no page scroll)     */}
+      {/* ========================================================================= */}
+      <header className="shrink-0 border-b border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3.5 z-20">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          {/* Left: Studio Branding & Title */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0066FF] to-blue-600 text-white shadow-md shadow-blue-500/20">
+              <Sparkles size={20} className="stroke-[2.5]" />
             </div>
-
-            <div className="space-y-1">
-              <p className="text-base sm:text-lg font-black text-slate-900 font-jakarta">
-                Click or drag video here
-              </p>
-              <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                MP4, MOV, Audio • Max 90s • 9:16 Vertical Recommended
-              </p>
-            </div>
-
-            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
-                }}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-xs font-bold text-white px-4 py-2.5 transition shadow-sm hover:brightness-105 active:scale-95 cursor-pointer"
-              >
-                <Film size={14} />
-                <span>Upload 9:16 Video</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  audioInputRef.current?.click();
-                }}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 px-4 py-2.5 transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <Mic size={14} className="text-[#0066FF]" />
-                <span>Upload Audio / Voiceover</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    const res = await fetch("/assets/reusable/testing1.mp3");
-                    const blob = await res.blob();
-                    const sampleFile = new File([blob], "sample_walking.mp4", { type: "audio/mpeg" });
-                    onSelectFile(sampleFile);
-                  } catch (err) {
-                    console.warn("Could not load sample audio:", err);
-                  }
-                }}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-xs font-bold text-[#0066FF] px-3.5 py-2.5 transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <Sparkles size={13} />
-                <span>Sample Clip</span>
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="relative rounded-2xl border border-slate-200 bg-slate-50/80 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-            <div className="flex items-center gap-4 min-w-0">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-[#0066FF] shrink-0 shadow-xs">
-                {isAudioFile ? <Mic size={26} /> : <FileVideo size={26} />}
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-sans">
+                  Auto Caption{" "}
+                  <span className="bg-gradient-to-r from-[#0066FF] to-blue-600 bg-clip-text text-transparent">
+                    AI Studio
+                  </span>
+                </h1>
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-mono font-bold uppercase tracking-wider">
+                  9:16 Shorts
+                </span>
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-base font-black text-slate-900 truncate font-jakarta">
-                    {selectedFile.name}
-                  </p>
-                  {isAudioFile && (
-                    <span className="rounded-md bg-blue-100 text-[#0066FF] font-black text-[10px] px-2 py-0.5 uppercase">
-                      Voiceover Audio
-                    </span>
+              <p className="text-[11px] text-slate-500 hidden md:block">
+                4-Step Guided Video Studio · Speech transcription, soundtrack, kinetic captions &amp; live timeline
+              </p>
+            </div>
+          </div>
+
+          {/* Center: Desktop Stepper (>=1024px) */}
+          <nav aria-label="Studio Steps" className="hidden lg:flex items-center gap-2 lg:gap-3">
+            {AUTO_CAPTION_STEPS.map((s, idx) => {
+              const isCompleted = s.step < currentStep;
+              const isActive = s.step === currentStep;
+
+              return (
+                <React.Fragment key={s.step}>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(s.step)}
+                    className="group flex items-center gap-2 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer hover:bg-slate-50/80 active:scale-98"
+                  >
+                    {/* Circle - Green for completed, Blue for active, Slate for upcoming */}
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all ${isCompleted
+                          ? "bg-emerald-500 text-white shadow-xs shadow-emerald-500/25 ring-2 ring-emerald-500/20"
+                          : isActive
+                            ? "bg-white border-2 border-[#0066FF] text-[#0066FF] shadow-[0_0_0_4px_rgba(0,102,255,0.14)] font-black"
+                            : "bg-slate-100 border border-slate-200 text-slate-400 group-hover:border-slate-300"
+                        }`}
+                    >
+                      {isCompleted ? <Check size={14} className="stroke-[3]" /> : s.step}
+                    </div>
+
+                    {/* Label */}
+                    <div className="text-left hidden xl:block">
+                      <p
+                        className={`text-xs font-black leading-tight ${isActive
+                            ? "text-slate-900"
+                            : isCompleted
+                              ? "text-emerald-700"
+                              : "text-slate-400"
+                          }`}
+                      >
+                        {s.title}
+                      </p>
+                      <p className="text-[10px] text-slate-400 leading-tight">{s.desc}</p>
+                    </div>
+                  </button>
+
+                  {/* Connecting Line between steps */}
+                  {idx < AUTO_CAPTION_STEPS.length - 1 && (
+                    <div
+                      className={`h-0.5 w-6 lg:w-8 rounded-full transition-colors ${s.step < currentStep ? "bg-emerald-500" : "bg-slate-200"
+                        }`}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </nav>
+
+          {/* Right: Render Rate & Free Badge */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-50/70 px-3 py-1.5 text-right shadow-2xs">
+              <span className="block text-[9px] font-bold uppercase tracking-wider text-emerald-600">
+                Rule 4.1 Policy
+              </span>
+              <span className="text-xs sm:text-sm font-black text-emerald-600">
+                FREE • 5 Daily Videos
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Tablet & Mobile Stepper Bar (<1024px) */}
+        <div className="lg:hidden mt-3 pt-2.5 border-t border-slate-100 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 font-black text-slate-900 truncate">
+              <span className="text-[#0066FF] shrink-0">Step {currentStep} of 4:</span>
+              <span className="truncate">{AUTO_CAPTION_STEPS[currentStep - 1].title}</span>
+              <span className="text-slate-400 font-normal hidden sm:inline">
+                · {AUTO_CAPTION_STEPS[currentStep - 1].desc}
+              </span>
+            </div>
+            {currentStep > 1 && (
+              <button
+                type="button"
+                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1) as 1 | 2 | 3 | 4))}
+                className="text-[11px] font-bold text-[#0066FF] hover:text-blue-700 cursor-pointer shrink-0 ml-2"
+              >
+                ← Back
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 w-full">
+            {AUTO_CAPTION_STEPS.map((s) => {
+              const isDone = s.step < currentStep;
+              const isCurrent = s.step === currentStep;
+              return (
+                <div
+                  key={s.step}
+                  onClick={() => setCurrentStep(s.step)}
+                  className={`h-1.5 flex-1 rounded-full transition-all cursor-pointer hover:opacity-80 ${isDone
+                      ? "bg-emerald-500 shadow-xs"
+                      : isCurrent
+                        ? "bg-gradient-to-r from-[#0066FF] to-blue-500 shadow-xs"
+                        : "bg-slate-200"
+                    }`}
+                  title={`Step ${s.step}: ${s.title}`}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      {/* ========================================================================= */}
+      {/* ROW 2: ACTIVE STEP CONTENT REGION (Internal scroll with smooth clearance)  */}
+      {/* ========================================================================= */}
+      <main className="flex-1 overflow-y-auto overscroll-contain scroll-smooth px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 sm:pb-32 w-full">
+        {/* ======================================================================= */}
+        {/* STEP 1: UPLOAD (Video or Spoken Audio)                                  */}
+        {/* ======================================================================= */}
+        {currentStep === 1 && (
+          <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                1. Upload your video or audio
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Upload your 9:16 vertical video or voiceover speech to calculate word-level timestamps and auto-sync kinetic captions.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Main Media Upload Card (Col 8) */}
+              <div className="lg:col-span-8 space-y-4">
+                <div className="rounded-[28px] sm:rounded-[32px] border-2 border-blue-500/30 bg-gradient-to-b from-blue-50/20 via-white to-white p-4 sm:p-8 shadow-sm space-y-4 sm:space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-[#0066FF] text-white shadow-md shadow-blue-500/25 shrink-0">
+                        {isAudioFile ? <Mic size={20} className="stroke-[2.5]" /> : <Film size={20} className="stroke-[2.5]" />}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
+                            Primary Media Input
+                          </h2>
+                          <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">
+                            Required
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {isAudioFile ? "Spoken narration voiceover audio" : "9:16 Shorts or vertical video"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {selectedFile && (
+                      <span className="inline-flex items-center self-start sm:self-auto gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-mono font-bold shadow-xs">
+                        <Check size={13} className="stroke-[3]" />
+                        <span>{videoDurationText} · FREE (0 Cr)</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Big Prominent Dropzone */}
+                  {!selectedFile ? (
+                    <div
+                      onClick={() => !isWorking && fileInputRef.current?.click()}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsHeroDragging(true);
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        setIsHeroDragging(false);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsHeroDragging(false);
+                        if (e.dataTransfer.files?.[0]) onSelectFile(e.dataTransfer.files[0]);
+                      }}
+                      className={`group relative flex flex-col items-center justify-center rounded-[24px] sm:rounded-[28px] border-2 border-dashed min-h-[200px] sm:min-h-[240px] p-5 sm:p-10 text-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${isHeroDragging
+                          ? "border-[#0066FF] bg-blue-50/70 scale-[1.005]"
+                          : "border-blue-300 hover:border-[#0066FF] bg-white hover:bg-blue-50/40"
+                        }`}
+                    >
+                      <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-blue-100 group-hover:bg-[#0066FF] text-[#0066FF] group-hover:text-white transition-all duration-200 shadow-sm mb-3 sm:mb-4">
+                        <UploadCloud size={28} className="stroke-[2.5]" />
+                      </div>
+
+                      <p className="text-sm sm:text-lg font-black text-slate-900 mb-1">
+                        Drop your 9:16 video or voiceover here, or{" "}
+                        <span className="text-[#0066FF] underline underline-offset-4">Browse File</span>
+                      </p>
+
+                      <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm leading-relaxed mb-3 sm:mb-4">
+                        Supports MP4, MOV, WEBM, MP3, WAV · Max 90s Duration · Fast Cloud Speech Sync
+                      </p>
+
+                      <div className="flex flex-wrap items-center justify-center gap-2.5">
+                        <div className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-black text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition shadow-sm">
+                          <Film size={14} />
+                          <span>Select 9:16 Video</span>
+                        </div>
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            audioInputRef.current?.click();
+                          }}
+                          className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 px-4 py-2 sm:py-2.5 text-xs font-bold transition shadow-2xs"
+                        >
+                          <Mic size={14} className="text-[#0066FF]" />
+                          <span>Select Audio Voiceover</span>
+                        </div>
+                        <div
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              const res = await fetch("/assets/reusable/testing1.mp3");
+                              const blob = await res.blob();
+                              const sampleFile = new File([blob], "sample_walking.mp4", {
+                                type: "audio/mpeg",
+                              });
+                              onSelectFile(sampleFile);
+                            } catch (err) {
+                              console.warn("Could not load sample audio:", err);
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-xs font-bold text-[#0066FF] px-3.5 py-2 sm:py-2.5 transition shadow-2xs"
+                        >
+                          <Sparkles size={13} />
+                          <span>Try Sample Clip</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl sm:rounded-3xl border-2 border-blue-300/80 bg-gradient-to-b from-blue-50/40 via-white to-white p-4 sm:p-6 shadow-xs space-y-4">
+                      {/* Top Row: File Info & Actions */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0066FF] to-blue-600 text-white shadow-md shadow-blue-500/25">
+                            {isAudioFile ? <Headphones size={22} className="stroke-[2.5]" /> : <FileVideo size={22} className="stroke-[2.5]" />}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-black text-slate-900 truncate max-w-[200px] sm:max-w-xs">
+                                {selectedFile.name}
+                              </p>
+                              <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider shrink-0">
+                                Verified
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {(selectedFile.size / 1024 / 1024).toFixed(2)} MB · Duration:{" "}
+                              <strong className="text-slate-900 font-bold">{videoDurationText}</strong> · 9:16 Vertical
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer shadow-xs"
+                          >
+                            Replace File
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onSelectFile(null)}
+                            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer shadow-xs"
+                            title="Remove file"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Custom Audio Waveform Visualizer */}
+                      <div className="space-y-2 pt-2">
+                        <div
+                          className="relative flex items-center justify-between gap-0.5 sm:gap-1 h-14 sm:h-16 w-full px-2.5 sm:px-3 py-2 rounded-2xl bg-slate-50/80 border border-slate-200/80 select-none shadow-inner"
+                        >
+                          {WAVE_BARS.map((barHeight, idx) => {
+                            const totalBars = WAVE_BARS.length;
+                            const barPct = (idx / (totalBars - 1)) * 100;
+                            const currentPct = (playbackTime / totalDuration) * 100;
+                            const isPlayed = barPct <= currentPct;
+                            return (
+                              <div key={idx} className="flex-1 flex items-center justify-center h-full">
+                                <div
+                                  style={{ height: `${barHeight}%` }}
+                                  className={`w-full max-w-[4px] sm:max-w-[6px] rounded-full transition-all duration-150 ${isPlayed
+                                      ? "bg-gradient-to-t from-[#0066FF] to-blue-400 shadow-2xs"
+                                      : "bg-slate-200"
+                                    }`}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* AI Speech Transcription Status Banner */}
+                      <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2.5 text-emerald-900 font-bold min-w-0">
+                          <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                          <span className="truncate">
+                            Speech Transcribed &amp; Synced (Groq Whisper Cloud AI)
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-md shrink-0">
+                          30 FPS Millisecond Sync
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-medium mt-1">
-                  <span>{(selectedFile.size / (1024 * 1024)).toFixed(1)} MB</span>
-                  <span>•</span>
-                  <span>{videoDurationText} Duration</span>
-                  <span>•</span>
-                  <span className="text-emerald-700 font-bold">
-                    {isAudioFile ? "Canvas Ready" : "9:16 Video Ready"}
-                  </span>
+              </div>
+
+              {/* Sidebar Language & Canvas Settings (Col 4) */}
+              <div className="lg:col-span-4 space-y-4">
+                <div className="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                    <Settings2 size={16} className="text-[#0066FF]" />
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                      Language &amp; Canvas Options
+                    </h3>
+                  </div>
+
+                  {/* Spoken Language */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <Globe size={13} className="text-[#0066FF]" />
+                      <span>Audio Spoken Language</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={currentSpokenLang}
+                        onChange={(e) => handleSpokenLangChange(e.target.value)}
+                        className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0066FF] focus:outline-none transition cursor-pointer shadow-2xs pr-8"
+                      >
+                        {AUDIO_SPOKEN_LANGUAGES.map((lang) => (
+                          <option key={lang.id} value={lang.id}>
+                            {lang.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Caption Language */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <Sparkles size={13} className="text-[#0066FF]" />
+                      <span>Caption Output Language</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={currentCaptionLang}
+                        onChange={(e) => handleCaptionLangChange(e.target.value)}
+                        className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0066FF] focus:outline-none transition cursor-pointer shadow-2xs pr-8"
+                      >
+                        {CAPTION_LANGUAGES.map((lang) => (
+                          <option key={lang.id} value={lang.id}>
+                            {lang.label}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Canvas Background Color */}
+                  <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <span>🎨</span>
+                        <span>Canvas Color</span>
+                      </label>
+                      <span className="text-[10px] font-mono text-slate-500 uppercase">{canvasBg}</span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[
+                        { label: "Obsidian", color: "#000000" },
+                        { label: "Dark", color: "#070B14" },
+                        { label: "Navy", color: "#0F172A" },
+                        { label: "Slate", color: "#18181B" },
+                        { label: "Emerald", color: "#064E3B" },
+                        { label: "Crimson", color: "#4C0519" },
+                        { label: "Violet", color: "#2E1065" },
+                        { label: "White", color: "#FFFFFF" },
+                      ].map((preset) => (
+                        <button
+                          key={preset.color}
+                          type="button"
+                          onClick={() => handleCanvasBgChange(preset.color)}
+                          className={`flex items-center gap-1 rounded-lg border p-1.5 text-[10px] font-bold transition shadow-2xs cursor-pointer ${canvasBg.toLowerCase() === preset.color.toLowerCase()
+                              ? "border-[#0066FF] ring-2 ring-[#0066FF]/30 scale-105"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                            }`}
+                        >
+                          <span
+                            className="h-2.5 w-2.5 rounded-full border border-black/20 shrink-0"
+                            style={{ backgroundColor: preset.color }}
+                          />
+                          <span className="truncate text-slate-700">{preset.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+            {/* Step 1 Continue Bar */}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+              <p className="text-xs text-slate-500 font-medium">
+                Step 1 of 4 completed · Next: Select background music and sound effects.
+              </p>
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 transition shadow-xs cursor-pointer hover:border-slate-300"
+                onClick={() => setCurrentStep(2)}
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] to-blue-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-blue-500/20 transition cursor-pointer"
               >
-                Replace Video
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    const res = await fetch("/assets/reusable/testing1.mp3");
-                    const blob = await res.blob();
-                    const sampleFile = new File([blob], "sample_walking.mp4", { type: "audio/mpeg" });
-                    onSelectFile(sampleFile);
-                  } catch (err) {
-                    console.warn("Could not load sample audio:", err);
-                  }
-                }}
-                className="rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 px-3.5 py-2 text-xs font-bold text-[#0066FF] transition shadow-xs cursor-pointer"
-              >
-                Use Sample Clip
+                <span>Continue to Step 2: Music &amp; Audio</span>
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>
         )}
 
-        {/* Language Selection Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-          {/* Spoken Language Dropdown */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <Globe size={13} className="text-[#0066FF]" />
-              <span>Audio Spoken</span>
-            </label>
-            <div className="relative">
-              <select
-                value={currentSpokenLang}
-                onChange={(e) => handleSpokenLangChange(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0066FF] focus:outline-none transition cursor-pointer shadow-2xs pr-8"
-              >
-                {AUDIO_SPOKEN_LANGUAGES.map((lang) => (
-                  <option key={lang.id} value={lang.id}>
-                    {lang.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+        {/* ======================================================================= */}
+        {/* STEP 2: MUSIC & AUDIO (SOUNDTRACK & VOLUME)                             */}
+        {/* ======================================================================= */}
+        {currentStep === 2 && (
+          <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                2. Background Soundtrack &amp; Audio Effects
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Choose a royalty-free backing track, calibrate voiceover auto-ducking, and enable kinetic word-pop sounds.
+              </p>
             </div>
-          </div>
 
-          {/* Caption Output Language Dropdown */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-              <Sparkles size={13} className="text-[#0066FF]" />
-              <span>Caption Language</span>
-            </label>
-            <div className="relative">
-              <select
-                value={currentCaptionLang}
-                onChange={(e) => handleCaptionLangChange(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0066FF] focus:outline-none transition cursor-pointer shadow-2xs pr-8"
-              >
-                {CAPTION_LANGUAGES.map((lang) => (
-                  <option key={lang.id} value={lang.id}>
-                    {lang.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-
-        {/* Canvas Background Color Section (Custom Color & Presets for Audio reels and Backing) */}
-        <div className="space-y-2 pt-2 border-t border-slate-100">
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-100 text-[#0066FF] text-[10px]">🎨</span>
-              <span>Canvas Background Color</span>
-              {isAudioFile && (
-                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
-                  Audio Reel Active
-                </span>
+            {/* Category Filter Pills for BGM */}
+            <div className="flex flex-wrap items-center gap-2">
+              {["All", "Lo-Fi", "Piano", "Upbeat", "Cinematic", "Chill", "Beats", "Lounge", "Acoustic", "Zen", "Mute"].map(
+                (cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setBgmCategory(cat)}
+                    className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${bgmCategory === cat
+                        ? "bg-[#0066FF] text-white shadow-xs"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                  >
+                    {cat}
+                  </button>
+                )
               )}
-            </label>
-            <span className="text-[11px] font-mono text-slate-500 uppercase">{canvasBg}</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {[
-              { label: "Obsidian", color: "#000000" },
-              { label: "Dark Obsidian", color: "#070B14" },
-              { label: "Studio Navy", color: "#0F172A" },
-              { label: "Slate", color: "#18181B" },
-              { label: "Emerald", color: "#064E3B" },
-              { label: "Crimson", color: "#4C0519" },
-              { label: "Amber", color: "#451A03" },
-              { label: "Violet", color: "#2E1065" },
-              { label: "White", color: "#FFFFFF" },
-            ].map((preset) => (
-              <button
-                key={preset.color}
-                type="button"
-                onClick={() => handleCanvasBgChange(preset.color)}
-                className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition shadow-2xs cursor-pointer ${
-                  canvasBg.toLowerCase() === preset.color.toLowerCase()
-                    ? "border-[#0066FF] ring-2 ring-[#0066FF]/30 scale-105"
-                    : "border-slate-200 bg-white hover:border-slate-300"
-                }`}
-              >
-                <span
-                  className="h-3.5 w-3.5 rounded-full border border-black/20 shrink-0"
-                  style={{ backgroundColor: preset.color }}
-                />
-                <span className="text-slate-700">{preset.label}</span>
-              </button>
-            ))}
-
-            <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1 shadow-2xs">
-              <input
-                type="color"
-                value={canvasBg.startsWith("#") && canvasBg.length === 7 ? canvasBg : "#070B14"}
-                onChange={(e) => handleCanvasBgChange(e.target.value)}
-                className="h-5 w-5 rounded border-0 p-0 cursor-pointer bg-transparent"
-                title="Custom Color Picker"
-              />
-              <span className="text-[11px] font-bold text-slate-600">Custom</span>
             </div>
-          </div>
-        </div>
 
-        {/* Feature Badges Footer */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-100 text-center">
-          <div className="py-2.5 px-3 rounded-xl bg-slate-50/90 border border-slate-100">
-            <p className="text-xs font-black text-slate-800">Fast Transcription</p>
-            <p className="text-[11px] text-slate-500 font-medium">Groq Whisper Cloud AI</p>
-          </div>
-          <div className="py-2.5 px-3 rounded-xl bg-slate-50/90 border border-slate-100">
-            <p className="text-xs font-black text-slate-800">40+ Motion Styles</p>
-            <p className="text-[11px] text-slate-500 font-medium">Viral Kinetic Animations</p>
-          </div>
-          <div className="py-2.5 px-3 rounded-xl bg-slate-50/90 border border-slate-100">
-            <p className="text-xs font-black text-slate-800">1080p Export</p>
-            <p className="text-[11px] text-slate-500 font-medium">Clean 30 FPS Full HD MP4</p>
-          </div>
-        </div>
-      </section>
+            {/* Curated BGM Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+              {filteredBgmTracks.map((track) => {
+                const isSelected = selectedBgmId === track.id;
+                const isAuditioning = playingBgmId === track.id;
 
-      {/* Full-width 2-Part Switcher Tab: [ Captions ] | [ Kinetic NEW ] */}
-      <div className="w-full rounded-2xl border border-slate-200 bg-white p-1 shadow-2xs flex gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("captions")}
-          style={{
-            backgroundColor: activeTab === "captions" ? BRAND_PURPLE : "transparent",
-            color: activeTab === "captions" ? "#FFFFFF" : "#475569",
-          }}
-          className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-center cursor-pointer hover:opacity-95"
-        >
-          Captions
-        </button>
+                return (
+                  <div
+                    key={track.id}
+                    onClick={() => setSelectedBgmId(track.id)}
+                    className={`rounded-2xl border p-4 transition-all cursor-pointer flex flex-col justify-between gap-3 ${isSelected
+                        ? "border-[#0066FF] bg-blue-50/40 ring-2 ring-[#0066FF]/20 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
+                      }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* Play/Pause Audition Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTogglePlayBgm(track);
+                          }}
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow-xs cursor-pointer ${isAuditioning
+                              ? "bg-[#0066FF] text-white animate-pulse"
+                              : isSelected
+                                ? "bg-[#0066FF] text-white"
+                                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                            }`}
+                          title={isAuditioning ? "Pause preview" : "Play preview"}
+                        >
+                          {track.id === "none" ? (
+                            <VolumeX size={16} />
+                          ) : isAuditioning ? (
+                            <Pause size={16} />
+                          ) : (
+                            <Play size={16} className="ml-0.5" />
+                          )}
+                        </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTab("kinetic")}
-          style={{
-            backgroundColor: activeTab === "kinetic" ? BRAND_PURPLE : "transparent",
-            color: activeTab === "kinetic" ? "#FFFFFF" : "#475569",
-          }}
-          className="flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer hover:opacity-95"
-        >
-          <span>Kinetic</span>
-          <span className="bg-[#FFE14D] text-black text-[9px] font-black px-1.5 py-0.5 rounded-md leading-none shadow-2xs">
-            NEW
-          </span>
-        </button>
-      </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-black text-slate-900 truncate">{track.label}</p>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            {track.category}
+                          </span>
+                        </div>
+                      </div>
 
-      {/* Main 2-Column Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* ── LEFT COLUMN (STEP 1 Video + STEP 3 Preview + CTA) ── */}
-        <div className="lg:col-span-4 xl:col-span-3.5 space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-          {/* STEP 1 · VIDEO */}
-          <div className="space-y-1.5">
-            <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              STEP 1 · VIDEO
+                      {isSelected && (
+                        <span className="h-5 w-5 rounded-full bg-[#0066FF] text-white flex items-center justify-center shrink-0">
+                          <Check size={12} className="stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                      {track.desc}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 flex items-center justify-between gap-2 shadow-2xs">
-              <div className="flex items-center gap-2 min-w-0">
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: `${BRAND_PURPLE}15`, color: BRAND_PURPLE }}
-                >
-                  <Film size={14} />
+
+            {/* Volume Slider & Controls */}
+            {selectedBgmId !== "none" && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Volume2 size={16} className="text-[#0066FF]" />
+                    <span className="text-xs font-black text-slate-800">
+                      Soundtrack Volume: {Math.round(currentBgmVolume * 100)}%
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Recommended: 12% - 18%
+                  </span>
                 </div>
-                <div className="text-xs font-bold text-slate-800 truncate">
-                  {videoFileName} · {videoDurationText} <span className="text-emerald-600">✓</span>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="0.5"
+                  step="0.01"
+                  value={currentBgmVolume}
+                  onChange={(e) => handleBgmVolumeChange(parseFloat(e.target.value))}
+                  className="w-full accent-[#0066FF] cursor-pointer"
+                />
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="autoducking"
+                      checked={autoDucking}
+                      onChange={(e) => setAutoDucking(e.target.checked)}
+                      className="rounded accent-[#0066FF] cursor-pointer"
+                    />
+                    <label htmlFor="autoducking" className="font-bold text-slate-700 cursor-pointer">
+                      Speech Auto-Ducking (Lowers music volume automatically when creator speaks)
+                    </label>
+                  </div>
+                  <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">
+                    Enabled
+                  </span>
                 </div>
               </div>
+            )}
+
+            {/* Word Pop SFX & Audio Cleaning Toggles */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="rounded-2xl border border-slate-200 p-4 bg-white flex items-center justify-between gap-3 shadow-2xs">
+                <div>
+                  <p className="text-xs font-black text-slate-900">Word Click Pop Sound</p>
+                  <p className="text-[11px] text-slate-500 font-medium">Subtle pop sound effect on word changes</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWordClickSound(!wordClickSound)}
+                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${wordClickSound ? "bg-[#0066FF]" : "bg-slate-300"
+                    }`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${wordClickSound ? "translate-x-6" : "translate-x-1"
+                      }`}
+                  />
+                </button>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 p-4 bg-white flex items-center justify-between gap-3 shadow-2xs">
+                <div>
+                  <p className="text-xs font-black text-slate-900">Speech Audio Cleaning</p>
+                  <p className="text-[11px] text-slate-500 font-medium">Remove hum &amp; room echo automatically</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAudioCleaningEnabled(!audioCleaningEnabled)}
+                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${audioCleaningEnabled ? "bg-[#0066FF]" : "bg-slate-300"
+                    }`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full bg-white transition-transform absolute top-1 ${audioCleaningEnabled ? "translate-x-6" : "translate-x-1"
+                      }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Navigation Action Buttons */}
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200">
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-50 shadow-2xs shrink-0 cursor-pointer transition"
+                onClick={() => setCurrentStep(1)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 px-5 py-3 transition cursor-pointer"
               >
-                Replace
+                <ArrowLeft size={14} />
+                <span>Back to Step 1</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentStep(3)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] to-blue-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-blue-500/20 transition cursor-pointer"
+              >
+                <span>Continue to Step 3: Caption Style</span>
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>
+        )}
 
-          {/* STEP 3 · PREVIEW */}
-          <div className="space-y-2.5">
-            <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              STEP 3 · PREVIEW
+        {/* ======================================================================= */}
+        {/* STEP 3: STYLE (32 MASTER ANIMATED CAPTIONS & KINETICS)                  */}
+        {/* ======================================================================= */}
+        {currentStep === 3 && (
+          <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                  3. Select Kinetic Caption Style
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  32 viral animated typography presets. Cards animate live with unique phrasing!
+                </p>
+              </div>
+
+              {/* Quick Filter Search */}
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:border-[#0066FF] transition w-full sm:w-64">
+                <Search size={14} className="text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search 32 styles..."
+                  value={captionSearch}
+                  onChange={(e) => setCaptionSearch(e.target.value)}
+                  className="bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none w-full font-medium"
+                />
+              </div>
             </div>
 
-            {/* 9:16 Phone Mockup Canvas with Real Looping Video Background */}
-            <div
-              className="relative aspect-[9/16] w-full max-w-[270px] mx-auto rounded-2xl overflow-hidden border border-slate-800 shadow-xl flex items-center justify-center"
-              style={{ backgroundColor: canvasBg }}
-            >
-              {/* If Video: Real Looping Creator Video in Background */}
-              {!isAudioFile ? (
-                <>
-                  <video
-                    src="/visuals/homepage/autocaption.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/70 pointer-events-none" />
-                </>
-              ) : (
-                /* If Audio: Rich Canvas Background with Sound Waves */
-                <div className="absolute inset-0 flex flex-col items-center justify-between p-6 pointer-events-none">
-                  <div className="flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur-md px-3 py-1 text-[10px] font-bold text-white border border-white/10 mt-2">
-                    <Mic size={12} className="text-[#0066FF]" />
-                    <span>Voiceover Audio Active</span>
-                  </div>
+            {/* Category Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              {[
+                "All",
+                "Kinetic",
+                "Viral",
+                "Modern",
+                "Karaoke",
+                "Editorial",
+                "Cinema",
+                "Podcast",
+                "Creative",
+                "Clean",
+              ].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCaptionCategory(cat)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${captionCategory === cat
+                      ? "bg-[#0066FF] text-white shadow-xs"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
 
-                  {/* Pulsing sound wave bars */}
-                  <div className="flex items-center gap-1.5 opacity-50">
-                    {[24, 40, 16, 32, 48, 28, 36, 20, 44, 24].map((h, i) => (
-                      <div
-                        key={i}
-                        className="w-1 bg-[#0066FF] rounded-full animate-pulse"
-                        style={{
-                          height: `${h}px`,
-                          animationDelay: `${i * 120}ms`,
-                          animationDuration: "1s",
-                        }}
-                      />
+            {/* 32 Master Caption Styles Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+              {filteredCaptionStyles.map((style) => {
+                const isSelected =
+                  captionStyle.toLowerCase().trim() === style.name.toLowerCase().trim() ||
+                  captionStyle.toLowerCase().trim() === style.id.toLowerCase().trim();
+                const isHovered = hoveredStyleId === style.id;
+                const previewWords = STYLE_PREVIEW_WORDS[style.id] || ["VIRAL", "KINETIC", "CAPTIONS"];
+
+                return (
+                  <div
+                    key={style.id}
+                    onClick={() => onCaptionStyleChange(style.name)}
+                    onMouseEnter={() => setHoveredStyleId(style.id)}
+                    onMouseLeave={() => setHoveredStyleId(null)}
+                    className="group cursor-pointer select-none text-left"
+                  >
+                    {/* Live Preview Card */}
+                    <div
+                      style={{
+                        background: "radial-gradient(circle at 50% 50%, #172033 0%, #070B14 85%)",
+                        borderColor: isSelected ? "#0066FF" : undefined,
+                        borderWidth: isSelected ? 2 : 1,
+                      }}
+                      className={`aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden relative border transition-all duration-200 flex items-center justify-center p-3 ${isSelected
+                          ? "shadow-md ring-2 ring-blue-500/25 scale-[1.02]"
+                          : "border-slate-200 hover:border-slate-400 hover:shadow-2xs"
+                        }`}
+                    >
+                      {/* Active Selected Badge */}
+                      {isSelected && (
+                        <div className="absolute top-2 left-2 bg-[#0066FF] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-xs z-20 pointer-events-none">
+                          ✓ Selected
+                        </div>
+                      )}
+
+                      {/* Top Category Badge */}
+                      <div className="absolute top-2 right-2 bg-white/10 backdrop-blur-xs text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full pointer-events-none uppercase tracking-wider">
+                        {style.category}
+                      </div>
+
+                      {/* Live Animated Word Simulation */}
+                      <div className="relative z-10 w-full text-center pointer-events-none">
+                        {renderPreviewCaptionWords(
+                          style.id,
+                          style.color,
+                          style.fontFamily,
+                          previewWords,
+                          previewWordStep
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Title & Description */}
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-black text-slate-900 truncate">{style.name}</p>
+                        {style.badge && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">
+                            {style.badge}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">
+                        {style.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Custom Styling Controls (Placement, Accent Color, Watermark) */}
+            <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                Placement &amp; Color Fine-Tuning
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Placement */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Caption Placement</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["top", "center", "bottom"] as const).map((pos) => (
+                      <button
+                        key={pos}
+                        type="button"
+                        onClick={() => setCaptionPosition(pos)}
+                        className={`py-2 px-3 rounded-xl text-xs font-bold uppercase transition cursor-pointer ${captionPosition === pos
+                            ? "bg-[#0066FF] text-white shadow-xs"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                      >
+                        {pos}
+                      </button>
                     ))}
                   </div>
+                </div>
 
-                  <div className="text-[10px] font-bold text-white/50 mb-2">
-                    Canvas: {canvasBg}
+                {/* Accent Color */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700">Word Accent Color</label>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {[
+                      { label: "Yellow", color: "#FFE14D" },
+                      { label: "Emerald", color: "#22C55E" },
+                      { label: "Cyan", color: "#00F5FF" },
+                      { label: "Pink", color: "#FF007F" },
+                      { label: "White", color: "#FFFFFF" },
+                    ].map((c) => (
+                      <button
+                        key={c.color}
+                        type="button"
+                        onClick={() => setAccentColor(c.color)}
+                        className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-bold transition cursor-pointer ${accentColor === c.color
+                            ? "border-[#0066FF] ring-2 ring-[#0066FF]/30"
+                            : "border-slate-200 bg-white hover:border-slate-300"
+                          }`}
+                      >
+                        <span
+                          className="w-3 h-3 rounded-full border border-black/20"
+                          style={{ backgroundColor: c.color }}
+                        />
+                        <span>{c.label}</span>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              )}
 
-              {/* Dynamic Live Captions Rendering (Kinetic or Standard) */}
-              <div className="relative z-10 w-full px-3 text-center pointer-events-none">
-                <UniversalCaptionLiveRenderer
-                  styleName={captionStyle}
-                  words={demoWords}
-                  playbackTime={playbackTime}
-                  isPlaying={true}
-                />
+                {/* Watermark Remover */}
+                {onRemoveAiWatermarkChange && (
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700">Branding Output</label>
+                    <WatermarkRemoverToggle
+                      enabled={removeAiWatermark}
+                      onChange={onRemoveAiWatermarkChange}
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Selected Style Indicator */}
-            <div className="text-xs font-bold text-slate-900 pt-1">
-              Selected: <span style={{ color: BRAND_PURPLE }}>{captionStyle}</span>
-            </div>
-
-            {/* Primary CTA Button */}
-            <button
-              type="button"
-              onClick={onStartRender}
-              disabled={isWorking}
-              style={{ backgroundColor: BRAND_PURPLE }}
-              className={`w-full rounded-xl py-3 px-4 text-xs font-bold text-white shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 hover:brightness-105 active:scale-[0.99] ${
-                isWorking ? "opacity-80 cursor-wait animate-pulse" : ""
-              }`}
-            >
-              <div className="flex flex-col items-center">
-                <span>{isWorking ? "Rendering Reel 1080p..." : "Generate Video • FREE (5 Daily)"}</span>
-                <span className="text-[10px] font-medium opacity-90">0 Credits Consumed • 5 Free 9:16 Videos Today</span>
-              </div>
-            </button>
-
-            {/* Collapsible Transcript Accordion */}
-            <div className="pt-1">
+            {/* Navigation Action Buttons */}
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200">
               <button
                 type="button"
-                onClick={() => setShowTranscript((prev) => !prev)}
-                className="text-xs font-bold text-slate-500 hover:text-slate-800 flex items-center gap-1.5 transition cursor-pointer select-none"
+                onClick={() => setCurrentStep(2)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 px-5 py-3 transition cursor-pointer"
               >
-                <span className={`text-[10px] transition-transform ${showTranscript ? "rotate-90" : ""}`}>
-                  ▶
-                </span>
-                <span>Transcript (Shared across tabs)</span>
+                <ArrowLeft size={14} />
+                <span>Back to Step 2</span>
               </button>
 
-              {showTranscript && (
-                <div className="mt-2 p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-700 space-y-2">
-                  <p className="text-[11px] font-semibold text-slate-500">
-                    Live editable transcript synced across both Captions and Kinetic styles:
-                  </p>
-                  <textarea
-                    value={editedTranscript || "I stopped waiting for perfect and started building now. We had one hundred customers in two weeks."}
-                    onChange={(e) => onEditedTranscriptChange?.(e.target.value)}
-                    rows={3}
-                    className="w-full rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-800 focus:outline-none focus:border-indigo-500"
-                    placeholder="Enter transcript words..."
-                  />
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => setCurrentStep(4)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] to-blue-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-blue-500/20 transition cursor-pointer"
+              >
+                <span>Continue to Step 4: Live Studio Monitor</span>
+                <ChevronRight size={16} />
+              </button>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* ── RIGHT COLUMN (STEP 2 Style Chuno) ── */}
-        <div className="lg:col-span-8 xl:col-span-8.5 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
-          <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-            STEP 2 · STYLE CHUNO
-          </div>
-
-          {/* ─────────────────────────────────────────────────────────────
-              TAB 2: KINETIC STYLES (WITH LIVE 9:16 VIDEOS)
-             ───────────────────────────────────────────────────────────── */}
-          {activeTab === "kinetic" && (
-            <div className="space-y-4">
-              <div className="text-sm font-bold text-slate-900">
-                Kinetic · typography + keyword emphasis
+        {/* ======================================================================= */}
+        {/* STEP 4: PREVIEW (STUDIO MONITOR & MULTITRACK TIMELINE)                   */}
+        {/* ======================================================================= */}
+        {currentStep === 4 && (
+          <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                  4. Studio Monitor &amp; Multitrack Timeline
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  Inspect synchronized single-line captions, adjust placement, and fine-tune words before cloud render.
+                </p>
               </div>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <span className="text-xs font-mono font-bold text-slate-600 px-3 py-1 rounded-xl bg-slate-100 border border-slate-200">
+                  1080×1920 · 30 FPS
+                </span>
+                <span className="text-xs font-black text-emerald-600 px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200">
+                  0 Credits (Free Daily)
+                </span>
+              </div>
+            </div>
 
-              {/* Controls Row: Category Pills + Video Type + Auto-pick */}
-              <div className="flex flex-wrap items-center justify-between gap-2.5">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {["All", "Walking", "Sitting", "Podcast", "Motivational"].map((filter) => (
-                    <button
-                      key={filter}
-                      type="button"
-                      onClick={() => setKineticTag(filter)}
-                      className={`rounded-full px-3 py-1 text-xs font-bold transition cursor-pointer ${
-                        kineticTag === filter
-                          ? "bg-slate-900 text-white shadow-xs"
-                          : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-                      }`}
-                    >
-                      {filter}
-                    </button>
-                  ))}
+            {/* 2-Column Studio Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+              {/* Left Column: 9:16 Vertical Phone Monitor (5 cols) */}
+              <div className="lg:col-span-5 flex flex-col items-center justify-between rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs space-y-4">
+                {/* Monitor Header */}
+                <div className="w-full flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="font-black text-slate-900 uppercase tracking-wider text-[11px]">
+                      9:16 Vertical Phone Monitor
+                    </span>
+                  </div>
+                  <span className="font-mono text-slate-500 text-xs font-bold">
+                    {formatTime(playbackTime)} / {formatTime(totalDuration)}
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <select
-                    value={kineticVideoType}
-                    onChange={(e) => setKineticVideoType(e.target.value)}
-                    className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 cursor-pointer focus:outline-none"
+                {/* 9:16 Phone Frame Stage */}
+                <div
+                  className="relative aspect-[9/16] w-full max-w-[280px] sm:max-w-[300px] rounded-[32px] overflow-hidden border-[6px] border-slate-900 shadow-2xl flex items-center justify-center"
+                  style={{ backgroundColor: canvasBg }}
+                >
+                  {/* Phone Notch */}
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-4 bg-slate-900 rounded-full z-30 pointer-events-none" />
+
+                  {/* Video / Audio Content */}
+                  {!isAudioFile ? (
+                    <>
+                      <video
+                        ref={videoPlayerRef}
+                        src={filePreviewUrl}
+                        playsInline
+                        muted={isMuted}
+                        loop
+                        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 pointer-events-none" />
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-between p-6 pointer-events-none">
+                      <div className="flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur-md px-3 py-1 text-[10px] font-bold text-white border border-white/10 mt-6">
+                        <Mic size={12} className="text-[#0066FF]" />
+                        <span>Voiceover Audio Active</span>
+                      </div>
+
+                      {/* Sound Wave Pillars */}
+                      <div className="flex items-center gap-1.5 opacity-70">
+                        {[24, 40, 16, 32, 48, 28, 36, 20, 44, 24].map((h, i) => (
+                          <div
+                            key={i}
+                            className="w-1 bg-[#0066FF] rounded-full animate-pulse"
+                            style={{
+                              height: `${h}px`,
+                              animationDelay: `${i * 120}ms`,
+                              animationDuration: "1s",
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      <div className="text-[10px] font-bold text-white/50 mb-4">
+                        Canvas: {canvasBg}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Single-Line Synchronized Kinetic Subtitles Overlay */}
+                  <div
+                    className={`absolute left-0 right-0 z-20 px-3 text-center pointer-events-none ${captionPosition === "top"
+                        ? "top-16"
+                        : captionPosition === "center"
+                          ? "top-1/2 -translate-y-1/2"
+                          : "bottom-12"
+                      }`}
                   >
-                    <option value="walking">Video: Walking ▾</option>
-                    <option value="sitting">Video: Sitting ▾</option>
-                    <option value="podcast">Video: Podcast ▾</option>
-                  </select>
+                    <div className="max-w-[95%] mx-auto overflow-hidden whitespace-nowrap">
+                      <UniversalCaptionLiveRenderer
+                        styleName={captionStyle}
+                        words={demoWords}
+                        playbackTime={playbackTime}
+                        isPlaying={isPlaying}
+                        accentColor={accentColor}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Scrubber & Controls */}
+                <div className="w-full flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 px-3.5 py-1.5 text-xs font-bold text-slate-800 transition cursor-pointer"
+                  >
+                    {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+                    <span>{isPlaying ? "Pause" : "Play"}</span>
+                  </button>
+
+                  <div className="flex-1 mx-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max={totalDuration}
+                      step="0.1"
+                      value={playbackTime}
+                      onChange={(e) => setPlaybackTime(parseFloat(e.target.value))}
+                      className="w-full accent-[#0066FF] cursor-pointer"
+                    />
+                  </div>
 
                   <button
                     type="button"
-                    onClick={handleAutoPick}
-                    className="rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-1 text-xs font-bold flex items-center gap-1 transition cursor-pointer"
+                    onClick={() => setIsMuted(!isMuted)}
+                    className="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                    title={isMuted ? "Unmute" : "Mute"}
                   >
-                    <Sparkles size={12} className="text-amber-600" />
-                    <span>Auto-pick for me</span>
+                    {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                   </button>
                 </div>
               </div>
 
-              {/* Grid of 5-column 9:16 Kinetic Video Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[620px] overflow-y-auto pr-1">
-                {filteredKineticStyles.map((item) => {
-                  const isSelected =
-                    captionStyle === item.name ||
-                    captionStyle.toLowerCase() === item.name.toLowerCase();
-                  const isHovered = hoveredKineticId === item.id;
+              {/* Right Column: Properties & Transcript Inspector (7 cols) */}
+              <div className="lg:col-span-7 flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-5">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <Settings2 size={16} className="text-[#0066FF]" />
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                        Studio Inspector
+                      </h3>
+                    </div>
+                    <span className="text-xs font-bold text-slate-500">
+                      Preset: <strong className="text-[#0066FF]">{captionStyle}</strong>
+                    </span>
+                  </div>
 
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => onCaptionStyleChange(item.name)}
-                      onMouseEnter={() => setHoveredKineticId(item.id)}
-                      onMouseLeave={() => setHoveredKineticId(null)}
-                      className="group cursor-pointer select-none"
-                    >
-                      {/* 9:16 Preview Card */}
-                      <div
-                        style={{
-                          background: "radial-gradient(circle at 50% 50%, #1c2b26 0%, #0d1416 85%)",
-                          borderColor: isSelected ? BRAND_PURPLE : undefined,
-                          borderWidth: isSelected ? 2 : 1,
-                        }}
-                        className={`aspect-[9/16] rounded-xl overflow-hidden relative border transition-all duration-200 flex items-center justify-center p-2 ${
-                          isSelected
-                            ? "shadow-md ring-2 ring-indigo-500/20"
-                            : "border-slate-200 hover:border-slate-400 hover:shadow-2xs"
-                        }`}
-                      >
-                        {/* Dark Silhouette figure in card */}
-                        <svg
-                          className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
-                          viewBox="0 0 100 178"
-                          fill="none"
+                  {/* Caption Placement */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700">Caption Placement</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(["top", "center", "bottom"] as const).map((pos) => (
+                        <button
+                          key={pos}
+                          type="button"
+                          onClick={() => setCaptionPosition(pos)}
+                          className={`py-2 px-3 rounded-xl text-xs font-bold uppercase transition cursor-pointer ${captionPosition === pos
+                              ? "bg-[#0066FF] text-white shadow-xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
                         >
-                          <circle cx="50" cy="62" r="11" fill="#314941" />
-                          <path d="M34 88 C34 74, 66 74, 66 88 L70 160 L30 160 Z" fill="#263b34" />
-                        </svg>
+                          {pos}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-                        {/* Top pill badge: hover to play */}
-                        <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-xs text-white text-[8px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 pointer-events-none whitespace-nowrap z-10">
-                          <span>▶ hover to play</span>
-                        </div>
-
-                        {/* Top-left Last used badge if selected */}
-                        {isSelected && (
-                          <div
-                            style={{ backgroundColor: BRAND_PURPLE }}
-                            className="absolute top-2 left-2 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md shadow-xs z-20 pointer-events-none"
-                          >
-                            Last used
-                          </div>
-                        )}
-
-                        {/* Kinetic Typography Simulation inside Card */}
-                        <div className="relative z-10 w-full text-center pointer-events-none">
-                          <KineticCardSimulation
-                            item={item}
-                            isHovered={isHovered}
-                            playbackTime={playbackTime}
+                  {/* Word Accent Color */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700">Word Accent Color</label>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {[
+                        { label: "Yellow", color: "#FFE14D" },
+                        { label: "Emerald", color: "#22C55E" },
+                        { label: "Cyan", color: "#00F5FF" },
+                        { label: "Pink", color: "#FF007F" },
+                        { label: "White", color: "#FFFFFF" },
+                      ].map((c) => (
+                        <button
+                          key={c.color}
+                          type="button"
+                          onClick={() => setAccentColor(c.color)}
+                          className={`flex items-center gap-1.5 rounded-xl border px-3 py-1 text-xs font-bold transition cursor-pointer ${accentColor === c.color
+                              ? "border-[#0066FF] ring-2 ring-[#0066FF]/30"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                            }`}
+                        >
+                          <span
+                            className="w-3 h-3 rounded-full border border-black/20"
+                            style={{ backgroundColor: c.color }}
                           />
-                        </div>
-                      </div>
-
-                      {/* Card Title & Tags below */}
-                      <div className="mt-1.5">
-                        <div className="text-xs font-bold text-slate-900 truncate">
-                          {item.name === "Terminal Typewriter" ? "Typewriter" : item.name}
-                        </div>
-                        <div className="text-[10px] text-slate-400 font-medium truncate">
-                          {item.name === "Editorial Mix" || item.name === "Editorial Dark Gold"
-                            ? "sitting"
-                            : item.name === "Word Stack"
-                            ? "podcast sitting"
-                            : item.name === "Terminal Typewriter"
-                            ? "podcast"
-                            : item.name === "Gradient Word"
-                            ? "sitting podcast"
-                            : "walking motivational"}
-                        </div>
-                      </div>
+                          <span>{c.label}</span>
+                        </button>
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* ─────────────────────────────────────────────────────────────
-              TAB 1: CAPTIONS STYLE TEMPLATES (NAMES ONLY - NO VIDEOS)
-             ───────────────────────────────────────────────────────────── */}
-          {activeTab === "captions" && (
-            <div className="space-y-4">
-              {/* Featured Video Showcase Banner for Captions */}
-              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 p-4 text-white shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5">
-                <div className="space-y-1">
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FFE14D]/20 px-2.5 py-0.5 text-[10px] font-black uppercase text-[#FFE14D] tracking-wide">
-                    <Sparkles size={11} className="text-[#FFE14D]" />
-                    <span>Style Showcase · {captionStyle}</span>
                   </div>
-                  <h4 className="text-sm sm:text-base font-black tracking-tight text-white font-jakarta">
-                    Auto-Sync Motion Captions
-                  </h4>
-                  <p className="text-xs text-slate-300 max-w-md">
-                    Choose from 32 viral subtitle styles. Real-time spoken word highlighting & typography.
-                  </p>
-                </div>
 
-                <div className="relative w-full sm:w-44 aspect-video rounded-xl overflow-hidden border border-white/20 shadow-md shrink-0 bg-black">
-                  <video
-                    src="/visuals/homepage/autocaption.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover opacity-90"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-[10px] font-bold text-white truncate max-w-[120px]">
-                        {captionStyle}
+                  {/* Watermark Remover Toggle */}
+                  {onRemoveAiWatermarkChange && (
+                    <div className="pt-2">
+                      <WatermarkRemoverToggle
+                        enabled={removeAiWatermark}
+                        onChange={onRemoveAiWatermarkChange}
+                      />
+                    </div>
+                  )}
+
+                  {/* Script Review & Words Accordion */}
+                  <div className="pt-2 border-t border-slate-100 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                        <Type size={14} className="text-[#0066FF]" />
+                        <span>Script Review &amp; Words</span>
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => setShowWordReplacer(!showWordReplacer)}
+                        className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer"
+                      >
+                        {showWordReplacer ? "Hide Words" : "View Synced Words"}
+                      </button>
                     </div>
+
+                    {showWordReplacer && (
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 space-y-2 max-h-48 overflow-y-auto">
+                        <p className="text-[11px] text-slate-500 font-medium">
+                          Click any word to seek immediately to its timestamp:
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {demoWords.map((w, idx) => (
+                            <span
+                              key={idx}
+                              onClick={() => setPlaybackTime(w.start)}
+                              className="text-xs font-mono px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:border-[#0066FF] cursor-pointer text-slate-800 transition shadow-2xs"
+                              title={`Jump to ${formatTime(w.start)}`}
+                            >
+                              {w.word}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Cloud Render Ready Status Banner */}
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3.5 flex items-center gap-3">
+                  <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                  <div className="text-xs">
+                    <p className="font-bold text-emerald-900">1080p Cloud Render Ready</p>
+                    <p className="text-emerald-700 font-medium">
+                      Fast 30 FPS export • Free 5 Daily Videos per Rule 4.1
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Multitrack Interactive Timeline Track */}
+            <div className="w-full rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Layers size={16} className="text-[#0066FF]" />
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    Multitrack Timeline Editor
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadSubtitles('srt')}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition cursor-pointer shadow-2xs"
+                    title="Export standard SubRip (.SRT) subtitle file"
+                  >
+                    <Download size={12} className="text-[#0066FF]" />
+                    <span>Download .SRT</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadSubtitles('vtt')}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition cursor-pointer shadow-2xs"
+                    title="Export WebVTT (.VTT) subtitle file"
+                  >
+                    <Download size={12} className="text-[#0066FF]" />
+                    <span>Download .VTT</span>
+                  </button>
+                  <span className="text-xs text-slate-500 font-mono hidden sm:inline">
+                    {demoWords.length} Speech Beats
+                  </span>
+                </div>
+              </div>
+
+              <AutoCaptionTimeline
+                currentTime={playbackTime}
+                duration={totalDuration}
+                words={demoWords}
+                isPlaying={isPlaying}
+                onSeek={(t) => setPlaybackTime(t)}
+                onTogglePlay={() => setIsPlaying(!isPlaying)}
+                wordClickSound={wordClickSound}
+                onToggleWordClickSound={() => setWordClickSound(!wordClickSound)}
+                theme="light"
+              />
+            </div>
+
+            {/* Sticky Bottom Action Bar */}
+            <div className="sticky bottom-4 z-30 rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-xs">
+                  <Download size={18} />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-900 font-jakarta truncate max-w-xs">
+                    {videoFileName}
+                  </p>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                    <span className="text-emerald-600 font-bold">FREE (0 Credits)</span>
+                    <span>•</span>
+                    <span>1080×1920 MP4</span>
+                    <span>•</span>
+                    <span className="text-slate-700 font-bold">{captionStyle}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Controls Row: Title + Search Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-2.5">
-                <div className="text-sm font-bold text-slate-900">
-                  Captions · style names
-                </div>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(3)}
+                  className="w-full sm:w-auto rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 px-4 py-2.5 text-xs font-bold text-slate-700 transition cursor-pointer"
+                >
+                  Change Style
+                </button>
 
-                <div className="relative w-full sm:w-64">
-                  <input
-                    type="text"
-                    value={captionSearch}
-                    onChange={(e) => setCaptionSearch(e.target.value)}
-                    placeholder="Search styles..."
-                    className="w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500"
-                  />
-                  <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Style Name Boxes (Spacious 4-per-line grid matching reference image) */}
-              <div
-                style={{
-                  maxWidth: "760px",
-                  fontFamily: 'var(--font-inter), "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif',
-                }}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1 max-h-[500px] overflow-y-auto pr-1.5"
-              >
-                {filteredCaptions.map((item) => {
-                  const isSelected =
-                    captionStyle.toLowerCase().trim() === item.name.toLowerCase().trim() ||
-                    captionStyle.toLowerCase().trim() === item.id.toLowerCase().trim() ||
-                    captionStyle.toLowerCase().trim() === item.presetKey.toLowerCase().trim();
-
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => onCaptionStyleChange(item.name)}
-                      title={item.name}
-                      style={{
-                        height: "40px",
-                        borderRadius: "7px",
-                        fontFamily: 'var(--font-inter), "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif',
-                        fontSize: "13px",
-                        letterSpacing: "-0.01em",
-                        backgroundColor: isSelected ? "#FBDD6B" : "#FFFFFF",
-                        border: isSelected ? "1px solid #FBDD6B" : "1px solid #d4d4d8",
-                        color: isSelected ? "#000000" : "#374151",
-                        fontWeight: isSelected ? 700 : 500,
-                        boxShadow: "none",
-                      }}
-                      className="px-3 text-center transition-all cursor-pointer select-none truncate flex items-center justify-center hover:bg-slate-50"
-                    >
-                      <span className="truncate">{item.name}</span>
-                    </button>
-                  );
-                })}
+                <button
+                  type="button"
+                  onClick={onStartRender}
+                  disabled={isWorking}
+                  className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-3.5 text-xs font-black transition cursor-pointer ${isWorking
+                      ? "bg-[#0066FF] text-white cursor-wait animate-pulse"
+                      : "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-blue-600 hover:brightness-110 text-white shadow-lg shadow-blue-500/25"
+                    }`}
+                >
+                  <Download size={15} className="text-white" />
+                  <span>{isWorking ? "Rendering 1080p MP4..." : "Download 1080p MP4 (Free)"}</span>
+                </button>
               </div>
             </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Helper: Animated Simulation Inside Each Kinetic 9:16 Card ──
-function KineticCardSimulation({
-  item,
-  isHovered,
-  playbackTime,
-}: {
-  item: KineticStyleDefinition;
-  isHovered: boolean;
-  playbackTime: number;
-}) {
-  const name = item.name.toLowerCase();
-
-  // 1. Editorial Mix & Editorial Dark Gold
-  if (name.includes("editorial")) {
-    const isDarkGold = name.includes("dark gold");
-    return (
-      <div className="space-y-1 px-1">
-        <p className="text-[8px] text-slate-300 font-serif italic tracking-wide">
-          i stopped waiting for
-        </p>
-        <p
-          className={`text-sm sm:text-base font-black uppercase tracking-tight ${
-            isDarkGold
-              ? "bg-gradient-to-r from-[#ffe35a] via-[#f59e0b] to-[#b45309] bg-clip-text text-transparent drop-shadow"
-              : "bg-gradient-to-r from-[#fff59a] to-[#e9b81c] bg-clip-text text-transparent drop-shadow"
-          }`}
-        >
-          PERFECT
-        </p>
-      </div>
-    );
-  }
-
-  // 2. Word Stack
-  if (name.includes("stack")) {
-    return (
-      <div className="space-y-1 px-1 text-center">
-        <div className="rounded-md bg-white/10 px-2 py-0.5 text-[8px] font-bold text-slate-400">
-          WAITING
-        </div>
-        <div className="rounded-md bg-white/10 px-2 py-0.5 text-[8px] font-bold text-slate-400">
-          FOR
-        </div>
-        <div className="rounded-md bg-[#FFE14D] px-2 py-0.5 text-[9px] font-black text-black shadow-sm">
-          PERFECT
-        </div>
-      </div>
-    );
-  }
-
-  // 3. Zoom Punch & Slam Headline
-  if (name.includes("punch") || name.includes("slam")) {
-    return (
-      <div className="px-1">
-        <span className="text-base sm:text-lg font-black uppercase text-[#FFE14D] tracking-wider drop-shadow-md">
-          PERFECT
-        </span>
-      </div>
-    );
-  }
-
-  // 4. Gradient Word
-  if (name.includes("gradient")) {
-    return (
-      <div className="px-1">
-        <span className="text-sm sm:text-base font-black uppercase bg-gradient-to-r from-[#ff5ea8] to-[#ffb347] bg-clip-text text-transparent drop-shadow-md">
-          PERFECT
-        </span>
-      </div>
-    );
-  }
-
-  // 5. Typewriter
-  if (name.includes("typewriter") || name.includes("terminal")) {
-    return (
-      <div className="inline-block px-1.5 py-1 rounded bg-black/80 border border-white/15 text-[8px] font-mono text-white text-left">
-        <span>i stopped waiting for perfect</span>
-        <span className="inline-block w-1.5 h-2.5 bg-[#FFE14D] ml-0.5 animate-pulse align-middle" />
-      </div>
-    );
-  }
-
-  // Default: Anton / Impact Single Word
-  return (
-    <div className="px-1">
-      <span className="text-sm sm:text-base font-black uppercase text-[#FFE14D] drop-shadow-md">
-        PERFECT
-      </span>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
@@ -1143,11 +1706,13 @@ function UniversalCaptionLiveRenderer({
   words,
   playbackTime,
   isPlaying,
+  accentColor = "#FFE14D",
 }: {
   styleName: string;
-  words: Array<{ word: string; start: number; end: number; isKeyword?: boolean }>;
+  words: CaptionWordItem[];
   playbackTime: number;
   isPlaying: boolean;
+  accentColor?: string;
 }) {
   const norm = styleName.toLowerCase().trim();
 
@@ -1159,7 +1724,7 @@ function UniversalCaptionLiveRenderer({
         words={words}
         playbackTime={playbackTime}
         isPlaying={isPlaying}
-        accentColor="#FFE14D"
+        accentColor={accentColor}
       />
     );
   }
@@ -1220,7 +1785,7 @@ function UniversalCaptionLiveRenderer({
                 fontFamily: "Impact, Anton, sans-serif",
                 WebkitTextStroke: "2.5px #000",
                 textShadow: "0 3px 0 #000, 0 6px 14px rgba(0,0,0,0.9)",
-                color: isActive ? "#FFE600" : "#FFFFFF",
+                color: isActive ? accentColor : "#FFFFFF",
                 transform: isActive ? "scale(1.12)" : "scale(1)",
               }}
               className="text-lg sm:text-xl font-black uppercase tracking-wide transition-transform duration-100 inline-block"
@@ -1242,7 +1807,7 @@ function UniversalCaptionLiveRenderer({
             fontFamily: "Anton, Impact, sans-serif",
             WebkitTextStroke: "2px #000",
             textShadow: "0 4px 12px rgba(0,0,0,0.9)",
-            color: "#FFE14D",
+            color: accentColor,
           }}
           className="text-2xl sm:text-3xl font-black uppercase tracking-wide transition-transform animate-pulse inline-block"
         >
@@ -1265,7 +1830,7 @@ function UniversalCaptionLiveRenderer({
               style={{
                 fontFamily: "Bangers, Anton, sans-serif",
                 WebkitTextStroke: "1.5px #000",
-                color: isActive ? "#FF007F" : idx % 2 === 0 ? "#00F5FF" : "#FFE600",
+                color: isActive ? "#FF007F" : idx % 2 === 0 ? "#00F5FF" : accentColor,
                 transform: `rotate(${rotate}) ${isActive ? "scale(1.2)" : "scale(1)"}`,
               }}
               className="text-base sm:text-lg font-black uppercase tracking-wider transition-all inline-block"
@@ -1316,7 +1881,7 @@ function UniversalCaptionLiveRenderer({
               key={`${w.word}-${idx}`}
               style={{
                 fontFamily: "Inter, sans-serif",
-                color: isActive ? "#FFF59D" : "#FFFFFF",
+                color: isActive ? accentColor : "#FFFFFF",
                 fontWeight: isActive ? 800 : 500,
               }}
               className="text-xs sm:text-sm tracking-normal transition-colors"
@@ -1340,251 +1905,12 @@ function UniversalCaptionLiveRenderer({
               key={`${w.word}-${idx}`}
               style={{
                 fontFamily: "Inter, sans-serif",
-                color: isActive ? "#FDE047" : "#CBD5E1",
+                color: isActive ? accentColor : "#CBD5E1",
                 fontWeight: isActive ? 800 : 500,
                 textShadow: isActive ? "0 0 10px rgba(253,224,71,0.6)" : "none",
                 transform: isActive ? "scale(1.08)" : "scale(1)",
               }}
               className="text-xs sm:text-sm transition-all inline-block"
-            >
-              {w.word}
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // 8. Doctor Pill
-  if (norm.includes("doctor")) {
-    return (
-      <div className="inline-flex max-w-[92%] items-center justify-center gap-1.5 rounded-full border border-teal-400/40 bg-teal-950/85 px-3.5 py-1.5 shadow-xl backdrop-blur-md">
-        {visibleWords.map((w, idx) => {
-          const isActive = w.word === activeWordText;
-          return (
-            <span
-              key={`${w.word}-${idx}`}
-              style={{
-                fontFamily: "Inter, sans-serif",
-                backgroundColor: isActive ? "#0D9488" : "transparent",
-                color: "#FFFFFF",
-                fontWeight: isActive ? 800 : 500,
-                padding: isActive ? "2px 8px" : "0",
-                borderRadius: isActive ? "9999px" : "0",
-              }}
-              className="text-xs sm:text-sm transition-all inline-block"
-            >
-              {w.word}
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // 9. Devane Luxury Serif
-  if (norm.includes("luxe") || norm.includes("serif") || norm.includes("luxury")) {
-    return (
-      <div className="flex flex-wrap items-center justify-center gap-2 select-none italic">
-        {visibleWords.map((w, idx) => {
-          const isActive = w.word === activeWordText;
-          return (
-            <span
-              key={`${w.word}-${idx}`}
-              style={{
-                fontFamily: "Playfair Display, Georgia, serif",
-                color: isActive ? "#E5C07B" : "#F8FAFC",
-                fontWeight: isActive ? 800 : 400,
-                textShadow: "0 2px 10px rgba(0,0,0,0.9)",
-                transform: isActive ? "scale(1.15)" : "scale(1)",
-              }}
-              className="text-sm sm:text-base tracking-wide transition-all inline-block"
-            >
-              {w.word}
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // 10. Cinema Classic
-  if (norm.includes("cinema")) {
-    return (
-      <div className="inline-block bg-black/80 px-4 py-1.5 rounded border border-white/10 text-center select-none shadow-xl">
-        <div className="flex items-center justify-center gap-2">
-          {visibleWords.map((w, idx) => {
-            const isActive = w.word === activeWordText;
-            return (
-              <span
-                key={`${w.word}-${idx}`}
-                style={{
-                  fontFamily: "Montserrat, sans-serif",
-                  color: isActive ? "#FFEAA7" : "#FFFFFF",
-                  fontWeight: isActive ? 800 : 500,
-                  letterSpacing: "0.06em",
-                }}
-                className="text-xs sm:text-sm uppercase transition-colors"
-              >
-                {w.word}
-              </span>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  // 11. Podcast Studio Master
-  if (norm.includes("podcast") || norm.includes("studio")) {
-    return (
-      <div className="inline-flex items-center gap-2 rounded-xl bg-zinc-900/90 border border-white/15 px-3.5 py-1.5 shadow-xl backdrop-blur-md select-none">
-        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
-        <div className="flex items-center gap-1.5">
-          {visibleWords.map((w, idx) => {
-            const isActive = w.word === activeWordText;
-            return (
-              <span
-                key={`${w.word}-${idx}`}
-                style={{
-                  fontFamily: "Inter, sans-serif",
-                  color: isActive ? "#38BDF8" : "#E2E8F0",
-                  fontWeight: isActive ? 800 : 500,
-                }}
-                className="text-xs sm:text-sm transition-colors"
-              >
-                {w.word}
-              </span>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  // 12. Deep Discussion
-  if (norm.includes("deep") || norm.includes("discussion")) {
-    return (
-      <div className="flex flex-wrap items-center justify-center gap-2 select-none">
-        {visibleWords.map((w, idx) => {
-          const isActive = w.word === activeWordText;
-          return (
-            <span
-              key={`${w.word}-${idx}`}
-              style={{
-                fontFamily: "Inter, sans-serif",
-                color: isActive ? "#67E8F9" : "#94A3B8",
-                fontWeight: isActive ? 800 : 500,
-                textShadow: isActive ? "0 0 12px rgba(103,232,249,0.8)" : "none",
-              }}
-              className="text-xs sm:text-sm transition-colors"
-            >
-              {w.word}
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // 13. Discipline Bold
-  if (norm.includes("discipline")) {
-    return (
-      <div className="flex flex-wrap items-center justify-center gap-2 select-none">
-        {visibleWords.map((w, idx) => {
-          const isActive = w.word === activeWordText;
-          return (
-            <span
-              key={`${w.word}-${idx}`}
-              style={{
-                fontFamily: "Impact, Anton, sans-serif",
-                WebkitTextStroke: "1.5px #000",
-                color: isActive ? "#EF4444" : "#FFFFFF",
-                transform: isActive ? "scale(1.15)" : "scale(1)",
-              }}
-              className="text-base sm:text-lg font-black uppercase tracking-tight transition-transform inline-block"
-            >
-              {w.word}
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // 14. Red Wipe Highlight
-  if (norm.includes("red") || norm.includes("wipe")) {
-    return (
-      <div className="flex flex-wrap items-center justify-center gap-1.5 select-none">
-        {visibleWords.map((w, idx) => {
-          const isActive = w.word === activeWordText;
-          return (
-            <span
-              key={`${w.word}-${idx}`}
-              style={{
-                fontFamily: "Montserrat, sans-serif",
-                backgroundColor: isActive ? "#DC2626" : "transparent",
-                color: "#FFFFFF",
-                fontWeight: isActive ? 900 : 600,
-                padding: isActive ? "2px 8px" : "0",
-                borderRadius: isActive ? "6px" : "0",
-                textShadow: isActive ? "none" : "0 2px 6px rgba(0,0,0,0.9)",
-              }}
-              className="text-xs sm:text-sm uppercase tracking-wide transition-all inline-block"
-            >
-              {w.word}
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // 15. Spark Yellow
-  if (norm.includes("spark")) {
-    return (
-      <div className="flex flex-wrap items-center justify-center gap-2 select-none">
-        {visibleWords.map((w, idx) => {
-          const isActive = w.word === activeWordText;
-          return (
-            <span
-              key={`${w.word}-${idx}`}
-              style={{
-                fontFamily: "Montserrat, sans-serif",
-                color: isActive ? "#FACC15" : "#FFFFFF",
-                fontWeight: 900,
-                textShadow: isActive
-                  ? "0 0 14px rgba(250,204,21,0.95), 0 0 24px rgba(250,204,21,0.6)"
-                  : "0 2px 6px rgba(0,0,0,0.8)",
-                transform: isActive ? "scale(1.12)" : "scale(1)",
-              }}
-              className="text-sm sm:text-base uppercase tracking-tight transition-all inline-block"
-            >
-              {w.word}
-            </span>
-          );
-        })}
-      </div>
-    );
-  }
-
-  // 16. Scribble Handwritten
-  if (norm.includes("scribble") || norm.includes("handwritten")) {
-    return (
-      <div className="flex flex-wrap items-center justify-center gap-2 select-none rotate-[-2deg]">
-        {visibleWords.map((w, idx) => {
-          const isActive = w.word === activeWordText;
-          return (
-            <span
-              key={`${w.word}-${idx}`}
-              style={{
-                fontFamily: "Caveat, cursive",
-                color: isActive ? "#FDE047" : "#FFFFFF",
-                fontWeight: 700,
-                fontSize: isActive ? "1.45rem" : "1.25rem",
-                textShadow: "0 2px 4px rgba(0,0,0,0.8)",
-              }}
-              className="transition-all inline-block"
             >
               {w.word}
             </span>
@@ -1604,7 +1930,7 @@ function UniversalCaptionLiveRenderer({
             key={`${w.word}-${idx}`}
             style={{
               fontFamily: "Montserrat, sans-serif",
-              color: isActive ? "#FFE14D" : "#FFFFFF",
+              color: isActive ? accentColor : "#FFFFFF",
               fontWeight: 800,
               textShadow: "0 2px 8px rgba(0,0,0,0.8)",
               transform: isActive ? "scale(1.1)" : "scale(1)",
@@ -1618,3 +1944,5 @@ function UniversalCaptionLiveRenderer({
     </div>
   );
 }
+
+export default AutoCaptionDualTabStudio;

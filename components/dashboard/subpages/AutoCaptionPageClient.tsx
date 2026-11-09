@@ -621,75 +621,63 @@ export default function AutoCaptionPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0B0D13] flex flex-col items-center justify-center text-zinc-400 gap-3">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center text-slate-500 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
-        <p className="text-sm font-semibold tracking-wide text-zinc-300">Loading Auto Caption Studio...</p>
+        <p className="text-sm font-semibold tracking-wide text-slate-700">Loading Auto Caption AI Studio...</p>
       </div>
     );
   }
 
-  // ── Auto Caption Dual-Tab Studio (Matching Reference Screenshots) ──
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#5850ec]/20 selection:text-slate-900 pb-20 font-sans">
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-xl shadow-xs">
-        <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-center gap-3 shrink-0">
-            <BrandLogo size="sm" showBadge={false} variant="light" />
-            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-blue-500/20 selection:text-blue-600 overflow-hidden font-sans">
+      {/* Top Navigation Bar (Clean White Surface - Full Bleed, matching Image to Video AI) */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group cursor-pointer"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform text-[#5850ec]" />
-              <span className="hidden sm:inline">Back to Dashboard</span>
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-          </div>
 
-          {/* Project Name Input */}
-          <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 focus-within:border-[#5850ec] rounded-2xl px-3.5 py-1.5 transition shadow-2xs max-w-sm w-full mx-2">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 shrink-0 hidden md:inline">
-              Project Name:
-            </span>
-            <input
-              type="text"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="sample_walking"
-              className="bg-transparent text-xs font-black text-slate-900 focus:outline-none w-full font-jakarta truncate"
-            />
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Auto Caption AI</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Credits badge */}
-            <div className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-bold shadow-2xs">
-              <Zap size={13} className="text-[#0066FF] fill-[#0066FF]" />
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
+              <Zap size={14} className="text-[#0066FF] fill-[#0066FF]" />
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
               <span className="text-slate-900 font-black">
-                {billingEntitlement && userRemainingCredits !== undefined ? `${userRemainingCredits} Cr` : "908 Credits"}
+                {billingEntitlement && userRemainingCredits !== undefined ? `${userRemainingCredits} Cr` : "908 Cr"}
               </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-[#0066FF] hover:text-blue-500 underline font-black"
+              >
+                +Add
+              </Link>
             </div>
-
-            {/* Prominent Generate / Download Reel Button */}
-            <button
-              onClick={handleStartRender}
-              disabled={isWorking}
-              className={`inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-black transition cursor-pointer ${
-                isWorking
-                  ? "bg-[#5850ec] text-white cursor-wait animate-pulse"
-                  : "bg-[#5850ec] hover:bg-[#4f46e5] text-white shadow-md shadow-[#5850ec]/25 font-jakarta"
-              }`}
-            >
-              <Download size={13} className="text-white" />
-              <span>{isWorking ? "Rendering 1080p..." : "Download 1080p"}</span>
-            </button>
           </div>
         </div>
       </header>
 
-      {/* Main Canvas */}
-      <main className="flex-1 w-full py-4">
+      {/* Main Canvas - Full Screen Fluid Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
         {(isWorking || isReady || isError) ? (
-          <div className="max-w-3xl mx-auto py-8 px-4">
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="autoCaption"
               status={{
@@ -735,29 +723,6 @@ export default function AutoCaptionPage() {
           />
         )}
       </main>
-
-      {/* Mobile Sticky Action Bar */}
-      {selectedFile && workflowStep === "editor" && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
-          <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase text-[#0066FF] tracking-wider truncate">
-              {projectName || selectedFile.name}
-            </p>
-            <p className="text-[10px] text-slate-500 font-bold">
-              1 Credit • 9:16 Vertical
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleStartRender}
-            disabled={!selectedFile || isWorking}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-4 py-2.5 text-xs font-black text-black shadow-lg shadow-[#0066FF]/30 active:scale-95 disabled:opacity-50"
-          >
-            <Download size={14} className="text-black" />
-            <span>{isWorking ? "Rendering..." : "Download 1080p"}</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 }

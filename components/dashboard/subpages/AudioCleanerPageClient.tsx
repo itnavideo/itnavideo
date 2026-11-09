@@ -10,20 +10,14 @@ import {
   type AudioCleanStudioOptions,
   type AudioCleanStudioResult,
 } from "@/components/dashboard/AudioCleanStudio";
-import { StudioWorkflowRoadmap } from "@/components/dashboard/StudioWorkflowRoadmap";
 import { useAuth } from "@/components/auth/AuthContext";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import {
   ArrowLeft,
   Sparkles,
   Zap,
-  CheckCircle2,
   AlertCircle,
   Loader2,
-  Layers3,
-  Upload,
-  Music,
-  Scissors
 } from "lucide-react";
 
 type BillingEntitlement = {
@@ -175,75 +169,46 @@ function saveRecentRenders(renders: RecentRender[]): void {
   } catch {}
 }
 
-function getUploadContentType(file: File): string {
-  const name = file.name.toLowerCase();
-  const browserType = file.type || "";
-
-  if (name.endsWith(".mp3")) return "audio/mpeg";
-  if (name.endsWith(".wav")) return "audio/wav";
-  if (name.endsWith(".m4a")) return "audio/mp4";
-  if (name.endsWith(".aac")) return "audio/aac";
-  if (name.endsWith(".ogg")) return "audio/ogg";
-  if (name.endsWith(".flac")) return "audio/flac";
-  if (name.endsWith(".mp4") || name.endsWith(".m4v")) return "video/mp4";
-  if (name.endsWith(".mov")) return "video/quicktime";
-  if (name.endsWith(".webm")) return "video/webm";
-
-  return browserType && browserType !== "application/octet-stream" ? browserType : "audio/mpeg";
-}
-
-
-
-const CLEAN_STEPS = [
-  { label: "Recording received", detail: "Source audio uploaded to cloud stream.", threshold: 0.1, icon: Upload },
-  { label: "Transcribing speech", detail: "Groq Whisper speech engine calculating word timings.", threshold: 0.35, icon: Layers3 },
-  { label: "Smart pause compression", detail: "Compressing dead air pauses & non-destructive FFmpeg splicing.", threshold: 0.65, icon: Scissors },
-  { label: "Voice preservation & mastering", detail: "Preserving 100% original tone, pitch, and timbre.", threshold: 0.85, icon: Music },
-  { label: "Cleaned audio ready", detail: "Ready for live A/B compare and high-quality download.", threshold: 0.99, icon: CheckCircle2 },
-];
-
-export default function AudioCleanerPage() {
+export default function AudioCleanerPageClient() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
-  // Selected file and analysis states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [audioCleanOptions, setAudioCleanOptions] = useState<AudioCleanStudioOptions>({
-    preserveInputQuality: true,
-    removeSilence: true,
-    trimEnds: true,
+    removeRepeatedTakes: true,
+    removeFillerWords: true,
+    smartSilenceCut: true,
+    voicePreserveMode: "natural",
     pacing: "fast",
     exportFormat: "mp3",
+    vocalTone: "natural",
   });
+  const audioCleanOptionsRef = useRef(audioCleanOptions);
+  audioCleanOptionsRef.current = audioCleanOptions;
 
   const [audioCleanAnalysis, setAudioCleanAnalysis] = useState<AudioCleanStudioAnalysis | null>(null);
-  const [isAnalyzingAudio, setIsAnalyzingAudio] = useState<boolean>(false);
+  const [isAnalyzingAudio, setIsAnalyzingAudio] = useState(false);
   const [audioCleanResult, setAudioCleanResult] = useState<AudioCleanStudioResult | null>(null);
-  const [isCleaning, setIsCleaning] = useState<boolean>(false);
+  const [isCleaning, setIsCleaning] = useState(false);
 
-  // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
+
   const isUploadingOrAnalyzingRef = useRef(false);
-  const audioCleanOptionsRef = useRef(audioCleanOptions);
 
-  useEffect(() => {
-    audioCleanOptionsRef.current = audioCleanOptions;
-  }, [audioCleanOptions]);
-
-  // Auth redirect
+  // Authentication Guard
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login?returnUrl=/dashboard/audio-cleaner");
     }
   }, [user, authLoading, router]);
 
-  // Load billing entitlement
+  // Billing Entitlement
   useEffect(() => {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
@@ -255,6 +220,7 @@ export default function AudioCleanerPage() {
             planId: ent.planId || "paid",
             planName: ent.planName || "Creator",
             monthlyVideoLimit: limit,
+            expiresAt: ent.expiresAt,
             usage: { used, limit, remaining },
           });
         }
@@ -265,56 +231,29 @@ export default function AudioCleanerPage() {
     fetchBilling();
   }, [user]);
 
-  // Refresh local project history from the server
+  // Handle Automatic Cloud Upload & Transcription Analysis upon file selection
   useEffect(() => {
-    if (!user) return;
-    async function fetchHistory() {
-      try {
-        const res = await fetch(`/api/reels/history?userId=${encodeURIComponent(user?.id || "")}`);
-        const payload: unknown = await res.json().catch(() => ({}));
-        if (!res.ok || !isRecord(payload) || !payload.ok || !Array.isArray(payload.renders)) return;
-        const audioRenders = payload.renders.filter(isRecentRender).filter((render) =>
-          ["audioClean", "audio-cleaner", "AUDIO_CLEANER"].includes(render.mode),
-        );
-        saveRecentRenders(audioRenders);
-      } catch (err) {
-        console.warn("Could not load render history:", err);
-      }
-    }
-    fetchHistory();
-  }, [user]);
-
-  // Trigger Automatic Transcription & Audio Analysis when file is selected
-  useEffect(() => {
-    if (!selectedFile || !user?.id) return;
-    if (isUploadingOrAnalyzingRef.current) return;
-    isUploadingOrAnalyzingRef.current = true;
-
     let isSubscribed = true;
 
     async function triggerAudioAnalysis() {
+      if (!selectedFile || !user?.id) return;
+      if (isUploadingOrAnalyzingRef.current) return;
+      isUploadingOrAnalyzingRef.current = true;
+
+      setIsAnalyzingAudio(true);
+      setAudioCleanAnalysis(null);
+      setAudioCleanResult(null);
+      setJobStatus({ state: "uploading", message: "Uploading audio to cloud stream...", progress: 0.1 });
+
       try {
-        setIsAnalyzingAudio(true);
-        setAudioCleanResult(null);
-        setAudioCleanAnalysis(null);
-        setJobStatus({
-          state: "uploading",
-          message: "Uploading your recording...",
-          progress: 0.1,
-        });
-
-        if (!selectedFile || !user?.id) {
-          throw new Error("Missing audio file or active user session");
-        }
-
         const mediaKey = await uploadFileViaPresign(selectedFile, "audioClean", user.id);
 
         if (!isSubscribed) return;
 
         setJobStatus({
           state: "starting",
-          message: "Groq Whisper transcribing speech & scanning audio timeline...",
-          progress: 0.25,
+          message: "Groq Whisper transcribing & mapping silence gaps...",
+          progress: 0.35,
         });
 
         const analyzeResponse = await fetch("/api/audio-clean/analyze", {
@@ -331,28 +270,33 @@ export default function AudioCleanerPage() {
           const errorData: unknown = await analyzeResponse.json().catch(() => ({}));
           const errorMessage = isRecord(errorData) && typeof errorData.error === "string"
             ? errorData.error
-            : "We couldn't understand the speech in this recording.";
+            : "Audio analysis failed. Please try again.";
           throw new Error(errorMessage);
         }
 
-        if (!isSubscribed) return;
         const analysisData = await readAudioCleanStream(analyzeResponse, (event) => {
           if (!isSubscribed) return;
-          setJobStatus({ state: "starting", message: event.message, progress: event.progress });
+          setJobStatus({
+            state: "starting",
+            message: event.message,
+            progress: event.progress,
+          });
         });
-        if (!isSubscribed) return;
+
         if (!isAudioCleanStudioAnalysis(analysisData)) {
-          throw new Error("The analysis response was incomplete. Please try again.");
+          throw new Error("Audio analysis result was incomplete. Please try again.");
         }
 
-        setAudioCleanAnalysis(analysisData);
-        setJobStatus({ state: "idle", message: "" });
+        if (isSubscribed) {
+          setAudioCleanAnalysis(analysisData);
+          setJobStatus({ state: "idle", message: "" });
+        }
       } catch (err: unknown) {
         if (!isSubscribed) return;
         console.error("Audio clean analysis error:", err);
         setJobStatus({
           state: "error",
-          message: getErrorMessage(err, "We couldn't prepare your audio. Try a clearer recording."),
+          message: getErrorMessage(err, "We couldn't analyze your audio. Try a clearer recording."),
         });
       } finally {
         isUploadingOrAnalyzingRef.current = false;
@@ -369,7 +313,7 @@ export default function AudioCleanerPage() {
     };
   }, [selectedFile, user?.id]);
 
-  // Handle re-align transcription using pasted script
+  // Handle re-align transcription with edited script
   const handleReanalyzeWithScript = async (pastedScript: string) => {
     if (!selectedFile || !user?.id) return;
     setIsAnalyzingAudio(true);
@@ -433,16 +377,12 @@ export default function AudioCleanerPage() {
     const renderFileName = selectedFile.name;
     const plannedTitle = renderFileName.replace(/\.[^/.]+$/, "") || "Cleaned Audio";
 
-    // Gather silence cuts from analysis
     const segmentsToCut = audioCleanAnalysis.allSilenceCuts && audioCleanAnalysis.allSilenceCuts.length > 0
       ? audioCleanAnalysis.allSilenceCuts
       : audioCleanAnalysis.segments.flatMap((segment: any) =>
           segment.action === "cut" ? [segment] : segment.internalCuts || [],
         );
 
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
     setJobStatus({
       state: "rendering",
       message: "Compressing dead air pauses & non-destructive FFmpeg splicing...",
@@ -532,9 +472,6 @@ export default function AudioCleanerPage() {
   };
 
   const handleReset = () => {
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
     setJobStatus({ state: "idle" });
     setAudioCleanAnalysis(null);
     setAudioCleanResult(null);
@@ -546,54 +483,57 @@ export default function AudioCleanerPage() {
     setJobStatus({ state: "idle" });
   };
 
-  const userRemainingCredits = billingEntitlement?.active
-    ? Math.round(billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit ?? 0)
-    : undefined;
-
   const isError = jobStatus.state === "error";
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#090A0F] flex flex-col items-center justify-center text-zinc-400 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#3B82F6]" />
-        <p className="text-sm font-semibold tracking-wide text-zinc-300">Loading AI Audio Cleaner...</p>
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <p className="text-sm font-semibold text-slate-800">Loading AI Audio Cleaner...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0D13] text-zinc-100 flex flex-col selection:bg-[#0066FF]/30 selection:text-white pb-12">
-      {/*  Top Navigation Bar (Obsidian Charcoal Surface)  */}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B0D13]/90 backdrop-blur-xl shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 sm:gap-4">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-blue-500/20 selection:text-blue-600 overflow-hidden font-sans">
+      {/* Top Header - Unified Full Bleed Canvas */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-2xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Back Button */}
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 text-xs font-bold text-zinc-300 hover:text-white transition group"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-              <span className="hidden sm:inline">All Tools</span>
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
 
-            <div className="h-4 w-px bg-white/10" />
+            <BrandLogo size="sm" showBadge={false} variant="light" />
 
-            <BrandLogo size="sm" showBadge={false} variant="dark" />
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-2.5 py-0.5 text-[11px] font-black text-[#3B82F6]">
-              <Sparkles size={11} className="text-[#3B82F6]" />
-              Dedicated Studio
-            </span>
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">AI Audio Cleaner</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Credits badge */}
-            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-xs font-bold">
-              <Zap size={14} className="text-[#3B82F6] fill-[#3B82F6]" />
-              <span className="text-zinc-400">Balance:</span>
-              <span className="text-white font-black">{billingEntitlement ? userRemainingCredits : "..."} Credits</span>
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-2xs text-slate-800">
+              <Zap size={14} className="text-blue-600 fill-blue-600" />
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
               <Link
                 href="/pricing"
-                className="ml-1 text-[11px] text-[#3B82F6] hover:text-[#3B82F6] underline font-black"
+                className="ml-0.5 text-[11px] text-blue-600 hover:text-blue-500 underline font-black"
               >
                 +Add
               </Link>
@@ -602,74 +542,40 @@ export default function AudioCleanerPage() {
         </div>
       </header>
 
-      {/*  Main Canvas  */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Navigation & Unified Header Bar */}
-        <div className="rounded-[28px] border border-white/10 bg-[#0E1526] p-6 shadow-2xl space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
-            <div className="space-y-1">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3.5 py-1 text-xs font-black text-[#3B82F6] uppercase tracking-wider">
-                <Sparkles size={13} className="text-[#3B82F6]" />
-                <span>Smart Pause & Silence Cutter</span>
-              </div>
-              <h1 className="text-2xl sm:text-4xl font-black text-white">
-                AI Audio Cleaner <span className="bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] bg-clip-text text-transparent">& Studio</span>
-              </h1>
-              <p className="text-xs sm:text-sm text-zinc-400">
-                Clean unwanted pauses and silence from your recordings while keeping your natural voice 100% intact.
-              </p>
-            </div>
-
-            {/* Core Quality Pill */}
-            <div className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-300 shrink-0">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>100% Original Voice Preserved</span>
-            </div>
-          </div>
-
-          {/* Process Workflow Roadmap (Single Source of Truth) */}
-          <StudioWorkflowRoadmap mode="audioClean" />
-        </div>
-
-
-        {/* Global Error Banner */}
-        {isError && (
-          <div className="max-w-2xl mx-auto rounded-[28px] border border-red-500/20 bg-red-500/5 p-8 text-center space-y-4">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 text-red-500 border border-red-500/20">
+      {/* Main Studio Viewport */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
+        {isError ? (
+          <div className="max-w-2xl mx-auto my-auto p-8 rounded-2xl border border-rose-200 bg-rose-50/60 text-center space-y-4 shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 border border-rose-200">
               <AlertCircle size={28} />
             </div>
-            <h3 className="text-lg font-black text-white">Audio cleanup failed</h3>
-            <p className="text-xs text-zinc-400 leading-relaxed max-w-md mx-auto">
-              {jobStatus.message || "We couldn't clean this recording. Please try again."}
+            <h3 className="text-lg font-bold text-slate-900">Audio cleanup failed</h3>
+            <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
+              {jobStatus.message || "We couldn't clean this recording. Please try a clearer audio file."}
             </p>
             <button
               onClick={handleReset}
-              className="rounded-full bg-gradient-to-r from-[#0066FF] to-[#3B82F6] px-6 py-2.5 text-xs font-black text-white shadow-lg shadow-[#0066FF]/25 transition hover:brightness-110 cursor-pointer"
+              className="rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-2.5 text-xs font-black text-white shadow-xs transition active:scale-95 cursor-pointer"
             >
-              Reset & Try Again
+              Reset &amp; Try Again
             </button>
           </div>
-        )}
-
-        {/* Studio Workspace */}
-        {!isError && (
-          <div className="space-y-6">
-            <AudioCleanStudio
-              selectedFile={selectedFile}
-              onSelectFile={setSelectedFile}
-              audioCleanOptions={audioCleanOptions}
-              setAudioCleanOptions={setAudioCleanOptions}
-              audioCleanAnalysis={audioCleanAnalysis}
-              setAudioCleanAnalysis={setAudioCleanAnalysis}
-              isAnalyzingAudio={isAnalyzingAudio}
-              onReanalyzeWithScript={handleReanalyzeWithScript}
-              audioCleanResult={audioCleanResult}
-              onCleanAudio={handleCleanAudio}
-              isCleaning={isCleaning}
-              onReset={handleReset}
-              onBackToEdit={handleBackToEdit}
-            />
-          </div>
+        ) : (
+          <AudioCleanStudio
+            selectedFile={selectedFile}
+            onSelectFile={setSelectedFile}
+            audioCleanOptions={audioCleanOptions}
+            setAudioCleanOptions={setAudioCleanOptions}
+            audioCleanAnalysis={audioCleanAnalysis}
+            setAudioCleanAnalysis={setAudioCleanAnalysis}
+            isAnalyzingAudio={isAnalyzingAudio}
+            onReanalyzeWithScript={handleReanalyzeWithScript}
+            audioCleanResult={audioCleanResult}
+            onCleanAudio={handleCleanAudio}
+            isCleaning={isCleaning}
+            onReset={handleReset}
+            onBackToEdit={handleBackToEdit}
+          />
         )}
       </main>
     </div>

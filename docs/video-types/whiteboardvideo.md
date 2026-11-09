@@ -3,6 +3,13 @@
 ## 1. Overview & Purpose
 **Whiteboard Animation Video** brings the clarity of executive boardroom presentations, consulting diagrams, and educational hand-drawn explainers to automated video generation. Rather than childish cartoon doodles, Itnavideo's whiteboard engine emulates a clean corporate strategy whiteboard: thin metal borders, crisp handwriting typography, structured bullet hierarchies, hand-drawn vector arrows, and highlight strokes.
 
+The dedicated studio dashboard (`/dashboard/whiteboard-video`) features the **Unified 4-Step Guided Video Studio Architecture** (standardized across Itnavideo matching the reference `ImageToVideoStudio` design system):
+- **4-Step Guided Studio Roadmap**:
+  - **Step 1: Upload (Voiceover Audio & Script)**: Prominent audio dropzone (supports MP3, WAV, M4A up to 90s), sample audio clip loader, integrated waveform scrubber visualizer, real-time speech transcription status banner, editable transcript review box, and topic title input.
+  - **Step 2: Music & Audio (Soundtrack & SFX)**: Curated royalty-free AWS S3 background tracks (Lo-Fi, Piano, Upbeat, Cinematic, Story, Chill, etc.), in-card audio preview auditioning player, speech auto-ducking, and marker drawing sound effects toggle.
+  - **Step 3: Style (Hand, Marker & Typography)**: 12 writing typography personalities (`WHITEBOARD_FONTS_CATALOG`), drawing hand style selector (Right Hand `✋`, Left Hand `🤚`, Pure Draw `⚡`), and marker ink color palette.
+  - **Step 4: Preview (Studio Monitor & Scene Storyboard)**: 9:16 vertical boardroom whiteboard monitor with live hand-drawn icon rendering, scene beat stepper, transcript storyboard review list, watermark remover toggle, and sticky action bar with "Create Whiteboard Video (1 Cr)".
+
 ---
 
 ## 2. Key Specifications & Limits

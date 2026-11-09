@@ -1,6 +1,5 @@
 "use client";
 
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,7 +7,6 @@ import BrandLogo from "@/components/brand/BrandLogo";
 import {
   SplitScreenExplainerStudio,
   type VisualUploadItem,
-  AWS_SPLIT_BGM_TRACKS,
 } from "@/components/dashboard/SplitScreenExplainerStudio";
 import { useAuth } from "@/components/auth/AuthContext";
 import {
@@ -46,13 +44,6 @@ type BillingEntitlement = {
   };
 };
 
-const SPLIT_SCREEN_RENDER_STEPS = [
-  { label: "Creator Video & Visuals Ingest", detail: "Uploading talking-head video and explanation slides", threshold: 0.15, icon: Upload },
-  { label: "Groq Speech Transcription & Alignment", detail: "Millisecond-level word timing and editorial typo sync", threshold: 0.40, icon: Sparkles },
-  { label: "50/50 Dual Layout & SFX Placement", detail: "Top explanation motion, flame divider, and audio ducking", threshold: 0.70, icon: Layers },
-  { label: "1080p Cloud Composition & Mastering", detail: "AWS Lambda 30 FPS vertical MP4 cloud rendering", threshold: 0.95, icon: Film },
-];
-
 type JobStatus = {
   state: "idle" | "uploading" | "planning" | "rendering" | "ready" | "error" | "cancelled";
   message?: string;
@@ -77,13 +68,14 @@ type RecentRender = {
 export default function SplitScreenExplainerPageClient() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(true);
 
   // Studio configuration states
   const [creatorVideoFile, setCreatorVideoFile] = useState<File | null>(null);
   const [explanationItems, setExplanationItems] = useState<VisualUploadItem[]>([]);
   const [topicTitle, setTopicTitle] = useState("ATOMIC HABITS: The 1% Rule");
   const [subtitleStyle, setSubtitleStyle] = useState("glow-viral");
+  const [visualTheme, setVisualTheme] = useState<string>("modern-saas");
   const [bgmTrackId, setBgmTrackId] = useState("parasail");
   const [bgmVolume, setBgmVolume] = useState(0.12);
   const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
@@ -106,15 +98,32 @@ export default function SplitScreenExplainerPageClient() {
 
   // Load entitlement on mount
   useEffect(() => {
-    fetch("/api/user/subscription")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data && data.entitlement) {
-          setBillingEntitlement(data.entitlement);
+    if (!user) return;
+    async function fetchBilling() {
+      try {
+        const res = await fetch(
+          `/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`
+        );
+        const payload = await res.json().catch(() => ({}));
+        if (res.ok && payload.ok && payload.entitlement) {
+          const ent = payload.entitlement;
+          const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
+          const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
+          const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
+          setBillingEntitlement({
+            active: Boolean(ent.active),
+            planId: ent.planId || "paid",
+            planName: ent.planName || "Creator",
+            monthlyVideoLimit: limit,
+            usage: { used, limit, remaining },
+          });
         }
-      })
-      .catch(() => {});
-  }, []);
+      } catch (err) {
+        console.warn("Could not load billing entitlement:", err);
+      }
+    }
+    fetchBilling();
+  }, [user]);
 
   // Poll for render progress if rendering
   useEffect(() => {
@@ -142,7 +151,7 @@ export default function SplitScreenExplainerPageClient() {
           } else if (data.progress !== undefined) {
             setJobStatus((prev) => ({
               ...prev,
-              progress: Math.max(0.5, data.progress),
+              progress: Math.max(0.4, data.progress),
               message: data.stageMessage || "Composing dual 50/50 video on AWS Lambda...",
             }));
           }
@@ -270,6 +279,7 @@ export default function SplitScreenExplainerPageClient() {
           explanationVisualUrls: uploadedVisuals.map((v) => v.url),
           topicTitle,
           subtitleStyle,
+          visualTheme,
           bgmTrackId,
           bgmVolume,
           customBgmUrl,
@@ -316,62 +326,82 @@ export default function SplitScreenExplainerPageClient() {
     setShowCancelModal(false);
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+        <p className="text-sm font-semibold text-slate-800">Loading Split-Screen Explainer Studio...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      {/* Top Header: Clean White */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
+      {/* Top Header: Unified Full Bleed Canvas */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-2xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 transition"
-              title="Back to Dashboard"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-            <BrandLogo variant="light" />
-            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-200">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                Split-Screen Explainer
-              </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-[#0066FF] border border-blue-200">
-                50/50 Dual Zone
+
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Split-Screen Explainer</span>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200">
+                50/50 Dual Zone • 1 Cr
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {billingEntitlement && (
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
-                <span className="font-semibold text-slate-700">
-                  {billingEntitlement.planName || "Creator"} Plan
-                </span>
-                <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <span className="text-slate-500">
-                  {billingEntitlement.usage?.remaining ?? 10} Credits Left
-                </span>
-              </div>
-            )}
-            <Link
-              href="/dashboard"
-              className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition"
-            >
-              Studio Hub
-            </Link>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Balance Badge */}
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-2xs text-slate-800">
+              <Zap size={14} className="text-orange-600 fill-orange-600" />
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
+              >
+                +Add
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+      {/* Main Studio Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
         {jobStatus.state !== "idle" ? (
-          <div className="max-w-2xl mx-auto py-12">
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="splitScreenExplainer"
-              title={topicTitle || "Split Screen Explainer"}
+              title={topicTitle || "Split-Screen Explainer"}
               fileName={creatorVideoFile?.name}
-              status={jobStatus}
-              onRetry={() => handleStartRender()}
+              status={{
+                state: jobStatus.state as any,
+                message: jobStatus.message || "Composing 50/50 split screen explainer...",
+                progress: jobStatus.progress,
+                outputFile: jobStatus.outputFile,
+                title: topicTitle,
+              }}
+              onRetry={handleGenerate}
               onCancel={() => setShowCancelModal(true)}
               onReset={() => setJobStatus({ state: "idle" })}
             />
@@ -387,6 +417,8 @@ export default function SplitScreenExplainerPageClient() {
             onTopicTitleChange={setTopicTitle}
             subtitleStyle={subtitleStyle}
             onSubtitleStyleChange={setSubtitleStyle}
+            visualTheme={visualTheme}
+            onVisualThemeChange={setVisualTheme}
             bgmTrackId={bgmTrackId}
             onBgmTrackIdChange={setBgmTrackId}
             bgmVolume={bgmVolume}
@@ -400,6 +432,8 @@ export default function SplitScreenExplainerPageClient() {
             onGenerate={handleGenerate}
             isGenerating={jobStatus.state !== "idle" && jobStatus.state !== "ready"}
             renderedVideoUrl={jobStatus.outputFile}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
           />
         )}
       </main>
@@ -435,4 +469,3 @@ export default function SplitScreenExplainerPageClient() {
     </div>
   );
 }
-

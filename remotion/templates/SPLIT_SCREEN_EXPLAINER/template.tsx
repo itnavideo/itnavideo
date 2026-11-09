@@ -13,6 +13,20 @@ import {
 } from 'remotion';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
 import { UniversalCaptionLayer, CaptionChunk } from '../../components/library/UniversalCaptionLayer';
+import { MultiLayerTextOverlay, type DynamicTextLayer } from '../../components/library/MultiLayerTextOverlay';
+import { MultiLayerImageOverlay, type DynamicImageLayer } from '../../components/library/MultiLayerImageOverlay';
+import { MultiLayerSvgOverlay, type DynamicSvgLayer } from '../../components/library/MultiLayerSvgOverlay';
+import { MultiLayerEffectsOverlay, type DynamicEffectLayer } from '../../components/library/MultiLayerEffectsOverlay';
+import { MultiLayerAdjustmentOverlay, type DynamicAdjustmentLayer } from '../../components/library/MultiLayerAdjustmentOverlay';
+import { MultiLayerTransitionOverlay, type DynamicTransitionEvent } from '../../components/library/MultiLayerTransitionOverlay';
+import { MultiLayerMaskOverlay, type DynamicMaskLayer } from '../../components/library/MultiLayerMaskOverlay';
+import { MultiLayerPatternOverlay, type DynamicPatternLayer } from '../../components/library/MultiLayerPatternOverlay';
+import { MultiLayerCalloutOverlay, type DynamicCalloutLayer } from '../../components/library/MultiLayerCalloutOverlay';
+import { IsometricPerspectiveOverlay, type DynamicIsometricLayer } from '../../components/library/IsometricPerspectiveOverlay';
+import { MultiLayerGaugeOverlay, type DynamicGaugeLayer } from '../../components/library/MultiLayerGaugeOverlay';
+import { MultiLayerAudioVisualizerOverlay, type DynamicAudioVisualizerLayer } from '../../components/library/MultiLayerAudioVisualizerOverlay';
+import { VirtualCameraLayer, type VirtualCameraConfig } from '../../components/library/VirtualCameraLayer';
+import { VideoVisualThemeProvider, useVideoVisualTheme, type VideoVisualTheme } from '../../theme/VideoVisualTheme';
 
 export interface SplitScreenExplainerProps {
   mediaSrc?: string;
@@ -32,6 +46,20 @@ export interface SplitScreenExplainerProps {
   title?: string;
   topicTitle?: string;
   aspectRatio?: '9:16';
+  visualTheme?: string | Partial<VideoVisualTheme>;
+  textLayers?: DynamicTextLayer[];
+  imageLayers?: DynamicImageLayer[];
+  svgLayers?: DynamicSvgLayer[];
+  effectsLayers?: DynamicEffectLayer[];
+  adjustmentLayers?: DynamicAdjustmentLayer[];
+  transitionEvents?: DynamicTransitionEvent[];
+  maskLayers?: DynamicMaskLayer[];
+  patternLayers?: DynamicPatternLayer[];
+  calloutLayers?: DynamicCalloutLayer[];
+  isometricLayers?: DynamicIsometricLayer[];
+  gaugeLayers?: DynamicGaugeLayer[];
+  audioVisualizerLayers?: DynamicAudioVisualizerLayer[];
+  cameraConfig?: VirtualCameraConfig;
   [key: string]: any;
 }
 
@@ -125,6 +153,20 @@ export const SplitScreenExplainerTemplate: React.FC<SplitScreenExplainerProps> =
   durationSeconds = 60,
   title = '',
   topicTitle = '',
+  visualTheme = 'modern-saas',
+  textLayers = [],
+  imageLayers = [],
+  svgLayers = [],
+  effectsLayers = [],
+  adjustmentLayers = [],
+  transitionEvents = [],
+  maskLayers = [],
+  patternLayers = [],
+  calloutLayers = [],
+  isometricLayers = [],
+  gaugeLayers = [],
+  audioVisualizerLayers = [],
+  cameraConfig,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
@@ -177,269 +219,308 @@ export const SplitScreenExplainerTemplate: React.FC<SplitScreenExplainerProps> =
   });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: '#FAFAFA' }}>
-      {/* 1. CLEAN WHITE AMBIENT BACKGROUND */}
-      <SubtleAmbientBackground frame={frame} fps={fps} />
+    <VideoVisualThemeProvider theme={visualTheme}>
+      <AbsoluteFill style={{ backgroundColor: '#FAFAFA' }}>
+        {/* 1. CLEAN WHITE AMBIENT BACKGROUND */}
+        <SubtleAmbientBackground frame={frame} fps={fps} />
 
-      {/* 2. TOP 50%: EXPLANATION MEDIA ZONE (Images / Video Clips / Infographics) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '50%',
-          overflow: 'hidden',
-          backgroundColor: '#0F172A',
-          borderBottom: '3px solid #FF5722',
-        }}
-      >
-        {isVisualVideo ? (
-          <OffthreadVideo
-            src={currentVisualUrl}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              transform: removeAiWatermark ? 'scale(1.07)' : undefined,
-            }}
-          />
-        ) : (
-          <Img
-            src={currentVisualUrl}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              transform: `scale(${kenBurnsScale}) translateX(${kenBurnsPanX}px)`,
-              transformOrigin: 'center center',
-            }}
-          />
-        )}
-
-        {/* Top Gradient Overlay */}
+        {/* 2. TOP 50%: EXPLANATION MEDIA ZONE (Images / Video Clips / Infographics) */}
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 35%, rgba(0,0,0,0.65) 100%)',
-            pointerEvents: 'none',
-          }}
-        />
-
-        {/* Top Topic Badge */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 40,
-            left: 36,
-            right: 36,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            zIndex: 10,
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '50%',
+            overflow: 'hidden',
+            backgroundColor: '#0F172A',
+            borderBottom: '3px solid #FF5722',
           }}
         >
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 18px',
-              borderRadius: 9999,
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(12px)',
-              border: '1.5px solid rgba(255, 87, 34, 0.4)',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-            }}
-          >
-            <span
+          {isVisualVideo ? (
+            <OffthreadVideo
+              src={currentVisualUrl}
               style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: '#FF5722',
-                boxShadow: '0 0 8px #FF5722',
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transform: removeAiWatermark ? 'scale(1.07)' : undefined,
               }}
             />
-            <span
+          ) : (
+            <Img
+              src={currentVisualUrl}
               style={{
-                fontSize: 14,
-                fontWeight: 900,
-                color: '#0F172A',
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transform: `scale(${kenBurnsScale}) translateX(${kenBurnsPanX}px)`,
+                transformOrigin: 'center center',
+              }}
+            />
+          )}
+
+          {/* Top Gradient Overlay */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 35%, rgba(0,0,0,0.65) 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Top Topic Badge */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 40,
+              left: 36,
+              right: 36,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              zIndex: 10,
+            }}
+          >
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '8px 18px',
+                borderRadius: 9999,
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(12px)',
+                border: '1.5px solid rgba(255, 87, 34, 0.4)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+              }}
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: '#FF5722',
+                  boxShadow: '0 0 8px #FF5722',
+                }}
+              />
+              <span
+                style={{
+                  fontSize: 14,
+                  fontWeight: 900,
+                  color: '#0F172A',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  fontFamily: 'Inter, system-ui, sans-serif',
+                }}
+              >
+                {effectiveTitle}
+              </span>
+            </div>
+
+            <div
+              style={{
+                padding: '6px 14px',
+                borderRadius: 9999,
+                backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                color: '#FFFFFF',
+                fontSize: 12,
+                fontWeight: 800,
                 fontFamily: 'Inter, system-ui, sans-serif',
               }}
             >
-              {effectiveTitle}
-            </span>
+              Explanation Visual #{activeVisualIdx + 1}
+            </div>
           </div>
 
-          <div
-            style={{
-              padding: '6px 14px',
-              borderRadius: 9999,
-              backgroundColor: 'rgba(0, 0, 0, 0.65)',
-              color: '#FFFFFF',
-              fontSize: 12,
-              fontWeight: 800,
-              fontFamily: 'Inter, system-ui, sans-serif',
-            }}
-          >
-            Explanation Visual #{activeVisualIdx + 1}
-          </div>
+          {/* ── TOP 50% DYNAMIC EXPLANATION LAYER STACK ── */}
+          {patternLayers && patternLayers.length > 0 ? (
+            <MultiLayerPatternOverlay patterns={patternLayers} />
+          ) : null}
+
+          {imageLayers && imageLayers.length > 0 ? (
+            <MultiLayerImageOverlay layers={imageLayers} />
+          ) : null}
+
+          {svgLayers && svgLayers.length > 0 ? (
+            <MultiLayerSvgOverlay layers={svgLayers} />
+          ) : null}
+
+          {isometricLayers && isometricLayers.length > 0 ? (
+            <IsometricPerspectiveOverlay layers={isometricLayers} />
+          ) : null}
+
+          {gaugeLayers && gaugeLayers.length > 0 ? (
+            <MultiLayerGaugeOverlay gauges={gaugeLayers} />
+          ) : null}
+
+          {audioVisualizerLayers && audioVisualizerLayers.length > 0 ? (
+            <MultiLayerAudioVisualizerOverlay visualizers={audioVisualizerLayers} />
+          ) : null}
+
+          {textLayers && textLayers.length > 0 ? (
+            <MultiLayerTextOverlay layers={textLayers} defaultHeadingFont="Montserrat, sans-serif" />
+          ) : null}
+
+          {calloutLayers && calloutLayers.length > 0 ? (
+            <MultiLayerCalloutOverlay callouts={calloutLayers} />
+          ) : null}
+
+          {effectsLayers && effectsLayers.length > 0 ? (
+            <MultiLayerEffectsOverlay effects={effectsLayers} />
+          ) : null}
         </div>
-      </div>
 
-      {/* 3. CENTER SPLIT DIVIDER BAR */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: 0,
-          right: 0,
-          height: 6,
-          backgroundColor: '#FF5722',
-          zIndex: 30,
-          boxShadow: '0 0 16px rgba(255, 87, 34, 0.8)',
-        }}
-      />
-
-      {/* 4. BOTTOM 50%: CREATOR VIDEO ZONE (Facecam / Talking Head) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: 0,
-          width: '100%',
-          height: '50%',
-          overflow: 'hidden',
-          backgroundColor: '#1E293B',
-        }}
-      >
-        {finalCreatorVideo && isVideoUrl(finalCreatorVideo) ? (
-          <OffthreadVideo
-            src={finalCreatorVideo}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              transform: `scale(${creatorZoomScale})`,
-              transformOrigin: 'center center',
-              transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          />
-        ) : finalCreatorVideo ? (
-          <Img
-            src={finalCreatorVideo}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#94A3B8',
-              backgroundColor: '#0F172A',
-            }}
-          >
-            <p style={{ fontSize: 20, fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
-              Creator Video Feed
-            </p>
-            <p style={{ fontSize: 13, color: '#94A3B8', marginTop: 6 }}>
-              Talking head facecam video plays in bottom 50%
-            </p>
-          </div>
-        )}
-
-        {/* Creator Label Badge */}
+        {/* 3. CENTER SPLIT DIVIDER BAR */}
         <div
           style={{
             position: 'absolute',
-            bottom: 36,
-            left: 36,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '6px 14px',
-            borderRadius: 9999,
-            backgroundColor: 'rgba(0, 0, 0, 0.72)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            color: '#FFFFFF',
-            fontSize: 12,
-            fontWeight: 800,
-            zIndex: 10,
+            top: '50%',
+            left: 0,
+            right: 0,
+            height: 6,
+            backgroundColor: '#FF5722',
+            zIndex: 30,
+            boxShadow: '0 0 16px rgba(255, 87, 34, 0.8)',
+          }}
+        />
+
+        {/* 4. BOTTOM 50%: CREATOR VIDEO ZONE (Facecam / Talking Head) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: 0,
+            width: '100%',
+            height: '50%',
+            overflow: 'hidden',
+            backgroundColor: '#1E293B',
           }}
         >
-          <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#22C55E' }} />
-          <span>Creator Reaction / Narration</span>
+          {finalCreatorVideo && isVideoUrl(finalCreatorVideo) ? (
+            <OffthreadVideo
+              src={finalCreatorVideo}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transform: `scale(${creatorZoomScale})`,
+                transformOrigin: 'center center',
+                transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+            />
+          ) : finalCreatorVideo ? (
+            <Img
+              src={finalCreatorVideo}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#94A3B8',
+                backgroundColor: '#0F172A',
+              }}
+            >
+              <p style={{ fontSize: 20, fontWeight: 800, color: '#FFFFFF', margin: 0 }}>
+                Creator Video Feed
+              </p>
+              <p style={{ fontSize: 13, color: '#94A3B8', marginTop: 6 }}>
+                Talking head facecam video plays in bottom 50%
+              </p>
+            </div>
+          )}
+
+          {/* Creator Label Badge */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 36,
+              left: 36,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              padding: '6px 14px',
+              borderRadius: 9999,
+              backgroundColor: 'rgba(0, 0, 0, 0.72)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              color: '#FFFFFF',
+              fontSize: 12,
+              fontWeight: 800,
+              zIndex: 10,
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#22C55E' }} />
+            <span>Creator Reaction / Narration</span>
+          </div>
         </div>
-      </div>
 
-      {/* 5. SCENE TRANSITION SFX EVENTS */}
-      {allVisuals.map((_, idx) => {
-        const startFrame = idx * visualDurationFrames;
-        const sfxFile = idx === 0 ? 'assets/reusable/sfx/pop.mp3' : 'assets/reusable/sfx/whoosh.wav';
-        return (
-          <Sequence key={`sfx-${idx}`} from={startFrame} durationInFrames={Math.round(fps * 1.5)}>
-            <Audio src={resolveUrl(sfxFile)} volume={0.22} />
-          </Sequence>
-        );
-      })}
+        {/* 5. SCENE TRANSITION SFX EVENTS */}
+        {allVisuals.map((_, idx) => {
+          const startFrame = idx * visualDurationFrames;
+          const sfxFile = idx === 0 ? 'assets/reusable/sfx/pop.mp3' : 'assets/reusable/sfx/whoosh.wav';
+          return (
+            <Sequence key={`sfx-${idx}`} from={startFrame} durationInFrames={Math.round(fps * 1.5)}>
+              <Audio src={resolveUrl(sfxFile)} volume={0.22} />
+            </Sequence>
+          );
+        })}
 
-      {/* 6. UNIVERSAL 20 CAPTION STYLES (Positioned in Center Safe-Zone) */}
-      {activeCaptions.length > 0 && (
-        <UniversalCaptionLayer
-          captions={activeCaptions}
-          captionThemeId={activeCaptionTheme}
-          backgroundTheme="solid-white"
-          position="center"
-          styleOverrides={{
-            backgroundColor: 'rgba(255, 255, 255, 0.98)',
-            border: '2px solid rgba(255, 87, 34, 0.35)',
-            boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.08)',
-            color: '#0F172A',
-            fontSize: 28,
-            padding: '10px 24px',
-            borderRadius: 16,
-          }}
-        />
-      )}
+        {/* 6. UNIVERSAL 20 CAPTION STYLES (Positioned in Center Safe-Zone) */}
+        {activeCaptions.length > 0 && (
+          <UniversalCaptionLayer
+            captions={activeCaptions}
+            captionThemeId={activeCaptionTheme}
+            backgroundTheme="solid-white"
+            position="center"
+            styleOverrides={{
+              backgroundColor: 'rgba(255, 255, 255, 0.98)',
+              border: '2px solid rgba(255, 87, 34, 0.35)',
+              boxShadow: '0 16px 36px -10px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.08)',
+              color: '#0F172A',
+              fontSize: 28,
+              padding: '10px 24px',
+              borderRadius: 16,
+            }}
+          />
+        )}
 
-      {/* 7. ORIGINAL CREATOR AUDIO */}
-      {finalAudioUrl && (
-        <Audio
-          src={finalAudioUrl}
-          volume={1.0}
-        />
-      )}
+        {/* 7. ORIGINAL CREATOR AUDIO */}
+        {finalAudioUrl && (
+          <Audio
+            src={finalAudioUrl}
+            volume={1.0}
+          />
+        )}
 
-      {/* 8. BACKGROUND MUSIC (12% Default Volume) */}
-      {finalBgmUrl && finalBgmUrl !== 'none' && (
-        <Audio
-          src={finalBgmUrl}
-          volume={Math.max(0, Math.min(1, typeof bgmVolume === 'number' ? bgmVolume : 0.12))}
-          loop
-        />
-      )}
-      {!finalBgmUrl && bgmUrl !== 'none' && (
-        <Audio
-          src={resolveUrl('assets/reusable/music/parasail-silent-partner.mp3')}
-          volume={Math.max(0, Math.min(1, typeof bgmVolume === 'number' ? bgmVolume : 0.12))}
-          loop
-        />
-      )}
-    </AbsoluteFill>
+        {/* 8. BACKGROUND MUSIC (12% Default Volume) */}
+        {finalBgmUrl && finalBgmUrl !== 'none' && (
+          <Audio
+            src={finalBgmUrl}
+            volume={Math.max(0, Math.min(1, typeof bgmVolume === 'number' ? bgmVolume : 0.12))}
+            loop
+          />
+        )}
+        {!finalBgmUrl && bgmUrl !== 'none' && (
+          <Audio
+            src={resolveUrl('assets/reusable/music/parasail-silent-partner.mp3')}
+            volume={Math.max(0, Math.min(1, typeof bgmVolume === 'number' ? bgmVolume : 0.12))}
+            loop
+          />
+        )}
+      </AbsoluteFill>
+    </VideoVisualThemeProvider>
   );
 };
 

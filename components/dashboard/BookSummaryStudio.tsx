@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Mic,
   BookOpen,
@@ -38,18 +38,34 @@ import {
   Edit3,
   Save,
   CheckCheck,
+  Headphones,
+  Search,
+  X,
+  Settings2,
+  Download,
 } from 'lucide-react';
-import { BorderBeam } from "@/components/magicui/BorderBeam";
-import { StudioWorkflowRoadmap } from "@/components/dashboard/StudioWorkflowRoadmap";
-import { BookSummaryPlan, BookSummaryScene, BookSummarySceneType } from '@/services/ai/bookSummaryPlanner';
-import InteractiveRenderEngine, { JobStatus } from '@/components/render/InteractiveRenderEngine';
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
+import {
+  AWS_BGM_TRACKS,
+  getBgmTrackAudioUrl,
+  THIRTY_TWO_CAPTION_STYLES,
+  STYLE_PREVIEW_WORDS,
+  renderPreviewCaptionWords,
+  type LibraryBgmTrack,
+} from "@/components/dashboard/ImageToVideoStudio";
+import { BookSummaryPlan, BookSummaryScene } from '@/services/ai/bookSummaryPlanner';
+import { MASTER_THEMES, type VideoVisualTheme } from "@/services/design/visualDesignSystem";
 
 interface BookSummaryStudioProps {
   onStartRender?: (payload: any) => void;
-  renderStatus?: JobStatus;
+  renderStatus?: any;
   onResetRender?: () => void;
   onRetryRender?: () => void;
   onCancelRender?: () => void;
+  removeAiWatermark?: boolean;
+  onRemoveAiWatermarkChange?: (enabled: boolean) => void;
+  visualTheme?: string;
+  onVisualThemeChange?: (themeId: string) => void;
 }
 
 const TOPIC_PRESETS = [
@@ -60,46 +76,17 @@ const TOPIC_PRESETS = [
   { label: '🎯 Philosophy & Focus', value: 'philosophy' },
 ];
 
-// Master AWS S3 Media Library Background Music Tracks
-const AWS_BGM_TRACKS = [
-  { id: 'parasail', label: 'Calm Lofi (Recommended)', category: 'Lo-Fi', path: 'assets/reusable/music/parasail-silent-partner.mp3', desc: 'Warm acoustic lofi guitar' },
-  { id: '19th-floor', label: 'Deep Focus & Ambient', category: 'Piano', path: 'assets/reusable/music/19th-floor-bobby-richards.mp3', desc: 'Inspiring subtle piano tone' },
-  { id: 'dutty-vibe', label: 'Optimistic Beat', category: 'Upbeat', path: 'assets/reusable/music/dutty-vibe-tracks.mp3', desc: 'Gentle positive acoustic rhythm' },
-  { id: 'book-rental', label: 'Energetic Storyteller', category: 'Narrative', path: 'assets/reusable/music/book-the-rental-wit-it-rage.mp3', desc: 'Dynamic narrative flow' },
-  { id: 'crimson-fly', label: 'Cinematic Drama', category: 'Cinematic', path: 'assets/reusable/music/crimson-fly-huma-huma.mp3', desc: 'Emotional documentary drive' },
-  { id: 'crock-pot', label: 'Funky Chill Groove', category: 'Chill', path: 'assets/reusable/music/crock-pot-diamond-ortiz.mp3', desc: 'Playful lofi pulse' },
-  { id: 'illusions', label: 'Modern Swagger Beat', category: 'Beats', path: 'assets/reusable/music/illusions-anno-domini-beats.mp3', desc: 'Modern high-production beat' },
-  { id: 'not-for-nothing', label: 'Lounge Instrumental', category: 'Lounge', path: 'assets/reusable/music/not-for-nothing-otis-mcdonald.mp3', desc: 'Smooth brass & relaxed tempo' },
-  { id: 'something-going', label: 'Philosophical Mystery', category: 'Deep', path: 'assets/reusable/music/something-is-going-on-godmode.mp3', desc: 'Pensive intrigue & discovery' },
-  { id: 'bar-scene', label: 'Acoustic Folk', category: 'Acoustic', path: 'assets/reusable/music/that-one-bar-scene-rkvc.mp3', desc: 'Warm acoustic guitar storytelling' },
-  { id: 'true-messiah', label: 'Victorious Inspiration', category: 'Epic', path: 'assets/reusable/music/true-messiah-dj-freedem.mp3', desc: 'Triumphant motivational melody' },
-  { id: 'vishnu', label: 'Zen Reflection', category: 'Zen', path: 'assets/reusable/music/vishnu-patrick-patrikios.mp3', desc: 'Serene ambient meditation' },
-  { id: 'what-it-is', label: 'Smooth Motown', category: 'Motown', path: 'assets/reusable/music/what-it-is-silent-partner.mp3', desc: 'Catchy positive baseline' },
-  { id: 'none', label: 'No Background Music', category: 'Mute', path: 'none', desc: 'Pure spoken narration voiceover only' },
-];
+export const BOOK_SUMMARY_STEPS = [
+  { step: 1, title: 'Upload', desc: 'Audio & Book Details' },
+  { step: 2, title: 'Music', desc: 'Soundtrack & Volume' },
+  { step: 3, title: 'Style', desc: 'Captions & Theme' },
+  { step: 4, title: 'Preview', desc: '16:9 Cinema & Chapters' },
+] as const;
 
-// 20 Master YouTube 16:9 Caption Styles
-const TWENTY_CAPTION_STYLES = [
-  { id: 'glow-viral', name: 'Flame Glow Yellow', category: 'Viral', color: '#FFD700', badge: 'Popular', desc: 'High-energy glowing yellow active word highlight' },
-  { id: 'mrbeast', name: 'MrBeast Yellow Box', category: 'Viral', color: '#FFEB3B', badge: 'Creator', desc: 'Punchy yellow bounding box with bold pop' },
-  { id: 'netflix-yellow', name: 'Cinema Gold Subtitle', category: 'Cinema', color: '#FACC15', badge: 'Clean', desc: 'Classic yellow bold font with black outline' },
-  { id: 'hormozi-bold', name: 'Hormozi Lime Punch', category: 'Viral', color: '#22C55E', badge: 'Retention', desc: 'High-contrast punchy green & yellow caps' },
-  { id: 'neon-city', name: 'Cyberpunk Electric Cyan', category: 'Modern', color: '#00F0FF', badge: 'Glow', desc: 'Cyan and magenta neon electric pulse' },
-  { id: 'daily-look', name: 'Sunny Vlog Rounded', category: 'Friendly', color: '#FDE047', badge: 'Vlog', desc: 'Friendly rounded stroke with sunny glow' },
-  { id: 'blockbuster', name: 'Blockbuster Flame', category: 'News', color: '#FF5722', badge: 'Bold', desc: 'Heavyweight slab headlines with Flame Orange' },
-  { id: 'handwriting-pop', name: 'Organic Script Pop', category: 'Creative', color: '#FB7185', badge: 'Script', desc: 'Authentic cursive handwriting with dynamic line' },
-  { id: 'vox-docu', name: 'Vox Documentary Serif', category: 'Editorial', color: '#FFFFFF', badge: 'Docu', desc: 'Editorial serif with dark glass backdrop' },
-  { id: 'minimal-clean', name: 'Minimal Ice Blue', category: 'Modern', color: '#38BDF8', badge: 'Minimal', desc: 'Ultra-crisp modern sans-serif with slate pill' },
-  { id: 'cyber-ops', name: 'Radar Military Green', category: 'Tech', color: '#4ADE80', badge: 'Tech', desc: 'High-tech stencil with radar green glow' },
-  { id: 'premium-gold', name: 'Wealth Metallic Gold', category: 'Finance', color: '#FBBF24', badge: 'Wealth', desc: 'Rich warm metallic gold for business & finance' },
-  { id: 'word-highlight', name: 'Flame Word Pop', category: 'Kinetic', color: '#FF5722', badge: 'Dynamic', desc: 'Active word pops with vibrant flame orange' },
-  { id: 'classic-clean', name: 'Timeless White Cinema', category: 'Cinema', color: '#FFFFFF', badge: 'Classic', desc: 'Crisp white typography with deep drop shadow' },
-  { id: 'documentary-serif', name: 'Classical Book Serif', category: 'Book', color: '#E2E8F0', badge: 'Book', desc: 'Elegant serif captions for non-fiction literature' },
-  { id: 'karaoke-glow', name: 'Karaoke Amber Pulse', category: 'Karaoke', color: '#FFA000', badge: 'Karaoke', desc: 'Golden amber electric glow following speech' },
-  { id: 'box-pill', name: 'Dark Slate Pill Box', category: 'Modern', color: '#00FFCC', badge: 'Pill', desc: 'Solid dark badge background behind spoken words' },
-  { id: 'neon-cyber', name: 'Magenta Cyber Pulse', category: 'Modern', color: '#FF007F', badge: 'Neon', desc: 'High-contrast cyan & magenta glowing text' },
-  { id: 'minimal-lower-third', name: 'Scrubber Lower Third', category: 'Subtle', color: '#CBD5E1', badge: 'Clean', desc: 'Clean studio strip at the bottom of the frame' },
-  { id: 'editorial-book', name: 'Author Emerald Accent', category: 'Book', color: '#10B981', badge: 'Editorial', desc: 'Distinguished emerald highlight on solid white' },
+// 32 Sound Wave visualizer bars
+const WAVE_BARS = [
+  25, 45, 65, 30, 85, 95, 40, 70, 55, 80, 100, 60, 45, 90, 75, 35,
+  60, 85, 50, 95, 70, 40, 65, 80, 55, 90, 45, 70, 85, 35, 60, 40
 ];
 
 export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
@@ -108,8 +95,25 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   onResetRender,
   onRetryRender,
   onCancelRender,
+  removeAiWatermark = true,
+  onRemoveAiWatermarkChange,
+  visualTheme = 'editorial-minimal',
+  onVisualThemeChange,
 }) => {
+  // ── 4-Step Guided Video Studio State (Matching ImageToVideoStudio) ──
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+
+  const [activeVisualTheme, setActiveVisualTheme] = useState<string>(visualTheme || 'editorial-minimal');
+  const [bookNotesText, setBookNotesText] = useState<string>('');
+
+  useEffect(() => {
+    if (visualTheme) {
+      setActiveVisualTheme(visualTheme);
+    }
+  }, [visualTheme]);
+
   // Step 1: Upload & Info State (Strictly 16:9 Cinema Landscape, max 5 min / 300s)
+  const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string>('');
   const [audioS3Key, setAudioS3Key] = useState<string>('');
   const [audioFileName, setAudioFileName] = useState<string>('');
@@ -119,19 +123,29 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   const [authorName, setAuthorName] = useState<string>('');
   const [selectedTopic, setSelectedTopic] = useState<string>('wealth');
 
+  // Audio Playback
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
+  const [audioCurrentTime, setAudioCurrentTime] = useState<number>(0);
+  const [isAudioMuted, setIsAudioMuted] = useState<boolean>(false);
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
+
   // Background Music State (Default Volume = 12%)
   const [selectedBgmTrack, setSelectedBgmTrack] = useState<string>(AWS_BGM_TRACKS[0].path);
-  const [customBgmUrl, setCustomBgmUrl] = useState<string>('');
-  const [customBgmName, setCustomBgmName] = useState<string>('');
+  const [bgmCategory, setBgmCategory] = useState<string>('All');
   const [bgmVolume, setBgmVolume] = useState<number>(12); // Default 12%
-  const [isUploadingBgm, setIsUploadingBgm] = useState(false);
-  const [playingBgmPreview, setPlayingBgmPreview] = useState<string | null>(null);
+  const [playingBgmId, setPlayingBgmId] = useState<string | null>(null);
+  const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [autoDucking, setAutoDucking] = useState<boolean>(true);
 
-  // Caption Theme State (20 Options)
-  const [selectedCaptionTheme, setSelectedCaptionTheme] = useState<string>('glow-viral');
-  const [captionSearchFilter, setCaptionSearchFilter] = useState<string>('all');
+  // Caption Theme State (32 Options)
+  const [selectedCaptionTheme, setSelectedCaptionTheme] = useState<string>('pop-word');
+  const [captionCategory, setCaptionCategory] = useState<string>('All');
+  const [captionSearch, setCaptionSearch] = useState<string>('');
+  const [hoveredStyleId, setHoveredStyleId] = useState<string | null>(null);
+  const [previewWordStep, setPreviewWordStep] = useState<number>(0);
 
   // Images & Visuals
+  const [bookCoverFile, setBookCoverFile] = useState<File | null>(null);
   const [bookCoverUrl, setBookCoverUrl] = useState<string>('');
   const [authorPortraitUrl, setAuthorPortraitUrl] = useState<string>('');
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
@@ -140,92 +154,33 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   // Uploading flags
   const [isUploadingAudio, setIsUploadingAudio] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
-  const [isUploadingAuthor, setIsUploadingAuthor] = useState(false);
-  const [isUploadingRef, setIsUploadingRef] = useState(false);
-
-  // Step 2: Storyboard & AI Plan State
-  const [studioStep, setStudioStep] = useState<'inputs' | 'storyboard' | 'rendering'>('inputs');
-  const [isSubmittingRender, setIsSubmittingRender] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Step 4: Storyboard & AI Plan State
   const [plan, setPlan] = useState<BookSummaryPlan | null>(null);
+  const [copiedTimestamps, setCopiedTimestamps] = useState(false);
   const [transcript, setTranscript] = useState<string>('');
   const [editableTranscript, setEditableTranscript] = useState<string>('');
-  const [transcriptSavedFeedback, setTranscriptSavedFeedback] = useState(false);
-  const [showTranscriptEditor, setShowTranscriptEditor] = useState(false);
   const [planWords, setPlanWords] = useState<unknown[]>([]);
   const [planTimestampSegments, setPlanTimestampSegments] = useState<unknown[]>([]);
   const [durationSeconds, setDurationSeconds] = useState<number>(60);
+  const [activeChapterIndex, setActiveChapterIndex] = useState<number>(0);
 
-  // Compulsory Preview & Sync Player States
-  const [previewReviewed, setPreviewReviewed] = useState(false);
-  const [activePreviewIndex, setActivePreviewIndex] = useState(0);
-  const [isPreviewAudioPlaying, setIsPreviewAudioPlaying] = useState(false);
-  const [previewAudioCurrentTime, setPreviewAudioCurrentTime] = useState(0);
-
-  // Metadata copy states
-  const [copiedTitle, setCopiedTitle] = useState(false);
-  const [copiedDesc, setCopiedDesc] = useState(false);
-  const [copiedChapters, setCopiedChapters] = useState(false);
-
+  // Refs
   const audioInputRef = useRef<HTMLInputElement>(null);
-  const bgmInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
-  const authorInputRef = useRef<HTMLInputElement>(null);
-  const refImagesInputRef = useRef<HTMLInputElement>(null);
-  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
-  const bgmPreviewAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Periodic Word Animation Loop for Caption Cards (Step 3)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPreviewWordStep((prev) => (prev + 1) % 3);
+    }, 700);
+    return () => clearInterval(timer);
+  }, []);
 
   // Rule 4.1 Credit Calculation: 1 Min = 1 Credit (1m=1, 2m=2, 3m=3, 4m=4, 5m=5 Cr)
   const effectiveDuration = audioDuration > 0 ? audioDuration : (durationSeconds || 60);
   const calculatedCredits = Math.max(1, Math.min(5, Math.ceil(effectiveDuration / 60)));
-
-  // S3 & Cloudinary Upload Helpers
-  const uploadAudioToS3 = async (file: File): Promise<{ key: string; readUrl: string }> => {
-    const contentType = file.type || 'audio/mpeg';
-
-    const presignRes = await fetch('/api/media/presign', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fileName: file.name,
-        contentType,
-        fileSize: file.size,
-        mode: 'bookSummary',
-        userId: '',
-      }),
-    });
-    const presign = await presignRes.json().catch(() => ({}));
-    if (!presignRes.ok || !presign.ok) {
-      throw new Error(presign.error || 'Could not prepare audio upload. Please try again.');
-    }
-
-    const putRes = await fetch(presign.uploadUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': contentType },
-      body: file,
-    });
-    if (!putRes.ok) {
-      throw new Error('Audio upload failed. Please check your connection and try again.');
-    }
-
-    return { key: presign.key, readUrl: presign.uploadUrl.split('?')[0] };
-  };
-
-  const uploadImageToCloudinary = async (file: File, folder: string): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', folder);
-
-    const res = await fetch('/api/media/cloudinary-upload', {
-      method: 'POST',
-      body: formData,
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data.ok || !data.url) {
-      throw new Error(data.error || 'Image upload failed. Please try again.');
-    }
-    return data.url;
-  };
 
   // Instant Sample Demo Filler
   const handleLoadSampleDemo = () => {
@@ -241,149 +196,155 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
     setInputError(null);
   };
 
-  // Handle Custom Background Music Upload
-  const handleBgmUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('audio/')) {
-      setInputError('Please upload a valid background music audio file (MP3, WAV, AAC, M4A).');
-      return;
-    }
-
-    setInputError(null);
-    setIsUploadingBgm(true);
-    setCustomBgmName(file.name);
-
-    try {
-      const { readUrl } = await uploadAudioToS3(file);
-      setCustomBgmUrl(readUrl);
-      setSelectedBgmTrack(readUrl);
-    } catch (err: any) {
-      setInputError(err?.message || 'Failed to upload custom background music.');
-      setCustomBgmUrl('');
-      setCustomBgmName('');
-    } finally {
-      setIsUploadingBgm(false);
-      if (e.target) e.target.value = '';
-    }
-  };
-
-  // Handle Audio Selection & Instant Duration Detection
+  // Handle Voiceover Audio Selection
   const handleAudioSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('audio/') && !file.type.includes('mp4')) {
-      setInputError('Please upload a valid audio file (MP3, WAV, M4A, AAC) or MP4.');
+    if (!file.type.startsWith('audio/') && !file.name.match(/\.(mp3|wav|m4a|aac|ogg|mp4)$/i)) {
+      setInputError('Please upload a valid voiceover audio file (MP3, WAV, M4A, AAC).');
       return;
     }
 
+    setAudioFile(file);
+    setAudioFileName(file.name);
     setInputError(null);
     setIsUploadingAudio(true);
-    setAudioFileName(file.name);
-
-    const localUrl = URL.createObjectURL(file);
-    setAudioPreviewUrl(localUrl);
 
     try {
-      const audioEl = new Audio(localUrl);
+      const localUrl = URL.createObjectURL(file);
+      setAudioPreviewUrl(localUrl);
+
+      // Measure audio duration
+      const audioEl = new Audio();
+      audioEl.src = localUrl;
       audioEl.onloadedmetadata = () => {
-        if (audioEl.duration && Number.isFinite(audioEl.duration)) {
-          const detected = Math.round(audioEl.duration);
-          if (detected > 300) {
-            setInputError('Narration audio exceeds the 5-minute (300s) maximum limit for Book Summary videos.');
-            return;
-          }
-          setAudioDuration(detected);
-          setDurationSeconds(detected);
+        const d = Math.round(audioEl.duration);
+        if (d > 300) {
+          setInputError('Audio exceeds maximum limit of 5 minutes (300s). Please upload a shorter clip.');
+          setIsUploadingAudio(false);
+          return;
         }
+        setAudioDuration(d);
+        setDurationSeconds(d);
       };
 
-      const { key, readUrl } = await uploadAudioToS3(file);
-      setAudioS3Key(key);
-      setAudioUrl(readUrl);
+      // Upload to server/S3
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', file.name);
+
+      const res = await fetch('/api/reels/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        setAudioUrl(data.audioUrl || localUrl);
+        setTranscript(data.transcript || '');
+        setEditableTranscript(data.transcript || '');
+        setPlanWords(Array.isArray(data.words) ? data.words : []);
+        setPlanTimestampSegments(Array.isArray(data.segments) ? data.segments : []);
+      } else {
+        setAudioUrl(localUrl);
+      }
     } catch (err: any) {
-      setInputError(err?.message || 'Failed to upload audio. Please try again.');
-      setAudioUrl('');
-      setAudioPreviewUrl('');
+      console.warn('Audio analysis warning:', err);
+      setAudioUrl(URL.createObjectURL(file));
     } finally {
       setIsUploadingAudio(false);
-      if (e.target) e.target.value = '';
     }
   };
 
-  // Book Cover Upload
-  const handleCoverSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle Book Cover Selection
+  const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setInputError(null);
-    setIsUploadingCover(true);
-    try {
-      const url = await uploadImageToCloudinary(file, 'itnavideo12345/book-covers');
-      setBookCoverUrl(url);
-    } catch (err: any) {
-      setInputError(err?.message || 'Failed to upload book cover.');
-    } finally {
-      setIsUploadingCover(false);
-      if (e.target) e.target.value = '';
-    }
-  };
 
-  // Author Portrait Upload
-  const handleAuthorSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setInputError(null);
-    setIsUploadingAuthor(true);
-    try {
-      const url = await uploadImageToCloudinary(file, 'itnavideo12345/authors');
-      setAuthorPortraitUrl(url);
-    } catch (err: any) {
-      setInputError(err?.message || 'Failed to upload author portrait.');
-    } finally {
-      setIsUploadingAuthor(false);
-      if (e.target) e.target.value = '';
-    }
-  };
-
-  // Reference Images Upload (up to 20 images)
-  const handleRefImagesSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    const remainingSlots = 20 - referenceImages.length;
-    if (remainingSlots <= 0) {
-      setInputError('Maximum 20 reference images allowed.');
+    if (!file.type.startsWith('image/')) {
+      setInputError('Please upload a valid image file (PNG, JPG, WEBP).');
       return;
     }
-    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+
+    setBookCoverFile(file);
+    const localUrl = URL.createObjectURL(file);
+    setBookCoverUrl(localUrl);
     setInputError(null);
-    setIsUploadingRef(true);
-    try {
-      const uploadedUrls: string[] = [];
-      for (const file of filesToUpload) {
-        const url = await uploadImageToCloudinary(file, 'itnavideo12345/book-references');
-        uploadedUrls.push(url);
-      }
-      setReferenceImages(prev => [...prev, ...uploadedUrls]);
-    } catch (err: any) {
-      setInputError(err?.message || 'Failed to upload reference images.');
-    } finally {
-      setIsUploadingRef(false);
-      if (e.target) e.target.value = '';
+  };
+
+  // Handle Toggle Audio Play/Pause
+  const togglePlayAudio = () => {
+    if (!audioPlayerRef.current) return;
+    if (isPlayingAudio) {
+      audioPlayerRef.current.pause();
+      setIsPlayingAudio(false);
+    } else {
+      audioPlayerRef.current.play().catch(() => { });
+      setIsPlayingAudio(true);
     }
   };
 
-  // Step 1 -> Step 2: Run Storyboard Analysis API
-  const handleAnalyzeAndBuildStoryboard = async () => {
+  // Handle Toggle BGM Auditioning
+  const handleTogglePlayBgm = (track: LibraryBgmTrack) => {
+    if (track.id === 'none') {
+      if (bgmAudioRef.current) bgmAudioRef.current.pause();
+      setPlayingBgmId(null);
+      setSelectedBgmTrack('none');
+      return;
+    }
+
+    if (playingBgmId === track.id) {
+      if (bgmAudioRef.current) bgmAudioRef.current.pause();
+      setPlayingBgmId(null);
+    } else {
+      if (bgmAudioRef.current) bgmAudioRef.current.pause();
+      const audioUrl = getBgmTrackAudioUrl(track.path);
+      const audio = new Audio(audioUrl);
+      audio.volume = bgmVolume / 100;
+      audio.onended = () => setPlayingBgmId(null);
+      audio.play().catch((e) => console.warn('BGM play warning:', e));
+      bgmAudioRef.current = audio;
+      setPlayingBgmId(track.id);
+      setSelectedBgmTrack(track.path);
+    }
+  };
+
+  // Clean up BGM audio on unmount
+  useEffect(() => {
+    return () => {
+      if (bgmAudioRef.current) bgmAudioRef.current.pause();
+    };
+  }, []);
+
+  // Filtered BGM tracks
+  const filteredBgmTracks = useMemo(() => {
+    return AWS_BGM_TRACKS.filter((t) => {
+      if (bgmCategory !== 'All' && t.category !== bgmCategory) return false;
+      return true;
+    });
+  }, [bgmCategory]);
+
+  // Filtered Caption Styles
+  const filteredCaptionStyles = useMemo(() => {
+    return THIRTY_TWO_CAPTION_STYLES.filter((style) => {
+      if (captionCategory !== 'All' && style.category !== captionCategory) return false;
+      if (captionSearch.trim()) {
+        const q = captionSearch.toLowerCase().trim();
+        return (
+          style.name.toLowerCase().includes(q) ||
+          (style.desc && style.desc.toLowerCase().includes(q)) ||
+          (style.category && style.category.toLowerCase().includes(q))
+        );
+      }
+      return true;
+    });
+  }, [captionCategory, captionSearch]);
+
+  // Generate AI Storyboard Plan if needed
+  const handleGeneratePlan = async () => {
     if (!audioUrl) {
       setInputError('Audio narration file is required to create a Book Summary Video.');
-      return;
-    }
-
-    const hasAnyImage = Boolean(bookCoverUrl || authorPortraitUrl || (referenceImages && referenceImages.length > 0));
-    if (!hasAnyImage) {
-      setInputError('Please upload at least 1 image (Book Cover, Author Portrait, or Reference Image).');
       return;
     }
 
@@ -396,9 +357,9 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           audioUrl,
-          bookTitle,
+          bookTitle: bookTitle || 'Keynote Book Summary',
           authorName,
-          bookCoverUrl,
+          bookCoverUrl: bookCoverUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
           authorPortraitUrl,
           referenceImages,
           topic: selectedTopic,
@@ -413,186 +374,79 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
 
       const data = await res.json();
       setPlan(data.plan);
-      setTranscript(data.transcript || '');
-      setEditableTranscript(data.transcript || '');
-      setPlanWords(Array.isArray(data.words) ? data.words : []);
-      setPlanTimestampSegments(Array.isArray(data.timestampSegments) ? data.timestampSegments : []);
-      setPreviewReviewed(false);
-      setActivePreviewIndex(0);
-      if (data.durationSeconds) {
-        setDurationSeconds(data.durationSeconds);
-        if (!audioDuration) setAudioDuration(Math.round(data.durationSeconds));
+      if (data.transcript && !editableTranscript) {
+        setTranscript(data.transcript);
+        setEditableTranscript(data.transcript);
       }
-      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-      setStudioStep('storyboard');
+      if (data.words) setPlanWords(data.words);
+      if (data.timestampSegments) setPlanTimestampSegments(data.timestampSegments);
+      setCurrentStep(4);
     } catch (err: any) {
-      setInputError(err?.message || 'Error creating AI Storyboard plan. Please try again.');
+      // Fallback default chapters if LLM fails
+      const fallbackChapters: BookSummaryScene[] = [
+        {
+          id: 'ch-1',
+          sceneType: 'title_hook',
+          sceneIndex: 0,
+          startTimeSeconds: 0,
+          endTimeSeconds: 15,
+          durationSeconds: 15,
+          chapterNumber: 1,
+          chapterTitle: 'The Core Premise',
+          text: bookTitle ? `Key ideas and takeaways from ${bookTitle}` : 'Core foundational insights that drive outsized results',
+          subtitle: authorName ? `By ${authorName}` : 'Executive Masterclass',
+          visualType: 'book_cover_hero',
+        },
+        {
+          id: 'ch-2',
+          sceneType: 'core_principle',
+          sceneIndex: 1,
+          startTimeSeconds: 15,
+          endTimeSeconds: 30,
+          durationSeconds: 15,
+          chapterNumber: 2,
+          chapterTitle: 'The Compounding Effect',
+          text: 'Small daily adjustments produce massive long-term transformations.',
+          subtitle: 'Systemic Advantage',
+          visualType: 'bullet_hierarchy',
+        },
+      ];
+      setPlan({
+        bookTitle: bookTitle || 'Book Summary',
+        authorName: authorName || 'Featured Author',
+        topic: selectedTopic,
+        scenes: fallbackChapters,
+        durationSeconds: audioDuration || 60,
+      });
+      setCurrentStep(4);
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-  // Storyboard editing helpers
-  const handleUpdateSceneText = (sceneId: string, newText: string) => {
-    if (!plan) return;
-    setPlan({
-      ...plan,
-      scenes: plan.scenes.map(s => s.id === sceneId ? { ...s, text: newText } : s),
-    });
-  };
-
-  const handleUpdateSceneSubtitle = (sceneId: string, newSubtitle: string) => {
-    if (!plan) return;
-    setPlan({
-      ...plan,
-      scenes: plan.scenes.map(s => s.id === sceneId ? { ...s, subtitle: newSubtitle } : s),
-    });
-  };
-
-  const handleUpdateSceneType = (sceneId: string, newType: BookSummarySceneType) => {
-    if (!plan) return;
-    setPlan({
-      ...plan,
-      scenes: plan.scenes.map(s => s.id === sceneId ? { ...s, type: newType } : s),
-    });
-  };
-
-  const handleToggleDisableScene = (sceneId: string) => {
-    if (!plan) return;
-    setPlan({
-      ...plan,
-      scenes: plan.scenes.map(s => s.id === sceneId ? { ...s, disabled: !s.disabled } : s),
-    });
-  };
-
-  const handleDeleteScene = (sceneId: string) => {
-    if (!plan) return;
-    setPlan({
-      ...plan,
-      scenes: plan.scenes.filter(s => s.id !== sceneId),
-    });
-  };
-
-  const handleAddKeyIdeaScene = () => {
-    if (!plan) return;
-    const maxDur = audioDuration || durationSeconds || 60;
-    const lastScene = plan.scenes[plan.scenes.length - 1];
-    const start = lastScene ? Math.min(maxDur - 3.5, lastScene.endSeconds + 1) : 5;
-    const newScene: BookSummaryScene = {
-      id: `scene-custom-${Date.now()}`,
-      type: 'KEY_IDEA',
-      startSeconds: Math.max(0, start),
-      endSeconds: Math.min(maxDur, start + 3.5),
-      text: 'Key Principle or Takeaway',
-      subtitle: bookTitle ? `Key Insight • ${bookTitle}` : 'Core Concept',
-    };
-    setPlan({
-      ...plan,
-      scenes: [...plan.scenes, newScene].sort((a, b) => a.startSeconds - b.startSeconds),
-    });
-  };
-
-  // Editorial Transcript Editor Save Handler
-  const handleSaveEditedTranscript = () => {
-    setTranscript(editableTranscript);
-    setTranscriptSavedFeedback(true);
-    setTimeout(() => setTranscriptSavedFeedback(false), 2500);
-  };
-
-  // Preview Music Track Preview Player
-  const togglePlayBgmTrack = (trackPath: string) => {
-    if (trackPath === 'none') {
-      if (bgmPreviewAudioRef.current) bgmPreviewAudioRef.current.pause();
-      setPlayingBgmPreview(null);
-      return;
-    }
-    if (playingBgmPreview === trackPath) {
-      if (bgmPreviewAudioRef.current) bgmPreviewAudioRef.current.pause();
-      setPlayingBgmPreview(null);
-    } else {
-      if (bgmPreviewAudioRef.current) {
-        bgmPreviewAudioRef.current.pause();
-        bgmPreviewAudioRef.current.src = trackPath.startsWith('http') ? trackPath : `/${trackPath.replace(/^\/+/, '')}`;
-        bgmPreviewAudioRef.current.volume = Math.max(0.05, bgmVolume / 100);
-        bgmPreviewAudioRef.current.play().then(() => {
-          setPlayingBgmPreview(trackPath);
-        }).catch(() => setPlayingBgmPreview(null));
-      }
-    }
-  };
-
-  // Live Audio Narration Sync in Preview
-  const togglePreviewAudio = () => {
-    if (!previewAudioRef.current) return;
-    if (isPreviewAudioPlaying) {
-      previewAudioRef.current.pause();
-      setIsPreviewAudioPlaying(false);
-    } else {
-      previewAudioRef.current.play().then(() => {
-        setIsPreviewAudioPlaying(true);
-      }).catch(err => {
-        console.warn('Playback error:', err);
-      });
-    }
-  };
-
-  const activeScenes = plan ? plan.scenes.filter(s => !s.disabled) : [];
-  const currentPreviewScene = activeScenes[activePreviewIndex] || activeScenes[0];
-
-  // Sync active preview scene with audio playback time
-  useEffect(() => {
-    const audio = previewAudioRef.current;
-    if (!audio || !plan) return;
-
-    const onTimeUpdate = () => {
-      const curTime = audio.currentTime;
-      setPreviewAudioCurrentTime(curTime);
-      const matchingIdx = activeScenes.findIndex(
-        s => curTime >= s.startSeconds && curTime <= s.endSeconds
-      );
-      if (matchingIdx !== -1 && matchingIdx !== activePreviewIndex) {
-        setActivePreviewIndex(matchingIdx);
-      }
-    };
-
-    const onEnded = () => {
-      setIsPreviewAudioPlaying(false);
-    };
-
-    audio.addEventListener('timeupdate', onTimeUpdate);
-    audio.addEventListener('ended', onEnded);
-    return () => {
-      audio.removeEventListener('timeupdate', onTimeUpdate);
-      audio.removeEventListener('ended', onEnded);
-    };
-  }, [plan, activeScenes, activePreviewIndex]);
-
-  // Step 2 -> Step 3: Trigger Final Video Render Job (Guarded by Compulsory Preview)
-  const handleStartFinalRender = () => {
-    if (!previewReviewed) {
-      setInputError('Compulsory Preview: Please review and click "Approve & Confirm Preview" before starting the render.');
-      if (typeof window !== 'undefined') window.scrollTo({ top: 300, behavior: 'smooth' });
+  // Launch Cloud Render
+  const handleSubmitRender = () => {
+    if (!onStartRender) return;
+    if (!audioUrl) {
+      setInputError('Audio narration file is required.');
       return;
     }
 
-    if (!plan || !onStartRender || isSubmittingRender) return;
-
-    // Pause audio previews if playing
-    if (previewAudioRef.current && isPreviewAudioPlaying) {
-      previewAudioRef.current.pause();
-      setIsPreviewAudioPlaying(false);
-    }
-    if (bgmPreviewAudioRef.current && playingBgmPreview) {
-      bgmPreviewAudioRef.current.pause();
-      setPlayingBgmPreview(null);
-    }
-
-    setIsSubmittingRender(true);
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-    setStudioStep('rendering');
-
-    // Final BGM Selection (Custom Upload || Selected AWS Track)
-    const finalBgmUrl = customBgmUrl || selectedBgmTrack;
+    const currentScenes = plan?.scenes && plan.scenes.length > 0 ? plan.scenes : [
+      {
+        id: 'scene-1',
+        sceneType: 'title_hook' as const,
+        sceneIndex: 0,
+        startTimeSeconds: 0,
+        endTimeSeconds: audioDuration || 60,
+        durationSeconds: audioDuration || 60,
+        chapterNumber: 1,
+        chapterTitle: bookTitle || 'Core Summary',
+        text: editableTranscript.slice(0, 120) || 'Transformational insights from the book',
+        subtitle: authorName || 'Masterclass',
+        visualType: 'book_cover_hero' as const,
+      }
+    ];
 
     onStartRender({
       mode: 'bookSummary',
@@ -600,1386 +454,1255 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       audioUrl,
       audioS3Key,
       durationSeconds: audioDuration || durationSeconds || 60,
-      bookTitle,
+      bookTitle: bookTitle || 'Book Summary',
       authorName,
-      bookCoverUrl,
+      bookCoverUrl: bookCoverUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80',
       authorPortraitUrl,
       referenceImages,
-      scenes: plan.scenes.filter(s => !s.disabled),
-      metadata: plan.metadata,
+      scenes: currentScenes,
       captionsTheme: selectedCaptionTheme,
-      bgmUrl: finalBgmUrl === 'none' ? 'none' : finalBgmUrl,
-      bgmVolume: finalBgmUrl === 'none' ? 0 : bgmVolume / 100, // Normalized (e.g. 12% -> 0.12)
+      bgmUrl: selectedBgmTrack === 'none' ? 'none' : selectedBgmTrack,
+      bgmVolume: selectedBgmTrack === 'none' ? 0 : bgmVolume / 100,
       aspectRatio: '16:9',
       transcript: editableTranscript || transcript,
       words: planWords,
       timestampSegments: planTimestampSegments,
+      removeAiWatermark,
+      visualTheme: activeVisualTheme,
+      bookNotes: bookNotesText,
     });
   };
 
-  // Copy helper
-  const copyToClipboard = (text: string, setter: (val: boolean) => void) => {
-    navigator.clipboard.writeText(text);
-    setter(true);
-    setTimeout(() => setter(false), 2000);
-  };
-
-  // Format timestamp helper (seconds -> mm:ss)
   const formatTime = (secs: number) => {
+    if (isNaN(secs) || secs < 0) return '0:00';
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
   };
 
-  // Reset Studio Handler
-  const handleStartOver = () => {
-    if (confirm('Start a new book summary? This will clear current inputs.')) {
-      setAudioUrl('');
-      setAudioS3Key('');
-      setAudioFileName('');
-      setAudioDuration(0);
-      setAudioPreviewUrl('');
-      setBookTitle('');
-      setAuthorName('');
-      setBookCoverUrl('');
-      setAuthorPortraitUrl('');
-      setReferenceImages([]);
-      setCustomBgmUrl('');
-      setCustomBgmName('');
-      setPlan(null);
-      setStudioStep('inputs');
-      setPreviewReviewed(false);
-      setInputError(null);
-      if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  const currentChapters = plan?.scenes || [];
+  const activeChapter = currentChapters[activeChapterIndex] || currentChapters[0] || {
+    chapterTitle: 'The Big Idea',
+    text: 'Key takeaways and transformational quotes from the book',
+    subtitle: 'Chapter Overview',
   };
-
-  // Filter 20 Caption Styles
-  const filteredCaptionStyles = TWENTY_CAPTION_STYLES.filter(s => {
-    if (captionSearchFilter === 'all') return true;
-    return s.category.toLowerCase() === captionSearchFilter.toLowerCase();
-  });
-
-  // Render Active Cloud Render View
-  if (studioStep === 'rendering' && renderStatus && renderStatus.state !== 'idle') {
-    return (
-      <div className="w-full space-y-8">
-        <InteractiveRenderEngine
-          mode="bookSummary"
-          status={renderStatus}
-          title={bookTitle || 'Book Summary Video'}
-          fileName={audioFileName}
-          onRetry={onRetryRender || (() => {})}
-          onReset={() => {
-            setStudioStep('inputs');
-            if (onResetRender) onResetRender();
-          }}
-          onCancel={onCancelRender}
-        />
-
-        {/* Ready State: Metadata & Chapter Exposures */}
-        {renderStatus.state === 'ready' && plan?.metadata && (
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 space-y-6 shadow-xl shadow-slate-200/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-[#0066FF]/10 border border-[#0066FF]/30 p-2.5 text-[#0066FF]">
-                  <FileText size={20} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-slate-900">YouTube &amp; Social Publishing Metadata</h3>
-                  <p className="text-xs text-slate-500">Auto-generated metadata, chapters, and key takeaways for 16:9 upload</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* 1. Suggested YouTube Title */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#0066FF]">Suggested Title</span>
-                  <button
-                    onClick={() => copyToClipboard(plan.metadata.suggestedTitle, setCopiedTitle)}
-                    className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
-                  >
-                    {copiedTitle ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-                    <span>{copiedTitle ? 'Copied' : 'Copy'}</span>
-                  </button>
-                </div>
-                <p className="text-base font-bold text-slate-900">{plan.metadata.suggestedTitle}</p>
-              </div>
-
-              {/* 2. YouTube Description */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#0066FF]">Description</span>
-                  <button
-                    onClick={() => copyToClipboard(plan.metadata.description, setCopiedDesc)}
-                    className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
-                  >
-                    {copiedDesc ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-                    <span>{copiedDesc ? 'Copied' : 'Copy'}</span>
-                  </button>
-                </div>
-                <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">{plan.metadata.description}</p>
-              </div>
-
-              {/* 3. Chapter Timestamps */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3 md:col-span-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#0066FF]">Chapter Timestamps</span>
-                  <button
-                    onClick={() => {
-                      const text = plan.metadata.chapters.map(c => `${c.timestamp} - ${c.title}`).join('\n');
-                      copyToClipboard(text, setCopiedChapters);
-                    }}
-                    className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
-                  >
-                    {copiedChapters ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-                    <span>{copiedChapters ? 'Copied All' : 'Copy Chapters'}</span>
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {plan.metadata.chapters.map((chap, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-sm text-slate-800 bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs">
-                      <span className="font-mono text-xs font-bold text-[#0066FF] bg-[#0066FF]/10 px-2 py-1 rounded-md border border-[#0066FF]/20">
-                        {chap.timestamp}
-                      </span>
-                      <span className="font-medium truncate">{chap.title}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
 
   return (
-    <div className="relative rounded-[28px] border border-slate-200/90 bg-white p-5 sm:p-8 shadow-xl shadow-slate-200/40 min-w-0 max-w-full overflow-x-hidden space-y-8 text-slate-900">
-      {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={320} duration={14} colorFrom="#0066FF" colorTo="#2563EB" />
-
-      {/* Hidden BGM preview player */}
-      <audio ref={bgmPreviewAudioRef} onEnded={() => setPlayingBgmPreview(null)} />
-
-      {/* Studio Stage Stepper Banner (Clean Light Surface) */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-4 sm:p-5">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="shrink-0 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] p-2.5 text-white shadow-md shadow-[#0066FF]/20">
-            <BookOpen size={22} className="stroke-[2.5]" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-black text-slate-900 truncate">Book Summary Studio</h2>
-              <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#0066FF]">
-                16:9 Widescreen
-              </span>
-            </div>
-            <p className="text-[11px] sm:text-xs text-slate-500 leading-tight mt-0.5">
-              1080p Full HD • 20 Caption Styles • BGM Audio Studio • {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} (1 Min = 1 Cr)
-            </p>
-          </div>
-        </div>
-
-        {/* Step Indicator Navigation Pills */}
-        <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
-          {audioUrl && (
-            <button
-              type="button"
-              onClick={handleStartOver}
-              className="mr-2 inline-flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-slate-800 transition cursor-pointer"
-              title="Reset and start over"
-            >
-              <RotateCcw size={12} />
-              <span className="hidden sm:inline">Start Over</span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setStudioStep('inputs')}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
-              studioStep === 'inputs'
-                ? 'bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-white font-black shadow-md shadow-[#0066FF]/20'
-                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            1. Media &amp; Setup
-          </button>
-          <span className="text-slate-300">/</span>
-          <button
-            type="button"
-            disabled={!plan}
-            onClick={() => plan && setStudioStep('storyboard')}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${
-              studioStep === 'storyboard'
-                ? 'bg-gradient-to-r from-[#0066FF] to-[#2563EB] text-white font-black shadow-md shadow-[#0066FF]/20'
-                : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed'
-            }`}
-          >
-            2. Storyboard &amp; Preview
-          </button>
-        </div>
-      </div>
-
-      {/* Process Workflow Roadmap (Full Width Standalone Block) */}
-      <StudioWorkflowRoadmap mode="bookSummary" />
-
-      {/* Input Error Callout */}
-      {inputError && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex items-center justify-between gap-3 text-red-800 text-sm font-bold shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <AlertCircle size={18} className="flex-shrink-0 text-red-500" />
-            <span>{inputError}</span>
-          </div>
-          <button
-            onClick={() => setInputError(null)}
-            className="text-xs text-red-600 hover:text-red-800 underline font-semibold cursor-pointer"
-          >
-            Dismiss
-          </button>
-        </div>
+    <div className="h-full w-full flex flex-col overflow-hidden bg-white text-slate-900 select-text font-sans">
+      {/* Hidden Audio Players */}
+      {audioPreviewUrl && (
+        <audio
+          ref={audioPlayerRef}
+          src={audioPreviewUrl}
+          onTimeUpdate={() => {
+            if (audioPlayerRef.current) {
+              setAudioCurrentTime(audioPlayerRef.current.currentTime);
+            }
+          }}
+          onEnded={() => setIsPlayingAudio(false)}
+        />
       )}
 
-      {/* STAGE 1: MEDIA & BOOK INFO INPUTS */}
-      {studioStep === 'inputs' && (
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left 7 Columns: Media Uploads (Audio + Book Cover + Author/Visuals) */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* 1. Spoken Audio Narration */}
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
-                      <Mic size={18} />
-                    </div>
-                    <div>
-                      <span className="text-sm font-black uppercase tracking-wider text-slate-900">Audio Narration</span>
-                      <p className="text-[11px] text-slate-500">Spoken book summary or chapter overview (Up to 5 min)</p>
-                    </div>
-                  </div>
+      {/* Hidden File Inputs */}
+      <input
+        ref={audioInputRef}
+        type="file"
+        accept="audio/*,video/mp4"
+        onChange={handleAudioSelect}
+        className="hidden"
+      />
+      <input
+        ref={coverInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleCoverSelect}
+        className="hidden"
+      />
 
-                  <div className="flex items-center gap-2">
-                    {!audioUrl && (
-                      <button
-                        type="button"
-                        onClick={handleLoadSampleDemo}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-blue-200 bg-blue-50 text-[11px] font-bold text-[#0066FF] hover:bg-blue-100 transition cursor-pointer shadow-xs"
-                        title="Load ready-made demo narration for testing"
-                      >
-                        <Sparkles size={12} />
-                        <span>Try Sample Demo</span>
-                      </button>
-                    )}
-                    <span className="text-[11px] font-extrabold uppercase bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1 rounded-full">
-                      Required
-                    </span>
-                  </div>
-                </div>
+      {/* ========================================================================= */}
+      {/* ROW 1: HEADER & STEPPER NAVIGATION BAR (16:9 Cinema Design)               */}
+      {/* ========================================================================= */}
+      <header className="shrink-0 border-b border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3.5 z-20">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+          {/* Left: Studio Branding & Title */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20">
+              <BookOpen size={20} className="stroke-[2.5]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-sans">
+                  Book Summary{" "}
+                  <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                    AI Studio
+                  </span>
+                </h1>
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-mono font-bold uppercase tracking-wider">
+                  16:9 Cinema
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 hidden md:block">
+                4-Step Guided Video Studio · Spoken narration, book chapters, soundtrack &amp; kinetic captions
+              </p>
+            </div>
+          </div>
 
-                <input
-                  ref={audioInputRef}
-                  type="file"
-                  accept="audio/*,video/mp4"
-                  onChange={handleAudioSelect}
-                  className="hidden"
-                />
+          {/* Center: Desktop Stepper (>=1024px) */}
+          <nav aria-label="Studio Steps" className="hidden lg:flex items-center gap-2 lg:gap-3">
+            {BOOK_SUMMARY_STEPS.map((s, idx) => {
+              const isCompleted = s.step < currentStep;
+              const isActive = s.step === currentStep;
 
-                {!audioUrl ? (
+              return (
+                <React.Fragment key={s.step}>
                   <button
                     type="button"
-                    onClick={() => audioInputRef.current?.click()}
-                    disabled={isUploadingAudio}
-                    className="w-full h-44 border-2 border-dashed border-slate-200 hover:border-[#0066FF]/60 rounded-2xl bg-slate-50/70 hover:bg-blue-50/30 transition-all flex flex-col items-center justify-center gap-3 text-slate-500 hover:text-slate-900 cursor-pointer group"
+                    onClick={() => setCurrentStep(s.step)}
+                    className="group flex items-center gap-2 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer hover:bg-slate-50/80 active:scale-98"
                   >
-                    <div className="rounded-full bg-white p-3 group-hover:scale-110 shadow-xs group-hover:bg-blue-50 transition-transform">
-                      <UploadCloud size={32} className="text-[#0066FF]" />
+                    {/* Circle */}
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all ${isCompleted
+                        ? "bg-emerald-500 text-white shadow-xs shadow-emerald-500/25 ring-2 ring-emerald-500/20"
+                        : isActive
+                          ? "bg-white border-2 border-orange-500 text-orange-600 shadow-[0_0_0_4px_rgba(249,115,22,0.14)] font-black"
+                          : "bg-slate-100 border border-slate-200 text-slate-400 group-hover:border-slate-300"
+                        }`}
+                    >
+                      {isCompleted ? <Check size={14} className="stroke-[3]" /> : s.step}
                     </div>
-                    <div className="text-center px-4">
-                      <p className="text-sm font-bold text-slate-800">
-                        {isUploadingAudio ? 'Uploading Narration Audio...' : 'Click to Upload Narration Audio'}
+
+                    {/* Label */}
+                    <div className="text-left hidden xl:block">
+                      <p
+                        className={`text-xs font-black leading-tight ${isActive
+                          ? "text-slate-900"
+                          : isCompleted
+                            ? "text-emerald-700"
+                            : "text-slate-400"
+                          }`}
+                      >
+                        {s.title}
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">MP3, WAV, M4A, or MP4 audio • Max 5 Minutes (300s)</p>
-                      <span className="inline-block mt-2 font-mono text-[11px] text-[#0066FF] bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20 font-bold">
-                        1 Min = 1 Credit
-                      </span>
+                      <p className="text-[10px] text-slate-400 leading-tight">{s.desc}</p>
                     </div>
                   </button>
-                ) : (
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="rounded-xl bg-emerald-100 p-2 text-emerald-600 shrink-0">
-                          <CheckCircle2 size={22} />
+
+                  {/* Connecting Line */}
+                  {idx < BOOK_SUMMARY_STEPS.length - 1 && (
+                    <div
+                      className={`h-0.5 w-6 lg:w-8 rounded-full transition-colors ${s.step < currentStep ? "bg-emerald-500" : "bg-slate-200"
+                        }`}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </nav>
+
+          {/* Right: Render Rate Badge */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="rounded-xl border border-orange-500/30 bg-orange-50/70 px-3 py-1.5 text-right shadow-2xs">
+              <span className="block text-[9px] font-bold uppercase tracking-wider text-orange-600">
+                1 Min = 1 Cr
+              </span>
+              <span className="text-xs sm:text-sm font-black text-orange-600">
+                {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Tablet & Mobile Stepper Bar (<1024px) */}
+        <div className="lg:hidden mt-3 pt-2.5 border-t border-slate-100 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 font-black text-slate-900 truncate">
+              <span className="text-orange-600 shrink-0">Step {currentStep} of 4:</span>
+              <span className="truncate">{BOOK_SUMMARY_STEPS[currentStep - 1].title}</span>
+              <span className="text-slate-400 font-normal hidden sm:inline">
+                · {BOOK_SUMMARY_STEPS[currentStep - 1].desc}
+              </span>
+            </div>
+            {currentStep > 1 && (
+              <button
+                type="button"
+                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1) as 1 | 2 | 3 | 4))}
+                className="text-[11px] font-bold text-orange-600 hover:text-orange-700 cursor-pointer shrink-0 ml-2"
+              >
+                ← Back
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 w-full">
+            {BOOK_SUMMARY_STEPS.map((s) => {
+              const isDone = s.step < currentStep;
+              const isCurrent = s.step === currentStep;
+              return (
+                <div
+                  key={s.step}
+                  onClick={() => setCurrentStep(s.step)}
+                  className={`h-1.5 flex-1 rounded-full transition-all cursor-pointer hover:opacity-80 ${isDone
+                    ? "bg-emerald-500 shadow-xs"
+                    : isCurrent
+                      ? "bg-gradient-to-r from-orange-500 to-amber-500 shadow-xs"
+                      : "bg-slate-200"
+                    }`}
+                  title={`Step ${s.step}: ${s.title}`}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      {/* ========================================================================= */}
+      {/* ROW 2: ACTIVE STEP CONTENT REGION (Internal scroll with smooth clearance)  */}
+      {/* ========================================================================= */}
+      <main className="flex-1 overflow-y-auto overscroll-contain scroll-smooth px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 sm:pb-32 w-full">
+        {/* Global Error Banner */}
+        {inputError && (
+          <div className="max-w-7xl mx-auto mb-6 flex items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle size={16} className="shrink-0 text-red-600" />
+              <span>{inputError}</span>
+            </div>
+            <button
+              onClick={() => setInputError(null)}
+              className="text-xs text-red-600 hover:text-red-800 underline font-semibold cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* ======================================================================= */}
+        {/* STEP 1: UPLOAD (Voiceover Audio & Book Details)                          */}
+        {/* ======================================================================= */}
+        {currentStep === 1 && (
+          <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                1. Upload your book summary audio &amp; details
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Upload your spoken book review voiceover to calculate chapter timings, then specify book title, author, and cover.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Main Media Upload Card (Col 8) */}
+              <div className="lg:col-span-8 space-y-4">
+                <div className="rounded-[28px] sm:rounded-[32px] border-2 border-orange-500/30 bg-gradient-to-b from-orange-50/20 via-white to-white p-4 sm:p-8 shadow-sm space-y-4 sm:space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-md shadow-orange-500/25 shrink-0">
+                        <Mic size={20} className="stroke-[2.5]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
+                            Spoken Book Narration
+                          </h2>
+                          <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-wider">
+                            Required
+                          </span>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-black text-slate-900 truncate">{audioFileName || 'Narration Audio'}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="font-mono text-xs font-bold text-emerald-700">
-                              {formatTime(audioDuration || durationSeconds)} / 05:00 Max
-                            </span>
-                            <span className="text-slate-300">•</span>
-                            <span className="text-xs font-bold text-amber-700">
-                              {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} Cost
-                            </span>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Your spoken voiceover explaining the book chapters and key takeaways
+                        </p>
+                      </div>
+                    </div>
+
+                    {audioUrl && (
+                      <span className="inline-flex items-center self-start sm:self-auto gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-mono font-bold shadow-xs">
+                        <Check size={13} className="stroke-[3]" />
+                        <span>{formatTime(audioDuration)} · {calculatedCredits} Cr</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Dropzone */}
+                  {!audioUrl ? (
+                    <div
+                      onClick={() => !isUploadingAudio && audioInputRef.current?.click()}
+                      className="group relative flex flex-col items-center justify-center rounded-[24px] sm:rounded-[28px] border-2 border-dashed border-orange-300 hover:border-orange-500 bg-white hover:bg-orange-50/40 min-h-[200px] sm:min-h-[240px] p-5 sm:p-10 text-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+                    >
+                      <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-orange-100 group-hover:bg-orange-500 text-orange-600 group-hover:text-white transition-all duration-200 shadow-sm mb-3 sm:mb-4">
+                        <UploadCloud size={28} className="stroke-[2.5]" />
+                      </div>
+
+                      <p className="text-sm sm:text-lg font-black text-slate-900 mb-1">
+                        Drop your book narration audio here, or{" "}
+                        <span className="text-orange-600 underline underline-offset-4">Browse File</span>
+                      </p>
+
+                      <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm leading-relaxed mb-3 sm:mb-4">
+                        Supports MP3, WAV, M4A, AAC · Maximum 5 Minutes (300s) · Millisecond Speech Sync
+                      </p>
+
+                      <div className="flex flex-wrap items-center justify-center gap-2.5">
+                        <div className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-black text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition shadow-sm">
+                          <Upload size={14} />
+                          <span>Select Narration Audio</span>
+                        </div>
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleLoadSampleDemo();
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-xs font-bold text-orange-600 px-3.5 py-2 sm:py-2.5 transition shadow-2xs"
+                        >
+                          <Sparkles size={13} />
+                          <span>Try Sample Demo (Atomic Habits)</span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl sm:rounded-3xl border-2 border-orange-300/80 bg-gradient-to-b from-orange-50/40 via-white to-white p-4 sm:p-6 shadow-xs space-y-4">
+                      {/* Audio Info Bar */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/25">
+                            <Headphones size={22} className="stroke-[2.5]" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-black text-slate-900 truncate max-w-[200px] sm:max-w-xs">
+                                {audioFileName || 'Book Narration'}
+                              </p>
+                              <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider shrink-0">
+                                Verified
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              Duration: <strong className="text-slate-900 font-bold">{formatTime(audioDuration)}</strong> · 16:9 Landscape Widescreen
+                            </p>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => audioInputRef.current?.click()}
-                          title="Replace Audio"
-                          className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
-                        >
-                          <RefreshCw size={13} />
-                          <span>Replace</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAudioUrl('');
-                            setAudioS3Key('');
-                            setAudioFileName('');
-                            setAudioDuration(0);
-                            setAudioPreviewUrl('');
-                          }}
-                          title="Remove Audio"
-                          className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer border border-red-200"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Integrated Playable Audio Waveform Preview */}
-                    {audioPreviewUrl && (
-                      <div className="pt-2 border-t border-emerald-200/60 flex items-center gap-3">
-                        <Volume2 size={16} className="text-emerald-600 shrink-0" />
-                        <audio
-                          controls
-                          src={audioPreviewUrl}
-                          className="w-full h-8 accent-[#FF5722]"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* 2. Visual Assets (Book Cover 3D Mockup + Author Portrait + Reference B-Roll) */}
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-6 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
-                      <ImagePlus size={18} />
-                    </div>
-                    <div>
-                      <span className="text-sm font-black uppercase tracking-wider text-slate-900">Visual Assets</span>
-                      <p className="text-[11px] text-slate-500">Book cover art, author portrait, and thematic visuals</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-extrabold uppercase bg-blue-50 border border-blue-200 text-[#0066FF] px-3 py-1 rounded-full">
-                    At Least 1 Image Required
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {/* Book Cover with 3D Preview */}
-                  <input ref={coverInputRef} type="file" accept="image/*" onChange={handleCoverSelect} className="hidden" />
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-slate-700">Book Cover (Front Art)</label>
-                      <span className="text-[10px] text-[#0066FF] font-semibold">Recommended</span>
-                    </div>
-
-                    {!bookCoverUrl ? (
-                      <button
-                        type="button"
-                        onClick={() => coverInputRef.current?.click()}
-                        disabled={isUploadingCover}
-                        className="w-full h-36 border border-slate-200 hover:border-[#0066FF]/50 rounded-2xl bg-slate-50/70 hover:bg-blue-50/20 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition cursor-pointer group"
-                      >
-                        <div className="rounded-xl bg-white p-2.5 group-hover:scale-105 transition-transform shadow-xs">
-                          <BookOpen size={22} className="text-[#0066FF]" />
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => audioInputRef.current?.click()}
+                            className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer shadow-xs"
+                          >
+                            Replace Audio
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAudioUrl('');
+                              setAudioFile(null);
+                            }}
+                            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer shadow-xs"
+                            title="Remove audio"
+                          >
+                            <X size={16} />
+                          </button>
                         </div>
-                        <span className="text-xs font-bold text-slate-800">
-                          {isUploadingCover ? 'Uploading Cover...' : 'Upload Book Cover'}
+                      </div>
+
+                      {/* Waveform Visualizer & Audio Controls */}
+                      <div className="space-y-2 pt-2">
+                        <div className="relative flex items-center justify-between gap-0.5 sm:gap-1 h-14 sm:h-16 w-full px-2.5 sm:px-3 py-2 rounded-2xl bg-slate-50/80 border border-slate-200/80 select-none shadow-inner">
+                          {WAVE_BARS.map((barHeight, idx) => {
+                            const totalBars = WAVE_BARS.length;
+                            const barPct = (idx / (totalBars - 1)) * 100;
+                            const currentPct = audioDuration > 0 ? (audioCurrentTime / audioDuration) * 100 : 0;
+                            const isPlayed = barPct <= currentPct;
+                            return (
+                              <div key={idx} className="flex-1 flex items-center justify-center h-full">
+                                <div
+                                  style={{ height: `${barHeight}%` }}
+                                  className={`w-full max-w-[4px] sm:max-w-[6px] rounded-full transition-all duration-150 ${isPlayed
+                                    ? "bg-gradient-to-t from-orange-600 to-amber-500 shadow-2xs"
+                                    : "bg-slate-200"
+                                    }`}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Scrubber Bar */}
+                        <div className="flex items-center justify-between gap-3 px-1 pt-1">
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={togglePlayAudio}
+                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-md shadow-orange-500/25 active:scale-95 transition cursor-pointer"
+                            >
+                              {isPlayingAudio ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                            </button>
+
+                            <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-slate-700">
+                              <span>{formatTime(audioCurrentTime)}</span>
+                              <span className="text-slate-400">/</span>
+                              <span>{formatTime(audioDuration)}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex-1 max-w-xs hidden sm:block">
+                            <input
+                              type="range"
+                              min="0"
+                              max={audioDuration || 60}
+                              step="0.1"
+                              value={audioCurrentTime}
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                setAudioCurrentTime(val);
+                                if (audioPlayerRef.current) audioPlayerRef.current.currentTime = val;
+                              }}
+                              className="w-full accent-orange-500 cursor-pointer"
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (audioPlayerRef.current) {
+                                audioPlayerRef.current.muted = !isAudioMuted;
+                                setIsAudioMuted(!isAudioMuted);
+                              }
+                            }}
+                            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
+                          >
+                            {isAudioMuted ? <VolumeX size={16} className="text-red-500" /> : <Volume2 size={16} />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* AI Speech Transcription Status Banner */}
+                      <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2.5 text-emerald-900 font-bold min-w-0">
+                          <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                          <span className="truncate">
+                            Speech Transcribed &amp; Chapter Detection Ready (Groq Whisper Cloud AI)
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-0.5 rounded-md shrink-0">
+                          1080p Cinema Widescreen
                         </span>
-                        <span className="text-[10px] text-slate-400">Creates 3D book intro card</span>
-                      </button>
-                    ) : (
-                      <div className="relative rounded-2xl border border-slate-200 bg-slate-50/70 p-3 flex items-center gap-4 group">
-                        {/* 3D Book Cover Mockup Miniature */}
-                        <div className="relative w-16 h-22 rounded-r-md shadow-md overflow-hidden shrink-0 border border-slate-200">
-                          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-r from-black/40 to-transparent z-10" />
-                          <img src={bookCoverUrl} alt="Cover" className="w-full h-full object-cover" />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-slate-900 truncate">Book Cover Uploaded</p>
-                          <p className="text-[10px] text-emerald-600 font-semibold">3D Intro &amp; Outro Ready</p>
-                          <button
-                            type="button"
-                            onClick={() => coverInputRef.current?.click()}
-                            className="mt-1 text-[11px] text-[#0066FF] hover:underline font-bold cursor-pointer"
-                          >
-                            Change Cover
-                          </button>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => setBookCoverUrl('')}
-                          className="p-1.5 rounded-lg bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 transition cursor-pointer border border-slate-200"
-                        >
-                          <Trash2 size={14} />
-                        </button>
                       </div>
-                    )}
-                  </div>
-
-                  {/* Author Portrait (Optional) */}
-                  <input ref={authorInputRef} type="file" accept="image/*" onChange={handleAuthorSelect} className="hidden" />
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-slate-700">Author Portrait (Optional)</label>
-                      <span className="text-[10px] text-slate-400 font-semibold">Optional</span>
                     </div>
+                  )}
 
-                    {!authorPortraitUrl ? (
-                      <button
-                        type="button"
-                        onClick={() => authorInputRef.current?.click()}
-                        disabled={isUploadingAuthor}
-                        className="w-full h-36 border border-slate-200 hover:border-[#0066FF]/50 rounded-2xl bg-slate-50/70 hover:bg-blue-50/20 flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition cursor-pointer group"
-                      >
-                        <div className="rounded-full bg-white p-2.5 group-hover:scale-105 transition-transform shadow-xs">
-                          <User size={22} className="text-[#0066FF]" />
+                  {/* Editable Transcript Review Box */}
+                  {audioUrl && (
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileText size={16} className="text-orange-600" />
+                          <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                            Book Transcript &amp; Dialogue Review
+                          </h3>
                         </div>
-                        <span className="text-xs font-bold text-slate-800">
-                          {isUploadingAuthor ? 'Uploading Portrait...' : 'Upload Author Photo'}
+                        <span className="text-[11px] font-mono text-slate-500 font-bold">
+                          {editableTranscript.trim().split(/\s+/).filter(Boolean).length} Words
                         </span>
-                        <span className="text-[10px] text-slate-400">Shows on quote cards</span>
-                      </button>
-                    ) : (
-                      <div className="relative rounded-2xl border border-slate-200 bg-slate-50/70 p-3 flex items-center gap-4 group">
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-orange-400 shrink-0 shadow-sm">
-                          <img src={authorPortraitUrl} alt="Author" className="w-full h-full object-cover" />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-bold text-slate-900 truncate">Author Portrait Uploaded</p>
-                          <p className="text-[10px] text-emerald-600 font-semibold">Quote Cards Styled</p>
-                          <button
-                            type="button"
-                            onClick={() => authorInputRef.current?.click()}
-                            className="mt-1 text-[11px] text-[#0066FF] hover:underline font-bold cursor-pointer"
-                          >
-                            Change Photo
-                          </button>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => setAuthorPortraitUrl('')}
-                          className="p-1.5 rounded-lg bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 transition cursor-pointer border border-slate-200"
-                        >
-                          <Trash2 size={14} />
-                        </button>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Reference Images / Thematic Visuals (Up to 20 images) */}
-                <input ref={refImagesInputRef} type="file" accept="image/*" multiple onChange={handleRefImagesSelect} className="hidden" />
-                <div className="space-y-3 pt-2 border-t border-slate-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <label className="text-xs font-bold text-slate-800">Thematic Reference Images ({referenceImages.length}/20)</label>
-                      <p className="text-[11px] text-slate-500">Diagrams, charts, or custom chapter visuals</p>
-                    </div>
-                    <button
-                      type="button"
-                      disabled={referenceImages.length >= 20 || isUploadingRef}
-                      onClick={() => refImagesInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#0066FF] hover:bg-blue-100 disabled:opacity-40 transition cursor-pointer"
-                    >
-                      <Plus size={13} />
-                      <span>{isUploadingRef ? 'Uploading...' : 'Add Images'}</span>
-                    </button>
-                  </div>
-
-                  {referenceImages.length > 0 && (
-                    <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
-                      {referenceImages.map((url, idx) => (
-                        <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 flex-shrink-0 group shadow-xs">
-                          <img src={url} alt={`Ref ${idx}`} className="w-full h-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => setReferenceImages(referenceImages.filter((_, i) => i !== idx))}
-                            className="absolute top-1 right-1 p-1 rounded-md bg-black/70 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-600 cursor-pointer"
-                          >
-                            <Trash2 size={11} />
-                          </button>
-                        </div>
-                      ))}
+                      <textarea
+                        rows={4}
+                        value={editableTranscript}
+                        onChange={(e) => setEditableTranscript(e.target.value)}
+                        placeholder="Spoken transcript from your audio appears here. You can edit any sentence to correct book quotes and author insights..."
+                        className="w-full p-3.5 rounded-xl border border-slate-200 bg-white text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 leading-relaxed font-sans resize-none shadow-2xs"
+                      />
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* 3. Audio & Background Music (BGM) Studio (AWS Tracks + Custom Upload + Volume Slider) */}
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-6 shadow-sm">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
-                      <Music size={18} />
-                    </div>
-                    <div>
-                      <span className="text-sm font-black uppercase tracking-wider text-slate-900">Background Music (AWS S3 &amp; Custom Upload)</span>
-                      <p className="text-[11px] text-slate-500">Pick from 13+ production tracks or upload your own MP3</p>
-                    </div>
+              {/* Sidebar Book Info & Cover Upload (Col 4) */}
+              <div className="lg:col-span-4 space-y-4">
+                <div className="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                    <BookOpen size={16} className="text-orange-600" />
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                      Book &amp; Author Details
+                    </h3>
                   </div>
 
-                  {/* Volume Pill Display */}
-                  <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-full">
-                    <Volume2 size={14} className="text-[#0066FF]" />
-                    <span className="text-xs font-black text-slate-800">BGM Volume: {bgmVolume}%</span>
-                  </div>
-                </div>
-
-                {/* Interactive Volume Slider (Default: 12%) */}
-                <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                    <span className="flex items-center gap-1.5">
-                      <Sliders size={13} className="text-[#0066FF]" />
-                      <span>Background Music Volume (Default: 12%)</span>
-                    </span>
-                    <span className="font-mono text-xs font-black text-[#0066FF] bg-white px-2 py-0.5 rounded-md border border-slate-200">
-                      {bgmVolume}%
-                    </span>
+                  {/* Book Title */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700">Book Title</label>
+                    <input
+                      type="text"
+                      value={bookTitle}
+                      onChange={(e) => setBookTitle(e.target.value)}
+                      placeholder="e.g. Atomic Habits"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-orange-500 focus:outline-none transition shadow-2xs"
+                    />
                   </div>
 
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={bgmVolume}
-                    onChange={e => setBgmVolume(Number(e.target.value))}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#FF5722]"
-                  />
-
-                  {/* Quick Volume Presets */}
-                  <div className="flex items-center gap-2 pt-1">
-                    {[
-                      { label: 'Mute (0%)', val: 0 },
-                      { label: 'Subtle (12% - Recommended)', val: 12 },
-                      { label: 'Moderate (20%)', val: 20 },
-                      { label: 'Prominent (35%)', val: 35 },
-                    ].map(p => (
-                      <button
-                        key={p.val}
-                        type="button"
-                        onClick={() => setBgmVolume(p.val)}
-                        className={`text-[10px] font-bold px-2 py-1 rounded-md border transition cursor-pointer ${
-                          bgmVolume === p.val
-                            ? 'bg-[#FF5722] text-white border-[#0066FF]'
-                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
+                  {/* Author Name */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700">Author Name</label>
+                    <input
+                      type="text"
+                      value={authorName}
+                      onChange={(e) => setAuthorName(e.target.value)}
+                      placeholder="e.g. James Clear"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-orange-500 focus:outline-none transition shadow-2xs"
+                    />
                   </div>
-                </div>
 
-                {/* Custom User Background Music Upload Box */}
-                <input
-                  ref={bgmInputRef}
-                  type="file"
-                  accept="audio/*"
-                  onChange={handleBgmUpload}
-                  className="hidden"
-                />
-
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-4 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#0066FF] shrink-0">
-                      <Upload size={18} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-black text-slate-900 truncate">
-                        {customBgmName ? `Uploaded: ${customBgmName}` : 'Upload Your Own Custom Background Track'}
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        {customBgmUrl ? 'Custom music active for video render' : 'Upload custom MP3, WAV or royalty-free audio'}
-                      </p>
+                  {/* Topic Presets */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700">Topic / Category</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {TOPIC_PRESETS.map((t) => (
+                        <button
+                          key={t.value}
+                          type="button"
+                          onClick={() => setSelectedTopic(t.value)}
+                          className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition cursor-pointer ${selectedTopic === t.value
+                            ? 'bg-orange-500 text-white shadow-2xs'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            }`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    {customBgmUrl ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCustomBgmUrl('');
-                          setCustomBgmName('');
-                          setSelectedBgmTrack(AWS_BGM_TRACKS[0].path);
-                        }}
-                        className="px-2.5 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition cursor-pointer"
-                      >
-                        Remove
-                      </button>
+                  {/* Optional Book Notes & Outline (Ground Truth for AI Planner) */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                        <FileText size={13} className="text-orange-500" />
+                        Book Notes &amp; Key Takeaways (Optional)
+                      </label>
+                      <span className="text-[10px] text-slate-400 font-medium">Ground Truth for AI Planner</span>
+                    </div>
+                    <textarea
+                      value={bookNotesText}
+                      onChange={(e) => setBookNotesText(e.target.value)}
+                      placeholder="Paste chapter notes, quotes, or outline to guide factual accuracy..."
+                      rows={3}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 p-3 text-xs text-slate-900 focus:border-orange-500 focus:outline-none transition shadow-2xs resize-none font-medium"
+                    />
+                  </div>
+
+                  {/* Book Cover Image Upload */}
+                  <div className="space-y-2 pt-2 border-t border-slate-100">
+                    <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                      <span>Book Cover Image (Optional)</span>
+                      {bookCoverUrl && (
+                        <span className="text-[10px] text-emerald-600 font-bold">Loaded</span>
+                      )}
+                    </label>
+
+                    {bookCoverUrl ? (
+                      <div className="relative aspect-[3/4] max-w-[140px] mx-auto rounded-xl overflow-hidden border-2 border-orange-200 shadow-md group">
+                        <img src={bookCoverUrl} alt="Cover" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setBookCoverUrl('')}
+                          className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white hover:bg-red-600 transition"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
                     ) : (
-                      <button
-                        type="button"
-                        disabled={isUploadingBgm}
-                        onClick={() => bgmInputRef.current?.click()}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition cursor-pointer shadow-xs"
+                      <div
+                        onClick={() => coverInputRef.current?.click()}
+                        className="border-2 border-dashed border-slate-200 hover:border-orange-400 rounded-xl p-4 text-center cursor-pointer bg-slate-50 hover:bg-orange-50/30 transition flex flex-col items-center justify-center gap-1.5"
                       >
-                        <Upload size={12} />
-                        <span>{isUploadingBgm ? 'Uploading...' : 'Upload BGM Audio'}</span>
-                      </button>
+                        <ImagePlus size={22} className="text-orange-500" />
+                        <span className="text-xs font-bold text-slate-700">Add Book Cover</span>
+                        <span className="text-[10px] text-slate-400">PNG, JPG up to 10MB</span>
+                      </div>
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
 
-                {/* AWS S3 Preset Music Tracks (13+ Curated Library Tracks) */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-                    <span>Or Pick from AWS S3 Production Music Library ({AWS_BGM_TRACKS.length} Tracks)</span>
-                    <span className="text-[10px] text-slate-400">All royalty-free for YouTube monetization</span>
+            {/* Step 1 Continue Bar */}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+              <p className="text-xs text-slate-500 font-medium">
+                Step 1 of 4 completed · Next: Select background music and audio volume.
+              </p>
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-orange-500/20 transition cursor-pointer"
+              >
+                <span>Continue to Step 2: Music &amp; Audio</span>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================================= */}
+        {/* STEP 2: MUSIC & AUDIO (SOUNDTRACK & VOLUME)                             */}
+        {/* ======================================================================= */}
+        {currentStep === 2 && (
+          <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                2. Background Soundtrack &amp; Audio Mix
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Select an ambient royalty-free soundtrack calibrated for deep reading, and fine-tune speech auto-ducking.
+              </p>
+            </div>
+
+            {/* Category Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              {['All', 'Lo-Fi', 'Piano', 'Upbeat', 'Cinematic', 'Narrative', 'Chill', 'Beats', 'Lounge', 'Acoustic', 'Zen', 'Mute'].map(
+                (cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setBgmCategory(cat)}
+                    className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${bgmCategory === cat
+                      ? 'bg-orange-500 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                  >
+                    {cat}
+                  </button>
+                )
+              )}
+            </div>
+
+            {/* BGM Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+              {filteredBgmTracks.map((track) => {
+                const isSelected = selectedBgmTrack === track.path;
+                const isAuditioning = playingBgmId === track.id;
+
+                return (
+                  <div
+                    key={track.id}
+                    onClick={() => setSelectedBgmTrack(track.path)}
+                    className={`rounded-2xl border p-4 transition-all cursor-pointer flex flex-col justify-between gap-3 ${isSelected
+                      ? 'border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20 shadow-sm'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                      }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* Play/Pause Audition Button */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTogglePlayBgm(track);
+                          }}
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow-xs cursor-pointer ${isAuditioning
+                            ? 'bg-orange-500 text-white animate-pulse'
+                            : isSelected
+                              ? 'bg-orange-500 text-white'
+                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                            }`}
+                          title={isAuditioning ? 'Pause preview' : 'Play preview'}
+                        >
+                          {track.id === 'none' ? (
+                            <VolumeX size={16} />
+                          ) : isAuditioning ? (
+                            <Pause size={16} />
+                          ) : (
+                            <Play size={16} className="ml-0.5" />
+                          )}
+                        </button>
+
+                        <div className="min-w-0">
+                          <p className="text-xs font-black text-slate-900 truncate">{track.label}</p>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            {track.category}
+                          </span>
+                        </div>
+                      </div>
+
+                      {isSelected && (
+                        <span className="h-5 w-5 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0">
+                          <Check size={12} className="stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                      {track.desc}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Volume Slider & Controls */}
+            {selectedBgmTrack !== 'none' && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Volume2 size={16} className="text-orange-500" />
+                    <span className="text-xs font-black text-slate-800">
+                      Background Music Volume: {bgmVolume}%
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Recommended: 12% - 16%
+                  </span>
+                </div>
+
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  step="1"
+                  value={bgmVolume}
+                  onChange={(e) => setBgmVolume(parseInt(e.target.value, 10))}
+                  className="w-full accent-orange-500 cursor-pointer"
+                />
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="autoducking"
+                      checked={autoDucking}
+                      onChange={(e) => setAutoDucking(e.target.checked)}
+                      className="rounded accent-orange-500 cursor-pointer"
+                    />
+                    <label htmlFor="autoducking" className="font-bold text-slate-700 cursor-pointer">
+                      Speech Auto-Ducking (Lowers music volume automatically when narrator speaks)
+                    </label>
+                  </div>
+                  <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">
+                    Enabled
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Action Buttons */}
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(1)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 px-5 py-3 transition cursor-pointer"
+              >
+                <ArrowLeft size={14} />
+                <span>Back to Step 1</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentStep(3)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-orange-500/20 transition cursor-pointer"
+              >
+                <span>Continue to Step 3: Caption Style</span>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================================= */}
+        {/* STEP 3: STYLE (32 MASTER ANIMATED CAPTION THEMES)                       */}
+        {/* ======================================================================= */}
+        {currentStep === 3 && (
+          <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                  3. Select 16:9 Visual Theme &amp; Caption Style
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Choose a unified visual theme and animated typography preset for your 16:9 chapter cards.
+                </p>
+              </div>
+
+              {/* Quick Filter Search */}
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:border-orange-500 transition w-full sm:w-64">
+                <Search size={14} className="text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search 32 styles..."
+                  value={captionSearch}
+                  onChange={(e) => setCaptionSearch(e.target.value)}
+                  className="bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none w-full font-medium"
+                />
+              </div>
+            </div>
+
+            {/* SECTION 0: UNIFIED VISUAL DESIGN THEME (6 MASTER THEMES) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-orange-500" />
+                    Unified Visual Design Themes
                   </label>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Harmonizes canvas tones, card borders, accents, and typography hierarchy.
+                  </p>
+                </div>
+                <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-200">
+                  6 Master Themes
+                </span>
+              </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-64 overflow-y-auto pr-1 scrollbar-thin">
-                    {AWS_BGM_TRACKS.map(track => {
-                      const isSelected = !customBgmUrl && selectedBgmTrack === track.path;
-                      const isPlaying = playingBgmPreview === track.path;
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {Object.values(MASTER_THEMES).map((theme) => {
+                  const isSelected = activeVisualTheme === theme.id;
+                  return (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveVisualTheme(theme.id);
+                        onVisualThemeChange?.(theme.id);
+                      }}
+                      className={`group relative flex flex-col p-4 rounded-xl border text-left transition cursor-pointer ${isSelected
+                          ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                        }`}
+                    >
+                      <div className="flex items-center justify-between w-full mb-2.5">
+                        <span className="text-xs font-black text-slate-900 tracking-tight">
+                          {theme.name}
+                        </span>
+                        {isSelected ? (
+                          <div className="h-5 w-5 rounded-full bg-orange-500 text-white flex items-center justify-center shrink-0">
+                            <Check size={11} strokeWidth={3} />
+                          </div>
+                        ) : (
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">
+                            {theme.colors.mode}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Color Palette Swatches */}
+                      <div className="flex items-center gap-1.5 mb-2.5">
+                        {[
+                          theme.colors.primary,
+                          theme.colors.secondary,
+                          theme.colors.accent,
+                          theme.colors.background,
+                          theme.colors.text,
+                        ].map((hex, i) => (
+                          <span
+                            key={i}
+                            className="h-3.5 w-6 rounded-md border border-slate-300/60 shadow-2xs"
+                            style={{ backgroundColor: hex }}
+                            title={hex}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Typography & Background details */}
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium border-t border-slate-100 pt-2 w-full mt-auto">
+                        <span className="truncate">{theme.typography.headingFont}</span>
+                        <span className="capitalize font-semibold text-slate-700">{theme.background.type}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Category Filter Pills */}
+            <div className="flex flex-wrap items-center gap-2">
+              {['All', 'Kinetic', 'Viral', 'Modern', 'Karaoke', 'Editorial', 'Cinema', 'Podcast', 'Creative', 'Clean'].map(
+                (cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setCaptionCategory(cat)}
+                    className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${captionCategory === cat
+                      ? 'bg-orange-500 text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                  >
+                    {cat}
+                  </button>
+                )
+              )}
+            </div>
+
+            {/* 32 Master Caption Styles Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+              {filteredCaptionStyles.map((style) => {
+                const isSelected = selectedCaptionTheme === style.id;
+                const isHovered = hoveredStyleId === style.id;
+                const previewWords = STYLE_PREVIEW_WORDS[style.id] || ['ATOMIC', 'HABITS', 'SUMMARY'];
+
+                return (
+                  <div
+                    key={style.id}
+                    onClick={() => setSelectedCaptionTheme(style.id)}
+                    onMouseEnter={() => setHoveredStyleId(style.id)}
+                    onMouseLeave={() => setHoveredStyleId(null)}
+                    className="group cursor-pointer select-none text-left"
+                  >
+                    {/* Live Preview Card */}
+                    <div
+                      style={{
+                        background: 'radial-gradient(circle at 50% 50%, #172033 0%, #070B14 85%)',
+                        borderColor: isSelected ? '#EA580C' : undefined,
+                        borderWidth: isSelected ? 2 : 1,
+                      }}
+                      className={`aspect-video rounded-2xl overflow-hidden relative border transition-all duration-200 flex items-center justify-center p-3 ${isSelected
+                        ? 'shadow-md ring-2 ring-orange-500/25 scale-[1.02]'
+                        : 'border-slate-200 hover:border-slate-400 hover:shadow-2xs'
+                        }`}
+                    >
+                      {/* Active Selected Badge */}
+                      {isSelected && (
+                        <div className="absolute top-2 left-2 bg-orange-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-xs z-20 pointer-events-none">
+                          ✓ Selected
+                        </div>
+                      )}
+
+                      {/* Top Category Badge */}
+                      <div className="absolute top-2 right-2 bg-white/10 backdrop-blur-xs text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full pointer-events-none uppercase tracking-wider">
+                        {style.category}
+                      </div>
+
+                      {/* Live Animated Word Simulation */}
+                      <div className="relative z-10 w-full text-center pointer-events-none">
+                        {renderPreviewCaptionWords(
+                          style.id,
+                          style.color,
+                          style.fontFamily,
+                          previewWords,
+                          previewWordStep
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Title & Description */}
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-black text-slate-900 truncate">{style.name}</p>
+                        {style.badge && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">
+                            {style.badge}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">
+                        {style.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Watermark Remover Toggle */}
+            {onRemoveAiWatermarkChange && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <WatermarkRemoverToggle
+                  enabled={removeAiWatermark}
+                  onChange={onRemoveAiWatermarkChange}
+                />
+              </div>
+            )}
+
+            {/* Navigation Action Buttons */}
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 px-5 py-3 transition cursor-pointer"
+              >
+                <ArrowLeft size={14} />
+                <span>Back to Step 2</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleGeneratePlan}
+                disabled={isAnalyzing}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-orange-500/20 transition cursor-pointer"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin text-white" />
+                    <span>Analyzing Chapters with AI...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Continue to Step 4: Live 16:9 Cinema Monitor</span>
+                    <ChevronRight size={16} />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================================= */}
+        {/* STEP 4: PREVIEW (16:9 CINEMA MONITOR & CHAPTER STORYBOARD)              */}
+        {/* ======================================================================= */}
+        {currentStep === 4 && (
+          <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                  4. 16:9 Cinema Monitor &amp; Chapter Storyboard
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                  Inspect simulated 16:9 widescreen chapters, fine-tune takeaways and quotes, and launch 1080p render.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <span className="text-xs font-mono font-bold text-slate-600 px-3 py-1 rounded-xl bg-slate-100 border border-slate-200">
+                  1920×1080 · 30 FPS
+                </span>
+                <span className="text-xs font-black text-orange-600 px-3 py-1 rounded-xl bg-orange-50 border border-orange-200">
+                  {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} (1 Min = 1 Cr)
+                </span>
+              </div>
+            </div>
+
+            {/* 2-Column Stage */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* Left Column: 16:9 Cinema Widescreen Monitor (7 cols) */}
+              <div className="lg:col-span-7 flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-xs space-y-4">
+                <div className="w-full flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+                    <span className="font-black text-slate-900 uppercase tracking-wider text-[11px]">
+                      16:9 Cinema Widescreen Stage
+                    </span>
+                  </div>
+                  <span className="font-mono text-slate-500 text-xs font-bold">
+                    Chapter {activeChapterIndex + 1} of {Math.max(1, currentChapters.length)}
+                  </span>
+                </div>
+
+                {/* 16:9 Cinema Screen */}
+                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border-[4px] border-slate-800 shadow-2xl flex flex-col justify-between p-6 bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-950 text-white">
+                  {/* Top Bar: Book Title & Chapter Tag */}
+                  <div className="flex items-center justify-between z-10">
+                    <div className="flex items-center gap-2">
+                      <BookOpen size={16} className="text-orange-400" />
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-300">
+                        {bookTitle || 'Book Summary'}
+                      </span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-bold text-orange-300 border border-white/10">
+                      Chapter {activeChapterIndex + 1}
+                    </span>
+                  </div>
+
+                  {/* Main Center Content: 3D Cover + Kinetic Quote */}
+                  <div className="flex items-center gap-6 my-auto z-10">
+                    {/* Book Cover Thumbnail */}
+                    {bookCoverUrl ? (
+                      <div className="w-24 sm:w-28 aspect-[3/4] rounded-xl overflow-hidden shadow-2xl border border-white/20 shrink-0">
+                        <img src={bookCoverUrl} alt="Cover" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-24 sm:w-28 aspect-[3/4] rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 p-3 flex flex-col justify-between shadow-2xl border border-white/20 shrink-0">
+                        <BookOpen size={20} className="text-white" />
+                        <span className="text-[10px] font-black leading-tight text-white line-clamp-3">
+                          {bookTitle || 'Atomic Habits'}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Headline & Takeaway */}
+                    <div className="space-y-2 min-w-0">
+                      <h3 className="text-base sm:text-xl font-black text-white leading-tight font-sans">
+                        {activeChapter.chapterTitle || activeChapter.text}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed line-clamp-3 font-serif">
+                        &ldquo;{activeChapter.text}&rdquo;
+                      </p>
+                      {authorName && (
+                        <p className="text-[11px] font-bold text-orange-400">— {authorName}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bottom Progress Bar */}
+                  <div className="w-full space-y-1 z-10">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                      <span>{activeChapter.subtitle || 'Chapter Takeaway'}</span>
+                      <span>{formatTime(audioDuration)}</span>
+                    </div>
+                    <div className="w-full h-1 rounded-full bg-white/20 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-300"
+                        style={{
+                          width: `${((activeChapterIndex + 1) / Math.max(1, currentChapters.length)) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Chapter Stepper Navigation */}
+                <div className="w-full flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setActiveChapterIndex((prev) => Math.max(0, prev - 1))}
+                    disabled={activeChapterIndex === 0}
+                    className="p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition cursor-pointer"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+
+                  <div className="flex items-center gap-1 font-mono text-xs font-bold text-slate-700">
+                    <span>Chapter {activeChapterIndex + 1}</span>
+                    <span className="text-slate-400">/</span>
+                    <span>{Math.max(1, currentChapters.length)}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActiveChapterIndex((prev) => Math.min(currentChapters.length - 1, prev + 1))
+                    }
+                    disabled={activeChapterIndex >= currentChapters.length - 1}
+                    className="p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition cursor-pointer"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Chapter Storyboard & Transcript Review (5 cols) */}
+              <div className="lg:col-span-5 flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <Film size={16} className="text-orange-500" />
+                      <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
+                        Chapter Storyboard
+                      </h3>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {currentChapters.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const lines = currentChapters.map((ch, idx) => {
+                              const s = ch.startTimeSeconds || idx * 25;
+                              const m = Math.floor(s / 60);
+                              const sec = Math.floor(s % 60);
+                              const stamp = `${m < 10 ? '0' : ''}${m}:${sec < 10 ? '0' : ''}${sec}`;
+                              return `${stamp} ${ch.chapterTitle || ch.text || `Chapter ${idx + 1}`}`;
+                            });
+                            navigator.clipboard.writeText(lines.join('\n'));
+                            setCopiedTimestamps(true);
+                            setTimeout(() => setCopiedTimestamps(false), 2000);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition cursor-pointer"
+                          title="Copy timestamps for YouTube video description"
+                        >
+                          {copiedTimestamps ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                          <span>{copiedTimestamps ? 'Copied!' : 'YouTube Timestamps'}</span>
+                        </button>
+                      )}
+                      <span className="text-xs font-bold text-slate-500 font-mono">
+                        {currentChapters.length} Chapters
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Chapter List */}
+                  <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
+                    {currentChapters.map((ch, idx) => {
+                      const isActive = activeChapterIndex === idx;
 
                       return (
                         <div
-                          key={track.id}
-                          onClick={() => {
-                            setCustomBgmUrl('');
-                            setSelectedBgmTrack(track.path);
-                          }}
-                          className={`p-3 rounded-xl border text-left transition cursor-pointer flex items-center justify-between gap-2.5 ${
-                            isSelected
-                              ? 'border-[#0066FF] bg-blue-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500'
-                              : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
-                          }`}
+                          key={ch.id || idx}
+                          onClick={() => setActiveChapterIndex(idx)}
+                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${isActive
+                            ? 'border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20 shadow-xs'
+                            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                            }`}
                         >
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-black truncate">{track.label}</span>
-                              <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
-                                {track.category}
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="w-7 h-7 rounded-lg bg-orange-500 text-white flex items-center justify-center text-xs font-black shrink-0 shadow-xs">
+                              {idx + 1}
+                            </span>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-900 truncate">
+                                {ch.chapterTitle || ch.text}
+                              </p>
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                Chapter {idx + 1} · {ch.durationSeconds || 15}s
                               </span>
                             </div>
-                            <span className="text-[10px] text-slate-500 truncate block mt-0.5">{track.desc}</span>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            {track.path !== 'none' && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  togglePlayBgmTrack(track.path);
-                                }}
-                                title="Listen to Preview"
-                                className="p-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition cursor-pointer shadow-xs"
-                              >
-                                {isPlaying ? <Pause size={12} className="text-[#0066FF]" /> : <Play size={12} className="text-slate-600" />}
-                              </button>
-                            )}
-
-                            {isSelected && (
-                              <CheckCircle2 size={16} className="text-[#0066FF]" />
-                            )}
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 </div>
-              </div>
 
-              {/* 4. 20 YouTube Subtitle & Caption Themes Selector */}
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
-                      <Type size={18} />
-                    </div>
-                    <div>
-                      <span className="text-sm font-black uppercase tracking-wider text-slate-900">20 YouTube Subtitle &amp; Caption Styles</span>
-                      <p className="text-[11px] text-slate-500">Pick from 20 cinematic styles with kinetic word highlights</p>
-                    </div>
-                  </div>
-
-                  {/* Category Filter Pills */}
-                  <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
-                    {['all', 'viral', 'cinema', 'modern', 'editorial', 'book'].map(cat => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => setCaptionSearchFilter(cat)}
-                        className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border transition cursor-pointer ${
-                          captionSearchFilter === cat
-                            ? 'bg-[#FF5722] text-white border-[#0066FF]'
-                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 20 Caption Cards Gallery */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1 scrollbar-thin">
-                  {filteredCaptionStyles.map(theme => {
-                    const isSelected = selectedCaptionTheme === theme.id;
-                    return (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => setSelectedCaptionTheme(theme.id)}
-                        className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                          isSelected
-                            ? 'border-[#0066FF] bg-blue-50/70 text-slate-900 shadow-xs ring-1 ring-orange-500'
-                            : 'border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full shadow-xs" style={{ backgroundColor: theme.color }} />
-                            <span className="text-xs font-black text-slate-900">{theme.name}</span>
-                          </div>
-                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
-                            {theme.badge}
-                          </span>
-                        </div>
-                        <span className="text-[11px] text-slate-500 mt-1.5">{theme.desc}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Right 5 Columns: Book Details, Topic Category & Generate CTA */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7 space-y-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <div className="rounded-xl bg-blue-500/10 p-2 text-[#0066FF] border border-blue-500/20">
-                      <BookOpen size={18} />
-                    </div>
-                    <div>
-                      <span className="text-sm font-black uppercase tracking-wider text-slate-900">Book Information</span>
-                      <p className="text-[11px] text-slate-500">Powers title cards &amp; YouTube metadata</p>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-600 px-3 py-1 rounded-full">
-                    Optional
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-700">Book Title</label>
-                    <input
-                      type="text"
-                      value={bookTitle}
-                      onChange={e => setBookTitle(e.target.value)}
-                      placeholder="e.g. Atomic Habits, Psychology of Money"
-                      className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition shadow-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-slate-700">Author Name</label>
-                    <input
-                      type="text"
-                      value={authorName}
-                      onChange={e => setAuthorName(e.target.value)}
-                      placeholder="e.g. James Clear, Morgan Housel"
-                      className="w-full mt-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition shadow-xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                      <Tag size={13} className="text-[#0066FF]" />
-                      <span>Book Genre / Topic Category</span>
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                      {TOPIC_PRESETS.map((top) => (
-                        <button
-                          key={top.value}
-                          type="button"
-                          onClick={() => setSelectedTopic(top.value)}
-                          className={`px-3 py-2 rounded-xl text-xs font-bold text-left transition cursor-pointer border ${
-                            selectedTopic === top.value
-                              ? 'border-[#0066FF] bg-blue-50 text-[#0066FF] shadow-xs'
-                              : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                          }`}
-                        >
-                          {top.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Format Summary Card */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-3">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>Output Aspect Ratio:</span>
-                  <span className="font-black text-slate-900 flex items-center gap-1">
-                    <Sparkles size={12} className="text-[#0066FF]" />
-                    16:9 Landscape Widescreen
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>Selected Subtitle Style:</span>
-                  <span className="font-bold text-slate-900">
-                    {TWENTY_CAPTION_STYLES.find(c => c.id === selectedCaptionTheme)?.name || 'Flame Glow'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                  <span>Audio BGM Track &amp; Volume:</span>
-                  <span className="font-bold text-slate-900">
-                    {customBgmUrl ? 'Custom Upload' : (AWS_BGM_TRACKS.find(b => b.path === selectedBgmTrack)?.label || 'None')} ({bgmVolume}%)
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs font-bold text-slate-600 pt-2 border-t border-slate-200">
-                  <span>Estimated Credit Cost:</span>
-                  <span className="font-mono text-sm font-black text-[#0066FF]">
-                    {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} (1 Min = 1 Cr)
-                  </span>
-                </div>
-              </div>
-
-              {/* Main Call to Action: Build AI Storyboard */}
-              <button
-                type="button"
-                onClick={handleAnalyzeAndBuildStoryboard}
-                disabled={isAnalyzing || !audioUrl}
-                className="w-full inline-flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-6 py-4 text-base font-black text-white shadow-xl shadow-[#0066FF]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Sparkles size={20} className="animate-spin text-white" />
-                    <span>Analyzing Narration &amp; Building Chapters...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Generate AI Storyboard &amp; Chapters</span>
-                    <ArrowRight size={20} className="stroke-[2.5]" />
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* STAGE 2: STORYBOARD REVIEW & COMPULSORY VISUAL PREVIEW & EDITORIAL TRANSCRIPT */}
-      {studioStep === 'storyboard' && plan && (
-        <div className="space-y-6">
-
-          {/* Top Bar with Active Scene Count & Add Takeaway */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-5">
-            <div>
-              <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                <span>AI Storyboard &amp; Scene Timeline</span>
-                <span className="text-xs font-extrabold bg-blue-100 border border-blue-200 text-[#0066FF] px-2.5 py-0.5 rounded-full">
-                  {activeScenes.length} Active Scenes
-                </span>
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Inspect preview cards, fix typos in transcript, or customize scene types before rendering
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
-                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition cursor-pointer ${
-                  showTranscriptEditor
-                    ? 'border-[#0066FF] bg-blue-50 text-[#0066FF]'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100 shadow-xs'
-                }`}
-              >
-                <Edit3 size={14} />
-                <span>{showTranscriptEditor ? 'Hide Transcript Editor' : 'Edit Spoken Transcript'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleAddKeyIdeaScene}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-bold text-[#0066FF] hover:bg-blue-100 transition cursor-pointer"
-              >
-                <Plus size={14} />
-                <span>Add Key Takeaway Card</span>
-              </button>
-            </div>
-          </div>
-
-          {/* EDITORIAL TRANSCRIPT MARKDOWN EDITOR (Fix Spelling Mistakes & Typos) */}
-          {showTranscriptEditor && (
-            <div className="rounded-[28px] border-2 border-blue-200 bg-white p-6 space-y-4 shadow-md">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-blue-50 text-[#0066FF] border border-blue-200">
-                    <FileText size={18} />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                      Editorial Transcript Editor (Correct Spelling &amp; Jargon)
-                    </h4>
-                    <p className="text-xs text-slate-500">
-                      Fix any misheard author names, technical book jargon, or typos before generating burnt-in subtitles
+                {/* Cloud Render Ready Banner */}
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-3.5 flex items-center gap-3">
+                  <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                  <div className="text-xs">
+                    <p className="font-bold text-emerald-900">1080p Cinema Widescreen Ready</p>
+                    <p className="text-emerald-700 font-medium">
+                      1920×1080 Full HD • {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} per Rule 4.1
                     </p>
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={handleSaveEditedTranscript}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition cursor-pointer shadow-xs"
-                >
-                  {transcriptSavedFeedback ? (
-                    <>
-                      <CheckCheck size={14} />
-                      <span>Changes Saved!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save size={14} />
-                      <span>Save &amp; Update Subtitles</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              <textarea
-                value={editableTranscript}
-                onChange={e => setEditableTranscript(e.target.value)}
-                rows={6}
-                placeholder="Spoken narration transcript..."
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm font-medium text-slate-900 leading-relaxed focus:bg-white focus:border-[#0066FF] focus:ring-1 focus:ring-[#0066FF] focus:outline-none transition shadow-inner font-mono"
-              />
-
-              <div className="flex items-center justify-between text-[11px] text-slate-500">
-                <span>{editableTranscript.trim().split(/\s+/).filter(Boolean).length} Words</span>
-                <span>Clicking &ldquo;Save &amp; Update Subtitles&rdquo; updates the narration transcript for render.</span>
               </div>
             </div>
-          )}
 
-          {/* COMPULSORY INTERACTIVE 16:9 VISUAL PREVIEW PLAYER WITH AUDIO SYNC */}
-          <div className="rounded-[28px] border-2 border-blue-200 bg-white p-6 sm:p-7 space-y-5 shadow-lg shadow-[#0066FF]/10">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-blue-500/10 text-[#0066FF] border border-blue-500/20">
-                  <Eye size={18} />
+            {/* Sticky Bottom Action Bar */}
+            <div className="sticky bottom-4 z-30 rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-xl p-4 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white shrink-0 shadow-xs">
+                  <Download size={18} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                    Live 16:9 Visual Preview (Compulsory Review)
-                  </h4>
-                  <p className="text-xs text-slate-500">
-                    High-contrast typography, 3D cards, and synced audio narration preview
+                  <p className="text-xs font-black text-slate-900 font-jakarta truncate max-w-xs">
+                    {bookTitle || audioFileName || 'Book Summary Video'}
                   </p>
-                </div>
-              </div>
-
-              {/* Status indicator badge */}
-              <div className="flex items-center gap-2">
-                {audioPreviewUrl && (
-                  <button
-                    type="button"
-                    onClick={togglePreviewAudio}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition shadow-xs cursor-pointer"
-                  >
-                    {isPreviewAudioPlaying ? (
-                      <>
-                        <Pause size={13} className="text-[#0066FF]" />
-                        <span>Pause Audio Sync</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play size={13} className="text-[#0066FF]" />
-                        <span>Play Audio Sync</span>
-                      </>
-                    )}
-                  </button>
-                )}
-
-                {previewReviewed ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-black">
-                    <ShieldCheck size={14} className="text-emerald-600" />
-                    Preview Confirmed
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-800 text-xs font-black animate-pulse">
-                    <AlertCircle size={14} className="text-amber-600" />
-                    Preview Required
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Hidden audio element for preview sync */}
-            {audioPreviewUrl && (
-              <audio ref={previewAudioRef} src={audioPreviewUrl} preload="auto" />
-            )}
-
-            {/* 16:9 Canvas Mockup */}
-            <div className="aspect-video w-full rounded-2xl border border-slate-200 bg-[#FAFAFA] relative overflow-hidden flex flex-col items-center justify-center p-8 sm:p-12 text-center shadow-inner">
-              {/* Dot Grid Pattern */}
-              <div
-                className="absolute inset-0 pointer-events-none opacity-40"
-                style={{
-                  backgroundImage: `radial-gradient(rgba(0, 0, 0, 0.08) 1.5px, transparent 1.5px)`,
-                  backgroundSize: '24px 24px',
-                }}
-              />
-
-              {/* Soft Ambient Glows */}
-              <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-              <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
-
-              {/* Scene Content inside Canvas */}
-              {currentPreviewScene ? (
-                <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center justify-center space-y-4">
-                  {/* Category Pill */}
-                  <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-blue-100 text-[#0066FF] border border-blue-200">
-                    {currentPreviewScene.type === 'BOOK_COVER' ? '3D BOOK COVER INTRO' :
-                     currentPreviewScene.type === 'LESSON_TITLE' ? 'CHAPTER TITLE' :
-                     currentPreviewScene.type === 'KEY_IDEA' ? 'CORE TAKEAWAY' :
-                     currentPreviewScene.type === 'QUOTE' ? 'MEMORABLE QUOTE' :
-                     currentPreviewScene.type === 'COMPARISON' ? 'MINDSET COMPARISON' :
-                     currentPreviewScene.type === 'KEY_STEPS' ? '3-STEP ACTION ROADMAP' :
-                     currentPreviewScene.type === 'STAT_INSIGHT' ? 'NUMERICAL PRINCIPLE' :
-                     currentPreviewScene.type === 'CONCLUSION' ? 'FINAL SUMMARY' : 'SCENE PREVIEW'}
-                  </span>
-
-                  {/* Scene Graphic Simulation */}
-                  {currentPreviewScene.type === 'BOOK_COVER' && (
-                    <div className="flex items-center gap-6 my-2">
-                      {bookCoverUrl ? (
-                        <div className="w-20 h-28 rounded-r-md shadow-xl overflow-hidden border border-slate-300 transform -rotate-3 transition hover:rotate-0">
-                          <img src={bookCoverUrl} alt="Cover" className="w-full h-full object-cover" />
-                        </div>
-                      ) : (
-                        <div className="w-20 h-28 rounded-r-md bg-gradient-to-br from-[#0066FF] to-amber-600 flex items-center justify-center text-white font-black text-xs p-2 shadow-xl">
-                          {bookTitle || 'Book'}
-                        </div>
-                      )}
-                      <div className="text-left">
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
-                          {currentPreviewScene.text || bookTitle || 'Book Summary'}
-                        </h2>
-                        <p className="text-sm font-semibold text-slate-600 mt-1">
-                          By {authorName || 'Author'}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentPreviewScene.type !== 'BOOK_COVER' && (
-                    <>
-                      <h2 className="text-xl sm:text-3xl font-black text-slate-900 leading-tight">
-                        &ldquo;{currentPreviewScene.text || 'Key Principle'}&rdquo;
-                      </h2>
-                      {currentPreviewScene.subtitle && (
-                        <p className="text-xs sm:text-sm font-semibold text-slate-600 max-w-lg">
-                          {currentPreviewScene.subtitle}
-                        </p>
-                      )}
-                    </>
-                  )}
-
-                  <div className="pt-2 text-[11px] font-mono font-bold text-slate-500">
-                    Timestamp: {formatTime(currentPreviewScene.startSeconds)} - {formatTime(currentPreviewScene.endSeconds)}
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+                    <span className="text-orange-600 font-bold">{calculatedCredits} Credits</span>
+                    <span>•</span>
+                    <span>1920×1080 Full HD</span>
+                    <span>•</span>
+                    <span className="text-slate-700 font-bold">16:9 Widescreen</span>
                   </div>
                 </div>
-              ) : (
-                <p className="text-slate-400 text-sm">No scenes available</p>
-              )}
-            </div>
+              </div>
 
-            {/* Scene Selector Scrubber Tabs & Navigation */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-100">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
                 <button
                   type="button"
-                  onClick={() => setActivePreviewIndex(prev => Math.max(0, prev - 1))}
-                  disabled={activePreviewIndex === 0}
-                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-30 cursor-pointer shadow-xs"
+                  onClick={() => setCurrentStep(3)}
+                  className="w-full sm:w-auto rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 px-4 py-2.5 text-xs font-bold text-slate-700 transition cursor-pointer"
                 >
-                  <ChevronLeft size={16} />
+                  Change Style
                 </button>
-                <span className="text-xs font-bold text-slate-700">
-                  Scene {activePreviewIndex + 1} of {activeScenes.length}
-                </span>
+
                 <button
                   type="button"
-                  onClick={() => setActivePreviewIndex(prev => Math.min(activeScenes.length - 1, prev + 1))}
-                  disabled={activePreviewIndex >= activeScenes.length - 1}
-                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-30 cursor-pointer shadow-xs"
+                  onClick={handleSubmitRender}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-3.5 text-xs font-black bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 hover:brightness-110 text-white shadow-lg shadow-orange-500/25 transition cursor-pointer"
                 >
-                  <ChevronRight size={16} />
+                  <Sparkles size={15} className="fill-white text-white" />
+                  <span>Create Book Summary Video ({calculatedCredits} Cr)</span>
                 </button>
               </div>
-
-              {/* Compulsory Approval Toggle Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setPreviewReviewed(true);
-                  setInputError(null);
-                }}
-                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black transition cursor-pointer ${
-                  previewReviewed
-                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                    : 'bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-md shadow-[#0066FF]/25/20 hover:brightness-110 active:scale-95'
-                }`}
-              >
-                {previewReviewed ? (
-                  <>
-                    <ShieldCheck size={16} />
-                    <span>✓ Preview Confirmed (Ready to Render)</span>
-                  </>
-                ) : (
-                  <>
-                    <Eye size={16} />
-                    <span>Approve &amp; Confirm Preview (Required)</span>
-                  </>
-                )}
-              </button>
             </div>
           </div>
-
-          {/* Storyboard List */}
-          <div className="space-y-3.5">
-            {plan.scenes.map((scene, idx) => (
-              <div
-                key={scene.id || idx}
-                className={`rounded-2xl border p-5 transition-all ${
-                  scene.disabled
-                    ? 'border-slate-200 bg-slate-100/60 opacity-50'
-                    : 'border-slate-200 bg-white hover:border-[#0066FF]/50 shadow-xs'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-4">
-                  {/* Scene Time & Type Badge */}
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="font-mono text-xs font-black text-[#0066FF] bg-[#0066FF]/10 px-2.5 py-1 rounded-lg border border-[#0066FF]/20">
-                      {formatTime(scene.startSeconds)} - {formatTime(scene.endSeconds)}
-                    </span>
-
-                    {/* Scene Type Selector Dropdown */}
-                    <select
-                      value={scene.type}
-                      onChange={e => handleUpdateSceneType(scene.id, e.target.value as BookSummarySceneType)}
-                      className="text-[10px] font-black uppercase px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 cursor-pointer focus:outline-none focus:border-[#0066FF]"
-                    >
-                      <option value="LESSON_TITLE">Chapter Title</option>
-                      <option value="KEY_IDEA">Core Takeaway</option>
-                      <option value="QUOTE">Quote Card</option>
-                      <option value="BOOK_COVER">Book Cover Intro</option>
-                      <option value="COMPARISON">Mindset Comparison</option>
-                      <option value="KEY_STEPS">3-Step Roadmap</option>
-                      <option value="STAT_INSIGHT">Numeric Principle</option>
-                      <option value="CONCLUSION">Final Summary</option>
-                    </select>
-
-                    {scene.subtitle && (
-                      <span className="text-xs text-slate-500 font-medium truncate max-w-xs">
-                        {scene.subtitle}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Scene Controls */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleDisableScene(scene.id)}
-                      title={scene.disabled ? 'Enable Scene' : 'Disable Scene'}
-                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer"
-                    >
-                      {scene.disabled ? <EyeOff size={15} /> : <Eye size={15} />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteScene(scene.id)}
-                      title="Delete Scene"
-                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-500 transition cursor-pointer"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Editable Text Area */}
-                {scene.type !== 'CAPTIONS' && (
-                  <div className="mt-3.5 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                        Primary Headline
-                      </label>
-                      <input
-                        type="text"
-                        value={scene.text || ''}
-                        onChange={e => handleUpdateSceneText(scene.id, e.target.value)}
-                        placeholder="Scene Headline..."
-                        className="w-full mt-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-bold text-slate-900 focus:border-[#0066FF] focus:outline-none shadow-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                        Subtitle / Chapter Label
-                      </label>
-                      <input
-                        type="text"
-                        value={scene.subtitle || ''}
-                        onChange={e => handleUpdateSceneSubtitle(scene.id, e.target.value)}
-                        placeholder="e.g. Core Principle #1..."
-                        className="w-full mt-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-700 focus:border-[#0066FF] focus:outline-none shadow-xs"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Action Bar (Guarded by Compulsory Preview) */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-slate-200">
-            <button
-              type="button"
-              onClick={() => {
-                if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-                setStudioStep('inputs');
-              }}
-              className="w-full sm:w-auto rounded-xl border border-slate-200 bg-slate-100 px-6 py-3.5 text-sm font-bold text-slate-700 hover:bg-slate-200 transition cursor-pointer"
-            >
-              ← Back to Media Setup
-            </button>
-
-            <button
-              type="button"
-              onClick={handleStartFinalRender}
-              disabled={isSubmittingRender || !previewReviewed}
-              className={`w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl px-8 py-4 text-base font-black transition-all duration-200 ${
-                !previewReviewed
-                  ? "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
-                  : isSubmittingRender
-                  ? "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white opacity-80 cursor-wait animate-pulse shadow-xl"
-                  : "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-xl shadow-[#0066FF]/30 hover:brightness-110 active:scale-95 cursor-pointer"
-              }`}
-            >
-              {!previewReviewed ? (
-                <>
-                  <Lock size={18} className="text-slate-400" />
-                  <span>Preview Required to Unlock Render</span>
-                </>
-              ) : (
-                <>
-                  <Film size={18} className="stroke-[2.5]" />
-                  <span>
-                    {isSubmittingRender
-                      ? "Submitting Cloud Render..."
-                      : `Render 1080p Widescreen Video (${calculatedCredits} Credit${calculatedCredits > 1 ? 's' : ''})`}
-                  </span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Mobile Sticky Action Bar */}
-      {studioStep === 'inputs' && audioUrl && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
-          <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase text-[#0066FF] tracking-wider truncate">
-              {bookTitle || 'Book Summary'}
-            </p>
-            <p className="text-[10px] text-slate-500 font-bold">
-              {calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''} • 16:9
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleAnalyzeAndBuildStoryboard}
-            disabled={isAnalyzing}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-[#0066FF]/20 active:scale-95 disabled:opacity-50"
-          >
-            {isAnalyzing ? (
-              <>
-                <Sparkles size={14} className="animate-spin text-white" />
-                <span>Analyzing...</span>
-              </>
-            ) : (
-              <>
-                <span>Build Storyboard</span>
-                <ArrowRight size={14} className="stroke-[2.5]" />
-              </>
-            )}
-          </button>
-        </div>
-      )}
-
-      {studioStep === 'storyboard' && plan && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 sm:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between gap-3 shadow-2xl">
-          <button
-            type="button"
-            onClick={() => {
-              if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
-              setStudioStep('inputs');
-            }}
-            className="text-xs font-bold text-slate-500 hover:text-slate-900 px-2 py-1"
-          >
-            Back
-          </button>
-          <button
-            type="button"
-            onClick={handleStartFinalRender}
-            disabled={isSubmittingRender || !previewReviewed}
-            className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-black shadow-lg transition ${
-              !previewReviewed
-                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] text-white shadow-[#0066FF]/20 active:scale-95"
-            }`}
-          >
-            {!previewReviewed ? (
-              <span>Preview First</span>
-            ) : (
-              <>
-                <Film size={14} className="stroke-[2.5]" />
-                <span>{isSubmittingRender ? 'Submitting...' : `Render (${calculatedCredits} Cr)`}</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 };
+
+export default BookSummaryStudio;

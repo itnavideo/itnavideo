@@ -26,69 +26,46 @@
 
 ---
 
-## 3. User Inputs & Dashboard Workflow (4 Simple Steps)
+## 3. User Inputs & Dashboard Workflow (4-Step Guided Flow)
 
-1. **Step 1 — Your Audio / Story Narration (Required)**:
-   - Upload voiceover narration audio (MP3, WAV, M4A, AAC — 12 min max). Raw video is never sent directly to Groq; lightweight 16kHz mono audio is extracted first.
-2. **Step 2 — Your Story Visuals & AI Source**:
-   - **`✨ Generate with AI (Automated)` (Default Mode)**:
-     - 100% automated: Zero images needed from user.
-     - **Visual Direction & Story Prompt Box**: Allows users to enter custom aesthetic directions (e.g., "3D Pixar animation with vibrant colors" or "Moody 35mm cinema in rainy Tokyo") with 1-click quick style chips.
-     - **Consistent Character Reference Upload**: Users can optionally upload 1 character reference image (PNG, JPG) to lock face, hair, and clothing consistency across all scenes.
-     - Gemini 2.0 listens to narration audio, detects story beats, and generates 16:9 cinematic visual prompts.
-     - Vertex AI Imagen 3 produces custom high-definition scene visuals matching the selected art aesthetic (Cinema 35mm, 3D Pixar Animation, 2D Anime, Cyberpunk Sci-Fi).
-     - **⚡ 4 One-Click "Viral Style" Presets** (Automatically locks lighting, camera motion, and color grading in 1 click):
-       - `🎞️ Cinematic 35mm Movie`: Warm Kodak film grain, anamorphic lens flare & golden hour tone.
-       - `🧸 3D Pixar Animation`: Vibrant 3D CGI characters, soft global illumination & Octane depth.
-       - `🎨 Studio Anime / Storybook`: Hand-drawn painterly cloudscapes, clean ink lines & Ghibli aesthetic.
-       - `🌑 Dark Moody Mystery`: High-contrast chiaroscuro shadows, deep noir silhouettes & thriller suspense lighting.
-   - **`📁 Upload My Images (Up to 100 Images)`**:
-     - Bulk drag-and-drop up to 100 images in one action.
-     - **Zero manual typing**: The tedious per-image script typing fields are completely removed.
-     - **🎬 AI Story Arc Director**: Automatically organizes uploaded images into a true 4-Act cinematic structure:
-       - `🎣 1. Hook Intro` (First 3-5 seconds): High-energy visual presence with punchy entrance zoom to maximize viewer retention.
-       - `📖 2. Narrative Buildup` (15% to 65% of timeline): Steady cinematic pans and glides matching narrative progression.
-       - `💥 3. Peak Climax` (65% to 85% of timeline): Dramatic punch-in zoom on the emotional high point.
-       - `🎬 4. Final Resolution` (Final 15%): Smooth, elegant pull-back settling on the closing scene.
-     - **Strict 100% Gapless Timeline**: Zero black frames, zero image repeats, and natural speech pause snapping.
-     - Includes interactive visual story beat badges (`🎣 Hook`, `📖 Story`, `💥 Climax`, `🎬 Outro`) with "Add More" and "Clear All" controls.
-     - **🎵 Intelligent Speech-Paced Camera Motion**: Camera velocity and zoom direction respond organically to speech energy:
-       - `⚡ Excitement & Key Punch Phrases`: Rapid dynamic punch-in zoom (`1.02 ➔ 1.15`) that snaps viewer attention to the subject.
-       - `🌊 Narrative Background Context`: Gentle, slow panoramic horizontal glide (`1.06` scale with smooth drift) to maintain cinematic immersion.
-       - `🍃 Thoughtful Reflection & Pauses`: Slow settling pull-back (`1.05 ➔ 1.01`) that allows the scene to breathe naturally.
-   - **`🎬 Itnavideo Library`**:
-     - Match narration to our curated studio 16:9 cinematic photo and illustration library.
-3. **Step 3 — 32 Master YouTube Caption Styles**:
-   - 32 high-contrast animated caption styles (`THIRTY_TWO_CAPTION_STYLES`) matching industry-standard short/long-form styles (Pop Word, Karaoke Line, Box Highlight, Neon Glow, Typewriter, Slam Headline, Hormozi Viral Pop, MrBeast Shorts Impact, etc.).
-   - Clean, subtle rounded rectangular boxes (`rounded-lg`, 8px corner radius) with 1px border.
-   - Search bar to filter across all 32 styles instantly.
-   - Collapsible accordion (closed by default on initial page load to keep studio clean and uncluttered).
-   - Rendered using `UniversalCaptionLayer` with dynamic colors and fonts.
+The studio follows the strict **3-Row "No Page Scroll" Shell** (`h-full grid grid-rows-[auto_1fr_auto] bg-white text-slate-900`) across all devices:
+- **Row 1**: Interactive Stepper Bar & Explore Pills (All 4 steps freely clickable in advance for instant exploration without upload lock).
+- **Row 2**: Active Step Content (single internal scroll region with smart exploration demo mode).
+- **Row 3**: Sticky Action Bar (`[← Back]` on left, live validation indicator in center, primary `[Next →]` or `[✨ Render 1080p Video]` on right).
 
-4. **Step 4 — Background Music & Audio Engine**:
-   - AWS S3 curated library background tracks (`AWS_BGM_TRACKS`) with instant play/pause audition.
-   - Dynamic volume slider (normal initial volume, adjustable 0% to 100%).
-   - Waveform audio player with interactive visualizer bars and time scrub sync.
+### The 4 Guided Steps:
 
-5. **Step 5 — In-Player Cinema Stage & Direct Video Controls**:
-   - **Direct In-Canvas Editing**: Click directly on the video subtitle overlay to edit text on the fly.
-   - **In-Player Toolbar**: Play/pause, time scrubber, instant photo replacement, framing mode toggle (16:9 Cover vs. Blur-Fill Letterbox), in-player caption style picker popover, BGM volume popover, and camera motion toggle.
-   - **Interactive Scene Filmstrip**: Visual thumbnail timeline of all uploaded scene photos with click-to-preview, individual photo replacement, and deletion.
+1. **Step 1 — Upload (Audio & Story Photos)**:
+   - **Narration Audio First**: Upload voiceover narration audio (MP3, WAV, M4A, AAC — up to 5 min / 300s). Lightweight 16kHz audio extracted for Groq Whisper Cloud API transcription.
+   - **Scene Photos**: Bulk drag-and-drop scene photos (up to 100 images). Instant optimistic local object URL previews. Scene reordering buttons (`← Move Earlier`, `→ Move Later`).
+   - Forward progress gated until voiceover audio + at least 1 photo are uploaded.
 
-6. **Step 6 — Studio Subtitle Engine & Timestamped Captions Track**:
-   - Sentence-by-sentence breakdown with millisecond-accurate timestamps (`startTime` → `endTime`).
-   - **Click to Jump (Timeline Sync)**: Clicking any sentence instantly seeks audio and video to that second.
-   - **Active Speech Follower**: Lights up the active sentence and auto-scrolls into view during playback.
-   - **In-Place Inline Editing**: Edit words and fine-tune start/end timing directly in the list.
-   - **Search Bar**: Real-time search across all subtitle segments.
-   - **1-Click .SRT Export**: Export industry-standard subtitle file for YouTube, Premiere, or Final Cut.
+2. **Step 2 — Music (Soundtrack & Audio Engine)**:
+   - Curated AWS S3 library background tracks with category filters (`All`, `Ambient`, `Cinematic`, `Upbeat`, `Lo-Fi`, `Acoustic`).
+   - 1-click live audition (`Play` / `Pause`), volume slider (0% to 100%), and BGM mute toggle.
+   - Smart speech auto-ducking to maintain vocal clarity over background audio.
 
-7. **Step 7 — Full Responsive Support & Mobile Sticky Render Bar**:
-   - Clean responsive layout for Desktop, Laptop, Tablet, and Mobile.
-   - Touchscreen-friendly controls (edit & delete buttons visible on touchscreens).
-   - Mobile Sticky Render Bar: Floating 1-click render CTA on mobile/tablet so creators can trigger video export without scrolling.
-   - Desktop layout toggle: 1-click `[ Right Side | Left Side ]` preview orientation switch.
-   - Strictly conforms to Rule 0.7: Zero eyebrow pill badges above headlines for a clean enterprise brand aesthetic.
+3. **Step 3 — Style (Visual Preview Cards with Live Playback & Camera Motion)**:
+   - **Interactive Visual Preview Cards**: Every caption style is displayed as a rich 16:9 visual preview card using a high-definition Cloudinary studio creator backdrop (`blog_podcaster_new_york.png`), directly matching the user's reference CapCut/AutoCut UI.
+   - **Interactive Word Playback Loop**: Hovering or clicking on any card activates a client-side kinetic preview loop (`['CREATE', 'VIRAL', 'VIDEOS']`), accurately demonstrating that style's exact fonts, animations, colors, glow, box fills, or slam impacts.
+   - **Selected State**: Orange highlight border (`ring-2 ring-orange-500`) with circular checkmark badge (`Check`) in the top-right corner.
+   - **"None" Option**: Dedicated clean card allowing users to disable burnt-in captions.
+   - **Audition Controls**: Autoplay toggle (`Play Previews` / `Pause Preview`) plus dynamic instant search and 8 category filter pills.
+   - **Master Cinema Live Preview Theater**: Bottom banner rendering full cinema-scale preview with active preset badges.
+   - **Camera & Framing**: Global visual framing (`16:9 Cover` vs `Blur-Fill Ambient Letterbox`) and camera motion preset (`Ken Burns Slow Zoom` vs `Static Cut`).
+
+4. **Step 4 — Edit & Render (CapCut-Style Pro Multitrack Timeline Studio)**:
+   - **Auto B-Roll Protection**: If voiceover audio is uploaded without user photos (or during initial exploration), the studio automatically populates high-definition studio scenes so the player is never an empty black void.
+   - **16:9 Cinema Monitor**: Real-time cinema player with Ken Burns pan/zoom, skip buttons (`-5s` / `+5s`), interactive audio scrubber, volume slider, timecode (`00:08 / 00:43`), and on-canvas direct click-to-edit for subtitle sentences.
+   - **CapCut Action Toolbar**: Full-width editing toolbar directly above the timeline featuring `[✂️ Split at Playhead]`, `[🔄 Replace Photo]`, `[📋 Duplicate Clip]`, `[🗑️ Delete Clip]`, `[➕ Add Media]`, `[↩️ Undo]`, `[↪️ Redo]`, and Timeline Zoom (`1x · 1.5x · 2x`).
+   - **Full-Width Multitrack Timeline (100% width)**:
+     - **Timecode Ruler Header**: 5s interval ticks (`00:00`, `00:05`, `00:10`...) with click-to-scrub navigation.
+     - **Vertical Playhead Needle**: Real-time vertical orange line tracking playback across all 4 tracks.
+     - **Track 1: 🎬 Video & Scene Track**: Proportional clip blocks with image thumbnail, scene `#1`, `#2` badges, duration chips (`4.5s`), glowing active selection border, and trim handles.
+     - **Track 2: 💬 Captions Track**: Sentence-synced amber/gold subtitle blocks with transcript words. Tap to seek.
+     - **Track 3: 🎙️ Voiceover Audio Track**: Dynamic glowing audio waveform visualizer illuminating spoken voice peaks.
+     - **Track 4: 🎵 Background Music Track**: Soundtrack strip displaying active BGM track and ducked volume level.
+   - **Properties Inspector Drawer (Right Column)**: Contextual dark studio inspector with 4 tabs (`[🎬 Visuals]`, `[💬 Captions]`, `[🎵 Audio]`, `[✨ Export]`). Includes photo replace, duration stepper (`-0.5s` / `+0.5s`), camera motion selector, subtitle sentence editor, soundtrack volume, and 1-click cloud render trigger.
 
 ---
 

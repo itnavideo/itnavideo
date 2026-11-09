@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useMemo, useState, useRef, useEffect } from "react";
@@ -14,6 +13,7 @@ import {
   Layers,
   Music,
   Volume2,
+  VolumeX,
   FileText,
   Eye,
   X,
@@ -33,30 +33,25 @@ import {
   ShieldCheck,
   Maximize2,
   Minimize2,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
+  Zap,
+  ArrowRight,
+  Tv,
 } from "lucide-react";
-import { KINETIC_STYLES } from "@/lib/captions/kineticStyles";
-import { BROADCAST_PRESETS } from "@/components/dashboard/subpages/YoutubeSubtitlesPageClient";
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
+import {
+  AWS_BGM_TRACKS,
+  getBgmTrackAudioUrl,
+  THIRTY_TWO_CAPTION_STYLES,
+  renderPreviewCaptionWords,
+  type LibraryBgmTrack,
+} from "@/components/dashboard/ImageToVideoStudio";
 
-// Master AWS S3 Production Background Music Library (13+ Curated Tracks)
-export const AWS_SHORTS_BGM_TRACKS = [
-  { id: "parasail", label: "Calm Lofi (Recommended)", category: "Lo-Fi", path: "assets/reusable/music/parasail-silent-partner.mp3", desc: "Warm acoustic lofi guitar" },
-  { id: "19th-floor", label: "Deep Focus & Ambient", category: "Piano", path: "assets/reusable/music/19th-floor-bobby-richards.mp3", desc: "Inspiring subtle piano tone" },
-  { id: "dutty-vibe", label: "Optimistic Beat", category: "Upbeat", path: "assets/reusable/music/dutty-vibe-tracks.mp3", desc: "Gentle positive acoustic rhythm" },
-  { id: "book-rental", label: "Energetic Narrative", category: "Story", path: "assets/reusable/music/book-the-rental-wit-it-rage.mp3", desc: "Dynamic narrative flow" },
-  { id: "crimson-fly", label: "Cinematic Drama", category: "Cinematic", path: "assets/reusable/music/crimson-fly-huma-huma.mp3", desc: "Emotional documentary drive" },
-  { id: "crock-pot", label: "Funky Chill Groove", category: "Chill", path: "assets/reusable/music/crock-pot-diamond-ortiz.mp3", desc: "Playful lofi pulse" },
-  { id: "illusions", label: "Modern Swagger Beat", category: "Beats", path: "assets/reusable/music/illusions-anno-domini-beats.mp3", desc: "Modern high-production beat" },
-  { id: "not-for-nothing", label: "Lounge Instrumental", category: "Lounge", path: "assets/reusable/music/not-for-nothing-otis-mcdonald.mp3", desc: "Smooth brass & relaxed tempo" },
-  { id: "something-going", label: "Philosophical Mystery", category: "Deep", path: "assets/reusable/music/something-is-going-on-godmode.mp3", desc: "Pensive intrigue & discovery" },
-  { id: "bar-scene", label: "Acoustic Folk Narrative", category: "Acoustic", path: "assets/reusable/music/that-one-bar-scene-rkvc.mp3", desc: "Warm acoustic guitar storytelling" },
-  { id: "true-messiah", label: "Victorious Inspiration", category: "Epic", path: "assets/reusable/music/true-messiah-dj-freedem.mp3", desc: "Triumphant motivational melody" },
-  { id: "vishnu", label: "Zen Reflection", category: "Zen", path: "assets/reusable/music/vishnu-patrick-patrikios.mp3", desc: "Serene ambient meditation" },
-  { id: "what-it-is", label: "Smooth Motown", category: "Motown", path: "assets/reusable/music/what-it-is-silent-partner.mp3", desc: "Catchy positive baseline" },
-  { id: "none", label: "No Background Music", category: "Mute", path: "none", desc: "Pure video audio only" },
-];
+export const SHORTS_POLISHER_STEPS = [
+  { step: 1, title: "Upload", desc: "Takes & Overlays" },
+  { step: 2, title: "Music", desc: "Soundtrack & Audio" },
+  { step: 3, title: "Style", desc: "Punch-Ins & Captions" },
+  { step: 4, title: "Preview", desc: "9:16 Shorts Simulator" },
+] as const;
 
 export interface UploadedMediaItem {
   id: string;
@@ -107,8 +102,8 @@ export interface EquationFormulaConfig {
 
 export interface ComparisonBannerConfig {
   enabled: boolean;
-  left: { tag: string; title: string; description?: string; isWinner?: boolean };
-  right: { tag: string; title: string; description?: string; isWinner?: boolean };
+  left: { tag: string; title: string; description: string; isWinner?: boolean };
+  right: { tag: string; title: string; description: string; isWinner?: boolean };
   atSeconds: number;
   durationSeconds?: number;
 }
@@ -118,7 +113,7 @@ export interface AiShortsPolisherStudioProps {
   onPrimaryMediaListChange: (items: UploadedMediaItem[]) => void;
 
   overlayLayerList: UploadedLayerItem[];
-  onOverlayLayerListChange: (items: UploadedLayerItem[]) => void;
+  onOverlayLayerListChange: (layers: UploadedLayerItem[]) => void;
 
   videoTitle: string;
   onVideoTitleChange: (val: string) => void;
@@ -138,11 +133,11 @@ export interface AiShortsPolisherStudioProps {
   captionStyle: string;
   onCaptionStyleChange: (val: string) => void;
 
-  captionPosition?: "bottom" | "center" | "top";
-  onCaptionPositionChange?: (val: "bottom" | "center" | "top") => void;
+  captionPosition: "bottom" | "center" | "top";
+  onCaptionPositionChange: (val: "bottom" | "center" | "top") => void;
 
-  faceFraming?: "center" | "left" | "right";
-  onFaceFramingChange?: (val: "center" | "left" | "right") => void;
+  faceFraming: "center" | "left" | "right";
+  onFaceFramingChange: (val: "center" | "left" | "right") => void;
 
   bgmTrackId: string;
   onBgmTrackIdChange: (val: string) => void;
@@ -150,8 +145,8 @@ export interface AiShortsPolisherStudioProps {
   bgmVolume: number;
   onBgmVolumeChange: (val: number) => void;
 
-  customBgmFile: File | null;
-  onCustomBgmFileSelect: (file: File | null) => void;
+  customBgmFile?: File | null;
+  onCustomBgmFileSelect?: (file: File | null) => void;
 
   enableSfx: boolean;
   onEnableSfxChange: (val: boolean) => void;
@@ -159,139 +154,86 @@ export interface AiShortsPolisherStudioProps {
   editorialTranscript: string;
   onEditorialTranscriptChange: (val: string) => void;
 
-  // Visual Callout Cards
-  curvedArrowConfig?: ArrowCalloutConfig;
-  onCurvedArrowConfigChange?: (val: ArrowCalloutConfig) => void;
+  curvedArrowConfig: ArrowCalloutConfig;
+  onCurvedArrowConfigChange: (val: ArrowCalloutConfig) => void;
 
-  equationFormulaConfig?: EquationFormulaConfig;
-  onEquationFormulaConfigChange?: (val: EquationFormulaConfig) => void;
+  equationFormulaConfig: EquationFormulaConfig;
+  onEquationFormulaConfigChange: (val: EquationFormulaConfig) => void;
 
-  comparisonBannerConfig?: ComparisonBannerConfig;
-  onComparisonBannerConfigChange?: (val: ComparisonBannerConfig) => void;
+  comparisonBannerConfig: ComparisonBannerConfig;
+  onComparisonBannerConfigChange: (val: ComparisonBannerConfig) => void;
 
   onGenerate: () => void;
   isGenerating: boolean;
+
+  removeAiWatermark?: boolean;
+  onRemoveAiWatermarkChange?: (val: boolean) => void;
 }
 
 export function AiShortsPolisherStudio({
-  primaryMediaList = [],
+  primaryMediaList,
   onPrimaryMediaListChange,
-  overlayLayerList = [],
+  overlayLayerList,
   onOverlayLayerListChange,
-  videoTitle = "",
+  videoTitle,
   onVideoTitleChange,
-  silenceJumpCuts = true,
+  silenceJumpCuts,
   onSilenceJumpCutsChange,
-  silenceSensitivity = "tight",
+  silenceSensitivity,
   onSilenceSensitivityChange,
-  smartPunchIns = true,
+  smartPunchIns,
   onSmartPunchInsChange,
-  punchInIntensity = "medium",
+  punchInIntensity,
   onPunchInIntensityChange,
-  captionStyle = "Pop Word",
+  captionStyle,
   onCaptionStyleChange,
-  captionPosition = "bottom",
+  captionPosition,
   onCaptionPositionChange,
-  faceFraming = "center",
+  faceFraming,
   onFaceFramingChange,
-  bgmTrackId = "parasail",
+  bgmTrackId,
   onBgmTrackIdChange,
-  bgmVolume = 0.12,
+  bgmVolume,
   onBgmVolumeChange,
-  customBgmFile = null,
+  customBgmFile,
   onCustomBgmFileSelect,
-  enableSfx = true,
+  enableSfx,
   onEnableSfxChange,
-  editorialTranscript = "",
+  editorialTranscript,
   onEditorialTranscriptChange,
-  curvedArrowConfig = {
-    enabled: false,
-    label: "LOOK HERE",
-    direction: "down-left",
-    color: "#EF4444",
-    atSeconds: 3,
-    durationSeconds: 3,
-  },
+  curvedArrowConfig,
   onCurvedArrowConfigChange,
-  equationFormulaConfig = {
-    enabled: false,
-    step1: { value: "HOOK", label: "0-3s", accentColor: "#38BDF8" },
-    operator1: "+",
-    step2: { value: "STORY", label: "RETENTION", accentColor: "#FACC15" },
-    operator2: "=",
-    result: { value: "VIRAL", label: "1M+ VIEWS", accentColor: "#22C55E" },
-    atSeconds: 5,
-    durationSeconds: 4,
-  },
+  equationFormulaConfig,
   onEquationFormulaConfigChange,
-  comparisonBannerConfig = {
-    enabled: false,
-    left: { tag: "BORING", title: "Raw Take", description: "Awkward pauses & silence", isWinner: false },
-    right: { tag: "VIRAL", title: "AI Polished", description: "Punch-ins & viral captions", isWinner: true },
-    atSeconds: 8,
-    durationSeconds: 4,
-  },
+  comparisonBannerConfig,
   onComparisonBannerConfigChange,
   onGenerate,
   isGenerating,
+  removeAiWatermark = true,
+  onRemoveAiWatermarkChange,
 }: AiShortsPolisherStudioProps) {
-  // Safe-Zone Guide Toggle
-  const [showSafeZoneGuide, setShowSafeZoneGuide] = useState<boolean>(false);
+  // 4-Step Stepper state
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
-  // Caption categories & search
+  // Caption filtering
   const [captionCategoryTab, setCaptionCategoryTab] = useState<string>("All");
-  const [captionSearchQuery, setCaptionSearchQuery] = useState<string>("");
-
-  // Combine broadcast styles + kinetic styles
-  const combinedSubtitleStyles = useMemo(() => {
-    const list: Array<{ id: string; name: string; category: string; desc?: string; badge?: string; textColor?: string; highlightColor?: string }> = [];
-
-    // 1. Add Broadcast Presets
-    BROADCAST_PRESETS.forEach((p) => {
-      list.push({
-        id: p.id,
-        name: p.id,
-        category: p.category ? p.category.charAt(0).toUpperCase() + p.category.slice(1) : "Broadcast",
-        desc: p.desc,
-        badge: p.badge,
-        textColor: p.textColor,
-        highlightColor: p.highlightColor,
-      });
-    });
-
-    // 2. Add Kinetic Styles
-    KINETIC_STYLES.forEach((k) => {
-      if (!list.some((item) => item.name.toLowerCase() === k.name.toLowerCase())) {
-        list.push({
-          id: k.id,
-          name: k.name,
-          category: k.category || "Kinetic",
-          desc: "Dynamic motion highlight",
-          badge: "Shorts",
-        });
-      }
-    });
-
-    return list;
-  }, []);
+  const [captionSearch, setCaptionSearch] = useState<string>("");
 
   const filteredCaptionStyles = useMemo(() => {
-    let result = combinedSubtitleStyles;
-    if (captionCategoryTab !== "All") {
-      result = result.filter((s) => s.category.toLowerCase() === captionCategoryTab.toLowerCase());
-    }
-    if (captionSearchQuery.trim()) {
-      const q = captionSearchQuery.toLowerCase();
-      result = result.filter((s) => s.name.toLowerCase().includes(q) || (s.desc && s.desc.toLowerCase().includes(q)));
-    }
-    return result;
-  }, [combinedSubtitleStyles, captionCategoryTab, captionSearchQuery]);
+    return THIRTY_TWO_CAPTION_STYLES.filter((style) => {
+      const matchesCategory = captionCategoryTab === "All" || style.category === captionCategoryTab;
+      const matchesSearch =
+        style.name.toLowerCase().includes(captionSearch.toLowerCase()) ||
+        style.description.toLowerCase().includes(captionSearch.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [captionCategoryTab, captionSearch]);
 
-  // Audio audition state
+  // Audio / BGM auditioning
   const [auditioningTrack, setAuditioningTrack] = useState<string | null>(null);
   const audioAuditionRef = useRef<HTMLAudioElement | null>(null);
 
-  const toggleAudition = (track: typeof AWS_SHORTS_BGM_TRACKS[0]) => {
+  const toggleAudition = (track: LibraryBgmTrack) => {
     if (track.path === "none") return;
     if (auditioningTrack === track.id) {
       if (audioAuditionRef.current) {
@@ -303,9 +245,10 @@ export function AiShortsPolisherStudio({
       if (audioAuditionRef.current) {
         audioAuditionRef.current.pause();
       }
-      const audio = new Audio(`https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/${track.path}`);
-      audio.volume = Math.max(0.05, Math.min(1, bgmVolume * 2));
-      audio.play().catch(() => { });
+      const audioUrl = getBgmTrackAudioUrl(track);
+      const audio = new window.Audio(audioUrl);
+      audio.volume = Math.max(0.05, Math.min(1, (bgmVolume || 0.12) * 2));
+      audio.play().catch(() => {});
       audio.onended = () => setAuditioningTrack(null);
       audioAuditionRef.current = audio;
       setAuditioningTrack(track.id);
@@ -321,1332 +264,837 @@ export function AiShortsPolisherStudio({
     };
   }, []);
 
-  // Primary media handlers with Object URL cleanup
-  const handlePrimaryMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const newItems: UploadedMediaItem[] = Array.from(files).map((f: File): UploadedMediaItem => {
-      const url = URL.createObjectURL(f);
-      return {
-        id: `media-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        file: f,
-        type: (f.type.startsWith("image/") ? "image" : "video") as "image" | "video",
-        previewUrl: url,
-        name: f.name,
-        size: f.size,
-        trimStart: 0,
-        trimEnd: 0,
-      };
-    });
-
-    onPrimaryMediaListChange([...primaryMediaList, ...newItems]);
-    if (e.target) e.target.value = "";
-  };
-
-  const removePrimaryMedia = (id: string) => {
-    const target = primaryMediaList.find((m) => m.id === id);
-    if (target?.previewUrl) {
-      try {
-        URL.revokeObjectURL(target.previewUrl);
-      } catch { }
+  // Primary video file drop / selection
+  const handlePrimaryFileSelect = (files: FileList | null) => {
+    if (!files) return;
+    const newItems: UploadedMediaItem[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      const isVid = f.type.startsWith("video/") || f.name.match(/\.(mp4|mov|webm)$/i);
+      const isImg = f.type.startsWith("image/");
+      if (isVid || isImg) {
+        const previewUrl = URL.createObjectURL(f);
+        newItems.push({
+          id: `take-${Date.now()}-${i}`,
+          file: f,
+          type: isVid ? "video" : "image",
+          previewUrl,
+          name: f.name,
+          size: f.size,
+          trimStart: 0,
+          trimEnd: 0,
+        });
+      }
     }
-    onPrimaryMediaListChange(primaryMediaList.filter((m) => m.id !== id));
-  };
-
-  // Reorder primary takes (Move Up / Down)
-  const moveMediaUp = (idx: number) => {
-    if (idx <= 0) return;
-    const copy = [...primaryMediaList];
-    const temp = copy[idx - 1];
-    copy[idx - 1] = copy[idx];
-    copy[idx] = temp;
-    onPrimaryMediaListChange(copy);
-  };
-
-  const moveMediaDown = (idx: number) => {
-    if (idx >= primaryMediaList.length - 1) return;
-    const copy = [...primaryMediaList];
-    const temp = copy[idx + 1];
-    copy[idx + 1] = copy[idx];
-    copy[idx] = temp;
-    onPrimaryMediaListChange(copy);
-  };
-
-  // Overlay layer handlers (PIP callouts & Cutaways)
-  const handleLayerSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const newLayers: UploadedLayerItem[] = Array.from(files).map((f: File): UploadedLayerItem => ({
-      id: `layer-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      file: f,
-      type: (f.type.startsWith("video/") ? "video" : "image") as "image" | "video",
-      previewUrl: URL.createObjectURL(f),
-      name: f.name,
-      title: f.name.replace(/\.[^/.]+$/, ""),
-      position: "top-right",
-      isCutaway: false,
-      startSeconds: 3,
-      durationSeconds: 3.5,
-    }));
-
-    onOverlayLayerListChange([...overlayLayerList, ...newLayers]);
-    if (e.target) e.target.value = "";
-  };
-
-  const removeLayerItem = (id: string) => {
-    const target = overlayLayerList.find((l) => l.id === id);
-    if (target?.previewUrl) {
-      try {
-        URL.revokeObjectURL(target.previewUrl);
-      } catch { }
-    }
-    onOverlayLayerListChange(overlayLayerList.filter((l) => l.id !== id));
-  };
-
-  // Clean up all object URLs when unmounting
-  useEffect(() => {
-    return () => {
-      primaryMediaList.forEach((m) => {
-        if (m.previewUrl) {
-          try {
-            URL.revokeObjectURL(m.previewUrl);
-          } catch { }
-        }
-      });
-      overlayLayerList.forEach((l) => {
-        if (l.previewUrl) {
-          try {
-            URL.revokeObjectURL(l.previewUrl);
-          } catch { }
-        }
-      });
-    };
-  }, []);
-
-  // Quick word replace tool
-  const [wordToFind, setWordToFind] = useState("");
-  const [wordToReplace, setWordToReplace] = useState("");
-  const [replaceNotice, setReplaceNotice] = useState<string | null>(null);
-
-  const applyWordReplacement = () => {
-    if (!wordToFind.trim()) return;
-    const pattern = new RegExp(wordToFind.trim(), "gi");
-    const updated = editorialTranscript.replace(pattern, wordToReplace.trim());
-    if (updated !== editorialTranscript) {
-      onEditorialTranscriptChange(updated);
-      setReplaceNotice(`Replaced "${wordToFind}" with "${wordToReplace}"`);
-      setTimeout(() => setReplaceNotice(null), 3000);
-      setWordToFind("");
-      setWordToReplace("");
-    } else {
-      setReplaceNotice(`"${wordToFind}" not found in transcript.`);
-      setTimeout(() => setReplaceNotice(null), 3000);
+    if (newItems.length > 0) {
+      onPrimaryMediaListChange([...primaryMediaList, ...newItems]);
+      if (!videoTitle && newItems[0]) {
+        onVideoTitleChange(newItems[0].name.replace(/\.[^/.]+$/, ""));
+      }
     }
   };
 
-  // Visual Callouts Section Tab
-  const [calloutTab, setCalloutTab] = useState<"arrows" | "formula" | "comparison">("arrows");
+  const removePrimaryTake = (id: string) => {
+    onPrimaryMediaListChange(primaryMediaList.filter((item) => item.id !== id));
+  };
 
-  const activePrimary = primaryMediaList[0];
-  const activeOverlay = overlayLayerList[0];
-  const hasMedia = primaryMediaList.length > 0;
+  const movePrimaryTake = (index: number, direction: "up" | "down") => {
+    const target = direction === "up" ? index - 1 : index + 1;
+    if (target < 0 || target >= primaryMediaList.length) return;
+    const clone = [...primaryMediaList];
+    const [moved] = clone.splice(index, 1);
+    clone.splice(target, 0, moved);
+    onPrimaryMediaListChange(clone);
+  };
 
-  // Real-time calculated punch-in scale for live preview
-  const liveZoomScale = smartPunchIns
-    ? punchInIntensity === "subtle"
-      ? 1.05
-      : punchInIntensity === "dramatic"
-        ? 1.18
-        : 1.12
-    : 1.0;
+  // Overlay layer file selection
+  const handleOverlayFileSelect = (files: FileList | null) => {
+    if (!files) return;
+    const newLayers: UploadedLayerItem[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      const isVid = f.type.startsWith("video/") || f.name.match(/\.(mp4|mov|webm)$/i);
+      const isImg = f.type.startsWith("image/");
+      if (isVid || isImg) {
+        const previewUrl = URL.createObjectURL(f);
+        newLayers.push({
+          id: `layer-${Date.now()}-${i}`,
+          file: f,
+          type: isVid ? "video" : "image",
+          previewUrl,
+          name: f.name,
+          title: f.name.replace(/\.[^/.]+$/, ""),
+          position: "top-right",
+          startSeconds: 2,
+          durationSeconds: 4,
+        });
+      }
+    }
+    if (newLayers.length > 0) {
+      onOverlayLayerListChange([...overlayLayerList, ...newLayers]);
+    }
+  };
 
-  const objectPositionStyle =
-    faceFraming === "left" ? "left center" : faceFraming === "right" ? "right center" : "center center";
+  const removeOverlayLayer = (id: string) => {
+    onOverlayLayerListChange(overlayLayerList.filter((layer) => layer.id !== id));
+  };
+
+  // Compulsory review confirmation gate
+  const [previewConfirmed, setPreviewConfirmed] = useState<boolean>(false);
+
+  const hasPrimaryMedia = primaryMediaList.length > 0;
 
   return (
-    <div className="w-full space-y-8 text-white font-sans">
-      {/* Top Banner: Dark Modern Header */}
-      <div className="rounded-[28px] border border-white/10 bg-gradient-to-b from-[#1E132D] to-[#0D0A14] p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-3.5 py-1 text-xs font-bold text-purple-400">
-              <Smartphone size={13} className="text-purple-400" />
-              <span>9:16 Vertical Only • AI Shorts &amp; Reels Co-Pilot</span>
+    <div className="h-full flex flex-col bg-white overflow-hidden text-slate-800">
+      {/* ── ROW 1: STUDIO HEADER & 4-STEP STEPPER BAR ── */}
+      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3.5 shrink-0 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          {/* Studio Title */}
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <Smartphone size={18} className="text-purple-600" />
+                AI Shorts Polisher
+              </h1>
+              <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-0.5 text-[11px] font-bold text-purple-700">
+                <Sparkles size={11} className="text-purple-600" />
+                9:16 Vertical Reel
+              </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-sans">
-              AI Shorts &amp; Reels Polisher
-            </h1>
-            <p className="text-sm text-zinc-400 leading-relaxed max-w-2xl">
-              Turn raw talking selfie clips and multi-take vertical shoots into high-retention Shorts, Reels, and TikToks. Auto-trims breath pauses, triggers punch-in camera cuts, layers floating callouts, and styles 40+ viral subtitle presets with ducked audio.
+            <p className="text-xs text-slate-500 font-medium">
+              Transform raw smartphone takes into high-retention Shorts with silence cuts, punch-in zooms, and viral subtitles.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="rounded-2xl border border-white/10 bg-[#1A1224] px-4 py-3 text-right">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Duration &amp; Cost</span>
-              <span className="text-base font-black text-white">Up to 90s • Flat 1 Credit</span>
-            </div>
+          {/* Stepper Navigation Pills */}
+          <div className="flex items-center gap-1 sm:gap-1.5 self-center sm:self-auto overflow-x-auto no-scrollbar py-0.5">
+            {SHORTS_POLISHER_STEPS.map((step) => {
+              const isActive = currentStep === step.step;
+              const isDone =
+                (step.step === 1 && hasPrimaryMedia) ||
+                (step.step === 2 && Boolean(bgmTrackId)) ||
+                (step.step === 3 && Boolean(captionStyle)) ||
+                currentStep > step.step;
+
+              return (
+                <button
+                  key={step.step}
+                  type="button"
+                  onClick={() => setCurrentStep(step.step)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-purple-600 text-white shadow-xs"
+                      : isDone
+                      ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
+                      : "bg-transparent text-slate-400 hover:text-slate-600"
+                  }`}
+                >
+                  <span
+                    className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${
+                      isActive
+                        ? "bg-white text-purple-600"
+                        : isDone
+                        ? "bg-emerald-500 text-white"
+                        : "bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {isDone && !isActive ? <Check size={10} strokeWidth={3} /> : step.step}
+                  </span>
+                  <span>{step.title}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Pricing Allowance Badge */}
+          <div className="hidden lg:flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
+              <Zap size={13} className="text-purple-600 fill-purple-600" />
+              1 Credit / Video • Up to 90s
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Main Studio Grid: Left Controls (7 cols) | Right 9:16 Live Preview (5 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Form Controls */}
-        <div className="lg:col-span-7 space-y-6">
+      {/* ── ROW 2: STEP CONTENT (SCROLLABLE WORKSPACE) ── */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <div className="max-w-5xl mx-auto space-y-6">
 
-          {/* Section 0: Project Title */}
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-3">
-            <label className="text-xs font-black text-zinc-300 uppercase tracking-wider block">
-              Shorts Title (Optional)
-            </label>
-            <input
-              type="text"
-              value={videoTitle}
-              onChange={(e) => onVideoTitleChange(e.target.value)}
-              placeholder="e.g., The 1 Secret to 100k Followers..."
-              className="w-full px-4 py-3 rounded-xl border border-white/10 bg-zinc-900/90 text-white placeholder:text-zinc-500 text-xs font-medium focus:border-purple-400 focus:outline-none transition shadow-inner"
-            />
-          </div>
-
-          {/* Section 1: Primary Full-Screen 9:16 Media with Reordering & Face Framing */}
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                  <Smartphone size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">1. Primary 9:16 Video Takes</h3>
-                  <p className="text-xs text-zinc-400">Upload multiple camera takes, reorder, or trim dead air</p>
-                </div>
-              </div>
-
-              <span className="text-xs font-bold text-zinc-300 bg-zinc-800/80 px-2.5 py-1 rounded-full border border-white/5">
-                {primaryMediaList.length} Clip{primaryMediaList.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-            {/* Face-Framing Alignment Control */}
-            <div className="rounded-xl border border-white/5 bg-zinc-900/60 p-3 flex items-center justify-between">
-              <div className="space-y-0.5">
-                <span className="text-xs font-bold text-white block">Face-Framing Alignment</span>
-                <span className="text-[10px] text-zinc-400 block">Centers speaker if sitting off-center in the crop</span>
-              </div>
-              <div className="flex items-center gap-1 bg-zinc-800 p-1 rounded-lg border border-white/5">
-                <button
-                  type="button"
-                  onClick={() => onFaceFramingChange?.("left")}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold transition ${faceFraming === "left" ? "bg-purple-600 text-white shadow-xs" : "text-zinc-400 hover:text-white"
-                    }`}
-                  title="Align left"
-                >
-                  <AlignLeft size={12} />
-                  <span>Left</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onFaceFramingChange?.("center")}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold transition ${faceFraming === "center" ? "bg-purple-600 text-white shadow-xs" : "text-zinc-400 hover:text-white"
-                    }`}
-                  title="Align center"
-                >
-                  <AlignCenter size={12} />
-                  <span>Center</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onFaceFramingChange?.("right")}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold transition ${faceFraming === "right" ? "bg-purple-600 text-white shadow-xs" : "text-zinc-400 hover:text-white"
-                    }`}
-                  title="Align right"
-                >
-                  <AlignRight size={12} />
-                  <span>Right</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Upload Area */}
-            <label className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-700 hover:border-purple-500 bg-zinc-900/60 hover:bg-purple-500/5 p-6 text-center transition cursor-pointer group">
-              <input
-                type="file"
-                multiple
-                accept="video/mp4,video/quicktime,video/webm,image/png,image/jpeg"
-                onChange={handlePrimaryMediaSelect}
-                className="hidden"
-              />
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-800 border border-white/10 shadow-md text-purple-400 group-hover:scale-105 transition mb-2">
-                <Upload size={18} />
-              </div>
-              <p className="text-xs font-bold text-zinc-200">
-                Drop raw 9:16 vertical video takes here, or <span className="text-purple-400 underline">browse</span>
-              </p>
-              <p className="text-[11px] text-zinc-500 mt-0.5">Supports multi-take vertical shoots up to 90 seconds (1080×1920 MP4)</p>
-            </label>
-
-            {/* List of uploaded primary clips with Reorder & Trim */}
-            {primaryMediaList.length > 0 && (
-              <div className="space-y-2.5 pt-2">
-                <div className="flex items-center justify-between text-[11px] font-bold text-zinc-400 px-1">
-                  <span>Take Order &amp; Trims (Drag or Use Arrows)</span>
-                  <span>{primaryMediaList.length} Total Clips</span>
-                </div>
-
-                {primaryMediaList.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-white/10 bg-zinc-900/80 p-3.5 transition hover:border-white/20"
-                  >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {/* Reorder Buttons */}
-                      <div className="flex flex-col gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => moveMediaUp(idx)}
-                          disabled={idx === 0}
-                          className="p-1 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-zinc-300 hover:text-white transition"
-                          title="Move take earlier"
-                        >
-                          <ArrowUp size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveMediaDown(idx)}
-                          disabled={idx === primaryMediaList.length - 1}
-                          className="p-1 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-zinc-300 hover:text-white transition"
-                          title="Move take later"
-                        >
-                          <ArrowDown size={12} />
-                        </button>
-                      </div>
-
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-white text-[11px] font-black shrink-0">
-                        {idx + 1}
-                      </span>
-
-                      {item.type === "video" ? (
-                        <div className="h-14 w-10 rounded-md bg-black overflow-hidden shrink-0 border border-white/10">
-                          <video src={item.previewUrl} className="h-full w-full object-cover" muted />
-                        </div>
-                      ) : (
-                        <div className="h-14 w-10 rounded-md bg-zinc-800 overflow-hidden shrink-0 border border-white/10">
-                          <img src={item.previewUrl} alt={item.name} className="h-full w-full object-cover" />
-                        </div>
-                      )}
-
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-white truncate">{item.name}</p>
-                        <p className="text-[10px] text-zinc-400">{(item.size / (1024 * 1024)).toFixed(1)} MB</p>
-                      </div>
-                    </div>
-
-                    {/* Trim Markers */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      <div className="flex items-center gap-1.5 text-[11px] bg-zinc-800/80 px-2.5 py-1.5 rounded-lg border border-white/5">
-                        <Clock size={12} className="text-zinc-400" />
-                        <span className="text-zinc-400">Trim In:</span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.5"
-                          value={item.trimStart || 0}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value) || 0;
-                            const updated = primaryMediaList.map((m) =>
-                              m.id === item.id ? { ...m, trimStart: Math.max(0, val) } : m
-                            );
-                            onPrimaryMediaListChange(updated);
-                          }}
-                          className="w-12 px-1 py-0.5 rounded bg-zinc-900 border border-white/10 text-white text-center font-mono text-[10px] focus:outline-none focus:border-purple-400"
-                        />
-                        <span className="text-zinc-500">s</span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => removePrimaryMedia(item.id)}
-                        className="p-1.5 rounded-lg border border-white/10 bg-zinc-800 text-zinc-400 hover:text-red-400 hover:border-red-500/30 transition cursor-pointer"
-                        title="Remove take"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Section 2: Overlay Layers with Custom Positioning & Cutaway Mode */}
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                  <Layers size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">2. Overlay Layers (PIP or Full Cutaway)</h3>
-                  <p className="text-xs text-zinc-400">Floating reaction clips, evidence photos, or full-screen B-roll cutaways</p>
-                </div>
-              </div>
-
-              <span className="text-xs font-bold text-zinc-300 bg-zinc-800/80 px-2.5 py-1 rounded-full border border-white/5">
-                {overlayLayerList.length} Layer{overlayLayerList.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-            {/* Layer Upload Area */}
-            <label className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-700 hover:border-purple-500 bg-zinc-900/60 hover:bg-purple-500/5 p-5 text-center transition cursor-pointer group">
-              <input
-                type="file"
-                multiple
-                accept="image/png,image/jpeg,image/webp,video/mp4"
-                onChange={handleLayerSelect}
-                className="hidden"
-              />
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-white/10 shadow-md text-purple-400 group-hover:scale-105 transition mb-1.5">
-                <Plus size={17} />
-              </div>
-              <p className="text-xs font-bold text-zinc-200">
-                Add PIP overlay layers (Images or Videos)
-              </p>
-              <p className="text-[11px] text-zinc-500">Pick corner position (Top-Right, Top-Left, Bottom, or Center)</p>
-            </label>
-
-            {/* List of uploaded layers with Position & Cutaway Selector */}
-            {overlayLayerList.length > 0 && (
-              <div className="space-y-3 pt-1">
-                {overlayLayerList.map((layer, idx) => (
-                  <div
-                    key={layer.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-white/10 bg-zinc-900/80 p-3.5 transition hover:border-white/20"
-                  >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-white text-[11px] font-black shrink-0">
-                        L{idx + 1}
-                      </span>
-                      {layer.type === "video" ? (
-                        <div className="h-14 w-10 rounded-md bg-black overflow-hidden shrink-0 border border-white/10">
-                          <video src={layer.previewUrl} className="h-full w-full object-cover" muted />
-                        </div>
-                      ) : (
-                        <div className="h-14 w-10 rounded-md bg-zinc-800 overflow-hidden shrink-0 border border-white/10">
-                          <img src={layer.previewUrl} alt={layer.name} className="h-full w-full object-cover" />
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <input
-                          type="text"
-                          value={layer.title}
-                          onChange={(e) => {
-                            const updated = overlayLayerList.map((l) =>
-                              l.id === layer.id ? { ...l, title: e.target.value } : l
-                            );
-                            onOverlayLayerListChange(updated);
-                          }}
-                          placeholder="Overlay label..."
-                          className="text-xs font-bold text-white bg-transparent border-b border-transparent hover:border-zinc-600 focus:border-purple-400 focus:outline-none truncate w-full"
-                        />
-                        <p className="text-[10px] text-purple-400 font-semibold">
-                          {layer.isCutaway ? "Full-Screen B-Roll Cutaway" : "Picture-in-Picture Callout"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Cutaway Toggle & Position Selector */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <label className="flex items-center gap-1.5 bg-zinc-800 px-2 py-1.5 rounded-lg border border-white/10 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(layer.isCutaway)}
-                          onChange={(e) => {
-                            const updated = overlayLayerList.map((l) =>
-                              l.id === layer.id ? { ...l, isCutaway: e.target.checked } : l
-                            );
-                            onOverlayLayerListChange(updated);
-                          }}
-                          className="rounded border-zinc-700 bg-zinc-900 text-purple-500 focus:ring-purple-500 h-3 w-3"
-                        />
-                        <span className="text-[10px] font-bold text-zinc-300">Cutaway</span>
-                      </label>
-
-                      {!layer.isCutaway && (
-                        <select
-                          value={layer.position || "top-right"}
-                          onChange={(e) => {
-                            const updated = overlayLayerList.map((l) =>
-                              l.id === layer.id ? { ...l, position: e.target.value as OverlayPosition } : l
-                            );
-                            onOverlayLayerListChange(updated);
-                          }}
-                          className="px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-[11px] font-bold focus:outline-none focus:border-purple-400 cursor-pointer"
-                        >
-                          <option value="top-right">Top-Right</option>
-                          <option value="top-left">Top-Left</option>
-                          <option value="bottom-right">Bottom-Right</option>
-                          <option value="bottom-left">Bottom-Left</option>
-                          <option value="center">Center / Split</option>
-                        </select>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={() => removeLayerItem(layer.id)}
-                        className="p-1.5 rounded-lg border border-white/10 bg-zinc-800 text-zinc-400 hover:text-red-400 hover:border-red-500/30 transition cursor-pointer"
-                        title="Remove layer"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Section 3: Smart AI Editing Toggles with Sensitivity & Strength */}
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-5">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                <Scissors size={18} />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-white font-sans">3. Smart Pacing &amp; Camera Cuts</h3>
-                <p className="text-xs text-zinc-400">Shorts silence removal sensitivity and dynamic camera punch-ins</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Silence Cutter with Sensitivity Pills */}
-              <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-4 space-y-3">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={silenceJumpCuts}
-                    onChange={(e) => onSilenceJumpCutsChange(e.target.checked)}
-                    className="mt-0.5 rounded border-zinc-700 bg-zinc-800 text-purple-500 focus:ring-purple-500 h-4 w-4"
-                  />
-                  <div>
-                    <span className="text-xs font-black text-white block">Auto Silence &amp; Gap Cutter</span>
-                    <span className="text-[11px] text-zinc-400 leading-snug block mt-0.5">
-                      Trims dead air and pauses for high TikTok/Shorts retention.
-                    </span>
-                  </div>
-                </label>
-
-                {silenceJumpCuts && (
-                  <div className="pt-2 border-t border-white/5 space-y-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Cut Sensitivity</span>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {(["tight", "normal", "gentle"] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => onSilenceSensitivityChange(mode)}
-                          className={`py-1.5 px-2 rounded-lg text-[10px] font-bold capitalize transition border ${silenceSensitivity === mode
-                              ? "bg-purple-600 text-white border-purple-500 shadow-sm"
-                              : "bg-zinc-800/80 text-zinc-400 border-white/5 hover:text-white"
-                            }`}
-                        >
-                          {mode === "tight" ? "Tight (Shorts)" : mode === "normal" ? "Normal" : "Gentle (Pod)"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Smart Camera Punch-In with Intensity Pills */}
-              <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-4 space-y-3">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={smartPunchIns}
-                    onChange={(e) => onSmartPunchInsChange(e.target.checked)}
-                    className="mt-0.5 rounded border-zinc-700 bg-zinc-800 text-purple-500 focus:ring-purple-500 h-4 w-4"
-                  />
-                  <div>
-                    <span className="text-xs font-black text-white block">Smart Camera Punch-Ins</span>
-                    <span className="text-[11px] text-zinc-400 leading-snug block mt-0.5">
-                      Dynamic zoom cuts on sentence beats to eliminate drop-off.
-                    </span>
-                  </div>
-                </label>
-
-                {smartPunchIns && (
-                  <div className="pt-2 border-t border-white/5 space-y-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Zoom Strength</span>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {(["subtle", "medium", "dramatic"] as const).map((intensity) => (
-                        <button
-                          key={intensity}
-                          type="button"
-                          onClick={() => onPunchInIntensityChange(intensity)}
-                          className={`py-1.5 px-2 rounded-lg text-[10px] font-bold capitalize transition border ${punchInIntensity === intensity
-                              ? "bg-purple-600 text-white border-purple-500 shadow-sm"
-                              : "bg-zinc-800/80 text-zinc-400 border-white/5 hover:text-white"
-                            }`}
-                        >
-                          {intensity === "subtle" ? "Subtle (+5%)" : intensity === "medium" ? "Standard (+12%)" : "Dramatic (+18%)"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: Subtitle Presets & Vertical Position Placement */}
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                  <Wand2 size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">4. Subtitle Styles &amp; Position</h3>
-                  <p className="text-xs text-zinc-400">Viral bold presets with vertical screen position choice</p>
-                </div>
-              </div>
-
-              {/* Vertical Position Choice */}
-              <div className="flex items-center gap-1 bg-zinc-800 p-1 rounded-xl border border-white/10 self-start sm:self-auto">
-                {(["top", "center", "bottom"] as const).map((pos) => (
-                  <button
-                    key={pos}
-                    type="button"
-                    onClick={() => onCaptionPositionChange?.(pos)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold capitalize transition ${captionPosition === pos
-                        ? "bg-purple-600 text-white shadow-xs"
-                        : "text-zinc-400 hover:text-white"
-                      }`}
-                  >
-                    {pos === "top" ? "Upper 1/3" : pos === "center" ? "Center" : "Lower Safe"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Search & Category Filter Bar */}
-            <div className="flex flex-col sm:flex-row gap-2.5">
-              <div className="relative flex-1">
-                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
-                <input
-                  type="text"
-                  value={captionSearchQuery}
-                  onChange={(e) => setCaptionSearchQuery(e.target.value)}
-                  placeholder="Search styles (e.g. Hormozi, MrBeast, Karaoke, Minimal)..."
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-purple-400"
-                />
-              </div>
-
-              {/* Category Filter Tabs */}
-              <div className="flex flex-wrap gap-1 border-b border-white/5 pb-1">
-                {["All", "Viral Bold", "Podcast", "Cinematic", "Minimal", "Kinetic"].map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setCaptionCategoryTab(tab)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${captionCategoryTab.toLowerCase() === tab.toLowerCase()
-                        ? "bg-purple-600 text-white shadow-sm"
-                        : "bg-zinc-800/80 text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                      }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Subtitles Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto pr-1">
-              {filteredCaptionStyles.map((style) => {
-                const isSelected = captionStyle === style.name;
-                return (
-                  <button
-                    key={style.id}
-                    type="button"
-                    onClick={() => onCaptionStyleChange(style.name)}
-                    className={`flex flex-col items-start justify-between rounded-xl border p-3 text-left transition relative cursor-pointer ${isSelected
-                        ? "border-purple-500 bg-purple-500/15 ring-2 ring-purple-500/30"
-                        : "border-white/5 bg-zinc-900/80 hover:bg-zinc-800 hover:border-white/20"
-                      }`}
-                  >
-                    <span className="text-xs font-black text-white leading-tight line-clamp-1">{style.name}</span>
-                    <div className="mt-2 flex items-center justify-between w-full">
-                      <span className="text-[10px] font-semibold text-zinc-400 uppercase">{style.category}</span>
-                      {isSelected && <Check size={13} className="text-purple-400 stroke-[3]" />}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Section 5: Background Music & Audio Level (12% Default) */}
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                  <Music size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">5. Background Music &amp; Audio Level</h3>
-                  <p className="text-xs text-zinc-400">13+ cloud tracks ducked to 12% so voiceover stays completely clear</p>
-                </div>
-              </div>
-
-              {/* SFX Toggle */}
-              <label className="flex items-center gap-2 cursor-pointer bg-zinc-800/80 px-3 py-1.5 rounded-xl border border-white/10">
-                <input
-                  type="checkbox"
-                  checked={enableSfx}
-                  onChange={(e) => onEnableSfxChange(e.target.checked)}
-                  className="rounded border-zinc-700 bg-zinc-800 text-purple-500 focus:ring-purple-500 h-3.5 w-3.5"
-                />
-                <span className="text-xs font-bold text-zinc-300">SFX Pops &amp; Whooshes</span>
-              </label>
-            </div>
-
-            {/* Volume Slider */}
-            <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-4 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-zinc-300 flex items-center gap-1.5">
-                  <Volume2 size={15} className="text-purple-400" />
-                  Background Music Volume
-                </span>
-                <span className="font-black text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-400/20">
-                  {Math.round(bgmVolume * 100)}% (12% Default)
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="0.4"
-                step="0.01"
-                value={bgmVolume}
-                onChange={(e) => onBgmVolumeChange(parseFloat(e.target.value))}
-                className="w-full accent-purple-500 cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-zinc-500 font-semibold">
-                <span>0% (Muted)</span>
-                <span className="text-purple-400 font-bold">12% Voice Safe</span>
-                <span>40% Loud</span>
-              </div>
-            </div>
-
-            {/* Curated BGM Library */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto pr-1">
-              {AWS_SHORTS_BGM_TRACKS.map((track) => {
-                const isSelected = bgmTrackId === track.id;
-                const isPlaying = auditioningTrack === track.id;
-
-                return (
-                  <div
-                    key={track.id}
-                    className={`flex items-center justify-between rounded-xl border p-2.5 transition ${isSelected
-                        ? "border-purple-500 bg-purple-500/15 ring-1 ring-purple-500/30"
-                        : "border-white/5 bg-zinc-900/80 hover:bg-zinc-800"
-                      }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => onBgmTrackIdChange(track.id)}
-                      className="text-left min-w-0 flex-1 mr-2 cursor-pointer"
-                    >
-                      <p className="text-xs font-bold text-white truncate">{track.label}</p>
-                      <p className="text-[10px] text-zinc-400 truncate">{track.desc}</p>
-                    </button>
-
-                    {track.path !== "none" && (
-                      <button
-                        type="button"
-                        onClick={() => toggleAudition(track)}
-                        className={`p-1.5 rounded-lg border transition shrink-0 cursor-pointer ${isPlaying
-                            ? "bg-purple-600 text-white border-purple-500 animate-pulse"
-                            : "bg-zinc-800 text-zinc-300 border-white/10 hover:text-white"
-                          }`}
-                        title={isPlaying ? "Pause preview" : "Play preview"}
-                      >
-                        {isPlaying ? <Pause size={13} /> : <Play size={13} />}
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Custom BGM Upload */}
-            <div className="pt-1">
-              <label className="text-xs font-bold text-zinc-300 block mb-1.5">Or Upload Custom Background Music</label>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/10 bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-zinc-200 cursor-pointer transition shadow-sm">
-                  <Upload size={14} className="text-purple-400" />
-                  <span>Choose MP3 / WAV</span>
-                  <input
-                    type="file"
-                    accept="audio/mp3,audio/wav,audio/mpeg"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) onCustomBgmFileSelect(file);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                {customBgmFile && (
-                  <span className="text-xs font-semibold text-emerald-400 truncate max-w-xs">
-                    ✓ {customBgmFile.name}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 6: Spoken Narration & Word-Level Transcript Corrector */}
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                  <FileText size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">6. Spoken Dialogue &amp; Word-Level Corrector</h3>
-                  <p className="text-xs text-zinc-400">Correct misheard creator names or brand names while keeping audio timing</p>
-                </div>
-              </div>
-            </div>
-
-            <textarea
-              rows={3}
-              value={editorialTranscript}
-              onChange={(e) => onEditorialTranscriptChange(e.target.value)}
-              placeholder="Paste or review the spoken script here to fix typos, jargon, or brand names..."
-              className="w-full px-4 py-3 rounded-xl border border-white/10 bg-zinc-900 text-white placeholder:text-zinc-500 text-xs font-mono focus:border-purple-400 focus:outline-none transition leading-relaxed shadow-inner"
-            />
-
-            {/* Quick Word & Name Replace Tool */}
-            <div className="rounded-xl border border-white/5 bg-zinc-900/60 p-3.5 space-y-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
-                Quick Word / Name Replacer (Preserves Timestamp Timing)
-              </span>
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <input
-                  type="text"
-                  value={wordToFind}
-                  onChange={(e) => setWordToFind(e.target.value)}
-                  placeholder="Misspelled Word (e.g. 'Grok')"
-                  className="w-full sm:w-1/2 px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-purple-400"
-                />
-                <input
-                  type="text"
-                  value={wordToReplace}
-                  onChange={(e) => setWordToReplace(e.target.value)}
-                  placeholder="Replace With (e.g. 'Groq')"
-                  className="w-full sm:w-1/2 px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-purple-400"
-                />
-                <button
-                  type="button"
-                  onClick={applyWordReplacement}
-                  className="w-full sm:w-auto px-4 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition shrink-0 cursor-pointer"
-                >
-                  Apply Fix
-                </button>
-              </div>
-              {replaceNotice && (
-                <p className="text-[11px] font-medium text-emerald-400">{replaceNotice}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Section 7: Visual Callouts (Curved Arrows, Formula & Comparison Cards) */}
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-[#3B82F6] border border-blue-500/20">
-                  <Sparkles size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">7. Visual Callouts &amp; Retention Boosters</h3>
-                  <p className="text-xs text-zinc-400">Curved arrows, math formula cards, and side-by-side comparison banners</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Sub-tabs for Callout types */}
-            <div className="flex gap-2 border-b border-white/10 pb-2">
-              <button
-                type="button"
-                onClick={() => setCalloutTab("arrows")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "arrows" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
-                  }`}
-              >
-                <CornerDownLeft size={13} />
-                <span>Curved Arrow</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCalloutTab("formula")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "formula" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
-                  }`}
-              >
-                <Calculator size={13} />
-                <span>Equation Formula</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCalloutTab("comparison")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${calloutTab === "comparison" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
-                  }`}
-              >
-                <Columns size={13} />
-                <span>Comparison Banner</span>
-              </button>
-            </div>
-
-            {/* Tab 1: Curved Arrow Callout */}
-            {calloutTab === "arrows" && (
-              <div className="space-y-4 rounded-xl border border-white/5 bg-zinc-900/60 p-4">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-xs font-bold text-white">Enable Animated Curved Arrow</span>
-                  <input
-                    type="checkbox"
-                    checked={curvedArrowConfig.enabled}
-                    onChange={(e) =>
-                      onCurvedArrowConfigChange?.({ ...curvedArrowConfig, enabled: e.target.checked })
-                    }
-                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
-                  />
-                </label>
-
-                {curvedArrowConfig.enabled && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <div>
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Label Text</label>
-                      <input
-                        type="text"
-                        value={curvedArrowConfig.label}
-                        onChange={(e) =>
-                          onCurvedArrowConfigChange?.({ ...curvedArrowConfig, label: e.target.value })
-                        }
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                      />
+          {/* ──────────────── STEP 1: UPLOAD TAKES & OVERLAYS ──────────────── */}
+          {currentStep === 1 && (
+            <div className="space-y-6">
+              {/* Primary Smartphone Takes Dropzone */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-200">
+                      <Video size={18} />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Direction</label>
-                      <select
-                        value={curvedArrowConfig.direction}
-                        onChange={(e) =>
-                          onCurvedArrowConfigChange?.({
-                            ...curvedArrowConfig,
-                            direction: e.target.value as ArrowCalloutConfig["direction"],
-                          })
-                        }
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                      >
-                        <option value="down-left">Down-Left</option>
-                        <option value="down-right">Down-Right</option>
-                        <option value="up-left">Up-Left</option>
-                        <option value="up-right">Up-Right</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Show at Second</label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={curvedArrowConfig.atSeconds}
-                        onChange={(e) =>
-                          onCurvedArrowConfigChange?.({
-                            ...curvedArrowConfig,
-                            atSeconds: parseFloat(e.target.value) || 3,
-                          })
-                        }
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs font-mono"
-                      />
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        1. Primary Smartphone Takes (Vertical 9:16)
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Upload your raw vertical video takes. The AI will remove pauses and arrange sequence.
+                      </p>
                     </div>
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* Tab 2: Equation Formula Card */}
-            {calloutTab === "formula" && (
-              <div className="space-y-4 rounded-xl border border-white/5 bg-zinc-900/60 p-4">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-xs font-bold text-white">Enable Multi-Step Math Formula Card</span>
-                  <input
-                    type="checkbox"
-                    checked={equationFormulaConfig.enabled}
-                    onChange={(e) =>
-                      onEquationFormulaConfigChange?.({ ...equationFormulaConfig, enabled: e.target.checked })
-                    }
-                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
-                  />
-                </label>
-
-                {equationFormulaConfig.enabled && (
-                  <div className="space-y-3 pt-2">
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[10px] font-bold text-zinc-400 block mb-1">Step 1</label>
-                        <input
-                          type="text"
-                          value={equationFormulaConfig.step1.value}
-                          onChange={(e) =>
-                            onEquationFormulaConfigChange?.({
-                              ...equationFormulaConfig,
-                              step1: { ...equationFormulaConfig.step1, value: e.target.value },
-                            })
-                          }
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-zinc-400 block mb-1">Step 2</label>
-                        <input
-                          type="text"
-                          value={equationFormulaConfig.step2.value}
-                          onChange={(e) =>
-                            onEquationFormulaConfigChange?.({
-                              ...equationFormulaConfig,
-                              step2: { ...equationFormulaConfig.step2, value: e.target.value },
-                            })
-                          }
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-zinc-400 block mb-1">Result</label>
-                        <input
-                          type="text"
-                          value={equationFormulaConfig.result.value}
-                          onChange={(e) =>
-                            onEquationFormulaConfigChange?.({
-                              ...equationFormulaConfig,
-                              result: { ...equationFormulaConfig.result, value: e.target.value },
-                            })
-                          }
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-zinc-400">Trigger at second:</span>
-                      <input
-                        type="number"
-                        min="1"
-                        value={equationFormulaConfig.atSeconds}
-                        onChange={(e) =>
-                          onEquationFormulaConfigChange?.({
-                            ...equationFormulaConfig,
-                            atSeconds: parseFloat(e.target.value) || 5,
-                          })
-                        }
-                        className="w-20 px-2.5 py-1 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs font-mono"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Tab 3: Comparison Banner */}
-            {calloutTab === "comparison" && (
-              <div className="space-y-4 rounded-xl border border-white/5 bg-zinc-900/60 p-4">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-xs font-bold text-white">Enable Side-By-Side Comparison Banner</span>
-                  <input
-                    type="checkbox"
-                    checked={comparisonBannerConfig.enabled}
-                    onChange={(e) =>
-                      onComparisonBannerConfigChange?.({ ...comparisonBannerConfig, enabled: e.target.checked })
-                    }
-                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
-                  />
-                </label>
-
-                {comparisonBannerConfig.enabled && (
-                  <div className="space-y-3 pt-2">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-zinc-400 block">Left Side (Before / Boring)</label>
-                        <input
-                          type="text"
-                          value={comparisonBannerConfig.left.title}
-                          onChange={(e) =>
-                            onComparisonBannerConfigChange?.({
-                              ...comparisonBannerConfig,
-                              left: { ...comparisonBannerConfig.left, title: e.target.value },
-                            })
-                          }
-                          placeholder="e.g. Raw Take"
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-zinc-400 block">Right Side (After / Winner)</label>
-                        <input
-                          type="text"
-                          value={comparisonBannerConfig.right.title}
-                          onChange={(e) =>
-                            onComparisonBannerConfigChange?.({
-                              ...comparisonBannerConfig,
-                              right: { ...comparisonBannerConfig.right, title: e.target.value },
-                            })
-                          }
-                          placeholder="e.g. Viral 1080p"
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-zinc-400">Trigger at second:</span>
-                      <input
-                        type="number"
-                        min="1"
-                        value={comparisonBannerConfig.atSeconds}
-                        onChange={(e) =>
-                          onComparisonBannerConfigChange?.({
-                            ...comparisonBannerConfig,
-                            atSeconds: parseFloat(e.target.value) || 8,
-                          })
-                        }
-                        className="w-20 px-2.5 py-1 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs font-mono"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: 9:16 Vertical Live Preview Simulator & Audio Spectrum */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-5">
-          <div className="rounded-2xl border border-white/10 bg-[#120F1C]/90 backdrop-blur-md p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Eye size={16} className="text-purple-400" />
-                <h3 className="text-sm font-black text-white font-sans">9:16 Shorts Live Preview</h3>
-              </div>
-
-              {/* TikTok / Instagram Safe-Zone Guide Toggle */}
-              <button
-                type="button"
-                onClick={() => setShowSafeZoneGuide((prev) => !prev)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border transition ${showSafeZoneGuide
-                    ? "bg-purple-600 text-white border-purple-400 shadow-xs"
-                    : "bg-zinc-800 text-zinc-400 border-white/10 hover:text-white"
-                  }`}
-                title="Toggle social media UI boundaries"
-              >
-                <ShieldCheck size={12} />
-                <span>Safe Zone {showSafeZoneGuide ? "ON" : "OFF"}</span>
-              </button>
-            </div>
-
-            {/* 9:16 Vertical Canvas Simulator */}
-            <div className="relative mx-auto w-full max-w-[280px] aspect-[9/16] rounded-3xl border-[4px] border-zinc-800 bg-black overflow-hidden shadow-2xl flex flex-col justify-between p-3.5">
-              {/* Main Full-Screen Media with Dynamic Zoom & Face Framing */}
-              {activePrimary ? (
-                activePrimary.type === "video" ? (
-                  <video
-                    src={activePrimary.previewUrl}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    style={{
-                      transform: `scale(${liveZoomScale})`,
-                      objectPosition: objectPositionStyle,
-                    }}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300"
-                  />
-                ) : (
-                  <img
-                    src={activePrimary.previewUrl}
-                    alt="Preview"
-                    style={{
-                      transform: `scale(${liveZoomScale})`,
-                      objectPosition: objectPositionStyle,
-                    }}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300"
-                  />
-                )
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 gap-1.5 bg-radial from-zinc-900 via-zinc-950 to-black">
-                  <Smartphone size={36} className="text-purple-400" />
-                  <span className="text-xs font-bold text-zinc-400">9:16 Vertical Shorts</span>
-                  <span className="text-[10px] text-zinc-600">Upload video clips on left</span>
-                </div>
-              )}
-
-              {/* Status Badges: Smart Zoom + Silence Jump-Cut */}
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  {smartPunchIns && (
-                    <span className="flex items-center gap-1 bg-black/80 backdrop-blur-md text-purple-400 px-2 py-0.5 rounded-md text-[8px] font-black border border-purple-500/40 uppercase">
-                      <ZoomIn size={10} />
-                      {punchInIntensity === "subtle" ? "+5% ZOOM" : punchInIntensity === "dramatic" ? "+18% ZOOM" : "+12% ZOOM"}
-                    </span>
-                  )}
-                  {silenceJumpCuts && (
-                    <span className="flex items-center gap-1 bg-black/80 backdrop-blur-md text-emerald-400 px-2 py-0.5 rounded-md text-[8px] font-black border border-emerald-500/40 uppercase">
-                      <Scissors size={10} />
-                      {silenceSensitivity.toUpperCase()} CUTS
-                    </span>
-                  )}
-                </div>
-
-                {/* SFX Badge */}
-                {enableSfx && (
-                  <span className="bg-black/80 backdrop-blur-md text-amber-400 px-2 py-0.5 rounded-md text-[8px] font-black border border-amber-500/40 uppercase">
-                    SFX ON
-                  </span>
-                )}
-              </div>
-
-              {/* TikTok / Instagram Safe-Zone Visual Boundaries */}
-              {showSafeZoneGuide && (
-                <div className="absolute inset-0 z-30 pointer-events-none border-2 border-dashed border-red-500/60 rounded-3xl m-1 flex flex-col justify-between p-2">
-                  <div className="bg-red-500/20 text-red-300 text-[8px] font-bold px-2 py-0.5 rounded text-center">
-                    Top UI Header (Profile / Search)
-                  </div>
-                  <div className="flex justify-between items-center text-[7px] text-red-300 px-1 font-bold">
-                    <span>← Left Margin</span>
-                    <span className="text-right">Right Action Icons (Like, Comment, Share) →</span>
-                  </div>
-                  <div className="bg-red-500/20 text-red-300 text-[8px] font-bold px-2 py-0.5 rounded text-center">
-                    Bottom 20% (Caption, Audio Name, Progress Bar)
-                  </div>
-                </div>
-              )}
-
-              {/* Floating Picture-in-Picture or Cutaway */}
-              {activeOverlay && (
-                activeOverlay.isCutaway ? (
-                  <div className="absolute inset-0 z-20 bg-black/90 flex flex-col items-center justify-center p-4">
-                    {activeOverlay.type === "video" ? (
-                      <video src={activeOverlay.previewUrl} autoPlay loop muted playsInline className="h-full w-full object-cover" />
-                    ) : (
-                      <img src={activeOverlay.previewUrl} alt={activeOverlay.title} className="h-full w-full object-contain" />
-                    )}
-                    <span className="absolute bottom-4 bg-black/80 text-white text-[8px] font-bold px-2 py-0.5 rounded">
-                      Full-Screen B-Roll Cutaway
-                    </span>
-                  </div>
-                ) : (
-                  <div
-                    className={`absolute z-20 w-24 aspect-video rounded-xl overflow-hidden border-2 border-white/60 shadow-xl bg-zinc-900 ${activeOverlay.position === "top-left"
-                        ? "top-12 left-3"
-                        : activeOverlay.position === "bottom-left"
-                          ? "bottom-24 left-3"
-                          : activeOverlay.position === "bottom-right"
-                            ? "bottom-24 right-3"
-                            : activeOverlay.position === "center"
-                              ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-110"
-                              : "top-12 right-3"
-                      }`}
-                  >
-                    {activeOverlay.type === "video" ? (
-                      <video src={activeOverlay.previewUrl} autoPlay loop muted playsInline className="h-full w-full object-cover" />
-                    ) : (
-                      <img src={activeOverlay.previewUrl} alt={activeOverlay.title} className="h-full w-full object-cover" />
-                    )}
-                    {activeOverlay.title && (
-                      <div className="absolute bottom-0 inset-x-0 bg-black/80 px-1 py-0.5 text-[7px] font-bold text-white truncate text-center">
-                        {activeOverlay.title}
-                      </div>
-                    )}
-                  </div>
-                )
-              )}
-
-              {/* Curved Arrow Preview Mockup */}
-              {curvedArrowConfig.enabled && (
-                <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center gap-1 bg-red-600/90 text-white text-[9px] font-black px-2 py-0.5 rounded-full border border-red-400 shadow-lg animate-pulse">
-                  <CornerDownLeft size={10} />
-                  <span>{curvedArrowConfig.label}</span>
-                </div>
-              )}
-
-              {/* Caption Mockup with Selected Vertical Placement */}
-              <div
-                className={`relative z-10 flex justify-center ${captionPosition === "top"
-                    ? "mt-8 mb-auto"
-                    : captionPosition === "center"
-                      ? "my-auto"
-                      : "mb-8 mt-auto"
-                  }`}
-              >
-                <div className="bg-black/90 backdrop-blur-md border border-purple-500/50 rounded-xl px-3 py-1.5 text-center shadow-2xl max-w-[95%]">
-                  <span className="text-[10px] sm:text-[11px] font-black text-white tracking-tight">
-                    [{captionStyle}] VIRAL SHORTS CAPTIONS
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Audio Spectrum & Output Specs Indicator */}
-            <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Activity size={14} className="text-emerald-400" />
-                  <span className="text-xs font-bold text-zinc-300">Speech &amp; Audio Activity</span>
-                </div>
-                <div className="flex items-end gap-1 h-4">
-                  {[4, 12, 16, 8, 14, 10, 6, 15, 12, 8, 16, 4].map((h, i) => (
-                    <span
-                      key={i}
-                      style={{ height: `${h}px` }}
-                      className={`w-1 rounded-full ${hasMedia ? "bg-gradient-to-t from-emerald-500 to-teal-400 animate-pulse" : "bg-zinc-700 h-2"
-                        }`}
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition cursor-pointer shadow-2xs">
+                    <Plus size={14} className="text-purple-600" />
+                    <span>Add Takes</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="video/*,image/*"
+                      className="hidden"
+                      onChange={(e) => handlePrimaryFileSelect(e.target.files)}
                     />
+                  </label>
+                </div>
+
+                {primaryMediaList.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {primaryMediaList.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 transition hover:border-slate-300"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[11px] font-black text-purple-800 shrink-0">
+                            #{idx + 1}
+                          </span>
+                          <div className="relative h-12 w-9 rounded-lg overflow-hidden bg-black shrink-0 border border-slate-200">
+                            {item.type === "video" ? (
+                              <video src={item.previewUrl} className="h-full w-full object-cover" />
+                            ) : (
+                              <img src={item.previewUrl} alt={item.name} className="h-full w-full object-cover" />
+                            )}
+                          </div>
+                          <div className="truncate">
+                            <p className="text-xs font-bold text-slate-900 truncate">{item.name}</p>
+                            <p className="text-[11px] text-slate-500">
+                              {(item.size / (1024 * 1024)).toFixed(1)} MB • {item.type.toUpperCase()}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => movePrimaryTake(idx, "up")}
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                            title="Move Up"
+                          >
+                            <ArrowUp size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === primaryMediaList.length - 1}
+                            onClick={() => movePrimaryTake(idx, "down")}
+                            className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                            title="Move Down"
+                          >
+                            <ArrowDown size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removePrimaryTake(item.id)}
+                            className="p-1.5 rounded-lg border border-rose-200 bg-white text-rose-600 hover:bg-rose-50 cursor-pointer ml-1"
+                            title="Remove Take"
+                          >
+                            <X size={13} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-slate-50 hover:border-purple-400 p-8 text-center transition cursor-pointer">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-200 mb-2">
+                      <Smartphone size={22} />
+                    </div>
+                    <p className="text-xs font-bold text-slate-800">
+                      Click to browse or drop your smartphone vertical takes
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">MP4, MOV, or WEBM up to 90 seconds total</p>
+                    <input
+                      type="file"
+                      multiple
+                      accept="video/*,image/*"
+                      className="hidden"
+                      onChange={(e) => handlePrimaryFileSelect(e.target.files)}
+                    />
+                  </label>
+                )}
+              </div>
+
+              {/* Floating PIP / Overlay Layers */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-200">
+                      <Layers size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        2. Picture-in-Picture (PIP) &amp; Overlay Graphics (Optional)
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Add screenshots, tweets, reaction cards, or secondary b-roll cutaways
+                      </p>
+                    </div>
+                  </div>
+
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition cursor-pointer shadow-2xs">
+                    <Plus size={14} className="text-purple-600" />
+                    <span>Add Layer</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      className="hidden"
+                      onChange={(e) => handleOverlayFileSelect(e.target.files)}
+                    />
+                  </label>
+                </div>
+
+                {overlayLayerList.length > 0 && (
+                  <div className="space-y-3">
+                    {overlayLayerList.map((layer) => (
+                      <div
+                        key={layer.id}
+                        className="rounded-xl border border-slate-200 bg-slate-50/50 p-3.5 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-lg overflow-hidden bg-black shrink-0 border border-slate-200">
+                              <img src={layer.previewUrl} alt={layer.name} className="h-full w-full object-cover" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-slate-900">{layer.name}</p>
+                              <p className="text-[10px] text-slate-500">Starts at {layer.startSeconds ?? 2}s</p>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => removeOverlayLayer(layer.id)}
+                            className="text-xs font-bold text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+
+                        {/* Position Selector */}
+                        <div className="flex items-center gap-2 pt-2 border-t border-slate-200/60">
+                          <span className="text-[11px] font-bold text-slate-600">Position:</span>
+                          {(["top-right", "top-left", "bottom-right", "bottom-left", "center"] as const).map((pos) => (
+                            <button
+                              key={pos}
+                              type="button"
+                              onClick={() => {
+                                onOverlayLayerListChange(
+                                  overlayLayerList.map((l) => (l.id === layer.id ? { ...l, position: pos } : l))
+                                );
+                              }}
+                              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition cursor-pointer ${
+                                (layer.position || "top-right") === pos
+                                  ? "bg-purple-600 text-white"
+                                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                              }`}
+                            >
+                              {pos.replace("-", " ")}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Video Title */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs">
+                <label className="text-xs font-bold text-slate-800 block mb-1.5">Shorts Title / Topic</label>
+                <input
+                  type="text"
+                  maxLength={70}
+                  value={videoTitle}
+                  onChange={(e) => onVideoTitleChange(e.target.value)}
+                  placeholder="e.g. 3 Habits That Doubled My Productivity in 30 Days"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none"
+                />
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition cursor-pointer"
+                >
+                  <span>Next: Music &amp; Audio</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ──────────────── STEP 2: MUSIC & SOUND DESIGN ──────────────── */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Background Soundtrack &amp; Ducking</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Select a background soundtrack from the curated cloud library or upload custom audio.
+                  </p>
+                </div>
+
+                {/* AWS S3 Track Selector Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {AWS_BGM_TRACKS.map((track) => {
+                    const isSelected = (bgmTrackId || "parasail") === track.id;
+                    const isAuditioning = auditioningTrack === track.id;
+
+                    return (
+                      <div
+                        key={track.id}
+                        className={`rounded-xl border p-3.5 transition-all flex flex-col justify-between ${
+                          isSelected
+                            ? "border-purple-500 bg-purple-50/50 ring-2 ring-purple-500/20"
+                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/60"
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-100/70 px-2 py-0.5 rounded-full">
+                              {track.category}
+                            </span>
+                            {isSelected && (
+                              <span className="flex items-center gap-1 text-[10px] font-black text-purple-600">
+                                <Check size={12} strokeWidth={3} /> Selected
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="text-xs font-bold text-slate-900 mt-1">{track.label}</h4>
+                          <p className="text-[11px] text-slate-500 leading-tight mt-0.5">{track.desc}</p>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-200/60">
+                          {track.path !== "none" ? (
+                            <button
+                              type="button"
+                              onClick={() => toggleAudition(track)}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
+                                isAuditioning
+                                  ? "bg-purple-600 text-white"
+                                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                              }`}
+                            >
+                              {isAuditioning ? <Pause size={12} /> : <Play size={12} />}
+                              <span>{isAuditioning ? "Stop" : "Preview"}</span>
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-slate-400">Pure Speech</span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => onBgmTrackIdChange(track.id)}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                              isSelected
+                                ? "bg-purple-600 text-white"
+                                : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            {isSelected ? "Active" : "Select"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Ducked Volume Slider & SFX */}
+                <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-slate-800">
+                        BGM Volume: <span className="text-purple-600 font-mono">{Math.round((bgmVolume ?? 0.12) * 100)}%</span>
+                      </label>
+                      <span className="text-[10px] text-slate-400">Default: 12% (Speech Ducking)</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={bgmVolume ?? 0.12}
+                      onChange={(e) => onBgmVolumeChange(parseFloat(e.target.value))}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Viral Hook SFX Transitions</p>
+                      <p className="text-[11px] text-slate-500">Audio impacts on punch-ins and keyword reveals</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={enableSfx}
+                      onChange={(e) => onEnableSfxChange(e.target.checked)}
+                      className="h-4 w-4 rounded accent-purple-600 cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* Navigation */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(1)}
+                    className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                  >
+                    ← Back to Upload
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(3)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-purple-700 transition cursor-pointer"
+                  >
+                    <span>Next: Punch-Ins &amp; Style</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ──────────────── STEP 3: PUNCH-INS & CAPTIONS ──────────────── */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              {/* Silence Jump-Cuts & Punch-In Controls */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-5">
+                <h3 className="text-base font-bold text-slate-900">Retention Cuts &amp; Camera Zooms</h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Jump-Cuts */}
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Scissors size={16} className="text-purple-600" />
+                        <h4 className="text-xs font-bold text-slate-900">Auto Silence Jump-Cuts</h4>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={silenceJumpCuts}
+                        onChange={(e) => onSilenceJumpCutsChange(e.target.checked)}
+                        className="h-4 w-4 rounded accent-purple-600 cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-500">Eliminates dead air pauses between sentences</p>
+
+                    <div className="grid grid-cols-3 gap-1.5 pt-1">
+                      {(["tight", "normal", "gentle"] as const).map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => onSilenceSensitivityChange(s)}
+                          className={`py-1 text-center rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                            silenceSensitivity === s
+                              ? "bg-purple-600 text-white"
+                              : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          {s.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Punch-In Zooms */}
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ZoomIn size={16} className="text-purple-600" />
+                        <h4 className="text-xs font-bold text-slate-900">Dynamic Punch-In Zooms</h4>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={smartPunchIns}
+                        onChange={(e) => onSmartPunchInsChange(e.target.checked)}
+                        className="h-4 w-4 rounded accent-purple-600 cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-500">Alternates zoom scale on key sentence beats</p>
+
+                    <div className="grid grid-cols-3 gap-1.5 pt-1">
+                      {(["subtle", "medium", "dramatic"] as const).map((lvl) => (
+                        <button
+                          key={lvl}
+                          type="button"
+                          onClick={() => onPunchInIntensityChange(lvl)}
+                          className={`py-1 text-center rounded-lg text-[10px] font-bold transition cursor-pointer ${
+                            punchInIntensity === lvl
+                              ? "bg-purple-600 text-white"
+                              : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          {lvl.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 32 Caption Styles Selector */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">32 Animated Kinetic Caption Styles</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Subtitles will animate synced to spoken words in the vertical short
+                    </p>
+                  </div>
+
+                  {/* Search Filter */}
+                  <div className="relative w-full sm:w-48">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={captionSearch}
+                      onChange={(e) => setCaptionSearch(e.target.value)}
+                      placeholder="Search style..."
+                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Category Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                  {["All", "Hormozi", "Minimal", "Neon & Glow", "Dynamic", "Cinematic", "Comic & Pop"].map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setCaptionCategoryTab(cat)}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${
+                        captionCategoryTab === cat
+                          ? "bg-slate-900 text-white"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      {cat}
+                    </button>
                   ))}
                 </div>
+
+                {/* 32 Styles Grid with Live Word Previews */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto pr-1 no-scrollbar">
+                  {filteredCaptionStyles.map((style) => {
+                    const isSelected = (captionStyle || "Pop Word") === style.name;
+                    return (
+                      <button
+                        key={style.id}
+                        type="button"
+                        onClick={() => onCaptionStyleChange(style.name)}
+                        className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${
+                          isSelected
+                            ? "border-purple-500 bg-purple-50/50 ring-2 ring-purple-500/20"
+                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-[10px] font-bold text-slate-500 truncate max-w-[85%]">
+                            {style.name}
+                          </span>
+                          {isSelected && <Check size={12} className="text-purple-600 shrink-0" strokeWidth={3} />}
+                        </div>
+
+                        {/* Animated Sample Word Preview */}
+                        <div className="my-auto py-1 flex items-center justify-center">
+                          {renderPreviewCaptionWords(style)}
+                        </div>
+
+                        <span className="text-[9px] text-slate-400 truncate">{style.category}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="flex items-center justify-between text-[10px] text-zinc-400 border-t border-white/5 pt-1.5 font-medium">
-                <span>Output: 1080×1920 (9:16)</span>
-                <span className="text-purple-400 font-bold">1 Credit • Max 90s</span>
+              {/* Navigation */}
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                >
+                  ← Back to Music
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(4)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-purple-700 transition cursor-pointer"
+                >
+                  <span>Next: Live Simulator</span>
+                  <ArrowRight size={14} />
+                </button>
               </div>
             </div>
+          )}
 
-            {/* Primary Action Button */}
-            <button
-              type="button"
-              onClick={onGenerate}
-              disabled={!hasMedia || isGenerating}
-              className={`w-full py-4 px-6 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg ${hasMedia && !isGenerating
-                  ? "bg-purple-600 hover:bg-purple-500 text-white active:scale-[0.99] shadow-purple-500/25"
-                  : "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-white/5"
-                }`}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  <span>Submitting Shorts Render Job...</span>
-                </>
-              ) : !hasMedia ? (
-                <>
-                  <Smartphone size={15} />
-                  <span>Upload Raw 9:16 Video to Render</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} />
-                  <span>Render 9:16 Polished Shorts (1 Credit)</span>
-                </>
-              )}
-            </button>
-          </div>
+          {/* ──────────────── STEP 4: LIVE SIMULATOR & RENDER ──────────────── */}
+          {currentStep === 4 && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">Live 9:16 Smartphone Simulator</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Audition punch-in camera framing, PIP overlays, and viral caption positioning.
+                    </p>
+                  </div>
+
+                  {/* Watermark Remover */}
+                  {onRemoveAiWatermarkChange && (
+                    <WatermarkRemoverToggle
+                      removeAiWatermark={removeAiWatermark}
+                      onRemoveAiWatermarkChange={onRemoveAiWatermarkChange}
+                      variant="inline"
+                    />
+                  )}
+                </div>
+
+                {/* Phone Simulator Frame */}
+                <div className="flex justify-center py-4">
+                  <div className="relative w-72 h-[520px] rounded-[36px] bg-slate-950 p-3 shadow-2xl ring-1 ring-slate-800 flex flex-col justify-between overflow-hidden">
+                    {/* Simulated Background / Primary Video */}
+                    <div className="absolute inset-0 z-0 bg-black flex items-center justify-center">
+                      {primaryMediaList[0]?.previewUrl ? (
+                        primaryMediaList[0].type === "video" ? (
+                          <video
+                            src={primaryMediaList[0].previewUrl}
+                            className="h-full w-full object-cover"
+                            autoPlay
+                            muted
+                            loop
+                          />
+                        ) : (
+                          <img
+                            src={primaryMediaList[0].previewUrl}
+                            alt="Preview"
+                            className="h-full w-full object-cover"
+                          />
+                        )
+                      ) : (
+                        <div className="text-slate-600 text-xs flex flex-col items-center">
+                          <Smartphone size={24} className="mb-1" />
+                          <span>No Video Uploaded</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Phone Notch */}
+                    <div className="relative z-10 mx-auto h-4 w-24 rounded-full bg-slate-900 flex items-center justify-center">
+                      <div className="h-1.5 w-1.5 rounded-full bg-slate-700" />
+                    </div>
+
+                    {/* Floating PIP Overlay Preview */}
+                    {overlayLayerList[0]?.previewUrl && (
+                      <div
+                        className={`absolute z-10 w-24 h-24 rounded-xl overflow-hidden border border-white/20 shadow-lg ${
+                          overlayLayerList[0].position === "top-left"
+                            ? "top-8 left-4"
+                            : overlayLayerList[0].position === "bottom-right"
+                            ? "bottom-20 right-4"
+                            : overlayLayerList[0].position === "bottom-left"
+                            ? "bottom-20 left-4"
+                            : overlayLayerList[0].position === "center"
+                            ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                            : "top-8 right-4"
+                        }`}
+                      >
+                        <img
+                          src={overlayLayerList[0].previewUrl}
+                          alt="PIP"
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    )}
+
+                    {/* Subtitle Strip Simulator */}
+                    <div className="relative z-10 w-full mb-6 text-center px-2">
+                      <span className="inline-block rounded-lg bg-black/80 px-2.5 py-1 text-[11px] font-black text-yellow-300 shadow-md">
+                        {captionStyle || "Pop Word"} Captions
+                      </span>
+                    </div>
+
+                    {/* Phone Bottom Pill */}
+                    <div className="relative z-10 mx-auto h-1 w-20 rounded-full bg-white/30" />
+                  </div>
+                </div>
+
+                {/* Review Gate Checkbox */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={previewConfirmed}
+                      onChange={(e) => setPreviewConfirmed(e.target.checked)}
+                      className="h-4 w-4 rounded accent-purple-600 mt-0.5 cursor-pointer"
+                    />
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">
+                        I have reviewed this 9:16 vertical shorts layout and approve cloud rendering
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        AWS Remotion Lambda will render a 1080×1920 30 FPS MP4 with ducked background music, jump-cuts, and animated captions.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Cloud Render Action Bar */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(3)}
+                    className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                  >
+                    ← Back to Style
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!hasPrimaryMedia || !previewConfirmed || isGenerating}
+                    onClick={onGenerate}
+                    className="group relative flex h-12 w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 px-8 text-xs font-black text-white shadow-md shadow-purple-600/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 size={15} className="animate-spin" />
+                        <span>Submitting Render Job...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={15} className="transition group-hover:rotate-12" />
+                        <span>Render Polished Shorts (1 Credit)</span>
+                        <ArrowRight size={14} />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

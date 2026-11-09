@@ -73,22 +73,26 @@ export function FullBleedVisualScene({
   // Snappy Entrance Camera Punch
   const punchScale = interpolate(currentFrame, [0, 4, 10], [1.06, 1.02, 1.0], { extrapolateRight: 'clamp' });
 
-  let transformStyle = 'scale(1.08)';
+  const baseCameraZoom = scene.cameraZoomScale || 1.0;
+  const driftProgress = interpolate(currentFrame, [0, sceneDurationFrames], [0, 1], { extrapolateRight: 'clamp' });
+  const baseUnifiedScale = Math.min(1.20, baseCameraZoom * punchScale);
+
+  let transformStyle = `scale(${baseUnifiedScale})`;
   if (motionMode === 0) {
-    const scale = interpolate(currentFrame, [0, sceneDurationFrames], [1.05, 1.25], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(${scale * punchScale})`;
+    const scaleVal = Math.min(1.20, baseUnifiedScale * (1.0 + 0.05 * driftProgress));
+    transformStyle = `scale(${scaleVal})`;
   } else if (motionMode === 1) {
-    const scale = interpolate(currentFrame, [0, sceneDurationFrames], [1.25, 1.05], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(${scale * punchScale})`;
+    const scaleVal = Math.min(1.20, baseUnifiedScale * (1.05 - 0.05 * driftProgress));
+    transformStyle = `scale(${scaleVal})`;
   } else if (motionMode === 2) {
-    const transX = interpolate(currentFrame, [0, sceneDurationFrames], [40, -45], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(${1.18 * punchScale}) translateX(${transX}px)`;
+    const transX = interpolate(currentFrame, [0, sceneDurationFrames], [30, -35], { extrapolateRight: 'clamp' });
+    transformStyle = `scale(${baseUnifiedScale}) translateX(${transX}px)`;
   } else if (motionMode === 3) {
-    const transX = interpolate(currentFrame, [0, sceneDurationFrames], [-45, 40], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(${1.18 * punchScale}) translateX(${transX}px)`;
+    const transX = interpolate(currentFrame, [0, sceneDurationFrames], [-35, 30], { extrapolateRight: 'clamp' });
+    transformStyle = `scale(${baseUnifiedScale}) translateX(${transX}px)`;
   } else {
-    const transY = interpolate(currentFrame, [0, sceneDurationFrames], [-25, 25], { extrapolateRight: 'clamp' });
-    transformStyle = `scale(${1.16 * punchScale}) translateY(${transY}px)`;
+    const transY = interpolate(currentFrame, [0, sceneDurationFrames], [-20, 20], { extrapolateRight: 'clamp' });
+    transformStyle = `scale(${baseUnifiedScale}) translateY(${transY}px)`;
   }
 
   // Smooth Spring-like Entrance for Text Overlay

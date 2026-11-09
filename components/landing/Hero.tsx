@@ -77,7 +77,7 @@ export default function Hero() {
             </div>
             <span className="text-zinc-300">•</span>
             <span className="text-zinc-900 font-semibold shrink-0">
-              5 Free Videos Daily
+              Free Trial on Signup
             </span>
             <span className="text-zinc-300">•</span>
             <span className="text-zinc-600 shrink-0">
@@ -86,7 +86,7 @@ export default function Hero() {
             <span className="text-zinc-300 hidden md:inline">•</span>
             <span className="hidden md:inline-flex items-center gap-1 text-emerald-700 font-semibold shrink-0">
               <CheckCircle2 size={13} className="text-emerald-600" />
-              Zero Watermark
+              No Watermark on Paid Plans
             </span>
           </div>
         </div>

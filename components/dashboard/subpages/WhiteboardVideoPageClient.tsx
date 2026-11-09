@@ -74,6 +74,7 @@ export default function WhiteboardVideoPage() {
   const [bgmVolume, setBgmVolume] = useState(0.12);
   const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
   const [enableSfx, setEnableSfx] = useState<boolean>(true);
+  const [visualTheme, setVisualTheme] = useState<string>("educational");
   const [editorialTranscript, setEditorialTranscript] = useState("");
   const [hasUserEditedTranscript, setHasUserEditedTranscript] = useState(false);
 
@@ -156,7 +157,7 @@ export default function WhiteboardVideoPage() {
               message: data.stageMessage || "Drawing whiteboard animation...",
             }));
           }
-        } catch {}
+        } catch { }
       }, 3000);
     }
     return () => {
@@ -243,6 +244,7 @@ export default function WhiteboardVideoPage() {
           fontPersonality,
           markerColor,
           handStyle,
+          visualTheme,
           aspectRatio: "9:16",
           mediaAspect: "portrait",
           bgmTrackId,
@@ -295,65 +297,63 @@ export default function WhiteboardVideoPage() {
           method: "POST",
         });
       }
-    } catch {}
+    } catch { }
     setJobStatus({ state: "idle" });
     setIsCancelling(false);
     setShowCancelModal(false);
   };
 
   return (
-    <div className="min-h-screen bg-[#070B14] text-white pb-20 relative selection:bg-[#0066FF] selection:text-white">
-      {/* Ambient Radial Studio Glow */}
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,109,0,0.12),transparent_70%)]" />
-
-      {/* Top Header: Dark Glassmorphic Bar */}
-      <header className="sticky top-0 z-40 bg-[#070B14]/85 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
+      {/* Top Navigation Bar (Clean White Surface - Full Bleed, matching Image to Video AI) */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="p-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-slate-300 transition"
-              title="Back to Dashboard"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-            <BrandLogo variant="dark" />
-            <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-white/10">
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                Whiteboard Animation
-              </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0066FF]/15 text-[#3B82F6] border border-[#0066FF]/30 uppercase tracking-wider">
-                9:16 Vertical
-              </span>
+
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Whiteboard Video AI</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {billingEntitlement && (
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-[#0E1526] text-xs">
-                <span className="font-semibold text-slate-200">
-                  {billingEntitlement.planName || "Creator"} Plan
-                </span>
-                <span className="w-1 h-1 rounded-full bg-white/20" />
-                <span className="text-[#3B82F6] font-mono">
-                  {billingEntitlement.usage?.remaining ?? 10} Credits Left
-                </span>
-              </div>
-            )}
-            <Link
-              href="/dashboard"
-              className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
-            >
-              Studio Hub
-            </Link>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Credits badge */}
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
+              >
+                +Add
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 relative z-10">
+      {/* Main Canvas - Full Screen Fluid Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
         {jobStatus.state !== "idle" ? (
-          <div className="max-w-2xl mx-auto py-12">
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="whiteboardVideo"
               title={topicTitle || "Whiteboard Explainer"}
@@ -390,6 +390,8 @@ export default function WhiteboardVideoPage() {
             onCustomBgmFileSelect={setCustomBgmFile}
             enableSfx={enableSfx}
             onEnableSfxChange={setEnableSfx}
+            visualTheme={visualTheme}
+            onVisualThemeChange={setVisualTheme}
             editorialTranscript={editorialTranscript}
             onEditorialTranscriptChange={(text, isManual = false) => {
               setEditorialTranscript(text);
@@ -400,6 +402,8 @@ export default function WhiteboardVideoPage() {
             onGenerate={handleStartRender}
             isGenerating={isSubmitting || (jobStatus.state !== "idle" && jobStatus.state !== "ready")}
             renderedVideoUrl={jobStatus.outputFile}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
           />
         )}
       </main>

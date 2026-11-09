@@ -289,14 +289,9 @@ export function readEnrichedStockAssets() {
       if (Array.isArray(data) && data.length > 0) return data;
     }
   } catch {
-    // fallback
+    // fallback to unified assets
   }
-  try {
-    const { buildUnifiedStockAssetRegistry } = require('../../scripts/index-stock-assets-vision');
-    return buildUnifiedStockAssetRegistry();
-  } catch {
-    return readUnifiedAssets();
-  }
+  return readUnifiedAssets();
 }
 
 function readAssetEmbeddings() {

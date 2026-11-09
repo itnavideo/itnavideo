@@ -17,6 +17,8 @@ import { Whiteboard2DIcon } from '../../components/graphics/Whiteboard2DIcon';
 import { WhiteboardHand } from '../../components/graphics/WhiteboardHand';
 import { WhiteboardFlowArrow } from '../../components/graphics/WhiteboardFlowArrow';
 import type { WhiteboardScene, WhiteboardExplanationLine } from '@/services/ai/whiteboardPlanner';
+import { useVideoVisualTheme } from '../../theme/VideoVisualTheme';
+import type { VideoVisualTheme } from '@/services/design/visualDesignSystem';
 
 const { fontFamily: BALSAMIQ_FONT } = loadBalsamiqSans();
 const { fontFamily: PERMANENT_MARKER_FONT } = loadPermanentMarker();
@@ -79,6 +81,7 @@ export interface DynamicWhiteboardSceneDirectorProps {
   handStyle?: string;
   markerColor?: string;
   fontPersonality?: string;
+  visualTheme?: string | Partial<VideoVisualTheme>;
 }
 
 /**
@@ -110,10 +113,12 @@ export const DynamicWhiteboardSceneDirector: React.FC<DynamicWhiteboardSceneDire
   handStyle = 'classic',
   markerColor = 'auto',
   fontPersonality = 'marker',
+  visualTheme,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
+  const { theme } = useVideoVisualTheme();
 
   // 1. Identify active scene
   const activeSceneIndex = useMemo(() => {
@@ -156,9 +161,9 @@ export const DynamicWhiteboardSceneDirector: React.FC<DynamicWhiteboardSceneDire
     : markerColor === 'crimson' ? '#DC2626'
     : markerColor === 'emerald' ? '#059669'
     : markerColor === 'amber' ? '#D97706'
-    : (markerColor && markerColor !== 'auto' ? markerColor : undefined);
+    : (markerColor && markerColor !== 'auto' ? markerColor : theme?.colors?.primary || '#2563EB');
 
-  const accentColor = resolvedMarkerColor || scene.accentColor || '#3B82F6';
+  const accentColor = resolvedMarkerColor || scene.accentColor || theme?.colors?.accent || '#3B82F6';
 
   // ── Infinite Canvas Camera Panning & Zooming (SeeKen Canvas Glide) ─────────
   const prevWaypoint = CANVAS_WAYPOINTS[Math.max(0, activeSceneIndex - 1) % CANVAS_WAYPOINTS.length];

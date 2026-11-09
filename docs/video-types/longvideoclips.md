@@ -61,24 +61,37 @@
 
 ---
 
-## 4. Dedicated Processing Pipeline (UI Stepper)
+## 4. Modernized 4-Step Studio Architecture (Aligned with Unified Studio Standard)
+
+The Long Video to Viral Clips Studio (`components/dashboard/LongVideoClipsStudio.tsx`) adheres strictly to the unified 4-step studio flow established in `ImageToVideoStudio`:
 
 ```mermaid
 graph TD
-    A[Upload File or Paste YouTube URL] --> B[Extract 16kHz Audio Stream & Transcribe via Groq Whisper]
-    B --> C[AI Virality Scorer: Score Hooks, Speech Density & Key Moments]
-    C --> D[Calculate Best Clip Timestamp Windows]
-    D --> E[Computer Vision Face Tracking & Layout Formatting]
-    E --> F[Burn-In Word Subtitles & Looping 12% BGM]
-    F --> G[Render 1080p MP4 Shorts on AWS Lambda]
+    A[Step 1: Upload Source Video & Virality Options] --> B[Step 2: Music & SFX Auditioning]
+    B --> C[Step 3: Caption Style & Reframe Layout]
+    C --> D[Step 4: Live 9:16 Preview Simulator & Render Trigger]
 ```
 
-### UI Stepper Stages:
-1. **Source Ingestion**: Connecting to cloud stream / uploading file.
-2. **Speech Transcription**: Groq Whisper transcribing audio timeline with word stamps.
-3. **Virality & Hook Analysis**: AI evaluates retention scores, emotional hooks, and punchlines.
-4. **Active Speaker Reframe**: Centering faces or formatting split-screen podcast layout.
-5. **Render Viral Shorts**: AWS Remotion Lambda renders individual 1080p short clips with ducked BGM.
+### The 4 Interactive Steps:
+1. **Step 1: Upload & Clip Options (`Upload`)**:
+   - Dual Input: High-speed video dropzone (up to 3GB / 2 Hours) or YouTube URL paste with instant validation.
+   - Number of Clips selector (`AI Recommended`, `3 Clips`, `5 Clips`, `10 Clips`).
+   - Clip Duration selector (`AI Auto`, `< 30s`, `30–60s`, `60–90s`).
+   - Virality Focus trigger (`Auto Hook Detection`, `High Energy`, `Storytelling`, `Educational`).
+   - Live media metadata banner displaying file name, size, duration, and 1 Credit/clip pricing notice.
+2. **Step 2: Background Music & Audio Controls (`Music`)**:
+   - 14 Curated AWS S3 production tracks across Cinematic, Lofi, Upbeat, and Ambient genres with in-card audio auditioning.
+   - Ducked BGM volume slider with safe default at **12% (`0.12`)**.
+   - Auto-ducking toggle and viral SFX hook transitions toggle.
+3. **Step 3: Caption Style & Speaker Reframe (`Style`)**:
+   - 32 animated typography styles with category filtering (`All`, `Hormozi`, `Minimal`, `Neon & Glow`, `Dynamic`) and live word-by-word visual animation previews.
+   - Face Reframing mode picker: `Auto Active Speaker` (jump-cuts on beat), `Split Screen` (2-person podcast), or `Fit Widescreen` (blurred backdrop).
+   - Dynamic headline toggle with automatic font downscaling.
+4. **Step 4: Live Simulator & Cloud Render (`Preview`)**:
+   - Interactive 9:16 vertical phone mockup showing active speaker framing, headline, and animated caption preview.
+   - Audio review waveform visualizer.
+   - Watermark toggle.
+   - Cloud render action bar with credit cost breakdown and instant status indicator.
 
 ---
 

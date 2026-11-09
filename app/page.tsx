@@ -15,7 +15,7 @@ const HomepagePricing = nextDynamic(() => import('@/components/landing/PricingSe
 const FAQSection = nextDynamic(() => import('@/components/FAQSection'), { ssr: true });
 
 export const metadata: Metadata = {
-  title: 'Free AI Video Generator & Maker | 14 AI Video Studios',
+  title: 'Free AI Video Generator & Maker | 15 AI Studios',
   description: `The all-in-one AI Video Generator. Create 16:9 YouTube videos (up to 5 min) and 9:16 Shorts with automated B-roll visuals, voiceovers, kinetic captions, and clips.`,
   keywords: [
     'faceless video generator',
@@ -110,7 +110,7 @@ const jsonLd = [
 
 export default function LandingPage() {
   return (
-    <div className="relative flex flex-col overflow-x-hidden bg-white text-slate-900 selection:bg-blue-500/20 selection:text-blue-950 pb-16 md:pb-0">
+    <div className="relative flex flex-col overflow-x-hidden bg-white text-slate-900 selection:bg-orange-500/20 selection:text-orange-950 pb-16 md:pb-0">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}

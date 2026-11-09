@@ -1,6 +1,5 @@
 "use client";
 
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,7 +17,6 @@ import {
   Loader2,
   RefreshCw,
   Upload,
-  Clapperboard,
   Layers,
   Tv,
   X,
@@ -28,7 +26,6 @@ import {
 } from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
-
 
 type BillingEntitlement = {
   active: boolean;
@@ -53,22 +50,14 @@ type ProductionStage = {
 const PRODUCTION_STAGES: ProductionStage[] = [
   { id: 1, name: "Preparing scenes & script alignment", detail: "Structuring narrative beats and typography hierarchy", minProgress: 0 },
   { id: 2, name: "Assembling visual assets & B-roll", detail: "Matching high-definition footage and motion graphics", minProgress: 0.25 },
-  { id: 3, name: "Rendering high-definition video", detail: "Composing 1080p widescreen video frames and motion transitions", minProgress: 0.55 },
+  { id: 3, name: "Rendering high-definition video", detail: "Composing 1080p vertical video frames and motion transitions", minProgress: 0.55 },
   { id: 4, name: "Final quality checks & audio mastering", detail: "Ducking background score and verifying synchronization", minProgress: 0.90 },
 ];
-
-const FACELESS_RENDER_STEPS = [
-  { label: "Voiceover & Narration Ingest", detail: "Groq Whisper neural speech alignment & cadence", threshold: 0.15, icon: Upload },
-  { label: "AI Scene Pacing & Storyboard", detail: "Structuring visual narrative beats & hook retention", threshold: 0.40, icon: Sparkles },
-  { label: "Matching Cinematic B-Roll & SFX", detail: "Assembling high-definition video footage & ambient beds", threshold: 0.70, icon: Layers },
-  { label: "1080p Cloud Composition & Mastering", detail: "AWS Lambda 30 FPS rendering & audio ducking", threshold: 0.95, icon: Film },
-];
-
 
 type JobStatus = {
   state: "idle" | "uploading" | "planning" | "rendering" | "ready" | "error" | "cancelled";
   message?: string;
-  progress?: number; // 0 to 1, or undefined when indeterminate
+  progress?: number;
   outputFile?: string;
   renderId?: string;
   bucketName?: string;
@@ -89,7 +78,7 @@ type RecentRender = {
 export default function FacelessShortsPageClient() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(true);
 
   // Studio configuration states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -103,8 +92,11 @@ export default function FacelessShortsPageClient() {
   const [facelessEnableSfx, setFacelessEnableSfx] = useState<boolean>(true);
   const [visualArtStyle, setVisualArtStyle] = useState<"realistic" | "3d" | "2d">("realistic");
   const [subtitleStyle, setSubtitleStyle] = useState<string>("glow-viral");
+  const [creatorHandle, setCreatorHandle] = useState<string>("");
+  const [denoiseVoice, setDenoiseVoice] = useState<boolean>(true);
   const [captionAnimationStyle, setCaptionAnimationStyle] = useState<"mrbeast" | "handwriting" | "bouncy" | "smooth" | "capsule" | "decodingyt">("smooth");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
+  const [visualTheme, setVisualTheme] = useState<string>("modern-saas");
   const [backgroundTheme, setBackgroundTheme] = useState<string>("solid-white");
   const [customBgUrl, setCustomBgUrl] = useState<string>("");
   const [customBgFile, setCustomBgFile] = useState<File | null>(null);
@@ -120,17 +112,18 @@ export default function FacelessShortsPageClient() {
 
   // Time tracker for accurate ETA
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+
+  // Planning error and state
   const [isPlanningAudio, setIsPlanningAudio] = useState(false);
-  const [planningMessage, setPlanningMessage] = useState<string>("");
+  const [planningMessage, setPlanningMessage] = useState("");
   const [planningError, setPlanningError] = useState<string | null>(null);
+
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const renderRequestInFlightRef = useRef(false);
   const cachedAudioKeyRef = useRef<string>("");
   const lastStoryboardPayloadRef = useRef<any>(null);
 
-  // In-flight guard
-  const renderRequestInFlightRef = useRef(false);
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // 1. Auth check
+  // 1. Authenticate user
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login?returnUrl=/dashboard/faceless-shorts");
@@ -142,176 +135,85 @@ export default function FacelessShortsPageClient() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
+        const res = await fetch(
+          `/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`
+        );
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
           const limit = Math.max(0, Math.round(Number(payload.usage?.limit || ent.monthlyVideoLimit || 0)));
           const used = Math.max(0, Math.round(Number(payload.usage?.used || 0)));
           const remaining = Math.max(0, Math.round(Number(payload.usage?.remaining ?? (limit - used))));
-
           setBillingEntitlement({
-            ...ent,
+            active: Boolean(ent.active),
+            planId: ent.planId || "paid",
+            planName: ent.planName || "Creator",
+            monthlyVideoLimit: limit,
             usage: { used, limit, remaining },
           });
         }
       } catch (err) {
-        console.warn("Failed to load billing status:", err);
+        console.warn("Could not load billing entitlement:", err);
       }
     }
     fetchBilling();
   }, [user]);
 
-  // 3. Load saved finished renders from localStorage
+  // 3. Polling for render progress
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("itnavideo_faceless_projects");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          const valid = parsed.filter((r) => r.expiresAt > Date.now());
-          setRecentRenders(valid);
-        }
-      }
-    } catch {}
-  }, []);
-
-  // 4. Persistence across page refreshes: Restore in-progress render if active
-  useEffect(() => {
-    if (!user) return;
-    try {
-      const savedActive = localStorage.getItem("itnavideo_faceless_active_job");
-      if (savedActive) {
-        const active = JSON.parse(savedActive);
-        if (active && active.renderId && active.bucketName) {
-          const startedAt = active.startedAt || Date.now();
-          setJobStatus({
-            state: "rendering",
-            message: "Reconnecting to active render job...",
-            renderId: active.renderId,
-            bucketName: active.bucketName,
-            title: active.title || "Faceless Video",
-            startedAt,
-          });
-          startPolling(active.renderId, active.bucketName, active.title || "Faceless Video", startedAt);
-        }
-      }
-    } catch (err) {
-      console.warn("Could not restore active job from localStorage:", err);
+    if (jobStatus.state === "rendering" && jobStatus.renderId) {
+      pollIntervalRef.current = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/reels/jobs/status?renderId=${jobStatus.renderId}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.status === "completed" || data.status === "ready") {
+            setJobStatus((prev) => ({
+              ...prev,
+              state: "ready",
+              progress: 1,
+              outputFile: data.outputFile || data.url,
+              message: "Render complete! Your 9:16 Faceless Short is ready to download.",
+            }));
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+          } else if (data.status === "failed" || data.status === "error") {
+            setJobStatus((prev) => ({
+              ...prev,
+              state: "error",
+              message: data.error || "Render encountered an error. Please try again.",
+            }));
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+          } else if (data.progress !== undefined) {
+            setJobStatus((prev) => ({
+              ...prev,
+              progress: Math.max(0.4, data.progress),
+              message: data.stageMessage || "Composing 9:16 vertical short on AWS Lambda...",
+            }));
+          }
+        } catch {}
+      }, 3000);
     }
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
     };
-  }, [user]);
+  }, [jobStatus.state, jobStatus.renderId]);
 
-  // 5. Live elapsed seconds timer during render
+  // 4. Elapsed timer
   useEffect(() => {
-    if (jobStatus.state !== "rendering" || !jobStatus.startedAt) {
+    let timer: NodeJS.Timeout | null = null;
+    if (jobStatus.state === "uploading" || jobStatus.state === "planning" || jobStatus.state === "rendering") {
+      timer = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
       setElapsedSeconds(0);
-      return;
     }
-    const interval = setInterval(() => {
-      setElapsedSeconds(Math.max(0, Math.floor((Date.now() - (jobStatus.startedAt || Date.now())) / 1000)));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [jobStatus.state, jobStatus.startedAt]);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [jobStatus.state]);
 
-  // Helper to convert mediaKey into a readable cloud URL
-  async function getReadUrlFromKey(key: string): Promise<string> {
-    if (!key || /^https?:\/\//i.test(key)) return key;
-
-    try {
-      const res = await fetch("/api/media/presign", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "read",
-          key,
-        }),
-      });
-      const payload = await res.json().catch(() => ({}));
-      return payload.readUrl || key;
-    } catch {
-      return key;
-    }
-  }
-
-  //  STEP 1 -> 2: Plan & Transcribe Handler 
-  const handleTranscribeAndPlan = async (audioFile: File, brandNamesHint?: string) => {
-    if (!user) {
-      router.push("/login?returnUrl=/dashboard/faceless-shorts");
-      return null;
-    }
-
-    setIsPlanningAudio(true);
-    setPlanningError(null);
-    setPlanningMessage("Uploading voiceover safely to cloud storage...");
-    try {
-      const activeUserId = user?.id || "guest_user";
-
-      // 1. Direct cloud upload voiceover
-      const mediaKey = await uploadFileViaPresign(audioFile, "FacelessShorts", activeUserId);
-      cachedAudioKeyRef.current = mediaKey;
-      const audioUrl = await getReadUrlFromKey(mediaKey);
-
-      // 2. Upload any selected user images
-      const uploadedImageUrls: string[] = [];
-      if (facelessImageFiles.length > 0 && assetSourceMode !== "library") {
-        setPlanningMessage("Uploading custom visual assets...");
-        for (const img of facelessImageFiles) {
-          const imgKey = await uploadFileViaPresign(img, "FacelessShorts", activeUserId);
-          const imgUrl = await getReadUrlFromKey(imgKey);
-          uploadedImageUrls.push(imgUrl);
-        }
-      }
-
-      setPlanningMessage("Transcribing speech with Groq Whisper & planning scenes...");
-
-      // 3. Call dedicated plan endpoint with brandNamesHint bias
-      const planRes = await fetch("/api/reels/plan-faceless-shorts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          audioUrl,
-          mediaKey,
-          topicTitle,
-          assetMode: assetSourceMode,
-          visualArtStyle,
-          uploadedImageUrls,
-          backgroundTheme,
-          brandNamesHint,
-        }),
-      });
-
-      const planPayload = await planRes.json().catch(() => ({}));
-      if (!planRes.ok || !planPayload.ok) {
-        throw new Error(planPayload.error || "Failed to transcribe speech or generate scene plan.");
-      }
-
-      setPlanningMessage("");
-
-      return {
-        transcript: planPayload.transcript,
-        segments: planPayload.segments,
-        words: planPayload.words,
-        sceneBlueprint: planPayload.sceneBlueprint,
-        brollUrls: planPayload.brollUrls,
-        durationSeconds: planPayload.durationSeconds,
-        warnings: planPayload.warnings,
-        uploadedAssets: planPayload.uploadedAssets || [],
-      };
-    } catch (err: any) {
-      console.error("[PLAN_ERROR]", err);
-      const errMsg = err?.message || "Failed to transcribe audio. Please ensure the file contains clear speech.";
-      setPlanningError(errMsg);
-      setPlanningMessage("");
-      return null;
-    } finally {
-      setIsPlanningAudio(false);
-    }
-  };
-
-  //  STEP 3 -> 4: Start Render Job with Approved Storyboard 
+  // Handle Start Render
   const handleStartRender = async (storyboardPayload?: any) => {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/faceless-shorts");
@@ -342,31 +244,34 @@ export default function FacelessShortsPageClient() {
 
       setJobStatus({
         state: "uploading",
-        message: "Staging confirmed storyboard for cloud rendering...",
+        message: "Uploading narration audio to cloud storage...",
+        progress: 0.1,
+        startedAt: Date.now(),
       });
 
-      // 1. Upload audio if not already done
-      const mediaKey = cachedAudioKeyRef.current || (await uploadFileViaPresign(selectedFile, "FacelessShorts", user.id));
+      // 1. Upload audio
+      const mediaKey = cachedAudioKeyRef.current || (await uploadFileViaPresign(selectedFile, "facelessShorts", user.id));
       cachedAudioKeyRef.current = mediaKey;
 
+      // 2. Upload images & videos
       const uploadedImageKeys: string[] = [];
       if (facelessImageFiles.length > 0) {
         for (const img of facelessImageFiles) {
-          const key = await uploadFileViaPresign(img, "FacelessShorts", user.id);
+          const key = await uploadFileViaPresign(img, "facelessShorts", user.id);
           uploadedImageKeys.push(key);
         }
       }
       if (facelessVideoFiles.length > 0) {
         for (const vid of facelessVideoFiles) {
-          const key = await uploadFileViaPresign(vid, "FacelessShorts", user.id);
+          const key = await uploadFileViaPresign(vid, "facelessShorts", user.id);
           uploadedImageKeys.push(key);
         }
       }
 
-      // Upload custom BGM if provided
+      // 3. Upload custom BGM if provided
       let customBgmKey: string | undefined = undefined;
       if (activeStoryboard?.customBgmFile) {
-        customBgmKey = await uploadFileViaPresign(activeStoryboard.customBgmFile, "FacelessShorts", user.id);
+        customBgmKey = await uploadFileViaPresign(activeStoryboard.customBgmFile, "facelessShorts", user.id);
       }
 
       const plannedTitle =
@@ -374,10 +279,17 @@ export default function FacelessShortsPageClient() {
         topicTitle.trim() ||
         (selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, "") : "Faceless Short");
 
-      // Strictly 90s max for 9:16 Shorts per Rule 4.1
+      // Up to 90s max for 9:16 Shorts
       const audioDuration = Math.min(90, Math.max(5, activeStoryboard?.durationSeconds || 60));
 
-      // 2. Submit Render Job with Approved Storyboard Blueprint
+      setJobStatus({
+        state: "planning",
+        message: "Aligning speech timestamps and generating Scene-by-Scene JSON blueprint...",
+        progress: 0.35,
+        startedAt: Date.now(),
+      });
+
+      // 4. Submit Render Job
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -395,6 +307,8 @@ export default function FacelessShortsPageClient() {
           uploadedImageKeys,
           assetMode: assetSourceMode,
           topicTitle: plannedTitle,
+          creatorHandle: activeStoryboard?.creatorHandle || creatorHandle || undefined,
+          denoiseVoice: activeStoryboard?.denoiseVoice ?? denoiseVoice,
           userId: user.id,
           userEmail: user.email || undefined,
           facelessBgmMood: activeStoryboard?.facelessBgmMood || facelessBgmMood,
@@ -408,10 +322,10 @@ export default function FacelessShortsPageClient() {
           durationSeconds: audioDuration,
           sourceDurationSeconds: audioDuration,
           mediaAspect: "portrait",
-          backgroundTheme: "solid-white",
+          visualTheme: activeStoryboard?.visualTheme || visualTheme || "modern-saas",
+          backgroundTheme: activeStoryboard?.backgroundTheme || backgroundTheme || "solid-white",
           customBgUrl: "",
           visualArtStyle: activeStoryboard?.visualArtStyle || visualArtStyle,
-          // Pass user-confirmed storyboard data
           sceneBlueprint: activeStoryboard?.sceneBlueprint,
           brollUrls: activeStoryboard?.brollUrls,
           approvedCaptions: activeStoryboard?.approvedCaptions,
@@ -422,222 +336,33 @@ export default function FacelessShortsPageClient() {
       });
 
       const jobPayload = await jobResponse.json().catch(() => ({}));
-      if (!jobResponse.ok || !jobPayload.ok) {
-        throw new Error(jobPayload.error || "Failed to start Faceless Video render job.");
+      if (!jobResponse.ok || !jobPayload.ok || !jobPayload.renderId) {
+        throw new Error(jobPayload.error || "Failed to start 9:16 Faceless Shorts render job.");
       }
-
-      const renderId = jobPayload.renderId;
-      const bucketName = jobPayload.bucketName;
-      const startedAt = Date.now();
-
-      // Persist active job in localStorage for page refresh protection
-      try {
-        localStorage.setItem(
-          "itnavideo_faceless_active_job",
-          JSON.stringify({
-            renderId,
-            bucketName,
-            title: plannedTitle,
-            startedAt,
-            durationSeconds: audioDuration,
-          })
-        );
-      } catch {}
 
       setJobStatus({
         state: "rendering",
-        message: "Initializing render cluster and aligning scene timelines...",
-        renderId,
-        bucketName,
+        renderId: jobPayload.renderId,
+        bucketName: jobPayload.bucketName,
         title: plannedTitle,
-        startedAt,
+        progress: 0.45,
+        message: "Rendering 1080×1920 MP4 on AWS Lambda...",
+        startedAt: Date.now(),
       });
-
-      startPolling(renderId, bucketName, plannedTitle, startedAt);
     } catch (err: any) {
       renderRequestInFlightRef.current = false;
       setJobStatus({
         state: "error",
-        message: err?.message || "Failed to submit faceless video job.",
+        message: err.message || "Failed to process video render. Please retry.",
       });
     }
   };
 
-  //  Polling Engine: Queries backend progress reliably 
-  const startPolling = (renderId: string, bucketName: string, title: string, startedAt: number) => {
-    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-
-    let attempts = 0;
-    const MAX_ATTEMPTS = 600; // ~35 minutes polling limit
-
-    pollIntervalRef.current = setInterval(async () => {
-      attempts++;
-      if (attempts > MAX_ATTEMPTS) {
-        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-        renderRequestInFlightRef.current = false;
-        localStorage.removeItem("itnavideo_faceless_active_job");
-        setJobStatus({
-          state: "error",
-          message: "Render took longer than expected. Please check back shortly or retry.",
-        });
-        return;
-      }
-
-      try {
-        const params = new URLSearchParams({
-          renderId,
-          bucketName,
-          userId: user?.id || "",
-          mode: "facelessShorts",
-          title,
-          attempt: String(attempts),
-        });
-
-        const statusRes = await fetch(`/api/reels/jobs/status?${params.toString()}`);
-        const statusPayload = await statusRes.json().catch(() => ({}));
-
-        if (!statusRes.ok || !statusPayload.ok) {
-          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          renderRequestInFlightRef.current = false;
-          localStorage.removeItem("itnavideo_faceless_active_job");
-          setJobStatus({
-            state: "error",
-            message: statusPayload.error || "Unable to check rendering progress.",
-          });
-          return;
-        }
-
-        // 1. Check if job was cancelled
-        if (statusPayload.state === "cancelled") {
-          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          renderRequestInFlightRef.current = false;
-          localStorage.removeItem("itnavideo_faceless_active_job");
-          setJobStatus({
-            state: "cancelled",
-            message: "Render process was cancelled.",
-          });
-          return;
-        }
-
-        // 2. Check for fatal errors
-        const renderErrors = statusPayload.errors || [];
-        const hasFatalError =
-          statusPayload.state === "error" ||
-          (renderErrors.length > 0 && !statusPayload.isRetrying);
-
-        if (hasFatalError) {
-          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          renderRequestInFlightRef.current = false;
-          localStorage.removeItem("itnavideo_faceless_active_job");
-          const errorMsg = renderErrors[0]?.message || statusPayload.error || "Video rendering failed. Reserved credits were refunded.";
-          setJobStatus({
-            state: "error",
-            message: errorMsg,
-          });
-          return;
-        }
-
-        // 3. Check completion
-        const isComplete =
-          (statusPayload.state === "ready" || statusPayload.state === "done" || Boolean(statusPayload.done)) &&
-          Boolean(statusPayload.outputFile);
-
-        if (isComplete) {
-          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-          renderRequestInFlightRef.current = false;
-          localStorage.removeItem("itnavideo_faceless_active_job");
-
-          const finishedRender: RecentRender = {
-            id: renderId,
-            title,
-            mode: "facelessShorts",
-            outputFile: statusPayload.outputFile,
-            createdAt: Date.now(),
-            expiresAt: Date.now() + 48 * 60 * 60 * 1000,
-          };
-
-          setRecentRenders((prev) => {
-            const updated = [finishedRender, ...prev.filter((r) => r.id !== renderId)];
-            localStorage.setItem("itnavideo_faceless_projects", JSON.stringify(updated.slice(0, 30)));
-            return updated;
-          });
-
-          setJobStatus({
-            state: "ready",
-            message: "Your 1080p Faceless Video is ready!",
-            progress: 1,
-            outputFile: statusPayload.outputFile,
-            title,
-          });
-
-          // Refresh credit balance
-          if (user?.id) {
-            fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user.id)}`)
-              .then((r) => r.json())
-              .then((payload) => {
-                if (payload.ok && payload.entitlement) {
-                  setBillingEntitlement((curr) =>
-                    curr
-                      ? {
-                          ...curr,
-                          usage: payload.usage
-                            ? {
-                                used: payload.usage.used,
-                                limit: payload.usage.limit,
-                                remaining: payload.usage.remaining,
-                              }
-                            : curr.usage,
-                        }
-                      : null
-                  );
-                }
-              })
-              .catch(() => {});
-          }
-
-          return;
-        }
-
-        // 4. Update ongoing progress (using real backend progress only)
-        const realProgress =
-          typeof statusPayload.progress === "number" && statusPayload.progress > 0
-            ? Math.min(0.99, Math.max(0, statusPayload.progress))
-            : undefined;
-
-        // Determine current production stage
-        let activeStage = PRODUCTION_STAGES[0].name;
-        if (realProgress !== undefined) {
-          for (let s = PRODUCTION_STAGES.length - 1; s >= 0; s--) {
-            if (realProgress >= PRODUCTION_STAGES[s].minProgress) {
-              activeStage = PRODUCTION_STAGES[s].name;
-              break;
-            }
-          }
-        }
-
-        setJobStatus({
-          state: "rendering",
-          message: activeStage,
-          progress: realProgress,
-          renderId,
-          bucketName,
-          title,
-          startedAt,
-          stageName: activeStage,
-        });
-      } catch (err) {
-        console.warn("Poll connection check:", err);
-      }
-    }, 3500);
-  };
-
-  //  Cancel Render Handler 
-  const handleConfirmCancel = async () => {
+  const handleCancelRender = async () => {
     setIsCancelling(true);
     try {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
       renderRequestInFlightRef.current = false;
-
       if (jobStatus.renderId) {
         await fetch("/api/reels/jobs/cancel", {
           method: "POST",
@@ -648,12 +373,7 @@ export default function FacelessShortsPageClient() {
           }),
         }).catch(() => {});
       }
-
-      localStorage.removeItem("itnavideo_faceless_active_job");
-      setJobStatus({
-        state: "cancelled",
-        message: "Video rendering was cancelled. Reserved credits were refunded.",
-      });
+      setJobStatus({ state: "idle" });
       setShowCancelModal(false);
     } catch {
       setShowCancelModal(false);
@@ -662,78 +382,83 @@ export default function FacelessShortsPageClient() {
     }
   };
 
-  // Calculate reliable remaining ETA (only when progress is verified positive)
-  const calculateEtaSeconds = (): number | null => {
-    if (jobStatus.progress === undefined || jobStatus.progress < 0.05 || elapsedSeconds < 5) {
-      return null;
-    }
-    const estimatedTotal = elapsedSeconds / jobStatus.progress;
-    const remaining = Math.max(1, Math.round(estimatedTotal - elapsedSeconds));
-    return remaining;
-  };
-
-  const etaSeconds = calculateEtaSeconds();
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+        <p className="text-sm font-semibold text-slate-800">Loading Faceless Shorts Studio...</p>
+      </div>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 pb-12 selection:bg-[#0066FF]/20 selection:text-[#0066FF]">
-      {/* TOP NAVIGATION (Clean White Surface) */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/90 bg-white/95 backdrop-blur-md shadow-xs">
-        <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-5">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
+      {/* Top Header: Unified Full Bleed Canvas */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-2xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition active:scale-95 shadow-xs"
-              title="Return to Dashboard"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-            <BrandLogo size="sm" variant="light" />
+
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Faceless Shorts</span>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200">
+                9:16 Vertical • 1 Cr Flat
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {billingEntitlement && (
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1 text-xs font-bold text-slate-800 shadow-xs">
-                <Zap size={13} className="text-[#FF5722] fill-[#0066FF]" />
-                <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
-              </div>
-            )}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Balance Badge */}
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-2xs text-slate-800">
+              <Zap size={14} className="text-orange-600 fill-orange-600" />
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
+              >
+                +Add
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* MAIN CONTENT CONTAINER */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-        {/* Page Title & Badging */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2 border-b border-slate-200">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-orange-50 px-3 py-1 text-[11px] font-bold text-[#FF5722] shadow-xs mb-1.5">
-              <Sparkles size={12} className="text-[#FF5722]" />
-              <span>9:16 Vertical Shorts Studio</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-              Faceless AI Shorts Studio (9:16)
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              Generate vertical 9:16 short-form viral videos (up to 90s) with kinetic typography, 20 animated subtitle styles, multiple images/clips, and auto-ducked music.
-            </p>
-          </div>
-        </div>
-
-        {/*  Dedicated Interactive Render Engine Stage  */}
-        {jobStatus.state !== "idle" && (
-          <div className="max-w-4xl mx-auto py-4">
+      {/* Main Studio Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
+        {jobStatus.state !== "idle" ? (
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
-              mode="FacelessShorts"
+              mode="facelessShorts"
               status={{
-                state: jobStatus.state === "cancelled" ? "error" : (jobStatus.state as any),
-                message: jobStatus.state === "cancelled" ? "Generation cancelled" : (jobStatus.message || "Generating 9:16 vertical faceless shorts..."),
+                state: jobStatus.state as any,
+                message: jobStatus.message || "Composing 9:16 vertical faceless short...",
                 progress: jobStatus.progress,
                 outputFile: jobStatus.outputFile,
-                title: jobStatus.title || topicTitle || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Faceless AI Video",
+                title: jobStatus.title || topicTitle || "Faceless Short",
               }}
-              title={jobStatus.title || topicTitle || (selectedFile?.name ? selectedFile.name.replace(/\.[^/.]+$/, "") : "") || "Faceless AI Video"}
+              title={jobStatus.title || topicTitle || "Faceless Short"}
               fileName={selectedFile?.name}
               onRetry={() => handleStartRender()}
+              onCancel={() => setShowCancelModal(true)}
               onReset={() => {
                 if (typeof window !== "undefined") {
                   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -746,21 +471,16 @@ export default function FacelessShortsPageClient() {
                 setPlanningMessage("");
                 setJobStatus({ state: "idle" });
               }}
-              onCancel={() => setShowCancelModal(true)}
             />
           </div>
-        )}
-
-        {/*  STUDIO WIZARD (Visible when idle)  */}
-        {jobStatus.state === "idle" && (
+        ) : (
           <FacelessShortsStudio
             selectedFile={selectedFile}
-            onSelectFile={(file: File | null) => {
-              setSelectedFile(file);
-              cachedAudioKeyRef.current = "";
-              setPlanningError(null);
-              setPlanningMessage("");
-            }}
+            onSelectFile={setSelectedFile}
+            creatorHandle={creatorHandle}
+            onCreatorHandleChange={setCreatorHandle}
+            denoiseVoice={denoiseVoice}
+            onDenoiseVoiceChange={setDenoiseVoice}
             topicTitle={topicTitle}
             onTopicTitleChange={setTopicTitle}
             subtitleStyle={subtitleStyle}
@@ -779,96 +499,50 @@ export default function FacelessShortsPageClient() {
             onEnableSfxChange={setFacelessEnableSfx}
             visualArtStyle={visualArtStyle}
             onVisualArtStyleChange={setVisualArtStyle}
+            visualTheme={visualTheme}
+            onVisualThemeChange={setVisualTheme}
             backgroundTheme={backgroundTheme}
             onBackgroundThemeChange={setBackgroundTheme}
             customBgUrl={customBgUrl}
             onCustomBgUrlChange={setCustomBgUrl}
+            customBgFile={customBgFile}
             onCustomBgFileSelect={setCustomBgFile}
+            onGenerate={handleStartRender}
+            isGenerating={jobStatus.state !== "idle" && jobStatus.state !== "ready"}
+            renderedVideoUrl={jobStatus.outputFile}
             assetSourceMode={assetSourceMode}
             onAssetSourceModeChange={setAssetSourceMode}
             uploadedImageFiles={facelessImageFiles}
             onUploadedImageFilesChange={setFacelessImageFiles}
             uploadedVideoFiles={facelessVideoFiles}
             onUploadedVideoFilesChange={setFacelessVideoFiles}
-            onTranscribeAndPlan={handleTranscribeAndPlan}
-            isPlanning={isPlanningAudio}
-            planningMessage={planningMessage}
-            planningError={planningError}
-            onClearPlanningError={() => {
-              setPlanningError(null);
-              setPlanningMessage("");
-            }}
-            onGenerate={handleStartRender}
-            isGenerating={false}
-            renderedVideoUrl={jobStatus.outputFile}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
           />
         )}
+      </main>
 
-        {/* RECENT RENDERS ARCHIVE */}
-        {recentRenders.length > 0 && jobStatus.state === "idle" && (
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-600">
-              Recent Faceless Shorts
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {recentRenders.map((render) => (
-                <div
-                  key={render.id}
-                  className="rounded-2xl border border-slate-200 p-4 space-y-3 bg-slate-50 hover:bg-white transition flex flex-col justify-between"
-                >
-                  <div>
-                    <p className="text-xs font-bold text-slate-900 truncate">{render.title}</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5">
-                      {new Date(render.createdAt).toLocaleDateString()} · 9:16 Vertical
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-200">
-                    <a
-                      href={render.outputFile}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-black"
-                    >
-                      <Play size={12} />
-                      <span>Preview</span>
-                    </a>
-                    <a
-                      href={render.outputFile}
-                      download
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#FF5722] hover:text-[#3B82F6]"
-                    >
-                      <Download size={12} />
-                      <span>Download</span>
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* CANCEL CONFIRMATION MODAL */}
+      {/* Cancel Confirmation Modal */}
       {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 max-w-sm w-full space-y-4 shadow-2xl">
-            <h3 className="text-base font-bold text-slate-900">Cancel Video Generation?</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Are you sure you want to cancel? The render job will stop immediately and any reserved credits will be refunded to your account balance.
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 max-w-sm w-full shadow-lg">
+            <h3 className="text-base font-bold text-slate-900 mb-2">
+              Cancel Active Render?
+            </h3>
+            <p className="text-xs text-slate-600 mb-5">
+              Are you sure you want to stop this rendering process? Progress will be lost.
             </p>
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex items-center justify-end gap-3">
               <button
-                type="button"
                 onClick={() => setShowCancelModal(false)}
-                className="rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
               >
-                Keep Rendering
+                Continue Rendering
               </button>
               <button
-                type="button"
-                onClick={handleConfirmCancel}
+                onClick={handleCancelRender}
                 disabled={isCancelling}
-                className="rounded-xl bg-red-600 hover:bg-red-700 px-3.5 py-2 text-xs font-bold text-white transition cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500 hover:bg-rose-600 text-white transition"
               >
                 {isCancelling ? "Cancelling..." : "Yes, Cancel"}
               </button>
@@ -876,6 +550,6 @@ export default function FacelessShortsPageClient() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

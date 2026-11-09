@@ -688,10 +688,10 @@ export default function ImageToVideoDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 pb-16">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden">
       {/* Top Navigation Bar (Clean White Surface - Full Bleed) */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs">
-        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             {/* Sleek Modern Back Button */}
             <button
@@ -741,11 +741,11 @@ export default function ImageToVideoDashboardPage() {
       </header>
 
       {/* Main Canvas - Full Screen Fluid Workspace */}
-      <main className="flex-1 w-full px-4 sm:px-8 lg:px-12 py-6 sm:py-8 space-y-8">
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
 
         {(isWorking || isReady || isError) ? (
           /* Render Monitor View (Unified InteractiveRenderEngine) */
-          <div className="max-w-4xl mx-auto py-4">
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="imageToVideoAi"
               status={jobStatus}
@@ -764,6 +764,7 @@ export default function ImageToVideoDashboardPage() {
             onRemoveAiWatermarkChange={setRemoveAiWatermark}
             onSelectAudio={setSelectedAudio}
             imageFiles={imageFiles}
+            onSetImageFiles={setImageFiles}
             onAddImages={handleAddImages}
             onRemoveImage={handleRemoveImage}
             onClearAllImages={handleClearAllImages}

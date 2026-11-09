@@ -310,7 +310,7 @@ export function HomepageFinalCta() {
           </div>
 
           <p className="mt-4 text-[11px] sm:text-xs text-zinc-400 font-medium">
-            5 Free Videos Daily • No Credit Card Required • Zero Watermark
+            Free Trial on Signup • No Credit Card Required • No Watermark on Paid Plans
           </p>
         </div>
       </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,18 +7,7 @@ import BrandLogo from "@/components/brand/BrandLogo";
 import { BookSummaryStudio } from "@/components/dashboard/BookSummaryStudio";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { useAuth } from "@/components/auth/AuthContext";
-import {
-  ArrowLeft,
-  Sparkles,
-  Zap,
-  Loader2,
-  Download,
-  History,
-  Clock,
-  BookOpen,
-} from "lucide-react";
-
-//  Types 
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 type BillingEntitlement = {
   active: boolean;
@@ -44,52 +32,28 @@ type JobStatus = {
   diagnostics?: string[];
 };
 
-type RecentRender = {
-  id: string;
-  title: string;
-  mode: string;
-  outputFile: string;
-  createdAt: number;
-  expiresAt: number;
-};
-
-//  Component 
-
 export default function BookSummaryPageClient() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(true);
 
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
-  const [renderStartedAt, setRenderStartedAt] = useState<number | null>(null);
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
-  const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
-  const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
-  const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
   const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
-  const [aspectRatio] = useState<"16:9">("16:9");
 
   const renderRequestInFlightRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastPayloadRef = useRef<any>(null);
 
-  const isWorking =
-    jobStatus.state === "uploading" ||
-    jobStatus.state === "starting" ||
-    jobStatus.state === "rendering";
-  const isReady = jobStatus.state === "ready" || Boolean(jobStatus.outputFile);
-  const isError = jobStatus.state === "error";
-
-  //  Auth redirect 
+  // Auth redirect
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/login");
+      router.push("/login?returnUrl=/dashboard/book-summary");
     }
   }, [user, authLoading, router]);
 
-  //  Billing entitlement 
+  // Billing entitlement
   useEffect(() => {
     if (!user) return;
     async function fetchBilling() {
@@ -118,75 +82,7 @@ export default function BookSummaryPageClient() {
     fetchBilling();
   }, [user]);
 
-  //  Recent renders (localStorage + server history) 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("itnavideo_book_summary_projects");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setRecentRenders(parsed);
-        }
-      }
-    } catch {}
-
-    if (!user) return;
-    async function fetchHistory() {
-      try {
-        const res = await fetch(
-          `/api/reels/history?userId=${encodeURIComponent(user?.id || "")}`
-        );
-        const payload = await res.json().catch(() => ({}));
-        if (res.ok && payload.ok && Array.isArray(payload.renders)) {
-          const bsRenders: RecentRender[] = payload.renders
-            .filter(
-              (r: RecentRender) =>
-                r.mode === "bookSummary" ||
-                r.mode === "book-summary" ||
-                r.mode === "BOOK_SUMMARY"
-            )
-            .map((r: any) => ({
-              id: r.renderId || r.id,
-              title: r.title || "Book Summary Video",
-              mode: "bookSummary",
-          removeAiWatermark: Boolean(removeAiWatermark),
-              outputFile: r.outputFile || r.outputUrl || "",
-              createdAt: r.createdAt ? new Date(r.createdAt).getTime() : Date.now(),
-              expiresAt: r.expiresAt
-                ? new Date(r.expiresAt).getTime()
-                : Date.now() + 48 * 60 * 60 * 1000,
-            }));
-          if (bsRenders.length > 0) {
-            setRecentRenders((prev) => {
-              const merged = [
-                ...bsRenders,
-                ...prev.filter((p) => !bsRenders.some((r) => r.id === p.id)),
-              ];
-              return merged.slice(0, 30);
-            });
-          }
-        }
-      } catch (err) {
-        console.warn("Could not load render history:", err);
-      }
-    }
-    fetchHistory();
-  }, [user]);
-
-  //  Live timer tick during render 
-  useEffect(() => {
-    const isActive =
-      jobStatus.state === "uploading" ||
-      jobStatus.state === "starting" ||
-      jobStatus.state === "rendering";
-    if (!isActive || !renderStartedAt) return;
-    const interval = setInterval(() => {
-      setElapsedSeconds(Math.max(0, Math.floor((Date.now() - renderStartedAt) / 1000)));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [jobStatus.state, renderStartedAt]);
-
-  //  Cancel handler 
+  // Cancel handler
   const handleCancelProcess = async () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -203,20 +99,6 @@ export default function BookSummaryPageClient() {
     }
     renderRequestInFlightRef.current = false;
     setJobStatus({ state: "idle" });
-    setRenderStartedAt(null);
-    setElapsedSeconds(0);
-  };
-
-  const handleBackClick = () => {
-    const isProcessActive =
-      jobStatus.state === "uploading" ||
-      jobStatus.state === "starting" ||
-      jobStatus.state === "rendering";
-    if (isProcessActive) {
-      setShowExitConfirmModal(true);
-    } else {
-      router.push("/dashboard");
-    }
   };
 
   const handleConfirmExit = async () => {
@@ -225,7 +107,7 @@ export default function BookSummaryPageClient() {
     router.push("/dashboard");
   };
 
-  //  onStartRender  called by BookSummaryStudio when user clicks "Render" 
+  // Start Render - called by BookSummaryStudio
   const handleStartRender = async (payload: {
     mode: string;
     template: string;
@@ -245,7 +127,7 @@ export default function BookSummaryPageClient() {
     transcript?: string;
   }) => {
     if (!user) {
-      router.push("/login");
+      router.push("/login?returnUrl=/dashboard/book-summary");
       return;
     }
     if (renderRequestInFlightRef.current) return;
@@ -257,20 +139,12 @@ export default function BookSummaryPageClient() {
     const bookTitle = payload.bookTitle || "Book Summary";
 
     try {
-      if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      setRenderStartedAt(Date.now());
-      setElapsedSeconds(0);
       setJobStatus({
         state: "starting",
         message: "Submitting Book Summary render to cloud pipeline...",
         progress: 0.1,
       });
 
-      // The audio is already uploaded by BookSummaryStudio  audioUrl is a cloud URL.
-      // We need its S3 key (relative path) for the jobs route's mediaKey field.
-      // Pass the full audioUrl as mediaKey so the backend can resolve it.
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -300,9 +174,12 @@ export default function BookSummaryPageClient() {
           captionsTheme: payload.captionsTheme || "glow-viral",
           bgmUrl: (payload as any).bgmUrl || undefined,
           customBgmUrl: (payload as any).bgmUrl || undefined,
-          bgmVolume: typeof (payload as any).bgmVolume === 'number' ? (payload as any).bgmVolume : 0.12,
+          bgmVolume: typeof (payload as any).bgmVolume === "number" ? (payload as any).bgmVolume : 0.12,
           aspectRatio: "16:9",
           mediaAspect: "landscape",
+          visualTheme: (payload as any).visualTheme || "editorial-minimal",
+          bookNotes: (payload as any).bookNotes,
+          removeAiWatermark: Boolean(removeAiWatermark),
         }),
       });
 
@@ -326,7 +203,7 @@ export default function BookSummaryPageClient() {
 
       // Poll status
       let attempts = 0;
-      const MAX_ATTEMPTS = 800; // ~40 min for up to 12-min videos
+      const MAX_ATTEMPTS = 800;
 
       const pollInterval = setInterval(async () => {
         attempts++;
@@ -336,7 +213,7 @@ export default function BookSummaryPageClient() {
           setJobStatus({
             state: "error",
             message:
-              "Render took longer than expected. Your video is still processing in the cloud  check your Projects tab shortly.",
+              "Render took longer than expected. Your video is still processing in the cloud - check your Projects shortly.",
           });
           return;
         }
@@ -359,26 +236,6 @@ export default function BookSummaryPageClient() {
             if (isComplete) {
               clearInterval(pollInterval);
               renderRequestInFlightRef.current = false;
-
-              const completedRender: RecentRender = {
-                id: renderId,
-                title: bookTitle,
-                mode: "bookSummary",
-                outputFile: statusPayload.outputFile,
-                createdAt: Date.now(),
-                expiresAt: Date.now() + 48 * 60 * 60 * 1000,
-              };
-
-              setRecentRenders((prev) => {
-                const next = [completedRender, ...prev.filter((r) => r.id !== renderId)];
-                try {
-                  localStorage.setItem(
-                    "itnavideo_book_summary_projects",
-                    JSON.stringify(next.slice(0, 30))
-                  );
-                } catch {}
-                return next;
-              });
 
               setJobStatus({
                 state: "ready",
@@ -419,7 +276,7 @@ export default function BookSummaryPageClient() {
                 state: "rendering",
                 message:
                   statusPayload.message ||
-                  "Building lesson cards and syncing spoken narration...",
+                  "Building chapter cards and syncing spoken narration...",
                 progress: Math.max(prev.progress || 0.3, currentProgress),
               }));
             }
@@ -438,185 +295,75 @@ export default function BookSummaryPageClient() {
     }
   };
 
-  //  Download helper 
-  const downloadVideoDirectly = async (url: string, filename: string) => {
-    try {
-      setDownloadingUrl(url);
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(blobUrl);
-    } catch {
-      window.open(url, "_blank");
-    } finally {
-      setDownloadingUrl(null);
-    }
-  };
-
-  //  Reset 
   const handleReset = () => {
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
     setJobStatus({ state: "idle" });
-    setRenderStartedAt(null);
-    setElapsedSeconds(0);
   };
 
-  //  Derived state 
-  const userRemainingCredits = billingEntitlement?.active
-    ? Math.round(billingEntitlement.usage?.remaining ?? billingEntitlement.monthlyVideoLimit ?? 0)
-    : undefined;
-
-  const formatTimer = (totalSecs: number) => {
-    const mins = Math.floor(totalSecs / 60);
-    const secs = totalSecs % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  //  Loading screen 
+  // Loading screen
   if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
+        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
         <p className="text-sm font-semibold text-slate-800">Loading Book Summary Studio...</p>
       </div>
     );
   }
 
-  // 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-[#0066FF]/20 selection:text-[#0066FF] pb-12">
-
-      {/*  Top Navigation Bar (Clean White Surface)  */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
-          {/* Left: back + logo */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            <button
-              type="button"
-              onClick={handleBackClick}
-              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 hover:bg-slate-200 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group cursor-pointer"
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
+      {/* Top Navigation Bar (Clean White Surface - Full Bleed, matching Image to Video AI) */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
+            <Link
+              href="/dashboard"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-              <span className="hidden sm:inline">All Tools</span>
-            </button>
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+            </Link>
 
-            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
             <BrandLogo size="sm" showBadge={false} variant="light" />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-2.5 py-0.5 text-[11px] font-black text-[#0066FF]">
-              <BookOpen size={11} />
-              Book Summary Studio
-            </span>
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Book Summary AI</span>
+            </div>
           </div>
 
-          {/* Right: credits + tabs */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Timer badge while rendering */}
-            {isWorking && (
-              <div className="flex items-center gap-1.5 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-3 py-1.5 text-xs font-black text-[#0066FF]">
-                <Clock size={13} className="animate-pulse" />
-                <span>{formatTimer(elapsedSeconds)}</span>
-              </div>
-            )}
-
             {/* Credits badge */}
             <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
-              <Zap size={14} className="text-[#0066FF] fill-[#0066FF]" />
               <span className="text-slate-500 hidden xs:inline">Balance:</span>
               <span className="text-slate-900 font-black">
-                {billingEntitlement ? userRemainingCredits : "..."} Cr
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
               </span>
               <Link
                 href="/pricing"
-                className="ml-0.5 text-[11px] text-[#0066FF] hover:text-[#3B82F6] underline font-black"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
               >
                 +Add
               </Link>
             </div>
-
-            {/* History tab button */}
-            <button
-              type="button"
-              onClick={() => setActiveTab(activeTab === "history" ? "studio" : "history")}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
-                activeTab === "history"
-                  ? "border-[#0066FF]/40 bg-[#0066FF]/10 text-[#0066FF]"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:text-slate-900 shadow-xs"
-              }`}
-            >
-              <History size={13} />
-              <span className="hidden sm:inline">History</span>
-            </button>
           </div>
         </div>
       </header>
 
-      {/*  Main Canvas  */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-
-        {/* Hero banner: Clean White Widescreen Studio Header */}
-        <div className="relative rounded-[28px] border border-slate-200/90 bg-gradient-to-r from-white via-slate-50 to-blue-50/40 p-6 sm:p-8 overflow-hidden shadow-xs">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 z-10 relative">
-            <div className="space-y-3 max-w-3xl">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
-                <button
-                  type="button"
-                  onClick={handleBackClick}
-                  className="inline-flex items-center gap-1.5 text-slate-500 hover:text-[#0066FF] transition cursor-pointer"
-                >
-                  <ArrowLeft size={14} />
-                  <span>Back to Video Modes</span>
-                </button>
-                <span>/</span>
-                <span className="text-slate-800">Book Summary Video</span>
-              </div>
-              <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                Book Summary{" "}
-                <span className="bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] bg-clip-text text-transparent">
-                  Video Studio
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Transform your book narration into a cinematic 16:9 Full HD summary video. Features AI chapter markers, animated quote cards, 3D book cover intro, and synchronized captions for YouTube.
-              </p>
-            </div>
-
-            {/* Spec Highlights Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 shrink-0 w-full lg:w-auto">
-              <div className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Format</div>
-                <div className="text-xs font-black text-slate-900 flex items-center gap-1 mt-0.5">
-                  <Sparkles size={12} className="text-[#0066FF]" />
-                  16:9 Widescreen
-                </div>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Duration Limit</div>
-                <div className="text-xs font-black text-slate-900 mt-0.5">Up to 5 Min (300s)</div>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-xs">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pricing</div>
-                <div className="text-xs font-black text-[#0066FF] mt-0.5">1 Min = 1 Credit</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/*  Active Cloud Render Stage (Unified InteractiveRenderEngine)  */}
-        {(isWorking || isReady || isError) ? (
-          <div className="max-w-4xl mx-auto py-4">
+      {/* Main Canvas - Full Screen Fluid Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
+        {jobStatus.state !== "idle" ? (
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="bookSummary"
-              status={jobStatus}
               title={jobStatus.title || "Book Summary Video"}
+              status={jobStatus}
               onRetry={() => {
                 if (lastPayloadRef.current) {
                   handleStartRender(lastPayloadRef.current);
@@ -624,160 +371,43 @@ export default function BookSummaryPageClient() {
                   handleReset();
                 }
               }}
+              onCancel={() => setShowExitConfirmModal(true)}
               onReset={handleReset}
-              onCancel={handleCancelProcess}
             />
           </div>
         ) : (
-          /*  Tab: Studio (Form is only shown when idle)  */
-          activeTab === "studio" && (
-            <BookSummaryStudio
-              onStartRender={handleStartRender}
-              renderStatus={{ ...jobStatus, message: jobStatus.message || '' }}
-              onResetRender={handleReset}
-              onRetryRender={handleReset}
-              onCancelRender={handleCancelProcess}
-            />
-          )
-        )}
-
-        {/*  Tab: History  */}
-        {activeTab === "history" && (
-          <section className="space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black text-slate-900">Recent Book Summary Renders</h2>
-              <button
-                type="button"
-                onClick={() => setActiveTab("studio")}
-                className="text-xs font-bold text-[#0066FF] hover:text-[#3B82F6] transition"
-              >
-                ← Back to Studio
-              </button>
-            </div>
-
-            {recentRenders.length === 0 ? (
-              <div className="rounded-[28px] border border-slate-200 bg-white py-16 text-center shadow-xs">
-                <BookOpen size={40} className="mx-auto text-slate-400 mb-4" />
-                <p className="text-sm font-bold text-slate-800">No renders yet.</p>
-                <p className="text-xs text-slate-500 mt-1">
-                  Your completed Book Summary videos will appear here for 48 hours.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("studio")}
-                  className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-5 py-2.5 text-sm font-black text-white shadow-md shadow-[#0066FF]/20 transition hover:brightness-110 active:scale-95"
-                >
-                  <Sparkles size={14} />
-                  Create Your First Book Summary
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {recentRenders.map((render) => {
-                  const isExpired = render.expiresAt < Date.now();
-                  const expiresInHours = Math.max(
-                    0,
-                    Math.ceil((render.expiresAt - Date.now()) / (60 * 60 * 1000))
-                  );
-
-                  return (
-                    <div
-                      key={render.id}
-                      className="rounded-[28px] border border-slate-200 bg-white p-5 space-y-4 hover:border-[#0066FF]/40 hover:shadow-md transition-all duration-300 shadow-xs"
-                    >
-                      {/* Thumbnail placeholder */}
-                      <div className="aspect-video w-full rounded-2xl bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
-                        {render.outputFile && !isExpired ? (
-                          <video
-                            src={render.outputFile}
-                            className="w-full h-full object-cover rounded-2xl"
-                            muted
-                            playsInline
-                            onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play()}
-                            onMouseLeave={(e) => {
-                              const v = e.currentTarget as HTMLVideoElement;
-                              v.pause();
-                              v.currentTime = 0;
-                            }}
-                          />
-                        ) : (
-                          <BookOpen size={32} className="text-slate-400" />
-                        )}
-                      </div>
-
-                      <div>
-                        <p className="text-sm font-black text-slate-900 truncate">{render.title}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          {new Date(render.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </p>
-                      </div>
-
-                      {isExpired ? (
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-red-500">
-                          <Clock size={12} />
-                          <span>Expired</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-500">
-                            Expires in {expiresInHours}h
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              downloadVideoDirectly(
-                                render.outputFile,
-                                `itnavideo-book-summary-${render.id.slice(-6)}.mp4`
-                              )
-                            }
-                            disabled={downloadingUrl === render.outputFile}
-                            className="inline-flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-[#2563EB] px-3.5 py-1.5 text-xs font-black text-white shadow-xs shadow-[#0066FF]/20 transition hover:brightness-110 active:scale-95 disabled:opacity-50"
-                          >
-                            <Download size={12} />
-                            {downloadingUrl === render.outputFile ? "Downloading..." : "Download"}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+          <BookSummaryStudio
+            onStartRender={handleStartRender}
+            renderStatus={jobStatus}
+            onResetRender={handleReset}
+            onRetryRender={handleReset}
+            onCancelRender={handleCancelProcess}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
+          />
         )}
       </main>
 
-      {/*  Exit Confirmation Modal  */}
+      {/* Exit Confirmation Modal */}
       {showExitConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
-          <div className="w-full max-w-sm mx-4 rounded-[28px] border border-slate-200 bg-white p-8 space-y-5 shadow-2xl">
-            <div className="text-center space-y-2">
-              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 border border-red-200">
-                <ArrowLeft size={24} className="text-red-500" />
-              </div>
-              <h3 className="text-lg font-black text-slate-900">Leave Studio?</h3>
-              <p className="text-sm text-slate-600">
-                A render is currently in progress. Leaving will cancel the render job and credits used will not be refunded.
-              </p>
-            </div>
-            <div className="flex gap-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 max-w-sm w-full shadow-lg">
+            <h3 className="text-base font-bold text-slate-900 mb-2">Cancel Active Render?</h3>
+            <p className="text-xs text-slate-600 mb-5">
+              Are you sure you want to stop this rendering process? Progress will be lost.
+            </p>
+            <div className="flex items-center justify-end gap-3">
               <button
-                type="button"
                 onClick={() => setShowExitConfirmModal(false)}
-                className="flex-1 rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-200 hover:text-slate-900 transition active:scale-95"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
               >
-                Keep Rendering
+                Continue Rendering
               </button>
               <button
-                type="button"
                 onClick={handleConfirmExit}
-                className="flex-1 rounded-2xl bg-red-500 px-4 py-3 text-sm font-bold text-white hover:bg-red-600 transition active:scale-95 shadow-xs"
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500 hover:bg-rose-600 text-white transition"
               >
-                Exit Anyway
+                Yes, Cancel
               </button>
             </div>
           </div>

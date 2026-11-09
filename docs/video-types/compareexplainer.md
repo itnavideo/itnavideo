@@ -32,56 +32,38 @@
 > [!IMPORTANT]
 > **Core Architecture & Dashboard Principle**:
 > **"User controls only what changes the content. System AI controls everything else."**
-> 
-> - **User Inputs (Content Essentials Only)**:
->   1. Voiceover Narration
->   2. Image A
->   3. Image B
->   4. Name A
->   5. Name B
->   6. Presenter Character
->   7. Instagram handle (optional)
-> 
-> - **System AI Automation Engine (Zero Manual Burden)**:
->   - ⚡ **Poses & Gestures**: Synced dynamically with spoken beats.
->   - ⚡ **Expressions**: Emotion-matched (thinking, confident, winner reveal).
->   - ⚡ **Pacing & Timing**: Millisecond-accurate word alignments from Groq Whisper.
->   - ⚡ **Transitions**: Automatic split-screen whips, zooms, and dual-focus shifts.
->   - ⚡ **SFX**: Sound design (whooshes, versus dings, point hits).
->   - ⚡ **Captions**: High-contrast kinetic auto-subtitles.
->   - ⚡ **Animations & Scene Changes**: Deterministic 1080p 30 FPS composition.
-> 
-> *(Removing heavy Live Canvas Previews perfectly aligns with this engine, reducing client memory footprint to zero and delivering flawless final outputs on cloud render).*
 
-1. **Top Showcase: 5 Featured Cloudinary Demo Videos**:
-   - High-retention 9:16 vertical shorts player cards with instant poster previews:
-     - `Dajjal & Yajooj Majooj` (Stickman Trial)
-     - `Passport vs Visa Explained` (Viral Education)
-     - `Indian Govt Departments in Simple Words` (India Facts)
-     - `Coding vs Programming` (Tech & Software)
-     - `90% People Confuse These Two` (Viral English)
-   - 1-Click "Use Example Concept" pre-fills comparison titles.
+The studio is organized into a clean 4-step guided progression matching the unified Itnavideo design system:
 
-2. **Step 1: Your Voiceover (Required)**:
-   - Voice discussing comparison points, pros, cons, and verdict (`.mp3`, `.wav`, `.m4a` or `.mp4`).
+1. **Step 1: Upload (Voiceover & 2 Subjects)**:
+   - Voiceover audio discussing comparison points, pros, cons, and verdict (`.mp3`, `.wav`, `.m4a` or `.mp4`).
    - Limit: **Up to 90 Seconds (90s)** per Master Credit Policy Rule 4.1 (1 Credit flat).
+   - Audio waveform visualizer with playback controls and duration detector.
+   - Dual split visual cards: Option A (Left) Image + Title, and Option B (Right) Image + Title.
+   - Topic headline and creator watermark handle.
+   - Audio-synced editable comparison script editor.
 
-3. **Step 2: Your Comparison (Required)**:
-   - **Option A (Left)**: Upload Image A + assign Name A (Title).
-   - **Option B (Right)**: Upload Image B + assign Name B (Title).
-   - Clean paired visual cards with instant preview and live 2/2 ready status.
+2. **Step 2: Music (Soundtrack & Volume)**:
+   - 14 AWS S3 curated BGM tracks with in-card audio auditioning (play/pause).
+   - Volume slider (Default: 12% subtle ducking) with presets (0%, 12%, 20%, 35%).
+   - Dynamic auto-ducking toggle (lowers music during voiceover speech).
+   - Versus sound effects (SFX) toggle (VS slam, whooshes, point hits, winner chime).
 
-4. **Step 3: Choose Character (Required)**:
-   - 100% Verified Cloudinary Assets (HTTP 200 OK across all poses):
-     - **3D Characters**: `3d-presenter-man` (3D Teacher Pro - 6 poses: welcome, left, right, thinking, warning, success).
-     - **2D Characters**: `2d-presenter-man` (2D Teacher Pro), `character-1` (Stickman Pro), `character-2` (Sketch Artist), `character-3` (Stickman Presenter), `character-4` (Doodle Explainer).
-   - *All missing 3D placeholders removed to ensure clean, bug-free dashboard display.*
+3. **Step 3: Style (Characters, Theme & Winner)**:
+   - Presenter Character Avatar:
+     - **3D Presenter Pro** (`3d-presenter-man`)
+     - **2D Teacher Pro** (`2d-presenter-man`)
+     - **Stickman Pro** (`character-1`)
+     - **Sketch Artist** (`character-2`)
+     - **Doodle Explainer** (`character-4`)
+   - Winner Crown Reveal: No Winner / Option A Wins 👑 / Option B Wins 👑.
+   - Comparison Tone: Versus Battle (Blue vs Purple) / Good vs Bad (Emerald vs Crimson).
+   - 32 master kinetic caption themes with live interactive word previews and search filter.
 
-5. **Step 4: Styling & Watermark (Optional)**:
-   - Background Theme: Light Studio / Dark Slate / Bold Contrast.
-   - Comparison Tone: Neutral A vs B / Good vs Bad.
-   - Winner Crown Reveal: No Crown / Option A Wins 👑 / Option B Wins 👑.
-   - Channel Watermark: Optional Instagram / Channel Handle tag (`@yourchannel`).
+4. **Step 4: Preview (9:16 Shorts & Review)**:
+   - 9:16 Vertical Shorts Live Monitor simulating split-screen layout, central VS badge, active side highlight, and bottom subtitle strip.
+   - Watermark remover toggle.
+   - Sticky bottom action bar with battle title, 9:16 format badge, 1 Credit flat cost, and "Create Compare Explainer" CTA.
 
 ---
 

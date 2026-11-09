@@ -218,6 +218,42 @@ The renderer applies LUT-like grade consistency, subtle grain/vignette, media de
 
 ---
 
+---
+
+## Modernized 4-Step Studio Architecture (Aligned with Unified Studio Standard)
+
+The Long Video Promo Studio (`components/dashboard/LongVideoPromoStudio.tsx`) adheres strictly to the unified 4-step stepper workflow established in `ImageToVideoStudio`:
+
+```mermaid
+graph TD
+    A[Step 1: Upload Teaser Clip & 16:9 Thumbnail] --> B[Step 2: Soundtrack & Audio Design]
+    B --> C[Step 3: 32 Kinetic Caption Styles & CTA Button]
+    C --> D[Step 4: Live 9:16 Simulator & Cloud Render]
+```
+
+### The 4 Interactive Steps:
+1. **Step 1: Upload Clip & Thumbnail (`Upload`)**:
+   - 16:9 Thumbnail Image: Direct upload (PNG/JPG/WebP) or YouTube URL paste with automatic MaxRes thumbnail extraction.
+   - Promo Teaser Video Clip: MP4, MOV, or WEBM up to 90s with duration detection and waveform player.
+   - Title Headline (up to 80 chars) and Creator Handle.
+   - Pricing notice: 1 Credit / Video (up to 90s).
+2. **Step 2: Music & Audio Design (`Music`)**:
+   - 14 AWS S3 background tracks with in-card audio auditioning.
+   - Ducked volume slider with default set to 12% (`0.12`).
+   - Viral SFX hook transitions toggle.
+   - Custom background music upload.
+3. **Step 3: Style & CTA Button (`Style`)**:
+   - 32 animated typography styles with category filtering and live animated word previews.
+   - Backdrop Theme: `Ambient Blur`, `Charcoal Solid`, or `White Studio`.
+   - Call-To-Action (CTA) Pill customizer: Button text, subtitle ("Link in bio"), and 4 color styles (`YouTube Red`, `Emerald Green`, `Obsidian Glass`, `TikTok Yellow`).
+4. **Step 4: Live Simulator & Cloud Render (`Preview`)**:
+   - Interactive 9:16 vertical phone mockup showing stacked 3D thumbnail card with "FULL VIDEO" badge, teaser video player with "PREVIEW" chip, animated up-arrow, and dynamic CTA button.
+   - Watermark toggle.
+   - Compulsory review gate confirmation checkbox.
+   - 1-click cloud render button.
+
+---
+
 ## Fast Render Pipeline
 
 This Video Type is simple and uses a deterministic fast path.

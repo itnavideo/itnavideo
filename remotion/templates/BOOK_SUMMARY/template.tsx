@@ -13,6 +13,8 @@ import {
 } from 'remotion';
 import { UniversalCaptionLayer, CaptionChunk } from '../../components/library/UniversalCaptionLayer';
 import { BookSummaryScene } from '../../../services/ai/bookSummaryPlanner';
+import { VideoVisualThemeProvider, useVideoVisualTheme } from '../../theme/VideoVisualTheme';
+import type { VideoVisualTheme } from '../../../services/design/visualDesignSystem';
 
 export interface BookSummaryTemplateProps {
   audioSrc?: string;
@@ -31,6 +33,7 @@ export interface BookSummaryTemplateProps {
   referenceImages?: string[];
   captionThemeId?: string;
   aspectRatio?: '16:9';
+  visualTheme?: string | Partial<VideoVisualTheme>;
 }
 
 // No laptop placeholder — BOOK_COVER falls back to a styled title-only card when no image is supplied
@@ -1034,7 +1037,7 @@ const ConclusionSceneCard: React.FC<{ scene: BookSummaryScene; fps: number }> = 
   );
 };
 
-export const BookSummaryTemplate: React.FC<BookSummaryTemplateProps> = ({
+const BookSummaryTemplateInner: React.FC<BookSummaryTemplateProps> = ({
   audioSrc,
   audioUrl,
   bgmSrc,
@@ -1156,6 +1159,14 @@ export const BookSummaryTemplate: React.FC<BookSummaryTemplateProps> = ({
         />
       )}
     </AbsoluteFill>
+  );
+};
+
+export const BookSummaryTemplate: React.FC<BookSummaryTemplateProps> = (props) => {
+  return (
+    <VideoVisualThemeProvider theme={props.visualTheme || 'editorial-minimal'}>
+      <BookSummaryTemplateInner {...props} />
+    </VideoVisualThemeProvider>
   );
 };
 

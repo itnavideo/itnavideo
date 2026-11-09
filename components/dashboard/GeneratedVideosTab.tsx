@@ -15,10 +15,12 @@ import {
   Share2,
   ExternalLink,
   Flame,
+  Smartphone,
 } from "lucide-react";
 
 interface RenderRecord {
   id: string;
+  title?: string;
   templateId?: string;
   templateName?: string;
   videoUrl?: string;

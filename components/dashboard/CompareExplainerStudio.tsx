@@ -18,6 +18,7 @@ import {
   X,
   FileText,
   Volume2,
+  VolumeX,
   Sliders,
   Layers,
   Zap,
@@ -27,6 +28,7 @@ import {
   Image as ImageIcon,
   CheckCheck,
   Edit3,
+  Save,
   Lock,
   ChevronLeft,
   ChevronRight,
@@ -35,25 +37,75 @@ import {
   Swords,
   Tag,
   Music,
+  ArrowRight,
+  Search,
+  Type,
+  User,
 } from "lucide-react";
-import { BorderBeam } from "@/components/magicui/BorderBeam";
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
+import {
+  AWS_BGM_TRACKS,
+  getBgmTrackAudioUrl,
+  THIRTY_TWO_CAPTION_STYLES,
+  renderPreviewCaptionWords,
+  type LibraryBgmTrack,
+} from "@/components/dashboard/ImageToVideoStudio";
 
-// Master AWS S3 Production Music Library (13+ Curated Tracks)
-export const AWS_COMPARE_BGM_TRACKS = [
-  { id: "parasail", label: "Calm Lofi (Recommended)", category: "Lo-Fi", path: "assets/reusable/music/parasail-silent-partner.mp3", desc: "Warm acoustic lofi guitar" },
-  { id: "19th-floor", label: "Deep Focus & Ambient", category: "Piano", path: "assets/reusable/music/19th-floor-bobby-richards.mp3", desc: "Inspiring subtle piano tone" },
-  { id: "dutty-vibe", label: "Optimistic Beat", category: "Upbeat", path: "assets/reusable/music/dutty-vibe-tracks.mp3", desc: "Gentle positive acoustic rhythm" },
-  { id: "book-rental", label: "Energetic Narrative", category: "Story", path: "assets/reusable/music/book-the-rental-wit-it-rage.mp3", desc: "Dynamic narrative flow" },
-  { id: "crimson-fly", label: "Cinematic Drama", category: "Cinematic", path: "assets/reusable/music/crimson-fly-huma-huma.mp3", desc: "Emotional documentary drive" },
-  { id: "crock-pot", label: "Funky Chill Groove", category: "Chill", path: "assets/reusable/music/crock-pot-diamond-ortiz.mp3", desc: "Playful lofi pulse" },
-  { id: "illusions", label: "Modern Swagger Beat", category: "Beats", path: "assets/reusable/music/illusions-anno-domini-beats.mp3", desc: "Modern high-production beat" },
-  { id: "not-for-nothing", label: "Lounge Instrumental", category: "Lounge", path: "assets/reusable/music/not-for-nothing-otis-mcdonald.mp3", desc: "Smooth brass & relaxed tempo" },
-  { id: "something-going", label: "Philosophical Mystery", category: "Deep", path: "assets/reusable/music/something-is-going-on-godmode.mp3", desc: "Pensive intrigue & discovery" },
-  { id: "bar-scene", label: "Acoustic Folk Narrative", category: "Acoustic", path: "assets/reusable/music/that-one-bar-scene-rkvc.mp3", desc: "Warm acoustic guitar storytelling" },
-  { id: "true-messiah", label: "Victorious Inspiration", category: "Epic", path: "assets/reusable/music/true-messiah-dj-freedem.mp3", desc: "Triumphant motivational melody" },
-  { id: "vishnu", label: "Zen Reflection", category: "Zen", path: "assets/reusable/music/vishnu-patrick-patrikios.mp3", desc: "Serene ambient meditation" },
-  { id: "what-it-is", label: "Smooth Motown", category: "Motown", path: "assets/reusable/music/what-it-is-silent-partner.mp3", desc: "Catchy positive baseline" },
-  { id: "none", label: "No Background Music", category: "Mute", path: "none", desc: "Pure spoken voiceover only" },
+export const COMPARE_STEPS = [
+  { step: 1, title: "Upload", desc: "Voiceover & 2 Subjects" },
+  { step: 2, title: "Music", desc: "Soundtrack & Volume" },
+  { step: 3, title: "Style", desc: "Characters & Theme" },
+  { step: 4, title: "Preview", desc: "9:16 Shorts & Review" },
+] as const;
+
+// 32 Sound Wave visualizer bars
+const WAVE_BARS = [
+  25, 45, 65, 30, 85, 95, 40, 70, 55, 80, 100, 60, 45, 90, 75, 35,
+  60, 85, 50, 95, 70, 40, 65, 80, 55, 90, 45, 70, 85, 35, 60, 40
+];
+
+// Curated Presenter Characters
+export const COMPARE_CHARACTERS = [
+  {
+    id: "3d-presenter-man",
+    name: "3D Presenter Pro",
+    category: "3D Avatar",
+    desc: "Photorealistic 3D educator with 6 animated poses",
+    badge: "Popular",
+    avatar: "/brand/itnavideo-logo-mark.png",
+  },
+  {
+    id: "2d-presenter-man",
+    name: "2D Teacher Pro",
+    category: "2D Flat",
+    desc: "Modern vector explainer teacher with clean gestures",
+    badge: "Clean",
+    avatar: "/brand/itnavideo-logo-mark.png",
+  },
+  {
+    id: "character-1",
+    name: "Stickman Pro",
+    category: "Stickman",
+    desc: "Viral sketch stickman with energetic reactions",
+    badge: "Viral",
+    avatar: "/brand/itnavideo-logo-mark.png",
+  },
+  {
+    id: "character-2",
+    name: "Sketch Artist",
+    category: "Hand-Drawn",
+    desc: "Handmade pencil doodle character with witty expressions",
+    badge: "Artistic",
+    avatar: "/brand/itnavideo-logo-mark.png",
+  },
+  {
+    id: "character-4",
+    name: "Doodle Explainer",
+    category: "Doodle",
+    desc: "Comic-style animated mascot with thumbs up",
+    badge: "Fun",
+    avatar: "/brand/itnavideo-logo-mark.png",
+  },
 ];
 
 export interface CompareExplainerStudioProps {
@@ -76,33 +128,36 @@ export interface CompareExplainerStudioProps {
   onHandleChange: (val: string) => void;
 
   // Visual Theme & Tone
-  compareTheme: string;
-  onThemeChange: (val: string) => void;
-  compareTone: string;
-  onToneChange: (val: string) => void;
-  compareWinner: string;
-  onWinnerChange: (val: string) => void;
-  stickerStyle: string;
-  onStickerStyleChange: (val: string) => void;
+  compareTheme?: string;
+  onThemeChange?: (val: string) => void;
+  compareTone?: string;
+  onToneChange?: (val: string) => void;
+  compareWinner?: string;
+  onWinnerChange?: (val: string) => void;
+  stickerStyle?: string;
+  onStickerStyleChange?: (val: string) => void;
 
   // Audio & BGM
-  bgmTrackId: string;
-  onBgmTrackIdChange: (trackId: string) => void;
-  bgmVolume: number;
-  onBgmVolumeChange: (vol: number) => void;
-  customBgmFile: File | null;
-  onCustomBgmFileSelect: (file: File | null) => void;
-  enableSfx: boolean;
-  onEnableSfxChange: (val: boolean) => void;
+  bgmTrackId?: string;
+  onBgmTrackIdChange?: (trackId: string) => void;
+  bgmVolume?: number;
+  onBgmVolumeChange?: (vol: number) => void;
+  customBgmFile?: File | null;
+  onCustomBgmFileSelect?: (file: File | null) => void;
+  enableSfx?: boolean;
+  onEnableSfxChange?: (val: boolean) => void;
 
   // Editorial Transcript
-  editorialTranscript: string;
-  onEditorialTranscriptChange: (text: string) => void;
+  editorialTranscript?: string;
+  onEditorialTranscriptChange?: (text: string) => void;
 
   // Actions
   onGenerate: () => void;
   isGenerating: boolean;
   renderedVideoUrl?: string;
+
+  removeAiWatermark?: boolean;
+  onRemoveAiWatermarkChange?: (enabled: boolean) => void;
 }
 
 export function CompareExplainerStudio({
@@ -110,13 +165,13 @@ export function CompareExplainerStudio({
   onComparisonFilesChange,
   selectedFile,
   onSelectFile,
-  compareLeftTitle,
+  compareLeftTitle = "Option A",
   onLeftTitleChange,
-  compareRightTitle,
+  compareRightTitle = "Option B",
   onRightTitleChange,
-  topicTitle,
+  topicTitle = "HEAD TO HEAD COMPARISON",
   onTopicTitleChange,
-  compareHandle,
+  compareHandle = "@itnavideo",
   onHandleChange,
   compareTheme = "white",
   onThemeChange,
@@ -134,34 +189,54 @@ export function CompareExplainerStudio({
   onCustomBgmFileSelect,
   enableSfx = true,
   onEnableSfxChange,
-  editorialTranscript,
+  editorialTranscript = "In this breakdown, we compare both options side by side so you can pick the clear winner.",
   onEditorialTranscriptChange,
   onGenerate,
   isGenerating,
   renderedVideoUrl,
+  removeAiWatermark = true,
+  onRemoveAiWatermarkChange,
 }: CompareExplainerStudioProps) {
-  // Navigation Tabs: 'media' | 'topics' | 'audio' | 'preview'
-  const [activeTab, setActiveTab] = useState<"media" | "topics" | "audio" | "preview">("media");
+  // ── 4-Step Guided Video Studio State ──
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
 
-  // Audio audition state
+  // Audio duration & playback
+  const [audioDurationSec, setAudioDurationSec] = useState<number>(30);
+  const [audioCurrentTime, setAudioCurrentTime] = useState<number>(0);
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
+  const [isAudioMuted, setIsAudioMuted] = useState<boolean>(false);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string>("");
+
+  // BGM audition state
+  const [activeBgmVolume, setActiveBgmVolume] = useState<number>(Math.round(bgmVolume * 100) || 12);
+  const [selectedBgmTrack, setSelectedBgmTrack] = useState<string>(bgmTrackId || "parasail");
   const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
-  const audioAuditionRef = useRef<HTMLAudioElement | null>(null);
+  const [autoDucking, setAutoDucking] = useState<boolean>(true);
 
-  // Compulsory Preview Gate
-  const [previewConfirmed, setPreviewConfirmed] = useState<boolean>(false);
+  // Captions
+  const [selectedCaptionStyle, setSelectedCaptionStyle] = useState<string>("glow-viral");
+  const [captionFilter, setCaptionFilter] = useState<string>("all");
+  const [captionSearchQuery, setCaptionSearchQuery] = useState<string>("");
 
-  // Interactive Live Player Simulator State
+  // Simulator Preview State
   const [isPlayingPreview, setIsPlayingPreview] = useState<boolean>(false);
   const [previewProgress, setPreviewProgress] = useState<number>(0);
   const [activeSide, setActiveSide] = useState<"left" | "right" | "both">("both");
 
-  // Drag and drop inputs
+  // Transcript editing
+  const [localTranscript, setLocalTranscript] = useState(editorialTranscript);
+  const [isEditingTranscript, setIsEditingTranscript] = useState(false);
+  const [transcriptSavedFeedback, setTranscriptSavedFeedback] = useState(false);
+
+  // Input refs
   const leftImageInputRef = useRef<HTMLInputElement | null>(null);
   const rightImageInputRef = useRef<HTMLInputElement | null>(null);
   const audioInputRef = useRef<HTMLInputElement | null>(null);
   const customBgmInputRef = useRef<HTMLInputElement | null>(null);
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
+  const bgmPreviewAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Preview URLs for images
+  // Object URLs for uploaded images
   const leftImageUrl = useMemo(() => {
     if (comparisonFiles[0]) return URL.createObjectURL(comparisonFiles[0]);
     return null;
@@ -172,7 +247,6 @@ export function CompareExplainerStudio({
     return null;
   }, [comparisonFiles[1]]);
 
-  // Clean up Object URLs on unmount/change
   useEffect(() => {
     return () => {
       if (leftImageUrl) URL.revokeObjectURL(leftImageUrl);
@@ -180,57 +254,103 @@ export function CompareExplainerStudio({
     };
   }, [leftImageUrl, rightImageUrl]);
 
-  // Audio Audition Toggle
-  const togglePlayAudio = (trackId: string, trackPath: string) => {
-    if (trackPath === "none") {
-      if (audioAuditionRef.current) {
-        audioAuditionRef.current.pause();
-        audioAuditionRef.current = null;
-      }
-      setPlayingTrackId(null);
+  // Sync selected voiceover audio
+  useEffect(() => {
+    if (!selectedFile) {
+      setAudioPreviewUrl("");
+      setAudioDurationSec(30);
       return;
     }
+    const url = URL.createObjectURL(selectedFile);
+    setAudioPreviewUrl(url);
 
-    if (playingTrackId === trackId) {
-      if (audioAuditionRef.current) {
-        audioAuditionRef.current.pause();
-      }
-      setPlayingTrackId(null);
-      return;
-    }
-
-    if (audioAuditionRef.current) {
-      audioAuditionRef.current.pause();
-    }
-
-    const audioUrl = `https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/${trackPath}`;
-    const newAudio = new Audio(audioUrl);
-    newAudio.volume = bgmVolume;
-    newAudio.play().catch(() => {});
-    audioAuditionRef.current = newAudio;
-    setPlayingTrackId(trackId);
-
-    newAudio.onended = () => {
-      setPlayingTrackId(null);
+    const el = document.createElement("audio");
+    el.src = url;
+    el.preload = "metadata";
+    el.onloadedmetadata = () => {
+      const dur = Math.min(90, Math.round(el.duration || 30));
+      setAudioDurationSec(dur);
     };
+
+    return () => URL.revokeObjectURL(url);
+  }, [selectedFile]);
+
+  // Sync audio player time
+  useEffect(() => {
+    const el = audioPlayerRef.current;
+    if (!el) return;
+    const onTimeUpdate = () => setAudioCurrentTime(el.currentTime);
+    const onEnded = () => {
+      setIsPlayingAudio(false);
+      setAudioCurrentTime(0);
+    };
+    el.addEventListener("timeupdate", onTimeUpdate);
+    el.addEventListener("ended", onEnded);
+    return () => {
+      el.removeEventListener("timeupdate", onTimeUpdate);
+      el.removeEventListener("ended", onEnded);
+    };
+  }, [audioPreviewUrl]);
+
+  // Play / Pause voiceover
+  const togglePlayAudio = () => {
+    if (!audioPlayerRef.current) return;
+    if (isPlayingAudio) {
+      audioPlayerRef.current.pause();
+      setIsPlayingAudio(false);
+    } else {
+      audioPlayerRef.current
+        .play()
+        .then(() => setIsPlayingAudio(true))
+        .catch(() => { });
+    }
   };
 
-  useEffect(() => {
-    return () => {
-      if (audioAuditionRef.current) {
-        audioAuditionRef.current.pause();
-        audioAuditionRef.current = null;
-      }
-    };
-  }, []);
+  const toggleMuteAudio = () => {
+    if (!audioPlayerRef.current) return;
+    audioPlayerRef.current.muted = !isAudioMuted;
+    setIsAudioMuted(!isAudioMuted);
+  };
 
-  useEffect(() => {
-    if (audioAuditionRef.current) {
-      audioAuditionRef.current.volume = bgmVolume;
+  // Preview BGM track
+  const togglePlayBgmTrack = (track: LibraryBgmTrack) => {
+    if (track.id === "none") {
+      if (bgmPreviewAudioRef.current) bgmPreviewAudioRef.current.pause();
+      setPlayingTrackId(null);
+      return;
     }
-  }, [bgmVolume]);
+    const audioUrl = getBgmTrackAudioUrl(track);
+    if (playingTrackId === track.id) {
+      if (bgmPreviewAudioRef.current) bgmPreviewAudioRef.current.pause();
+      setPlayingTrackId(null);
+    } else {
+      if (bgmPreviewAudioRef.current) {
+        bgmPreviewAudioRef.current.pause();
+        bgmPreviewAudioRef.current.src = audioUrl;
+        bgmPreviewAudioRef.current.volume = Math.max(0.05, activeBgmVolume / 100);
+        bgmPreviewAudioRef.current
+          .play()
+          .then(() => setPlayingTrackId(track.id))
+          .catch(() => setPlayingTrackId(null));
+      }
+    }
+  };
 
-  // Interactive Live Player Simulator Timer
+  // Pre-fill sample comparison concepts
+  const handleLoadSampleConcept = (concept: {
+    topic: string;
+    left: string;
+    right: string;
+    transcript: string;
+  }) => {
+    onTopicTitleChange(concept.topic);
+    onLeftTitleChange(concept.left);
+    onRightTitleChange(concept.right);
+    setLocalTranscript(concept.transcript);
+    onEditorialTranscriptChange?.(concept.transcript);
+  };
+
+  // Simulator Progress Timer
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (isPlayingPreview) {
@@ -240,7 +360,11 @@ export function CompareExplainerStudio({
             setIsPlayingPreview(false);
             return 0;
           }
-          return prev + 1.5;
+          const next = prev + 2;
+          if (next < 45) setActiveSide("left");
+          else if (next < 90) setActiveSide("right");
+          else setActiveSide("both");
+          return next;
         });
       }, 100);
     }
@@ -249,201 +373,149 @@ export function CompareExplainerStudio({
     };
   }, [isPlayingPreview]);
 
-  // Alternate active side in live player
-  useEffect(() => {
-    if (previewProgress < 30) {
-      setActiveSide("both");
-    } else if (previewProgress < 65) {
-      setActiveSide("left");
-    } else {
-      setActiveSide("right");
-    }
-  }, [previewProgress]);
+  // Filter 32 caption styles
+  const filteredCaptionStyles = THIRTY_TWO_CAPTION_STYLES.filter((s) => {
+    const matchesCategory = captionFilter === "all" || s.category.toLowerCase() === captionFilter.toLowerCase();
+    const matchesSearch =
+      !captionSearchQuery.trim() ||
+      s.name.toLowerCase().includes(captionSearchQuery.toLowerCase()) ||
+      s.desc.toLowerCase().includes(captionSearchQuery.toLowerCase()) ||
+      s.badge.toLowerCase().includes(captionSearchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
-  // Words from editorial transcript for live preview subtitle
-  const transcriptWords = useMemo(() => {
-    const raw = editorialTranscript.trim();
-    if (!raw) {
-      return ["Which", "option", "wins?", "Let's", "break", "down", "the", "comparison"];
-    }
-    return raw.split(/\s+/).slice(0, 16);
-  }, [editorialTranscript]);
-
-  const activeCaptionWordIndex = useMemo(() => {
-    if (transcriptWords.length === 0) return 0;
-    const wordStep = 100 / transcriptWords.length;
-    return Math.min(
-      transcriptWords.length - 1,
-      Math.floor(previewProgress / wordStep)
-    );
-  }, [previewProgress, transcriptWords.length]);
-
-  const handleSetLeftFile = (file: File | null) => {
-    if (!file) {
-      onComparisonFilesChange(comparisonFiles[1] ? [comparisonFiles[1]] : []);
-      return;
-    }
-    const right = comparisonFiles[1] || null;
-    onComparisonFilesChange(right ? [file, right] : [file]);
+  const formatSec = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
-
-  const handleSetRightFile = (file: File | null) => {
-    if (!file) {
-      onComparisonFilesChange(comparisonFiles[0] ? [comparisonFiles[0]] : []);
-      return;
-    }
-    const left = comparisonFiles[0] || null;
-    if (left) {
-      onComparisonFilesChange([left, file]);
-    } else {
-      onComparisonFilesChange([file]);
-    }
-  };
-
-  const isReadyToRender =
-    Boolean(selectedFile) &&
-    comparisonFiles.length === 2 &&
-    compareLeftTitle.trim().length > 0 &&
-    compareRightTitle.trim().length > 0 &&
-    previewConfirmed &&
-    !isGenerating;
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6">
-      {/* Top Banner: Crisp White Aesthetic */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="flex-1 w-full flex flex-col overflow-hidden bg-white">
+      {/* Hidden Audio Elements */}
+      <audio
+        ref={audioPlayerRef}
+        src={audioPreviewUrl}
+        preload="metadata"
+        onEnded={() => setIsPlayingAudio(false)}
+      />
+      <audio
+        ref={bgmPreviewAudioRef}
+        preload="auto"
+        onEnded={() => setPlayingTrackId(null)}
+      />
+
+      {/* ── ROW 1: Studio Header & 4-Step Stepper (Consistent with Image to Video AI) ── */}
+      <div className="shrink-0 border-b border-slate-200/90 bg-white px-4 sm:px-8 lg:px-12 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 shrink-0">
+            <Swords size={20} className="stroke-[2.5]" />
+          </div>
           <div>
-            <div className="flex items-center gap-2.5 mb-1.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-[#0066FF] border border-blue-200">
-                <Swords className="w-3.5 h-3.5" />
-                9:16 Vertical • Side-by-Side Versus
-              </span>
-              <span className="text-xs text-slate-500 font-medium">
-                Max 90s • 1 Flat Credit
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                Compare Explainer AI
+              </h1>
+              <span className="inline-flex items-center gap-1 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-orange-600">
+                9:16 Vertical Shorts
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Compare Explainer Studio
-            </h1>
-            <p className="text-sm text-slate-600 mt-1 max-w-2xl">
-              Upload your voiceover narration, 2 versus images, and topic titles. AI animates split-screen focus, animated presenter stickman, and the final winner reveal.
+            <p className="text-xs text-slate-500 line-clamp-1">
+              Create high-retention head-to-head versus showdowns with presenter avatar reactions and dynamic score counters.
             </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                setActiveTab("preview");
-                setIsPlayingPreview(true);
-              }}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-medium transition"
-            >
-              <Eye className="w-4 h-4 text-[#0066FF]" />
-              Live Preview
-            </button>
-
-            <button
-              onClick={onGenerate}
-              disabled={!isReadyToRender}
-              className={`relative inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm ${
-                isReadyToRender
-                  ? "bg-[#0066FF] hover:bg-[#0052CC] text-white cursor-pointer"
-                  : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
-              }`}
-            >
-              {isReadyToRender && (
-                <BorderBeam size={80} duration={4} colorFrom="#0066FF" colorTo="#2563EB" />
-              )}
-              {isGenerating ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                  Rendering Cloud Video...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  Render Cloud Video (1 Credit)
-                </>
-              )}
-            </button>
           </div>
         </div>
 
-        {/* Studio Sub-Navigation Tabs */}
-        <div className="flex items-center gap-2 mt-6 border-b border-slate-100 pb-2">
-          {[
-            { id: "media", label: "1. Media & Voiceover", icon: Layers, badge: selectedFile && comparisonFiles.length === 2 ? "Ready" : undefined },
-            { id: "topics", label: "2. Titles & Winner", icon: Trophy, badge: compareLeftTitle && compareRightTitle ? "Set" : undefined },
-            { id: "audio", label: "3. Audio & SFX (12% BGM)", icon: Music, badge: `${Math.round(bgmVolume * 100)}%` },
-            { id: "preview", label: "4. Editorial & Preview", icon: Eye, badge: previewConfirmed ? "Confirmed" : "Compulsory" },
-          ].map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
+        {/* 4-Step Interactive Stepper */}
+        <div className="flex items-center gap-1.5 sm:gap-2 self-start md:self-center bg-slate-50 border border-slate-200/90 rounded-2xl p-1.5 shadow-2xs">
+          {COMPARE_STEPS.map((s) => {
+            const isActive = currentStep === s.step;
+            const isCompleted = currentStep > s.step;
+
             return (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition ${
-                  isActive
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                }`}
+                key={s.step}
+                type="button"
+                onClick={() => setCurrentStep(s.step as 1 | 2 | 3 | 4)}
+                className={`flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${isActive
+                    ? "bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20"
+                    : isCompleted
+                      ? "text-slate-800 hover:text-slate-900 hover:bg-white/60"
+                      : "text-slate-400 hover:text-slate-600"
+                  }`}
               >
-                <Icon className="w-3.5 h-3.5" />
-                {tab.label}
-                {tab.badge && (
-                  <span
-                    className={`ml-1 px-1.5 py-0.5 rounded text-[10px] ${
-                      isActive
-                        ? "bg-slate-800 text-blue-300"
-                        : "bg-slate-100 text-slate-500"
+                <div
+                  className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-black transition-colors ${isActive
+                      ? "bg-orange-500 text-white"
+                      : isCompleted
+                        ? "bg-emerald-500 text-white"
+                        : "bg-slate-200 text-slate-600"
                     }`}
-                  >
-                    {tab.badge}
-                  </span>
-                )}
+                >
+                  {isCompleted ? <Check size={11} className="stroke-[3]" /> : s.step}
+                </div>
+                <div className="text-left hidden sm:block">
+                  <span className="block leading-none">{s.title}</span>
+                </div>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Main Studio Work Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Interactive Controls */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* TAB 1: MEDIA & VOICEOVER */}
-          {activeTab === "media" && (
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-6">
-              {/* Voiceover Upload */}
-              <div className="border border-slate-200 rounded-xl p-5 bg-slate-50/50">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center text-[#0066FF] font-bold text-xs">
-                      <Volume2 className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900">
-                        Speech Voiceover Narration
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        MP3, WAV, or MP4 speech audio driving split-screen timing
-                      </p>
-                    </div>
+      {/* ── ROW 2: Scrollable Studio Workspace ── */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-6">
+        <div className="max-w-6xl mx-auto space-y-6">
+
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 1: UPLOAD (Voiceover, Dual Subjects & Transcript)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 1 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              {/* Concept Presets Bar */}
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <span className="text-xs font-bold text-slate-500 shrink-0">Popular Versus Concepts:</span>
+                {[
+                  { topic: "SMARTPHONE BATTLE", left: "iPhone 16 Pro", right: "Galaxy S24 Ultra", transcript: "In this flagship battle, we compare camera quality, battery life, and AI features to see which device reigns supreme." },
+                  { topic: "JAVASCRIPT SHOWDOWN", left: "React 19", right: "Vue 3", transcript: "React versus Vue: which frontend framework delivers faster development speed and cleaner component architecture?" },
+                  { topic: "HABIT TRANSFORMATION", left: "Daily Exercise", right: "Sedentary Routine", transcript: "Comparing 30 minutes of daily movement against a sedentary lifestyle over 12 months reveals shocking health compounding." },
+                ].map((c) => (
+                  <button
+                    key={c.topic}
+                    type="button"
+                    onClick={() => handleLoadSampleConcept(c)}
+                    className="text-xs font-bold px-3 py-1 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition cursor-pointer shrink-0"
+                  >
+                    {c.left} vs {c.right}
+                  </button>
+                ))}
+              </div>
+
+              {/* Voiceover Upload Zone */}
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                      <Volume2 size={20} className="text-orange-500" />
+                      <span>Narration Voiceover Audio</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
+                        Required • Up to 90s (1 Credit)
+                      </span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Upload your spoken comparison narration. Groq Whisper will sync split-screen timing and presenter reactions.
+                    </p>
                   </div>
-                  {selectedFile && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                      <Check className="w-3.5 h-3.5" />
-                      Loaded
-                    </span>
-                  )}
+
+                  <span className="text-xs font-bold text-slate-400 font-mono">
+                    Max: 01:30 (90s)
+                  </span>
                 </div>
 
                 <input
-                  type="file"
                   ref={audioInputRef}
-                  accept="audio/*,video/*"
+                  type="file"
+                  accept="audio/*,video/mp4"
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
@@ -452,434 +524,668 @@ export function CompareExplainerStudio({
                   }}
                 />
 
-                {selectedFile ? (
-                  <div className="relative flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-[#0066FF]">
-                        <Volume2 className="w-5 h-5" />
+                {!selectedFile ? (
+                  <button
+                    type="button"
+                    onClick={() => audioInputRef.current?.click()}
+                    className="w-full py-10 border-2 border-dashed border-slate-200 hover:border-orange-500 rounded-3xl bg-slate-50/60 hover:bg-orange-50/20 transition-all flex flex-col items-center justify-center gap-3 cursor-pointer group"
+                  >
+                    <div className="h-12 w-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-orange-500 group-hover:scale-105 transition-transform shadow-xs">
+                      <UploadCloud size={24} />
+                    </div>
+                    <div className="text-center px-4">
+                      <p className="text-sm font-bold text-slate-800">
+                        Click to Upload Narration Audio
+                      </p>
+                      <p className="text-xs text-slate-400 mt-1">
+                        MP3, WAV, M4A, or MP4 • Flat 1 Credit Cost
+                      </p>
+                    </div>
+                  </button>
+                ) : (
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-11 w-11 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 shrink-0">
+                          <CheckCircle2 size={20} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-black text-slate-900 truncate">
+                            {selectedFile.name}
+                          </p>
+                          <div className="flex items-center gap-2 mt-0.5 text-xs">
+                            <span className="font-mono font-bold text-slate-700">
+                              {formatSec(audioDurationSec)} / 01:30 Max
+                            </span>
+                            <span className="text-slate-300">•</span>
+                            <span className="font-bold text-orange-600">
+                              1 Credit Flat
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-800 line-clamp-1">
-                          {selectedFile.name}
-                        </p>
-                        <p className="text-xs text-slate-500">
-                          {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • Ready for Groq cloud alignment
-                        </p>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => audioInputRef.current?.click()}
+                          className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer flex items-center gap-1.5"
+                        >
+                          <RefreshCw size={12} />
+                          <span>Replace</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onSelectFile(null)}
+                          className="p-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer"
+                        >
+                          <Trash2 size={15} />
+                        </button>
                       </div>
                     </div>
-                    <button
-                      onClick={() => onSelectFile(null)}
-                      className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition"
-                      title="Remove file"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => audioInputRef.current?.click()}
-                    className="border-2 border-dashed border-slate-300 hover:border-orange-400 bg-white rounded-xl p-6 text-center cursor-pointer transition"
-                  >
-                    <UploadCloud className="w-8 h-8 text-[#0066FF] mx-auto mb-2" />
-                    <p className="text-sm font-semibold text-slate-800">
-                      Upload Narration Audio or Video
-                    </p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      MP3, WAV, M4A, or MP4 up to 90 seconds. Click to browse.
-                    </p>
+
+                    {/* Waveform Player */}
+                    <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+                      <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
+                        <div className="flex items-center gap-2 font-bold text-slate-800">
+                          <button
+                            type="button"
+                            onClick={togglePlayAudio}
+                            className="h-8 w-8 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition cursor-pointer"
+                          >
+                            {isPlayingAudio ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={toggleMuteAudio}
+                            className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
+                          >
+                            {isAudioMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                          </button>
+                          <span>{formatSec(audioCurrentTime)}</span>
+                        </div>
+                        <span>{formatSec(audioDurationSec)}</span>
+                      </div>
+
+                      <div className="flex items-end gap-1 h-10 w-full pt-1">
+                        {WAVE_BARS.map((height, i) => {
+                          const barProgress = i / WAVE_BARS.length;
+                          const currentProgress = audioDurationSec > 0 ? audioCurrentTime / audioDurationSec : 0;
+                          const isPlayed = barProgress <= currentProgress;
+
+                          return (
+                            <div
+                              key={i}
+                              className={`flex-1 rounded-full transition-all duration-150 ${isPlayed ? "bg-orange-500" : "bg-slate-200"
+                                }`}
+                              style={{ height: `${height}%` }}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Dual Compare Images Upload */}
-              <div className="border border-slate-200 rounded-xl p-5 bg-slate-50/50">
-                <div className="flex items-center justify-between mb-4">
+              {/* Dual Subject Comparison Visuals */}
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center text-[#0066FF] font-bold text-xs">
-                      <Columns className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900">
-                        Side-by-Side Visuals (Left vs Right)
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        Upload 2 product screenshots, logos, or portrait photos
-                      </p>
-                    </div>
+                    <Columns size={18} className="text-orange-500" />
+                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                      Dual Subject Visuals (Left vs Right)
+                    </h3>
                   </div>
-                  <span className="text-xs font-bold text-slate-600 px-2.5 py-1 bg-white border border-slate-200 rounded-lg">
-                    {comparisonFiles.length}/2 Images
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
+                    Required (2 Visuals)
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Left Image Slot */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                      Left Visual (Option A)
-                    </label>
-                    <input
-                      type="file"
-                      ref={leftImageInputRef}
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          handleSetLeftFile(e.target.files[0]);
-                        }
-                      }}
-                    />
-                    {leftImageUrl ? (
-                      <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-white aspect-[4/3] group">
-                        <img
-                          src={leftImageUrl}
-                          alt="Left Option"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-between p-3">
-                          <span className="text-xs font-bold text-white bg-slate-900/80 px-2 py-0.5 rounded">
-                            Left Side
-                          </span>
-                          <button
-                            onClick={() => handleSetLeftFile(null)}
-                            className="p-1.5 rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        onClick={() => leftImageInputRef.current?.click()}
-                        className="border-2 border-dashed border-slate-300 hover:border-orange-400 bg-white rounded-xl aspect-[4/3] flex flex-col items-center justify-center p-4 text-center cursor-pointer transition"
-                      >
-                        <Plus className="w-6 h-6 text-[#0066FF] mb-1" />
-                        <p className="text-xs font-semibold text-slate-700">Upload Left Image</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WEBP</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Image Slot */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                      Right Visual (Option B)
-                    </label>
-                    <input
-                      type="file"
-                      ref={rightImageInputRef}
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          handleSetRightFile(e.target.files[0]);
-                        }
-                      }}
-                    />
-                    {rightImageUrl ? (
-                      <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-white aspect-[4/3] group">
-                        <img
-                          src={rightImageUrl}
-                          alt="Right Option"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-between p-3">
-                          <span className="text-xs font-bold text-white bg-slate-900/80 px-2 py-0.5 rounded">
-                            Right Side
-                          </span>
-                          <button
-                            onClick={() => handleSetRightFile(null)}
-                            className="p-1.5 rounded-lg bg-rose-500 text-white hover:bg-rose-600 transition"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        onClick={() => rightImageInputRef.current?.click()}
-                        className="border-2 border-dashed border-slate-300 hover:border-orange-400 bg-white rounded-xl aspect-[4/3] flex flex-col items-center justify-center p-4 text-center cursor-pointer transition"
-                      >
-                        <Plus className="w-6 h-6 text-[#0066FF] mb-1" />
-                        <p className="text-xs font-semibold text-slate-700">Upload Right Image</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WEBP</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: TITLES, WINNER & THEME */}
-          {activeTab === "topics" && (
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-6">
-              {/* Left & Right Titles */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Left Title / Option A
-                  </label>
-                  <input
-                    type="text"
-                    value={compareLeftTitle}
-                    onChange={(e) => onLeftTitleChange(e.target.value)}
-                    placeholder="e.g. iPhone 16 Pro"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Right Title / Option B
-                  </label>
-                  <input
-                    type="text"
-                    value={compareRightTitle}
-                    onChange={(e) => onRightTitleChange(e.target.value)}
-                    placeholder="e.g. Galaxy S24 Ultra"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition"
-                  />
-                </div>
-              </div>
-
-              {/* Topic Headline & Handle */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Topic Headline
-                  </label>
-                  <input
-                    type="text"
-                    value={topicTitle}
-                    onChange={(e) => onTopicTitleChange(e.target.value)}
-                    placeholder="e.g. ULTIMATE FLAGSHIP BATTLE"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Creator Watermark Handle
-                  </label>
-                  <input
-                    type="text"
-                    value={compareHandle}
-                    onChange={(e) => onHandleChange(e.target.value)}
-                    placeholder="e.g. @tech_reviewer"
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition"
-                  />
-                </div>
-              </div>
-
-              {/* Winner Selection & Tone */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Comparison Tone
-                  </label>
-                  <select
-                    value={compareTone}
-                    onChange={(e) => onToneChange?.(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition"
-                  >
-                    <option value="versus">Standard Versus (Blue vs Purple)</option>
-                    <option value="goodBad">Good vs Bad (Green vs Red)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Winner Reveal Crown
-                  </label>
-                  <select
-                    value={compareWinner}
-                    onChange={(e) => onWinnerChange?.(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] transition"
-                  >
-                    <option value="none">No Winner (Neutral Comparison)</option>
-                    <option value="left">Left Side Wins (Crown Left)</option>
-                    <option value="right">Right Side Wins (Crown Right)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Canvas Theme Selection: White Theme Option */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  Canvas Background Theme
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { id: "white", name: "Solid Clean White", desc: "Crisp white studio background" },
-                    { id: "light", name: "Light Studio Gradient", desc: "Soft subtle blue tint" },
-                    { id: "dark", name: "Dark Modern Slate", desc: "Deep cinematic contrast" },
-                  ].map((t) => (
-                    <div
-                      key={t.id}
-                      onClick={() => onThemeChange?.(t.id)}
-                      className={`p-3 rounded-xl border cursor-pointer transition ${
-                        compareTheme === t.id
-                          ? "border-[#0066FF] bg-blue-50/40 ring-2 ring-orange-500/20"
-                          : "border-slate-200 hover:border-slate-300 bg-white"
-                      }`}
-                    >
-                      <p className="text-xs font-bold text-slate-800">{t.name}</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">{t.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: AUDIO & SFX (12% DEFAULT BGM) */}
-          {activeTab === "audio" && (
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-6">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">
-                  Audio & Sound Design
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Studio ducking ensures voiceover speech stays crystal clear above background music
-                </p>
-              </div>
-
-              {/* Volume Slider: Default 12% */}
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Volume2 className="w-4 h-4 text-[#0066FF]" />
-                    <span className="text-xs font-bold text-slate-800">
-                      Background Music Volume (Default: 12%)
-                    </span>
-                  </div>
-                  <span className="text-xs font-bold text-[#0066FF] bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                    {Math.round(bgmVolume * 100)}%
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="0.4"
-                  step="0.01"
-                  value={bgmVolume}
-                  onChange={(e) => onBgmVolumeChange(parseFloat(e.target.value))}
-                  className="w-full accent-orange-500 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                  <span>Mute (0%)</span>
-                  <span className="font-semibold text-slate-600">Standard Voiceover Duck (12%)</span>
-                  <span>Loud (40%)</span>
-                </div>
-              </div>
-
-              {/* SFX Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-                <div className="flex items-center gap-2.5">
-                  <Zap className="w-4 h-4 text-[#0066FF]" />
-                  <div>
-                    <p className="text-xs font-bold text-slate-800">
-                      Versus Motion Sound Effects (SFX)
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      Punchy whooshes, versus badge slam, and winner victory chime
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => onEnableSfxChange(!enableSfx)}
-                  className={`w-11 h-6 flex items-center rounded-full p-1 transition cursor-pointer ${
-                    enableSfx ? "bg-[#0066FF] justify-end" : "bg-slate-300 justify-start"
-                  }`}
-                >
-                  <div className="w-4 h-4 rounded-full bg-white shadow-xs" />
-                </button>
-              </div>
-
-              {/* Custom BGM Upload */}
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
                 <input
                   type="file"
-                  ref={customBgmInputRef}
-                  accept="audio/mp3,audio/wav,audio/m4a"
+                  ref={leftImageInputRef}
+                  accept="image/*"
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files && e.target.files[0]) {
-                      onCustomBgmFileSelect(e.target.files[0]);
-                      onBgmTrackIdChange("custom");
+                      const next = [...comparisonFiles];
+                      next[0] = e.target.files[0];
+                      onComparisonFilesChange(next);
                     }
                   }}
                 />
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold text-slate-800">
-                      Upload Custom Background Track
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {customBgmFile
-                        ? `Loaded: ${customBgmFile.name}`
-                        : "Upload your own MP3/WAV background music"}
-                    </p>
+
+                <input
+                  type="file"
+                  ref={rightImageInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const next = [...comparisonFiles];
+                      next[1] = e.target.files[0];
+                      onComparisonFilesChange(next);
+                    }
+                  }}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Left Subject Card */}
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase text-blue-600">Option A (Left Side)</span>
+                      {leftImageUrl && <CheckCircle2 size={16} className="text-emerald-500" />}
+                    </div>
+
+                    <div
+                      onClick={() => leftImageInputRef.current?.click()}
+                      className="aspect-video sm:aspect-square w-full rounded-xl overflow-hidden border-2 border-dashed border-slate-300 hover:border-orange-500 bg-white flex flex-col items-center justify-center p-3 text-center cursor-pointer transition relative group"
+                    >
+                      {leftImageUrl ? (
+                        <>
+                          <img src={leftImageUrl} alt="Option A" className="w-full h-full object-contain" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
+                            Click to Replace
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={24} className="text-orange-500 mb-1" />
+                          <p className="text-xs font-bold text-slate-800">Upload Left Image</p>
+                          <p className="text-[10px] text-slate-400">PNG, JPG, WEBP</p>
+                        </>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Option A Title / Name</label>
+                      <input
+                        type="text"
+                        value={compareLeftTitle}
+                        onChange={(e) => onLeftTitleChange(e.target.value)}
+                        placeholder="e.g. iPhone 16 Pro"
+                        className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-900 focus:border-orange-500 focus:outline-none transition shadow-2xs"
+                      />
+                    </div>
                   </div>
-                  <button
-                    onClick={() => customBgmInputRef.current?.click()}
-                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-xs font-semibold text-slate-700 transition"
-                  >
-                    {customBgmFile ? "Replace File" : "Upload MP3"}
-                  </button>
+
+                  {/* Right Subject Card */}
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase text-purple-600">Option B (Right Side)</span>
+                      {rightImageUrl && <CheckCircle2 size={16} className="text-emerald-500" />}
+                    </div>
+
+                    <div
+                      onClick={() => rightImageInputRef.current?.click()}
+                      className="aspect-video sm:aspect-square w-full rounded-xl overflow-hidden border-2 border-dashed border-slate-300 hover:border-orange-500 bg-white flex flex-col items-center justify-center p-3 text-center cursor-pointer transition relative group"
+                    >
+                      {rightImageUrl ? (
+                        <>
+                          <img src={rightImageUrl} alt="Option B" className="w-full h-full object-contain" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold">
+                            Click to Replace
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Plus size={24} className="text-orange-500 mb-1" />
+                          <p className="text-xs font-bold text-slate-800">Upload Right Image</p>
+                          <p className="text-[10px] text-slate-400">PNG, JPG, WEBP</p>
+                        </>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Option B Title / Name</label>
+                      <input
+                        type="text"
+                        value={compareRightTitle}
+                        onChange={(e) => onRightTitleChange(e.target.value)}
+                        placeholder="e.g. Galaxy S24 Ultra"
+                        className="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-900 focus:border-orange-500 focus:outline-none transition shadow-2xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Topic Headline & Watermark */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Topic Headline (Top Header)</label>
+                    <input
+                      type="text"
+                      value={topicTitle}
+                      onChange={(e) => onTopicTitleChange(e.target.value)}
+                      placeholder="e.g. ULTIMATE FLAGSHIP BATTLE"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Creator Watermark Handle</label>
+                    <input
+                      type="text"
+                      value={compareHandle}
+                      onChange={(e) => onHandleChange(e.target.value)}
+                      placeholder="e.g. @yourchannel"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* AWS S3 Music Catalog */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  AWS S3 Studio Background Tracks (13+ Curated Tracks)
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[280px] overflow-y-auto pr-1">
-                  {AWS_COMPARE_BGM_TRACKS.map((track) => {
-                    const isSelected = bgmTrackId === track.id;
-                    const isPlaying = playingTrackId === track.id;
+              {/* Editable Spoken Narration Transcript */}
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <FileText size={18} className="text-orange-500" />
+                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                      Spoken Comparison Script
+                    </h3>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingTranscript(!isEditingTranscript)}
+                      className="text-xs font-bold text-orange-600 hover:text-orange-700 transition cursor-pointer"
+                    >
+                      {isEditingTranscript ? "Done Editing" : "Edit Transcript"}
+                    </button>
+
+                    {isEditingTranscript && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onEditorialTranscriptChange?.(localTranscript);
+                          setTranscriptSavedFeedback(true);
+                          setTimeout(() => setTranscriptSavedFeedback(false), 2000);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer"
+                      >
+                        {transcriptSavedFeedback ? (
+                          <>
+                            <CheckCheck size={13} />
+                            <span>Saved!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Save size={13} />
+                            <span>Save Script</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {isEditingTranscript ? (
+                  <textarea
+                    value={localTranscript}
+                    onChange={(e) => setLocalTranscript(e.target.value)}
+                    rows={4}
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-mono font-medium text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none transition leading-relaxed"
+                  />
+                ) : (
+                  <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 max-h-32 overflow-y-auto">
+                    <p className="text-xs text-slate-600 leading-relaxed font-sans">
+                      {localTranscript}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 2: MUSIC (14 AWS S3 BGM Tracks, Volume & SFX)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 2 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                      <Music size={20} className="text-orange-500" />
+                      <span>Background Music &amp; Audio Level</span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Select upbeat royalty-free music from AWS S3, or upload your own track. Includes dynamic auto-ducking.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full self-start sm:self-auto">
+                    <Volume2 size={14} className="text-orange-500" />
+                    <span className="text-xs font-black text-slate-800">
+                      Volume: {activeBgmVolume}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Volume Slider with Quick Presets */}
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                    <span className="flex items-center gap-1.5">
+                      <Sliders size={14} className="text-orange-500" />
+                      <span>Background Music Level (Default: 12%)</span>
+                    </span>
+                    <span className="font-mono text-xs font-black text-orange-600 bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">
+                      {activeBgmVolume}%
+                    </span>
+                  </div>
+
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={activeBgmVolume}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setActiveBgmVolume(val);
+                      onBgmVolumeChange?.(val / 100);
+                    }}
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                  />
+
+                  <div className="flex items-center gap-2 pt-1">
+                    {[
+                      { label: "Mute (0%)", val: 0 },
+                      { label: "Subtle (12% - Recommended)", val: 12 },
+                      { label: "Moderate (20%)", val: 20 },
+                      { label: "Prominent (35%)", val: 35 },
+                    ].map((p) => (
+                      <button
+                        key={p.val}
+                        type="button"
+                        onClick={() => {
+                          setActiveBgmVolume(p.val);
+                          onBgmVolumeChange?.(p.val / 100);
+                        }}
+                        className={`text-xs font-bold px-3 py-1 rounded-lg border transition cursor-pointer ${activeBgmVolume === p.val
+                            ? "bg-orange-500 text-white border-orange-500"
+                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
+                          }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Auto-Ducking and Sound Effects (SFX) Toggles */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div
+                    onClick={() => setAutoDucking(!autoDucking)}
+                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 cursor-pointer transition ${autoDucking ? "border-orange-500 bg-orange-50/40" : "border-slate-200 bg-slate-50/50"
+                      }`}
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Dynamic Auto-Ducking</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Ducks music down during speech and raises it during pauses
+                      </p>
+                    </div>
+                    <div
+                      className={`h-5 w-9 rounded-full transition-colors relative ${autoDucking ? "bg-orange-500" : "bg-slate-300"
+                        }`}
+                    >
+                      <div
+                        className={`h-4 w-4 rounded-full bg-white transition-transform absolute top-0.5 ${autoDucking ? "left-4.5" : "left-0.5"
+                          }`}
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    onClick={() => onEnableSfxChange?.(!enableSfx)}
+                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 cursor-pointer transition ${enableSfx ? "border-orange-500 bg-orange-50/40" : "border-slate-200 bg-slate-50/50"
+                      }`}
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Versus Sound Effects (SFX)</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Versus badge slam, whooshes, point chimes, and winner crown reveal
+                      </p>
+                    </div>
+                    <div
+                      className={`h-5 w-9 rounded-full transition-colors relative ${enableSfx ? "bg-orange-500" : "bg-slate-300"
+                        }`}
+                    >
+                      <div
+                        className={`h-4 w-4 rounded-full bg-white transition-transform absolute top-0.5 ${enableSfx ? "left-4.5" : "left-0.5"
+                          }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Curated AWS S3 Music Tracks */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-700">
+                      Choose from Curated AWS S3 Music Tracks ({AWS_BGM_TRACKS.length})
+                    </label>
+                    <span className="text-[11px] text-slate-400">All royalty-free for YouTube monetization</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {AWS_BGM_TRACKS.map((track) => {
+                      const isSelected = selectedBgmTrack === track.id;
+                      const isPlaying = playingTrackId === track.id;
+
+                      return (
+                        <div
+                          key={track.id}
+                          onClick={() => {
+                            setSelectedBgmTrack(track.id);
+                            onBgmTrackIdChange?.(track.id);
+                          }}
+                          className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center justify-between gap-3 ${isSelected
+                              ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-1 ring-orange-500"
+                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
+                            }`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-black truncate">{track.label}</span>
+                              <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
+                                {track.category}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-slate-500 truncate block mt-0.5">{track.desc}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            {track.id !== "none" && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  togglePlayBgmTrack(track);
+                                }}
+                                title="Listen to Preview"
+                                className="h-8 w-8 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition flex items-center justify-center cursor-pointer shadow-xs"
+                              >
+                                {isPlaying ? (
+                                  <Pause size={13} className="text-orange-500" />
+                                ) : (
+                                  <Play size={13} className="ml-0.5 text-slate-600" />
+                                )}
+                              </button>
+                            )}
+
+                            {isSelected && <CheckCircle2 size={16} className="text-orange-500" />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 3: STYLE (Presenter Avatar, Winner Crown & Tone)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 3 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              {/* Character Avatar Picker */}
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                      <User size={20} className="text-orange-500" />
+                      <span>Presenter Character Avatar</span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Animated presenter synced to narration speech, gesturing towards Left and Right options.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {COMPARE_CHARACTERS.map((char) => {
+                    const isSelected = stickerStyle === char.id;
+
                     return (
                       <div
-                        key={track.id}
-                        onClick={() => onBgmTrackIdChange(track.id)}
-                        className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition ${
-                          isSelected
-                            ? "border-[#0066FF] bg-blue-50/30 ring-1 ring-orange-500/30"
-                            : "border-slate-200 hover:border-slate-300 bg-white"
-                        }`}
+                        key={char.id}
+                        onClick={() => onStickerStyleChange?.(char.id)}
+                        className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${isSelected
+                            ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-1 ring-orange-500"
+                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
+                          }`}
                       >
-                        <div className="min-w-0 pr-2">
-                          <p className="text-xs font-bold text-slate-800 truncate">
-                            {track.label}
-                          </p>
-                          <p className="text-[11px] text-slate-500 truncate">
-                            {track.desc}
-                          </p>
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-xs font-black text-slate-900">{char.name}</span>
+                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
+                            {char.badge}
+                          </span>
                         </div>
-                        {track.path !== "none" && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              togglePlayAudio(track.id, track.path);
-                            }}
-                            className={`p-2 rounded-lg transition ${
-                              isPlaying
-                                ? "bg-[#0066FF] text-white"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
-                            title={isPlaying ? "Pause audition" : "Play audition"}
-                          >
-                            {isPlaying ? (
-                              <Pause className="w-3.5 h-3.5" />
-                            ) : (
-                              <Play className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                        )}
+                        <p className="text-[11px] text-slate-500">{char.desc}</p>
                       </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Winner Crown & Comparison Tone */}
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <Trophy size={14} className="text-amber-500" />
+                      <span>Winner Reveal Crown</span>
+                    </label>
+                    <div className="space-y-1.5">
+                      {[
+                        { id: "none", label: "No Winner (Neutral Comparison)", desc: "Balanced breakdown without declaring a winner" },
+                        { id: "left", label: `Option A Wins (${compareLeftTitle || "Left"}) 👑`, desc: "Animated golden crown appears over Option A" },
+                        { id: "right", label: `Option B Wins (${compareRightTitle || "Right"}) 👑`, desc: "Animated golden crown appears over Option B" },
+                      ].map((w) => (
+                        <button
+                          key={w.id}
+                          type="button"
+                          onClick={() => onWinnerChange?.(w.id)}
+                          className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${compareWinner === w.id
+                              ? "border-orange-500 bg-orange-50 text-orange-600"
+                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            }`}
+                        >
+                          <div>{w.label}</div>
+                          <div className="text-[10px] text-slate-400 font-normal">{w.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                      <Swords size={14} className="text-orange-500" />
+                      <span>Comparison Tone & Mood</span>
+                    </label>
+                    <div className="space-y-1.5">
+                      {[
+                        { id: "versus", label: "Versus Battle (Blue vs Purple)", desc: "Classic competitive head-to-head showdown" },
+                        { id: "goodBad", label: "Good vs Bad (Emerald vs Crimson)", desc: "Highlighting superior choices vs poor habits" },
+                      ].map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => onToneChange?.(t.id)}
+                          className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${compareTone === t.id
+                              ? "border-orange-500 bg-orange-50 text-orange-600"
+                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            }`}
+                        >
+                          <div>{t.label}</div>
+                          <div className="text-[10px] text-slate-400 font-normal">{t.desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 32 Caption Styles Selector */}
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                      <Type size={20} className="text-orange-500" />
+                      <span>32 Master Kinetic Caption Themes</span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Live animated word-by-word previews for 9:16 vertical shorts.
+                    </p>
+                  </div>
+
+                  <div className="relative w-full sm:w-64">
+                    <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={captionSearchQuery}
+                      onChange={(e) => setCaptionSearchQuery(e.target.value)}
+                      placeholder="Search caption styles..."
+                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none transition"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  {filteredCaptionStyles.map((theme) => {
+                    const isSelected = selectedCaptionStyle === theme.id;
+
+                    return (
+                      <button
+                        key={theme.id}
+                        type="button"
+                        onClick={() => setSelectedCaptionStyle(theme.id)}
+                        className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-3 ${isSelected
+                            ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
+                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
+                          }`}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3.5 h-3.5 rounded-full shadow-xs" style={{ backgroundColor: theme.color }} />
+                            <span className="text-xs font-black text-slate-900">{theme.name}</span>
+                          </div>
+                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
+                            {theme.badge}
+                          </span>
+                        </div>
+
+                        <div className="bg-slate-900/95 rounded-xl px-3 py-2 flex items-center justify-center min-h-[38px] overflow-hidden">
+                          {renderPreviewCaptionWords(theme.id)}
+                        </div>
+
+                        <span className="text-[11px] text-slate-500 line-clamp-1">{theme.desc}</span>
+                      </button>
                     );
                   })}
                 </div>
@@ -887,225 +1193,194 @@ export function CompareExplainerStudio({
             </div>
           )}
 
-          {/* TAB 4: EDITORIAL TRANSCRIPT & COMPULSORY PREVIEW GATE */}
-          {activeTab === "preview" && (
-            <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-6">
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">
-                  Editorial Spoken Transcript & Typo Fixer
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Edit the transcript to fix any spoken names, brand spellings, or phonetic mistakes before rendering
-                </p>
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 4: PREVIEW (9:16 Vertical Live Monitor & Review)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 4 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                      <Eye size={20} className="text-orange-500" />
+                      <span>9:16 Vertical Shorts Live Monitor</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
+                        Compulsory Review
+                      </span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Simulate dual split-screen alignment, dynamic VS badge, and presenter reactions.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsPlayingPreview(!isPlayingPreview)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-800 transition cursor-pointer self-start sm:self-auto"
+                  >
+                    {isPlayingPreview ? (
+                      <>
+                        <Pause size={13} className="text-orange-500" />
+                        <span>Pause Simulation</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play size={13} className="text-slate-700 ml-0.5" />
+                        <span>Simulate Shorts Reel</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* 9:16 Vertical Simulator Canvas */}
+                <div className="relative mx-auto w-full max-w-[320px] aspect-[9/16] rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-900 bg-white flex flex-col justify-between p-4 select-none">
+                  {/* Top Bar: Handle & Headline */}
+                  <div className="text-center space-y-1.5 z-10 pt-1">
+                    <span className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                      {compareHandle.trim() || "@itnavideo"}
+                    </span>
+                    <div className="bg-slate-900 text-white text-xs font-black px-3 py-1 rounded-xl max-w-[90%] mx-auto truncate shadow-md">
+                      {topicTitle.trim() || "HEAD TO HEAD COMPARISON"}
+                    </div>
+                  </div>
+
+                  {/* Dual Split-Screen Subject Cards */}
+                  <div className="relative grid grid-cols-2 gap-2.5 my-auto z-10 px-1">
+                    {/* Left Card */}
+                    <div
+                      className={`rounded-2xl border overflow-hidden transition-all duration-300 p-2 bg-white shadow-sm flex flex-col items-center relative ${activeSide === "left" || activeSide === "both"
+                          ? "ring-2 ring-blue-500 border-blue-400 scale-102"
+                          : "opacity-80 border-slate-200"
+                        }`}
+                    >
+                      {compareWinner === "left" && (
+                        <div className="absolute -top-2 text-xl drop-shadow-md z-20">👑</div>
+                      )}
+                      <div className="aspect-square w-full rounded-xl bg-slate-100 overflow-hidden mb-2 flex items-center justify-center border border-slate-200">
+                        {leftImageUrl ? (
+                          <img src={leftImageUrl} alt="Left" className="w-full h-full object-contain" />
+                        ) : (
+                          <ImageIcon size={24} className="text-slate-300" />
+                        )}
+                      </div>
+                      <p className="text-[11px] font-black text-slate-900 text-center truncate w-full">
+                        {compareLeftTitle || "Option A"}
+                      </p>
+                    </div>
+
+                    {/* Right Card */}
+                    <div
+                      className={`rounded-2xl border overflow-hidden transition-all duration-300 p-2 bg-white shadow-sm flex flex-col items-center relative ${activeSide === "right" || activeSide === "both"
+                          ? "ring-2 ring-purple-500 border-purple-400 scale-102"
+                          : "opacity-80 border-slate-200"
+                        }`}
+                    >
+                      {compareWinner === "right" && (
+                        <div className="absolute -top-2 text-xl drop-shadow-md z-20">👑</div>
+                      )}
+                      <div className="aspect-square w-full rounded-xl bg-slate-100 overflow-hidden mb-2 flex items-center justify-center border border-slate-200">
+                        {rightImageUrl ? (
+                          <img src={rightImageUrl} alt="Right" className="w-full h-full object-contain" />
+                        ) : (
+                          <ImageIcon size={24} className="text-slate-300" />
+                        )}
+                      </div>
+                      <p className="text-[11px] font-black text-slate-900 text-center truncate w-full">
+                        {compareRightTitle || "Option B"}
+                      </p>
+                    </div>
+
+                    {/* VS Badge in Center */}
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 text-white font-black text-xs flex items-center justify-center border-2 border-white shadow-lg z-20">
+                      VS
+                    </div>
+                  </div>
+
+                  {/* Bottom Subtitle Strip */}
+                  <div className="z-10 text-center pb-2">
+                    <div className="bg-slate-900/90 backdrop-blur-md border border-white/10 text-white rounded-xl py-2 px-3 max-w-[95%] mx-auto shadow-md">
+                      {renderPreviewCaptionWords(selectedCaptionStyle)}
+                    </div>
+                  </div>
+
+                  {/* Watermark Tag */}
+                  {!removeAiWatermark && (
+                    <div className="absolute bottom-3 right-3 text-[9px] font-bold text-slate-400 bg-white/80 px-2 py-0.5 rounded border border-slate-200">
+                      Itnavideo AI
+                    </div>
+                  )}
+
+                  {/* Scrubber Line */}
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-200">
+                    <div
+                      className="h-full bg-orange-500 transition-all duration-100"
+                      style={{ width: `${previewProgress}%` }}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="relative">
-                <textarea
-                  rows={5}
-                  value={editorialTranscript}
-                  onChange={(e) => onEditorialTranscriptChange(e.target.value)}
-                  placeholder="Paste or edit the spoken voiceover narration here. Captions will follow these exact words..."
-                  className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0066FF]/20 focus:border-[#0066FF] font-mono transition"
+              {/* Watermark Toggle */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+                <WatermarkRemoverToggle
+                  checked={removeAiWatermark}
+                  onChange={(val) => onRemoveAiWatermarkChange?.(val)}
+                  label="Remove AI Watermark"
+                  description="Export a completely clean, unbranded 9:16 vertical shorts video ready for Instagram and TikTok."
                 />
-                <Edit3 className="absolute right-3.5 top-3.5 w-4 h-4 text-slate-400" />
-              </div>
-
-              {/* Compulsory Preview Confirmation Box */}
-              <div
-                onClick={() => setPreviewConfirmed(!previewConfirmed)}
-                className={`p-4 rounded-xl border cursor-pointer transition flex items-start gap-3.5 ${
-                  previewConfirmed
-                    ? "border-emerald-500 bg-emerald-50/30"
-                    : "border-amber-300 bg-amber-50/40"
-                }`}
-              >
-                <div
-                  className={`w-5 h-5 rounded flex items-center justify-center mt-0.5 transition ${
-                    previewConfirmed
-                      ? "bg-emerald-500 text-white"
-                      : "border border-amber-400 bg-white"
-                  }`}
-                >
-                  {previewConfirmed && <Check className="w-3.5 h-3.5" />}
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-900">
-                    Compulsory Review Check: I have reviewed the versus split layout & titles
-                  </p>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    Ensures both left & right images, versus titles, and subtitle alignment look right before cloud rendering.
-                  </p>
-                </div>
               </div>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Right Column: 9:16 Vertical Live Visual Preview */}
-        <div className="lg:col-span-5">
-          <div className="sticky top-6 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <Tv className="w-3.5 h-3.5 text-[#0066FF]" />
-                9:16 Live Preview (Versus Canvas)
-              </span>
-              <button
-                onClick={() => setIsPlayingPreview(!isPlayingPreview)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition"
-              >
-                {isPlayingPreview ? (
-                  <>
-                    <Pause className="w-3.5 h-3.5 text-[#0066FF]" />
-                    Pause
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-3.5 h-3.5 text-[#0066FF]" />
-                    Simulate
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* 9:16 Vertical Canvas Simulator */}
-            <div className="relative mx-auto w-full max-w-[280px] aspect-[9/16] rounded-2xl overflow-hidden shadow-md border-4 border-slate-900 bg-[#FAFAFA] flex flex-col justify-between p-3.5">
-              {/* TOP HEADER & WATERMARK */}
-              <div className="text-center space-y-1 z-10">
-                <span className="text-[9px] font-bold tracking-widest text-slate-400 uppercase">
-                  {compareHandle.trim() || "@itnavideo"}
-                </span>
-                <div className="bg-slate-900 text-white text-[10px] font-black px-2.5 py-1 rounded-lg max-w-[90%] mx-auto truncate shadow-xs">
-                  {topicTitle.trim() || "VERSUS COMPARISON"}
-                </div>
-              </div>
-
-              {/* DUAL SIDE-BY-SIDE CARDS */}
-              <div className="relative grid grid-cols-2 gap-2 my-auto z-10">
-                {/* Left Card */}
-                <div
-                  className={`rounded-xl border overflow-hidden transition-all duration-300 p-1.5 bg-white shadow-xs ${
-                    activeSide === "left" || activeSide === "both"
-                      ? "ring-2 ring-blue-500 border-blue-400 scale-102"
-                      : "opacity-75 border-slate-200"
-                  }`}
-                >
-                  <div className="aspect-square rounded-lg bg-slate-100 overflow-hidden mb-1.5">
-                    {leftImageUrl ? (
-                      <img
-                        src={leftImageUrl}
-                        alt="Left Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-300">
-                        <ImageIcon className="w-6 h-6" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[10px] font-black text-slate-800 text-center truncate">
-                    {compareLeftTitle.trim() || "Option A"}
-                  </p>
-                </div>
-
-                {/* Right Card */}
-                <div
-                  className={`rounded-xl border overflow-hidden transition-all duration-300 p-1.5 bg-white shadow-xs ${
-                    activeSide === "right" || activeSide === "both"
-                      ? "ring-2 ring-purple-500 border-purple-400 scale-102"
-                      : "opacity-75 border-slate-200"
-                  }`}
-                >
-                  <div className="aspect-square rounded-lg bg-slate-100 overflow-hidden mb-1.5">
-                    {rightImageUrl ? (
-                      <img
-                        src={rightImageUrl}
-                        alt="Right Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-300">
-                        <ImageIcon className="w-6 h-6" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[10px] font-black text-slate-800 text-center truncate">
-                    {compareRightTitle.trim() || "Option B"}
-                  </p>
-                </div>
-
-                {/* Center VS Badge */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-tr from-[#0066FF] to-amber-400 text-white font-black text-[10px] flex items-center justify-center border-2 border-white shadow-md z-20">
-                  VS
-                </div>
-              </div>
-
-              {/* BOTTOM SUBTITLE STRIP */}
-              <div className="z-10 text-center">
-                <div className="bg-slate-900/90 backdrop-blur-xs border border-white/10 text-white rounded-xl py-1.5 px-2.5 max-w-[95%] mx-auto shadow-sm">
-                  <span className="text-[10px] font-black tracking-wide text-amber-300 uppercase">
-                    {transcriptWords[activeCaptionWordIndex] || "VERSUS BATTLE"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Live Scrubber Line */}
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-200">
-                <div
-                  className="h-full bg-[#0066FF] transition-all duration-100"
-                  style={{ width: `${previewProgress}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Validation Checklist */}
-            <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
-              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
-                Render Prerequisites
-              </span>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex items-center gap-2">
-                  {selectedFile ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  ) : (
-                    <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
-                  )}
-                  <span className={selectedFile ? "text-slate-800 font-medium" : "text-slate-500"}>
-                    Voiceover Audio Loaded
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {comparisonFiles.length === 2 ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  ) : (
-                    <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
-                  )}
-                  <span className={comparisonFiles.length === 2 ? "text-slate-800 font-medium" : "text-slate-500"}>
-                    2 Split Visuals Uploaded (Left & Right)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {compareLeftTitle && compareRightTitle ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  ) : (
-                    <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
-                  )}
-                  <span className={compareLeftTitle && compareRightTitle ? "text-slate-800 font-medium" : "text-slate-500"}>
-                    Left & Right Option Titles Entered
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {previewConfirmed ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                  ) : (
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                  )}
-                  <span className={previewConfirmed ? "text-slate-800 font-medium" : "text-slate-500"}>
-                    Compulsory Visual Review Confirmed
-                  </span>
-                </div>
-              </div>
-            </div>
+      {/* ── ROW 3: Sticky Bottom Action Bar ── */}
+      <div className="shrink-0 border-t border-slate-200/90 bg-white/95 backdrop-blur-xl px-4 sm:px-8 lg:px-12 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-500">Battle:</span>
+            <span className="text-xs font-black text-slate-900 max-w-[200px] truncate">
+              {compareLeftTitle} vs {compareRightTitle}
+            </span>
           </div>
+          <span className="hidden sm:inline text-slate-300">•</span>
+          <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
+            <Zap size={13} className="fill-orange-500 text-orange-500" />
+            <span>Cost: 1 Credit Flat (9:16 Shorts)</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          {currentStep > 1 && (
+            <button
+              type="button"
+              onClick={() => setCurrentStep((currentStep - 1) as 1 | 2 | 3 | 4)}
+              className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
+            >
+              Back
+            </button>
+          )}
+
+          {currentStep < 4 ? (
+            <button
+              type="button"
+              onClick={() => setCurrentStep((currentStep + 1) as 1 | 2 | 3 | 4)}
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black transition cursor-pointer shadow-sm shadow-orange-500/20 active:scale-95"
+            >
+              <span>Next: {COMPARE_STEPS[currentStep].title}</span>
+              <ArrowRight size={14} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onGenerate}
+              disabled={isGenerating || !selectedFile || comparisonFiles.length < 2}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black transition cursor-pointer shadow-md shadow-orange-500/25 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <Sparkles size={14} />
+              <span>Create Compare Explainer</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

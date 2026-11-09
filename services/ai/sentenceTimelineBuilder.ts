@@ -32,8 +32,8 @@ export interface TimelineSegment {
 }
 
 export interface TimelineBuildOptions {
-  minDurationSeconds?: number; // default: 2.2 (natural short sentence)
-  maxDurationSeconds?: number; // default: 5.5 (keeps pacing punchy and viral)
+  minDurationSeconds?: number; // default: 2.0 (natural short sentence)
+  maxDurationSeconds?: number; // default: 3.5 (audio-driven visual rhythm: bounds visual hold to <= 3.5s for viral retention)
   chapterDurationSeconds?: number; // default: 70.0 (~60-90s)
   totalDurationSeconds?: number;
 }
@@ -46,8 +46,8 @@ export function buildDeterministicSentenceTimeline(
   rawSegments: RawSegmentInput[],
   options: TimelineBuildOptions = {}
 ): TimelineSegment[] {
-  const minDur = options.minDurationSeconds ?? 2.2;
-  const maxDur = options.maxDurationSeconds ?? 5.5;
+  const minDur = options.minDurationSeconds ?? 2.0;
+  const maxDur = options.maxDurationSeconds ?? 3.5;
   const chapterDur = options.chapterDurationSeconds ?? 70.0;
 
   if (!rawSegments || rawSegments.length === 0) {
@@ -89,11 +89,11 @@ export function buildDeterministicSentenceTimeline(
         !nextW ||
         // Clean natural sentence end (. ! ? ।) with a meaningful thought (at least 1.8s or 4 words)
         (hasSentenceEndPunctuation && (currentDuration >= 1.8 || currentWords.length >= 4)) ||
-        // Clear speaker breath/pause (>= 0.45s) after a complete phrase (at least minDur and 5 words)
+        // Audio-Driven Visual Rhythm: Natural clause break (comma, dash, colon) or pause (>= 0.25s) once hold reaches 2.5s
+        (currentDuration >= 2.5 && currentWords.length >= 4 && (hasClausePunctuation || isClausePause || pauseAfterWord >= 0.25)) ||
+        // Clear speaker breath/pause (>= 0.40s) after a complete phrase (at least minDur and 5 words)
         (currentDuration >= minDur && currentWords.length >= 5 && isNaturalSentencePause) ||
-        // If a run-on unpunctuated sentence gets long (>= 8.5s), cut at the next clause/pause
-        (currentDuration >= 8.5 && (hasClausePunctuation || isClausePause)) ||
-        // Safety cap only for extreme unpunctuated marathon sentences
+        // Max visual hold limit: never allow a single visual framing to exceed maxDur (defaults to 3.5s for viral retention)
         currentDuration >= maxDur;
 
       if (shouldCut && currentWords.length > 0) {

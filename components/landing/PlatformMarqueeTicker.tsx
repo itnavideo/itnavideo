@@ -15,6 +15,14 @@ export interface StudioShowcaseItem {
 
 const STUDIO_SHOWCASE_ITEMS: StudioShowcaseItem[] = [
   {
+    id: 'ai-video-generator',
+    title: 'AI Video Generator (16:9)',
+    aspect: '16:9',
+    imageUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png',
+    slug: '/dashboard/ai-video-generator',
+    badgeLabel: 'Coming Soon',
+  },
+  {
     id: 'faceless-video',
     title: 'Faceless Video (16:9)',
     aspect: '16:9',

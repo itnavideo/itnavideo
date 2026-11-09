@@ -1,6 +1,5 @@
 "use client";
 
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,30 +8,13 @@ import { LongVideoClipsStudio } from "@/components/dashboard/LongVideoClipsStudi
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { useAuth } from "@/components/auth/AuthContext";
 import { resolveSafeContentType } from "@/lib/media/presignedUpload";
-import {
-  ArrowLeft,
-  Sparkles,
-  Zap,
-  Film,
-  Download,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  RefreshCw,
-  Upload,
-  Clapperboard,
-  History,
-  Columns,
-  Layers3,
-  Scissors
-} from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 type BillingEntitlement = {
   active: boolean;
   planId: string;
   planName: string;
   monthlyVideoLimit: number;
-  expiresAt?: string | number;
   usage?: {
     used: number;
     limit: number;
@@ -72,36 +54,24 @@ type RecentRender = {
   id: string;
   title: string;
   mode: string;
-  design?: string;
   outputFile: string;
   createdAt: number;
   expiresAt: number;
 };
 
-const CLIPS_RENDER_STEPS = [
-  { label: "Long video uploaded", detail: "Widescreen video asset loaded safely to cloud storage.", threshold: 0.10, icon: Upload },
-  { label: "Transcribing audio track", detail: "Speech AI aligning language patterns and full script timeline.", threshold: 0.35, icon: Layers3 },
-  { label: "AI clip hook scoring", detail: "Analyzing speech hooks, viral metrics, and emotional high-points.", threshold: 0.65, icon: Scissors },
-  { label: "Rendering vertical clips", detail: "Cloud render engine building visual cropping layouts in parallel.", threshold: 0.88, icon: Film },
-  { label: "Clips ready to download", detail: "Viral short clips ready to publish on TikTok, Reels, and Shorts.", threshold: 0.98, icon: Clapperboard },
-];
-
 export default function LongVideoClipsPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
-  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(false);
+  const [removeAiWatermark, setRemoveAiWatermark] = useState<boolean>(true);
 
   // Clips form states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [inputMode, setInputMode] = useState<"file" | "youtube">("file");
-  const [youtubeUrl, setYoutubeUrl] = useState<string>("");
   const [layoutMode, setLayoutMode] = useState<"auto-speaker" | "split-screen" | "fit-widescreen">("auto-speaker");
-  const [clipCount, setClipCount] = useState<number>(0);
-  const [clipDuration, setClipDuration] = useState<"auto" | "under-30" | "30-60" | "60-90">("auto");
+  const [clipCount, setClipCount] = useState<number>(3);
+  const [clipDuration, setClipDuration] = useState<"auto" | "under-30" | "30-60" | "60-90">("30-60");
   const [clipsHookStrategy, setClipsHookStrategy] = useState<"auto" | "high-energy" | "actionable" | "story">("auto");
-  const [clipsTopBanner, setClipsTopBanner] = useState<"none" | "glass-pill" | "yellow-ticker">("none");
   const [enableClipsCaptions, setEnableClipsCaptions] = useState(true);
-  const [captionStyle, setCaptionStyle] = useState<string>("Pop Word");
+  const [captionStyle, setCaptionStyle] = useState<string>("glow-viral");
 
   // BGM, SFX & Editorial states
   const [bgmTrackId, setBgmTrackId] = useState<string>("parasail");
@@ -118,9 +88,13 @@ export default function LongVideoClipsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
-  const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
+
+  // Cancel modal state
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const renderRequestInFlightRef = useRef(false);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auth redirect
   useEffect(() => {
@@ -172,45 +146,6 @@ export default function LongVideoClipsPage() {
       }
     }
     fetchBilling();
-  }, [user]);
-
-  // Past Renders history
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("itnavideo_clips_projects");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setRecentRenders(parsed);
-        }
-      }
-    } catch {}
-
-    if (!user) return;
-    async function fetchHistory() {
-      try {
-        const res = await fetch(`/api/reels/history?userId=${encodeURIComponent(user?.id || "")}`);
-        const payload = await res.json().catch(() => ({}));
-        if (res.ok && payload.ok && Array.isArray(payload.renders)) {
-          const clipsRenders = payload.renders.filter(
-            (r: RecentRender) => r.mode === "longVideoClips" || r.mode === "LONG_VIDEO_CLIPS"
-          );
-          setRecentRenders((prev) => {
-            const map = new Map<string, RecentRender>();
-            prev.forEach((item: any) => { if (item?.id) map.set(item.id, item); });
-            clipsRenders.forEach((item: any) => { if (item?.id) map.set(item.id, item); });
-            const merged = Array.from(map.values()).sort((a, b) => b.createdAt - a.createdAt);
-            try {
-              localStorage.setItem("itnavideo_clips_projects", JSON.stringify(merged.slice(0, 30)));
-            } catch {}
-            return merged;
-          });
-        }
-      } catch (err) {
-        console.warn("Could not load render history:", err);
-      }
-    }
-    fetchHistory();
   }, [user]);
 
   async function uploadFileViaPresign(
@@ -275,13 +210,8 @@ export default function LongVideoClipsPage() {
       router.push("/login?returnUrl=/dashboard/long-video-clips");
       return;
     }
-    if (inputMode === "youtube") {
-      if (!youtubeUrl || !/(youtube\.com|youtu\.be)/i.test(youtubeUrl)) {
-        alert("Please paste a valid YouTube video URL first.");
-        return;
-      }
-    } else if (!selectedFile) {
-      alert("Please upload a podcast or video file first.");
+    if (!selectedFile) {
+      alert("Please upload a video file first.");
       return;
     }
     if (renderRequestInFlightRef.current) return;
@@ -289,69 +219,50 @@ export default function LongVideoClipsPage() {
     setIsSubmitting(true);
 
     try {
-      if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      let mediaKey = "";
+      setJobStatus({
+        state: "uploading",
+        message: "Uploading source video securely to cloud storage (0%)...",
+        progress: 0.10,
+      });
+
+      const mediaKey = await uploadFileViaPresign(
+        selectedFile,
+        "longVideoClips",
+        user.id,
+        (percent) => {
+          const calculatedProgress = 0.10 + Math.round((percent / 100) * 20) / 100;
+          setJobStatus({
+            state: "uploading",
+            message: `Uploading source video securely to cloud storage (${percent}%)...`,
+            progress: calculatedProgress,
+          });
+        }
+      );
+
       let customBgmKey = "";
-      let fileName = "youtube-source.mp4";
-      let contentType = "video/mp4";
-
-      if (inputMode === "file" && selectedFile) {
-        setJobStatus({
-          state: "uploading",
-          message: "Uploading source video securely to cloud container (0%)...",
-          progress: 0.10,
-        });
-        mediaKey = await uploadFileViaPresign(
-          selectedFile,
-          "longVideoClips",
-          user.id,
-          (percent) => {
-            const calculatedProgress = 0.10 + Math.round((percent / 100) * 20) / 100;
-            setJobStatus({
-              state: "uploading",
-              message: `Uploading source video securely to cloud container (${percent}%)...`,
-              progress: calculatedProgress,
-            });
-          }
-        );
-        fileName = selectedFile.name;
-        contentType = selectedFile.type || "video/mp4";
-      }
-
       if (customBgmFile) {
         customBgmKey = await uploadFileViaPresign(
           customBgmFile,
           "longVideoClips",
           user.id
         );
-      } else {
-        setJobStatus({
-          state: "starting",
-          message: "Connecting to YouTube cloud stream...",
-          progress: 0.15,
-        });
       }
 
-      // 2. Submit Render Job
       setJobStatus({
         state: "starting",
         message: "Aligning speech recognition & face tracking parameters...",
         progress: 0.25,
       });
 
-      const plannedTitle = inputMode === "file" && selectedFile ? selectedFile.name.replace(/\.[^/.]+$/, "") : "YouTube Clip Import";
+      const plannedTitle = selectedFile.name.replace(/\.[^/.]+$/, "");
 
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mediaKey,
-          youtubeUrl: inputMode === "youtube" ? youtubeUrl : undefined,
-          inputMode,
-          fileName,
-          contentType,
+          fileName: selectedFile.name,
+          contentType: selectedFile.type || "video/mp4",
           mediaType: "video",
           mode: "longVideoClips",
           removeAiWatermark: Boolean(removeAiWatermark),
@@ -370,7 +281,6 @@ export default function LongVideoClipsPage() {
           captionStyle,
           clipsAspectRatio: "9:16",
           clipsHookStrategy,
-          clipsTopBanner,
           durationSeconds: mediaDurationSeconds || 300,
           sourceDurationSeconds: mediaDurationSeconds || 300,
           mediaAspect: "portrait",
@@ -379,15 +289,14 @@ export default function LongVideoClipsPage() {
 
       const jobPayload = await jobResponse.json().catch(() => ({}));
       if (!jobResponse.ok || !jobPayload.ok) {
-        throw new Error(jobPayload.error || "Failed to start Podcast Clips job.");
+        throw new Error(jobPayload.error || "Failed to start Video Clips job.");
       }
 
       const initialClips = jobPayload.clips;
       if (!Array.isArray(initialClips) || initialClips.length === 0) {
-        throw new Error("No clips returned by podcast analyzer engine.");
+        throw new Error("No clips returned by video analyzer engine.");
       }
 
-      // 3. Poll multiple renders in parallel
       let activeClips: ClipStatus[] = initialClips.map((c) => ({
         ...c,
         status: "rendering",
@@ -406,14 +315,15 @@ export default function LongVideoClipsPage() {
       const MAX_ATTEMPTS = 150;
       let consecutiveErrors = 0;
 
-      const pollInterval = setInterval(async () => {
+      pollIntervalRef.current = setInterval(async () => {
         attempts++;
         if (attempts > MAX_ATTEMPTS) {
-          clearInterval(pollInterval);
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
           renderRequestInFlightRef.current = false;
+          setIsSubmitting(false);
           setJobStatus({
             state: "error",
-            message: "Clips rendering timed out. Please check your history in a few minutes.",
+            message: "Clips rendering timed out. Please check back shortly.",
           });
           return;
         }
@@ -422,8 +332,9 @@ export default function LongVideoClipsPage() {
           (c) => c.status === "done" || c.status === "failed"
         );
         if (allDoneOrFailed) {
-          clearInterval(pollInterval);
+          if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
           renderRequestInFlightRef.current = false;
+          setIsSubmitting(false);
 
           const successfulClips = activeClips.filter((c) => c.status === "done");
           if (successfulClips.length === 0) {
@@ -443,7 +354,6 @@ export default function LongVideoClipsPage() {
               title: plannedTitle,
             });
 
-            // Refresh billing
             fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`)
               .then((r) => r.json())
               .then((payload) => {
@@ -509,14 +419,14 @@ export default function LongVideoClipsPage() {
             }
             consecutiveErrors = 0;
           } catch (error) {
-            console.warn(`Polling error for clip ${clip.clipIndex + 1}:`, error);
             consecutiveErrors += 1;
             if (consecutiveErrors >= 10) {
-              clearInterval(pollInterval);
+              if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
               renderRequestInFlightRef.current = false;
+              setIsSubmitting(false);
               setJobStatus({
                 state: "error",
-                message: "Lost connection to the rendering server. Please check your network.",
+                message: "Lost connection to the rendering server.",
                 clips: activeClips,
                 title: plannedTitle,
               });
@@ -542,6 +452,7 @@ export default function LongVideoClipsPage() {
 
     } catch (err: any) {
       renderRequestInFlightRef.current = false;
+      setIsSubmitting(false);
       setJobStatus({
         state: "error",
         message: err?.message || "Failed to submit clips extraction job.",
@@ -549,101 +460,165 @@ export default function LongVideoClipsPage() {
     }
   };
 
+  const handleCancelRender = async () => {
+    setIsCancelling(true);
+    try {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      renderRequestInFlightRef.current = false;
+      setIsSubmitting(false);
+      setJobStatus({ state: "idle" });
+    } catch {
+      setJobStatus({ state: "idle" });
+    } finally {
+      setIsCancelling(false);
+      setShowCancelModal(false);
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+        <p className="text-sm font-semibold text-slate-800">Loading Long Video to Shorts Studio...</p>
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#0066FF] selection:text-white">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
-        <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
+      {/* Top Navigation Bar (Clean White Surface - Full Bleed, matching Image to Video AI) */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 hover:shadow-xs transition active:scale-95"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-            <BrandLogo size="sm" variant="light" />
+
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Long Video to Shorts AI</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-[#0066FF]/30 bg-[#0066FF]/10 px-4 py-1.5 text-xs font-black text-[#3B82F6] shadow-md shadow-[#0066FF]/10">
-                <Zap size={13} className="fill-[#3B82F6]" />
-                <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
-              </div>
-            )}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Credits badge */}
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-xs text-slate-800">
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
+              >
+                +Add
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
-
-        {/* Dedicated Interactive Render Engine Stage */}
-        {jobStatus.state !== "idle" && (
-          <div className="max-w-4xl mx-auto py-4">
+      {/* Main Canvas - Full Screen Fluid Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
+        {jobStatus.state !== "idle" ? (
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="longVideoClips"
               status={{
                 state: jobStatus.state as any,
-                message: jobStatus.message || "Repurposing viral vertical shorts...",
+                message: jobStatus.message || "Extracting viral shorts...",
                 progress: jobStatus.progress,
                 outputFile: jobStatus.outputFile,
-                title: jobStatus.title || (inputMode === "youtube" ? "YouTube Video Clips" : selectedFile?.name?.replace(/\.[^/.]+$/, "")) || "Long Video to Shorts",
+                title: jobStatus.title || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Long Video to Shorts",
                 clips: jobStatus.clips,
               }}
-              title={jobStatus.title || (inputMode === "youtube" ? "YouTube Video Clips" : selectedFile?.name?.replace(/\.[^/.]+$/, "")) || "Long Video to Shorts"}
-              fileName={selectedFile?.name || (inputMode === "youtube" ? "youtube-video.mp4" : undefined)}
-              onRetry={handleStartRender}
+              title={jobStatus.title || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Long Video to Shorts"}
+              fileName={selectedFile?.name}
+              onRetry={() => handleStartRender()}
               onReset={() => {
-                if (typeof window !== 'undefined') {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
                 setSelectedFile(null);
-                setYoutubeUrl("");
                 setIsSubmitting(false);
                 setJobStatus({ state: "idle" });
               }}
+              onCancel={() => setShowCancelModal(true)}
             />
           </div>
+        ) : (
+          <LongVideoClipsStudio
+            selectedFile={selectedFile}
+            onSelectFile={setSelectedFile}
+            clipCount={clipCount}
+            onClipCountChange={setClipCount}
+            clipDuration={clipDuration}
+            onClipDurationChange={setClipDuration}
+            clipsHookStrategy={clipsHookStrategy}
+            onClipsHookStrategyChange={setClipsHookStrategy}
+            layoutMode={layoutMode}
+            onLayoutModeChange={setLayoutMode}
+            enableCaptions={enableClipsCaptions}
+            onEnableCaptionsChange={setEnableClipsCaptions}
+            captionStyle={captionStyle}
+            onCaptionStyleChange={setCaptionStyle}
+            bgmTrackId={bgmTrackId}
+            onBgmTrackIdChange={setBgmTrackId}
+            bgmVolume={bgmVolume}
+            onBgmVolumeChange={setBgmVolume}
+            customBgmFile={customBgmFile}
+            onCustomBgmFileSelect={setCustomBgmFile}
+            enableSfx={enableSfx}
+            onEnableSfxChange={setEnableSfx}
+            editorialTranscript={editorialTranscript}
+            onEditorialTranscriptChange={setEditorialTranscript}
+            onGenerate={handleStartRender}
+            isGenerating={isSubmitting || jobStatus.state !== "idle"}
+            renderedVideoUrl={jobStatus.outputFile}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
+          />
         )}
+      </main>
 
-
-        {/* Primary Views */}
-        {jobStatus.state === "idle" && (
-          <>
-            {activeTab === "studio" && (
-              <LongVideoClipsStudio
-                selectedFile={selectedFile}
-                onSelectFile={setSelectedFile}
-                clipCount={clipCount}
-                onClipCountChange={setClipCount}
-                clipDuration={clipDuration}
-                onClipDurationChange={setClipDuration}
-                clipsHookStrategy={clipsHookStrategy}
-                onClipsHookStrategyChange={setClipsHookStrategy}
-                layoutMode={layoutMode}
-                onLayoutModeChange={setLayoutMode}
-                enableCaptions={enableClipsCaptions}
-                onEnableCaptionsChange={setEnableClipsCaptions}
-                captionStyle={captionStyle}
-                onCaptionStyleChange={setCaptionStyle}
-                bgmTrackId={bgmTrackId}
-                onBgmTrackIdChange={setBgmTrackId}
-                bgmVolume={bgmVolume}
-                onBgmVolumeChange={setBgmVolume}
-                customBgmFile={customBgmFile}
-                onCustomBgmFileSelect={setCustomBgmFile}
-                enableSfx={enableSfx}
-                onEnableSfxChange={setEnableSfx}
-                editorialTranscript={editorialTranscript}
-                onEditorialTranscriptChange={setEditorialTranscript}
-                onGenerate={handleStartRender}
-                isGenerating={isSubmitting || jobStatus.state !== "idle"}
-              />
-            )}
-          </>
-        )}
-      </div>
-    </main>
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 max-w-sm w-full shadow-lg">
+            <h3 className="text-base font-bold text-slate-900 mb-2">
+              Cancel Active Extraction?
+            </h3>
+            <p className="text-xs text-slate-600 mb-5">
+              Are you sure you want to stop this extraction process? Progress will be lost.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+              >
+                Continue Extraction
+              </button>
+              <button
+                onClick={handleCancelRender}
+                disabled={isCancelling}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500 hover:bg-rose-600 text-white transition cursor-pointer"
+              >
+                {isCancelling ? "Cancelling..." : "Yes, Cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

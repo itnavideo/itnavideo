@@ -1,40 +1,41 @@
-import {NextResponse} from 'next/server';
+import { NextResponse } from 'next/server';
 import * as fs from 'node:fs';
 import path from 'node:path';
-import {renderMediaOnLambda, type AwsRegion} from '@remotion/lambda/client';
-import {createReadUrl, TEMP_MEDIA_RENDER_PREFIX, uploadTemporaryMediaObject} from '@/lib/aws/mediaStorage';
-import {resolveYoutubeAudio} from '@/lib/media/youtubeResolver';
-import {transcribeMediaUrlWithGroq} from '@/services/ai/groqTranscription';
-import {transcribeMediaWithGeminiFallback} from '@/services/ai/geminiTranscription';
-import {createReelPlan, VIDEO_TYPE_REGISTRY, validateAndRepairReelPlan, type ReelTemplateName, type ReelTranscriptSegment, type ReelWord} from '@/services/ai/reelPlanner';
-import {readUnifiedAssets} from '@/services/ai/assetPicker';
-import {hasHindiUrduScript, hasRomanHinglish} from '@/services/ai/hinglishTranscript';
-import {checkRateLimit, getClientIp} from '@/services/rateLimit/inMemoryRateLimiter';
-import {getRenderAccessForUser, reserveRenderUsageFromServer} from '@/services/billing/renderAccess';
-import {calculateRenderCreditUnits, formatCreditUnits, LONG_FORM_CAPTION_MAX_SECONDS} from '@/lib/billing/creditPricing';
-import {createPlanningMediaClip} from '@/services/media/mediaClipper';
-import {buildEnergyTimeline, findBeatPeaks} from '@/lib/audio/energyTimeline';
-import {createPremiumSoundCues, createPremiumStyleLock} from '@/services/ai/premiumStylePlanner';
-import {planCompareStickers, buildCompareScenes} from '@/services/ai/compareStickerPlanner';
-import {planScenes} from '@/services/ai/sceneDirector';
-import {matchAssetsToScenes, loadAssetLibrary} from '@/services/ai/assetMatcher';
-import {enhanceScenePlanWithIntelligence} from '@/services/ai/visualIntelligence';
-import {makeDirectorDecision, buildVisualContinuity, checkConstraints, type VisualContinuity, type DirectorDecision} from '@/services/ai/directorBrain';
-import {getOptimalFramesPerLambda} from '@/lib/media/optimizeUpload';
-import {detectScenes} from '@/services/ai/sceneDetector';
-import {planWhiteboardVideo, buildWhiteboardSegments} from '@/services/ai/whiteboardPlanner';
-import {selectBestClips} from '@/services/ai/clipSelector';
-import {planLongVideoProBlueprint} from '@/services/ai/longVideoProPlanner';
-import {resolveBlueprintAssets} from '@/services/ai/assetResolver';
-import {toAbsoluteS3AssetUrl, ITNAVIDEO_STOCK_ASSETS} from '@/constants/itnavideoStockAssets';
-import {cleanFaceCamSilenceAndFillers} from '@/services/ai/faceCamSilenceCleaner';
-import {extractFaceKeyframes} from '@/services/vision/faceTracker';
-import {generateStructuredSceneBlueprint, generateFacelessStickerEvents} from '@/services/ai/aiScenePlanner';
+import { renderMediaOnLambda, type AwsRegion } from '@remotion/lambda/client';
+import { createReadUrl, TEMP_MEDIA_RENDER_PREFIX, uploadTemporaryMediaObject } from '@/lib/aws/mediaStorage';
+import { resolveYoutubeAudio } from '@/lib/media/youtubeResolver';
+import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
+import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
+import { createReelPlan, VIDEO_TYPE_REGISTRY, validateAndRepairReelPlan, type ReelTemplateName, type ReelTranscriptSegment, type ReelWord } from '@/services/ai/reelPlanner';
+import { readUnifiedAssets } from '@/services/ai/assetPicker';
+import { hasHindiUrduScript, hasRomanHinglish } from '@/services/ai/hinglishTranscript';
+import { checkRateLimit, getClientIp } from '@/services/rateLimit/inMemoryRateLimiter';
+import { getRenderAccessForUser, reserveRenderUsageFromServer } from '@/services/billing/renderAccess';
+import { calculateRenderCreditUnits, formatCreditUnits, LONG_FORM_CAPTION_MAX_SECONDS } from '@/lib/billing/creditPricing';
+import { createPlanningMediaClip } from '@/services/media/mediaClipper';
+import { buildEnergyTimeline, findBeatPeaks } from '@/lib/audio/energyTimeline';
+import { createPremiumSoundCues, createPremiumStyleLock } from '@/services/ai/premiumStylePlanner';
+import { planCompareStickers, buildCompareScenes } from '@/services/ai/compareStickerPlanner';
+import { planScenes } from '@/services/ai/sceneDirector';
+import { matchAssetsToScenes, loadAssetLibrary } from '@/services/ai/assetMatcher';
+import { enhanceScenePlanWithIntelligence } from '@/services/ai/visualIntelligence';
+import { makeDirectorDecision, buildVisualContinuity, checkConstraints, type VisualContinuity, type DirectorDecision } from '@/services/ai/directorBrain';
+import { getOptimalFramesPerLambda } from '@/lib/media/optimizeUpload';
+import { detectScenes } from '@/services/ai/sceneDetector';
+import { planWhiteboardVideo, buildWhiteboardSegments } from '@/services/ai/whiteboardPlanner';
+import { selectBestClips } from '@/services/ai/clipSelector';
+import { planLongVideoProBlueprint } from '@/services/ai/longVideoProPlanner';
+import { resolveBlueprintAssets } from '@/services/ai/assetResolver';
+import { toAbsoluteS3AssetUrl, ITNAVIDEO_STOCK_ASSETS } from '@/constants/itnavideoStockAssets';
+import { cleanFaceCamSilenceAndFillers } from '@/services/ai/faceCamSilenceCleaner';
+import { extractFaceKeyframes } from '@/services/vision/faceTracker';
+import { generateStructuredSceneBlueprint, generateFacelessStickerEvents } from '@/services/ai/aiScenePlanner';
 import { planFacelessGraphics } from '@/services/ai/facelessGraphicPlanner';
-import {planBrollForScenes} from '@/services/ai/brollMatcher';
-import {planImagesFromLibraryForScenes} from '@/services/ai/aiImageLibraryMatcher';
-import {planSemanticImageToVideoTimeline, planVisualIntelligenceTimeline} from '@/services/ai/visualPlanner';
-import {SUBTITLE_PRESETS} from '@/remotion/types/subtitles';
+import { runFacelessShortsProductionCrew } from '@/services/ai/facelessShortsProductionCrew';
+import { planBrollForScenes } from '@/services/ai/brollMatcher';
+import { planImagesFromLibraryForScenes } from '@/services/ai/aiImageLibraryMatcher';
+import { planSemanticImageToVideoTimeline, planVisualIntelligenceTimeline } from '@/services/ai/visualPlanner';
+import { SUBTITLE_PRESETS } from '@/remotion/types/subtitles';
 
 function getFontForLanguage(lang?: string): string {
   if (!lang) return 'Plus Jakarta Sans, sans-serif';
@@ -45,11 +46,11 @@ function getFontForLanguage(lang?: string): string {
   if (clean === 'korean') return 'Noto Sans KR, sans-serif';
   return 'Plus Jakarta Sans, sans-serif';
 }
-import {generateSFXEvents} from '@/services/ai/sfxEngine';
-import {detectChaptersFromTranscript} from '@/services/ai/chapterDetector';
-import {smartMatchUploadedImagesToScenes} from '@/services/ai/smartMediaMatcher';
-import {analyzeMultipleImages, analyzeBatchImagesInSingleCall, generateDeterministicAnalysis, matchScriptToAnalyzedImages, isGenericFilename, type AnalyzedImage} from '@/services/ai/imageUnderstanding';
-import {searchPexelsFallbackImages, matchPexelsMediaForScenes} from '@/services/ai/pexelsImages';
+import { generateSFXEvents } from '@/services/ai/sfxEngine';
+import { detectChaptersFromTranscript } from '@/services/ai/chapterDetector';
+import { smartMatchUploadedImagesToScenes } from '@/services/ai/smartMediaMatcher';
+import { analyzeMultipleImages, analyzeBatchImagesInSingleCall, generateDeterministicAnalysis, matchScriptToAnalyzedImages, isGenericFilename, type AnalyzedImage } from '@/services/ai/imageUnderstanding';
+import { searchPexelsFallbackImages, matchPexelsMediaForScenes } from '@/services/ai/pexelsImages';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -66,7 +67,7 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   longVideoClips: 'LONG_VIDEO_CLIPS',
   facelessVideo: 'FACELESS_VIDEO',
   facelessShorts: 'FACELESS_SHORTS',
-  aiVideoGenerator: 'FACELESS_VIDEO',
+  aiVideoGenerator: 'AI_VIDEO_GENERATOR',
   imageToVideoAi: 'IMAGE_TO_VIDEO_AI',
   bookSummary: 'BOOK_SUMMARY',
   longVideoPromo: 'LONG_VIDEO_PROMO',
@@ -474,7 +475,7 @@ async function reserveAcceptedRenderUsage(input: {
 export async function POST(request: Request) {
   const ip = getClientIp(request.headers);
   const body = await readJson(request);
-  if (!body) return NextResponse.json({ok: false, error: 'Invalid JSON body.'}, {status: 400});
+  if (!body) return NextResponse.json({ ok: false, error: 'Invalid JSON body.' }, { status: 400 });
 
   const mediaKey = readString(body.mediaKey);
   const fileName = readString(body.fileName);
@@ -489,11 +490,11 @@ export async function POST(request: Request) {
       : [];
   const uploadedImageAnchors = Array.isArray(body.uploadedImageAnchors)
     ? (body.uploadedImageAnchors as Array<{ url: string; targetPhrase: string; sequenceIndex?: number; originalFileName?: string }>).map((item, idx) => ({
-        url: readString(item?.url),
-        targetPhrase: readString(item?.targetPhrase),
-        sequenceIndex: typeof item?.sequenceIndex === 'number' ? item.sequenceIndex : idx,
-        originalFileName: readString(item?.originalFileName),
-      })).filter((item) => item.url)
+      url: readString(item?.url),
+      targetPhrase: readString(item?.targetPhrase),
+      sequenceIndex: typeof item?.sequenceIndex === 'number' ? item.sequenceIndex : idx,
+      originalFileName: readString(item?.originalFileName),
+    })).filter((item) => item.url)
     : [];
   const customImageUrls = Array.isArray(body.customImageUrls)
     ? body.customImageUrls.map((value: unknown) => readString(value)).filter(Boolean)
@@ -510,7 +511,7 @@ export async function POST(request: Request) {
   const languageHint = toLanguageHint(readString(body.language || body.displayLanguage || body.typographyLanguage));
 
   // Preview-edited captions/scenes — if present, skip transcription+planning and use these directly
-  const previewCaptions = Array.isArray(body.previewCaptions) ? body.previewCaptions as Array<{start: number; end: number; text: string; words?: unknown[]}> : null;
+  const previewCaptions = Array.isArray(body.previewCaptions) ? body.previewCaptions as Array<{ start: number; end: number; text: string; words?: unknown[] }> : null;
   const previewScenes = Array.isArray(body.previewScenes) ? body.previewScenes : null;
   const previewOverlayTimeline = Array.isArray(body.previewOverlayTimeline) ? body.previewOverlayTimeline : null;
   const previewStickers = Array.isArray(body.previewStickers) ? body.previewStickers : null;
@@ -520,7 +521,7 @@ export async function POST(request: Request) {
   }));
   const requestedMode = readString(body.mode || body.templateName || body.template || body.compositionId);
   if (!requestedMode) {
-    return NextResponse.json({ok: false, status: 'failed', reasonCode: 'MISSING_TEMPLATE', error: 'Please select a video type before creating a reel.'}, {status: 400});
+    return NextResponse.json({ ok: false, status: 'failed', reasonCode: 'MISSING_TEMPLATE', error: 'Please select a video type before creating a reel.' }, { status: 400 });
   }
   const requestedModeValue = toMode(requestedMode);
   const resolvedTemplateName = resolveTemplateNameFromRequest(readString(body.templateName || body.template || requestedMode)) || (requestedModeValue ? MODE_TO_TEMPLATE[requestedModeValue] : null) || null;
@@ -534,7 +535,7 @@ export async function POST(request: Request) {
         reasonCode: 'UNKNOWN_TEMPLATE',
         error: 'This video type is not registered for rendering yet.',
       },
-      {status: 422},
+      { status: 422 },
     );
   }
   const templateName: ReelTemplateName = resolvedTemplateName;
@@ -550,6 +551,7 @@ export async function POST(request: Request) {
   };
   const userEmail = readString(body.userEmail || body.email);
   const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+  const removeAiWatermark = Boolean(body.removeAiWatermark);
   const rateLimit = checkRateLimit({
     key: `reels-job:${userId || ip}`,
     limit: isFounder ? 100 : userId ? 25 : 10,
@@ -557,7 +559,7 @@ export async function POST(request: Request) {
   });
 
   if (!rateLimit.allowed) {
-    return NextResponse.json({ok: false, error: 'Render limit reached for this session. Please wait a few minutes before submitting another render.'}, {status: 429});
+    return NextResponse.json({ ok: false, error: 'Render limit reached for this session. Please wait a few minutes before submitting another render.' }, { status: 429 });
   }
   const mediaType = toMediaType(readString(body.mediaType) || 'video');
 
@@ -569,16 +571,16 @@ export async function POST(request: Request) {
         reasonCode: 'UNSUPPORTED_MEDIA_FOR_TEMPLATE',
         error: `${humanTemplateName(templateName)} does not support this upload type.`,
       },
-      {status: 422},
+      { status: 422 },
     );
   }
 
   const youtubeUrl = readString(body.youtubeUrl);
   if (!mediaKey && !youtubeUrl) {
-    return NextResponse.json({ok: false, error: 'mediaKey or youtubeUrl is required. Upload media or enter a YouTube link before starting render.'}, {status: 400});
+    return NextResponse.json({ ok: false, error: 'mediaKey or youtubeUrl is required. Upload media or enter a YouTube link before starting render.' }, { status: 400 });
   }
   if (!userId) {
-    return NextResponse.json({ok: false, error: 'Please log in before creating a reel.'}, {status: 401});
+    return NextResponse.json({ ok: false, error: 'Please log in before creating a reel.' }, { status: 401 });
   }
   const requestedClipCountRaw = body.clipCount;
   const isAutoClips = mode === 'longVideoClips' && (requestedClipCountRaw === 'auto' || requestedClipCountRaw === 0 || !requestedClipCountRaw);
@@ -598,14 +600,14 @@ export async function POST(request: Request) {
       status: 'failed',
       reasonCode: 'INVALID_CREDIT_CONFIGURATION',
       error: error instanceof Error ? error.message : 'This video type cannot be priced right now.',
-    }, {status: 422});
+    }, { status: 422 });
   }
   if (mode === 'compare') {
     if (contentType && !contentType.startsWith('audio/') && !contentType.startsWith('video/')) {
-      return NextResponse.json({ok: false, error: 'Compare requires one audio or video narration file.'}, {status: 400});
+      return NextResponse.json({ ok: false, error: 'Compare requires one audio or video narration file.' }, { status: 400 });
     }
     if (comparisonImageKeys.length !== 2) {
-      return NextResponse.json({ok: false, error: 'Compare requires exactly 2 visuals: one left and one right.'}, {status: 400});
+      return NextResponse.json({ ok: false, error: 'Compare requires exactly 2 visuals: one left and one right.' }, { status: 400 });
     }
   }
 
@@ -624,7 +626,7 @@ export async function POST(request: Request) {
           access,
           upgradeUrl: '/pricing',
         },
-        {status: access.activePaidPlan ? 403 : 402},
+        { status: access.activePaidPlan ? 403 : 402 },
       );
     }
 
@@ -651,15 +653,15 @@ export async function POST(request: Request) {
       : "";
     const comparisonImageUrls = templateConfig.needsImages
       ? (await Promise.all(
-          comparisonImageKeys.map(async (key: string) => {
-            const cleanKey = readString(key);
-            if (!cleanKey) return '';
-            if (cleanKey.startsWith('http://') || cleanKey.startsWith('https://')) {
-              return cleanKey;
-            }
-            return readString(await createReadUrl(cleanKey));
-          }),
-        )).filter(Boolean).slice(0, 2)
+        comparisonImageKeys.map(async (key: string) => {
+          const cleanKey = readString(key);
+          if (!cleanKey) return '';
+          if (cleanKey.startsWith('http://') || cleanKey.startsWith('https://')) {
+            return cleanKey;
+          }
+          return readString(await createReadUrl(cleanKey));
+        }),
+      )).filter(Boolean).slice(0, 2)
       : [];
     const resolvedCustomUrls = (
       await Promise.all(
@@ -747,12 +749,12 @@ export async function POST(request: Request) {
 
     if (mode === 'compare' && comparisonImageUrls.length !== 2) {
       return NextResponse.json(
-        {ok: false, error: 'Compare visual URLs could not be prepared. Please re-upload both visuals.'},
-        {status: 422},
+        { ok: false, error: 'Compare visual URLs could not be prepared. Please re-upload both visuals.' },
+        { status: 422 },
       );
     }
     const config = readLambdaConfig();
-    if (!config.ok) return NextResponse.json({ok: false, error: config.error}, {status: 503});
+    if (!config.ok) return NextResponse.json({ ok: false, error: config.error }, { status: 503 });
 
     // ── AUTO CAPTION / YOUTUBE SUBTITLE GENERATOR FAST PATH (Direct S3 URL + Groq Whisper + Remotion Lambda) ──
     if (mode === 'autoCaption' || mode === 'youtubeSubtitleGenerator') {
@@ -771,7 +773,7 @@ export async function POST(request: Request) {
       const spokenLang = normalizeSubtitleLanguage(readString(body.spokenLanguage || body.language));
       const subtitleLang = normalizeSubtitleLanguage(readString(body.captionLanguage || body.subtitleOutputLanguage));
 
-      let captions: Array<{start: number; end: number; text: string; words?: Array<{word: string; start: number; end: number}>}> = [];
+      let captions: Array<{ start: number; end: number; text: string; words?: Array<{ word: string; start: number; end: number }> }> = [];
       let finalTranscript = '';
       let detectedDuration = fallbackDuration;
       let transcriptSource: 'groq' | 'gemini' | 'preview' = 'groq';
@@ -859,7 +861,7 @@ export async function POST(request: Request) {
         compositionId: composition,
       };
 
-      const preflight = validateBeforeRender({inputProps, templateName, composition, mediaType});
+      const preflight = validateBeforeRender({ inputProps, templateName, composition, mediaType });
       if (preflight) {
         return NextResponse.json(
           {
@@ -879,7 +881,7 @@ export async function POST(request: Request) {
               },
             } : {}),
           },
-          {status: 422},
+          { status: 422 },
         );
       }
 
@@ -909,7 +911,7 @@ export async function POST(request: Request) {
       };
 
       const render = await startRenderWithCapacityRetry(renderRequest);
-      const creditCost = requestedCreditUnits ?? calculateRenderCreditUnits(mode, {durationSeconds: finalDuration});
+      const creditCost = requestedCreditUnits ?? calculateRenderCreditUnits(mode, { durationSeconds: finalDuration });
       await reserveAcceptedRenderUsage({
         userId,
         renderId: render.renderId,
@@ -1022,7 +1024,7 @@ export async function POST(request: Request) {
       // Filter stock assets by visual category with robust S3 URL mapping & strict category isolation
       const styleFolder = `/images/${visualStyle.toLowerCase()}/`;
       const allUnifiedImages = readUnifiedAssets().filter((asset) => asset.type === 'image' && asset.safeToUse);
-      
+
       const legacy2dAssets = ITNAVIDEO_STOCK_ASSETS.map((asset) => ({
         url: toAbsoluteS3AssetUrl(asset.url),
         positiveTags: asset.positiveTags || [],
@@ -1031,8 +1033,8 @@ export async function POST(request: Request) {
       }));
 
       let unifiedStyleAssets = allUnifiedImages
-        .filter((asset) => 
-          asset.src.toLowerCase().includes(styleFolder) || 
+        .filter((asset) =>
+          asset.src.toLowerCase().includes(styleFolder) ||
           asset.style?.toLowerCase() === visualStyle.toLowerCase() ||
           asset.tags?.some((t) => t.toLowerCase() === visualStyle.toLowerCase()) ||
           asset.category?.toLowerCase() === visualStyle.toLowerCase()
@@ -1443,6 +1445,7 @@ export async function POST(request: Request) {
 
       const splitTitle = topicTitle || readString(body.topicTitle) || 'Split Screen Explainer';
       const subtitleStyle = readString(body.subtitleStyle) || readString(body.captionThemeId) || 'glow-viral';
+      const visualTheme = readString(body.visualTheme) || 'modern-saas';
       const finalBgmUrl = customBgmUrl || readString(body.bgmUrl) || '';
       const finalBgmVolume = typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12;
 
@@ -1463,6 +1466,7 @@ export async function POST(request: Request) {
         title: splitTitle,
         topicTitle: splitTitle,
         aspectRatio: '9:16',
+        visualTheme,
         compositionId: 'SPLIT-SCREEN-EXPLAINER',
       };
 
@@ -1506,6 +1510,107 @@ export async function POST(request: Request) {
       });
     }
 
+    // ── AI VIDEO GENERATOR (16:9 Cinema Full HD, Creative Director Planned Scenes, CapCut Multitrack Timeline) ──
+    if (mode === 'aiVideoGenerator') {
+      const prompt = readString(body.prompt) || readString(body.topicTitle) || 'AI Video Production';
+      const rawScenes = body.scenes;
+      const rawCaptions = body.captions;
+      const videoDuration = Math.min(300, Math.max(15, readFiniteNumber(body.durationSeconds, 45)));
+      const subtitleStyle = readString(body.subtitleStyle) || readString(body.captionThemeId) || 'pop-word';
+      const finalBgmUrl = customBgmUrl || readString(body.bgmUrl) || 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/music/parasail-silent-partner.mp3';
+      const finalBgmVolume = typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.35;
+
+      const scenes = Array.isArray(rawScenes) && rawScenes.length > 0
+        ? rawScenes
+        : [
+          {
+            id: 's1',
+            startSeconds: 0,
+            endSeconds: 5,
+            title: 'Opening Hook',
+            narration: `Exploring ${prompt}.`,
+            cameraMotion: 'ken-burns-in',
+            mediaUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto,w_1200/v1793807678/itnavideo12345/blog_podcaster_new_york.png',
+          },
+          {
+            id: 's2',
+            startSeconds: 5,
+            endSeconds: 10,
+            title: 'Core Concept',
+            narration: `High-retention visual storytelling crafted with AI precision.`,
+            cameraMotion: 'pan-right',
+            mediaUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto,w_1200/v1793807713/itnavideo12345/blog_video_producer_studio.png',
+          },
+        ];
+
+      const captions = Array.isArray(rawCaptions) && rawCaptions.length > 0
+        ? rawCaptions
+        : scenes.map((s: any, idx: number) => ({
+          id: `cap-${idx + 1}`,
+          start: s.startSeconds,
+          end: s.endSeconds,
+          text: s.narration || s.title || '',
+        }));
+
+      const inputProps: Record<string, unknown> = {
+        scenes,
+        captions,
+        subtitleChunks: captions,
+        audioUrl: mediaUrl || '',
+        bgmUrl: finalBgmUrl,
+        bgmVolume: finalBgmVolume,
+        durationSeconds: videoDuration,
+        captionThemeId: subtitleStyle,
+        title: prompt,
+        aspectRatio: '16:9',
+        compositionId: 'AI-VIDEO-GENERATOR',
+      };
+
+      const totalFrames = Math.max(30, Math.ceil(videoDuration * 30));
+      const outName = `${TEMP_MEDIA_RENDER_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-ai-video-generator.mp4`;
+      const render = await startRenderWithCapacityRetry({
+        region: config.region,
+        functionName: config.functionName,
+        serveUrl: config.serveUrl,
+        composition: 'AI-VIDEO-GENERATOR',
+        codec: 'h264',
+        audioCodec: 'aac',
+        inputProps,
+        frameRange: [0, totalFrames - 1],
+        framesPerLambda: 120,
+        outName,
+        privacy: 'private',
+        deleteAfter: '3-days',
+        overwrite: true,
+        concurrency: config.concurrency,
+        maxRetries: 3,
+        downloadBehavior: { type: 'download', fileName: 'itnavideo-ai-video-generator.mp4' },
+        isProduction: true,
+        logLevel: 'info',
+      });
+
+      return NextResponse.json({
+        ok: true,
+        status: 'rendering',
+        renderId: render.renderId,
+        bucketName: render.bucketName,
+        outName,
+        mediaKey: mediaKey || 'generated-ai-video',
+        reelTitle: prompt,
+        design: 'AI Video Generator',
+        mode,
+        templateName: 'AI_VIDEO_GENERATOR',
+        transcriptSource: 'groq',
+        access,
+        retentionHours: 48,
+        diagnostics: {
+          sceneCount: scenes.length,
+          captionCount: captions.length,
+          durationSeconds: videoDuration,
+        },
+      });
+    }
+
     // ── BOOK SUMMARY VIDEO (16:9 Full HD, pre-planned scenes, Groq Whisper captions, GA Orange design system) ──
     if (mode === 'bookSummary') {
       // Accept pre-built scenes from BookSummaryStudio (already planned via /api/reels/plan-book-summary)
@@ -1518,6 +1623,7 @@ export async function POST(request: Request) {
       const bsAuthorPortraitUrl = readString(body.authorPortraitUrl) || '';
       const bsReferenceImages: string[] = Array.isArray(body.referenceImages) ? body.referenceImages.map(String) : [];
       const bsCaptionThemeId = readString(body.captionsTheme) || 'glow-viral';
+      const bsVisualTheme = readString(body.visualTheme) || 'editorial-minimal';
       const bsDurationSeconds = Math.min(MAX_BOOK_SUMMARY_SECONDS, Math.max(5, readFiniteNumber(body.durationSeconds, 60)));
 
       // Validate audio URL
@@ -1591,6 +1697,7 @@ export async function POST(request: Request) {
         authorPortraitUrl: bsAuthorPortraitUrl,
         referenceImages: bsReferenceImages,
         captionThemeId: bsCaptionThemeId,
+        visualTheme: bsVisualTheme,
         aspectRatio: bsAspectRatio,
         compositionId: composition,
         templateName,
@@ -1673,7 +1780,7 @@ export async function POST(request: Request) {
           status: 'failed',
           reasonCode: 'TRANSCRIPTION_FAILED',
           error: 'No clear speech detected. Please upload a video with clear speaking voice.',
-        }, {status: 422});
+        }, { status: 422 });
       }
 
       const totalDuration = clipTranscription.durationSeconds || 120;
@@ -1725,13 +1832,13 @@ export async function POST(request: Request) {
           status: 'failed',
           reasonCode: 'NO_CLIPS_FOUND',
           error: 'Video too short or too quiet to extract clips. Try a longer video with more speech.',
-        }, {status: 422});
+        }, { status: 422 });
       }
 
       // Caption style from request
-      const clipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: bestClips.length});
-      const firstClipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: 1});
-      const additionalClipCreditUnits = calculateRenderCreditUnits('longVideoClips', {clipCount: 2}) - firstClipCreditUnits;
+      const clipCreditUnits = calculateRenderCreditUnits('longVideoClips', { clipCount: bestClips.length });
+      const firstClipCreditUnits = calculateRenderCreditUnits('longVideoClips', { clipCount: 1 });
+      const additionalClipCreditUnits = calculateRenderCreditUnits('longVideoClips', { clipCount: 2 }) - firstClipCreditUnits;
       const clipCaptionStyle = readString(body.captionStyle) || 'Studio Clean';
       const clipCaptionPreset = getSubtitlePreset(clipCaptionStyle);
       const enableCaptions = body.enableCaptions !== false && body.addCaptions !== false;
@@ -1886,7 +1993,7 @@ export async function POST(request: Request) {
             reasonCode: 'AUDIO_VOICEOVER_REQUIRED',
             error: 'Faceless Video requires a voiceover audio file (.mp3, .wav, .m4a, .aac). Please upload your narration voiceover.',
           },
-          {status: 422},
+          { status: 422 },
         );
       }
     }
@@ -1909,7 +2016,7 @@ export async function POST(request: Request) {
           error: 'We could not prepare the media for processing. Please try again or upload a standard MP3/MP4 file.',
           detail: process.env.NODE_ENV !== 'production' ? (planningMedia as any).error : undefined,
         },
-        {status: 422},
+        { status: 422 },
       );
     }
 
@@ -1973,11 +2080,11 @@ export async function POST(request: Request) {
         languageHint: (spokenLang === 'english' ? 'english' : 'hinglish') as 'english' | 'hinglish',
         segments: userProvidedSceneBlueprint
           ? userProvidedSceneBlueprint.map((s: any, idx: number) => ({
-              id: idx + 1,
-              start: Number(s.narrationSegment?.startSeconds || 0),
-              end: Number(s.narrationSegment?.endSeconds || 0),
-              text: String(s.narrationSegment?.text || s.heading || ''),
-            }))
+            id: idx + 1,
+            start: Number(s.narrationSegment?.startSeconds || 0),
+            end: Number(s.narrationSegment?.endSeconds || 0),
+            text: String(s.narrationSegment?.text || s.heading || ''),
+          }))
           : [],
         words: flattenedWords,
       };
@@ -2002,13 +2109,14 @@ export async function POST(request: Request) {
         console.error('Transcription error:', errMsg);
         const userEmail = readString(body.userEmail || body.email);
         const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+        const removeAiWatermark = Boolean(body.removeAiWatermark);
         return NextResponse.json({
           ok: false,
           status: 'failed',
           reasonCode: 'TRANSCRIPTION_CRASHED',
           error: isFounder ? `Transcription crashed: ${errMsg}` : 'Could not process audio. Please try again.',
           ...(isFounder ? { _founderDiagnostics: { step: 'transcription', reason: errMsg, mode, templateName, compositionId: composition, httpStatus: 500, raw: transcribeError instanceof Error ? transcribeError.stack?.split('\n').slice(0, 5).join(' | ') : '' } } : {}),
-        }, {status: 500});
+        }, { status: 500 });
       }
     }
 
@@ -2021,7 +2129,7 @@ export async function POST(request: Request) {
           error: 'No clear speech detected. Please upload a new video or audio with clear speaking voice. Background music or silent videos cannot be used.',
           detail: transcription.warning,
         },
-        {status: 422},
+        { status: 422 },
       );
     }
 
@@ -2091,13 +2199,14 @@ export async function POST(request: Request) {
         console.error('Plan creation error:', errMsg, planError instanceof Error ? planError.stack : '');
         const userEmail = readString(body.userEmail || body.email);
         const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+        const removeAiWatermark = Boolean(body.removeAiWatermark);
         return NextResponse.json({
           ok: false,
           status: 'failed',
           reasonCode: 'PLANNING_CRASHED',
           error: isFounder ? `Planning crashed: ${errMsg}` : 'Could not plan your reel. Please try again.',
           ...(isFounder ? { _founderDiagnostics: { step: 'planning', reason: errMsg, mode, templateName, compositionId: composition, httpStatus: 500, raw: planError instanceof Error ? planError.stack?.split('\n').slice(0, 6).join(' | ') : '' } } : {}),
-        }, {status: 500});
+        }, { status: 500 });
       }
     }
 
@@ -2111,7 +2220,7 @@ export async function POST(request: Request) {
           qualityBand: plan.validation.qualityBand,
           qualityChecks: (plan.validation.qualityChecks || []).slice(0, 5).map(sanitizeUserFacingStatus),
         },
-        {status: 422},
+        { status: 422 },
       );
     }
 
@@ -2134,83 +2243,83 @@ export async function POST(request: Request) {
     const inputProps: Record<string, unknown> = {
       ...((mode as string) === 'autoCaption'
         ? {
-            topicTitle: plan.renderProps?.topicTitle,
-            captions: (previewCaptions && previewCaptions.length > 0) ? previewCaptions : plan.renderProps?.captions,
-          }
+          topicTitle: plan.renderProps?.topicTitle,
+          captions: (previewCaptions && previewCaptions.length > 0) ? previewCaptions : plan.renderProps?.captions,
+        }
         : (plan.renderProps || {})),
       mediaSrc: planningMedia.mediaUrl,
       ...(mode === 'compare'
         ? await (async () => {
-            const finalCaptions = previewCaptions
-              ? previewCaptions
-                  .map((caption) => ({
-                    start: Math.max(0, Number(caption.start)),
-                    end: Math.min(renderWindow.durationSeconds, Number(caption.end)),
-                    text: cleanTextForRender(String(caption.text), 100),
-                    words: Array.isArray(caption.words) ? caption.words : undefined,
-                  }))
-                  .filter((caption) => Number.isFinite(caption.start) && Number.isFinite(caption.end) && caption.end > caption.start && caption.text)
-              : buildCompareCaptionsFromGroq(renderWindow);
-            const rawOverlayTimeline = previewOverlayTimeline
-              ? previewOverlayTimeline.map((item: unknown, index: number) => {
-                  const overlay = item && typeof item === 'object' ? item as Record<string, unknown> : {};
-                  const start = Number(overlay.start ?? finalCaptions[index]?.start ?? 0);
-                  const id = readString(overlay.id) || `compare-pose-${index + 1}`;
-                  const previewSticker = previewStickerOverrides.get(id);
-                  return {
-                    id,
-                    start,
-                    end: Number(overlay.end ?? finalCaptions[index]?.end ?? (start + 2.5)),
-                    text: readString(overlay.text || overlay.body || finalCaptions[index]?.text),
-                    body: readString(overlay.body || overlay.text || finalCaptions[index]?.text),
-                    title: readString(overlay.title),
-                    stickerPose: readString(previewSticker?.pose || overlay.stickerPose || overlay.pose) || undefined,
-                    pose: readString(previewSticker?.pose || overlay.pose || overlay.stickerPose) || undefined,
-                  };
-                })
-              : plan.renderProps?.overlayTimeline;
-            const finalOverlayTimeline = stabilizeCompareOverlayTimeline(
-              Array.isArray(rawOverlayTimeline) ? rawOverlayTimeline : [],
-              finalCaptions,
-              renderWindow.durationSeconds,
-              compareLeftTitleValue,
-              compareRightTitleValue,
+          const finalCaptions = previewCaptions
+            ? previewCaptions
+              .map((caption) => ({
+                start: Math.max(0, Number(caption.start)),
+                end: Math.min(renderWindow.durationSeconds, Number(caption.end)),
+                text: cleanTextForRender(String(caption.text), 100),
+                words: Array.isArray(caption.words) ? caption.words : undefined,
+              }))
+              .filter((caption) => Number.isFinite(caption.start) && Number.isFinite(caption.end) && caption.end > caption.start && caption.text)
+            : buildCompareCaptionsFromGroq(renderWindow);
+          const rawOverlayTimeline = previewOverlayTimeline
+            ? previewOverlayTimeline.map((item: unknown, index: number) => {
+              const overlay = item && typeof item === 'object' ? item as Record<string, unknown> : {};
+              const start = Number(overlay.start ?? finalCaptions[index]?.start ?? 0);
+              const id = readString(overlay.id) || `compare-pose-${index + 1}`;
+              const previewSticker = previewStickerOverrides.get(id);
+              return {
+                id,
+                start,
+                end: Number(overlay.end ?? finalCaptions[index]?.end ?? (start + 2.5)),
+                text: readString(overlay.text || overlay.body || finalCaptions[index]?.text),
+                body: readString(overlay.body || overlay.text || finalCaptions[index]?.text),
+                title: readString(overlay.title),
+                stickerPose: readString(previewSticker?.pose || overlay.stickerPose || overlay.pose) || undefined,
+                pose: readString(previewSticker?.pose || overlay.pose || overlay.stickerPose) || undefined,
+              };
+            })
+            : plan.renderProps?.overlayTimeline;
+          const finalOverlayTimeline = stabilizeCompareOverlayTimeline(
+            Array.isArray(rawOverlayTimeline) ? rawOverlayTimeline : [],
+            finalCaptions,
+            renderWindow.durationSeconds,
+            compareLeftTitleValue,
+            compareRightTitleValue,
+          );
+
+          const hasApprovedPreviewTimeline = Boolean(previewCaptions?.length || previewOverlayTimeline?.length || previewStickers?.length);
+          const plannedOverlayTimeline = hasApprovedPreviewTimeline
+            ? finalOverlayTimeline
+            : applyStickerPlanToOverlays(
+              finalOverlayTimeline,
+              (await planCompareStickers({
+                transcript: renderWindow.transcript,
+                segments: finalCaptions.map((c) => ({ start: c.start, end: c.end, text: c.text })),
+                leftTitle: compareLeftTitleValue,
+                rightTitle: compareRightTitleValue,
+                durationSeconds: renderWindow.durationSeconds,
+              })).plan,
             );
+          console.log('[COMPARE_STICKER_PLANNER]', {
+            source: hasApprovedPreviewTimeline ? 'preview-approved' : 'fallback',
+            overlayCount: plannedOverlayTimeline.length,
+          });
 
-            const hasApprovedPreviewTimeline = Boolean(previewCaptions?.length || previewOverlayTimeline?.length || previewStickers?.length);
-            const plannedOverlayTimeline = hasApprovedPreviewTimeline
-              ? finalOverlayTimeline
-              : applyStickerPlanToOverlays(
-                  finalOverlayTimeline,
-                  (await planCompareStickers({
-                    transcript: renderWindow.transcript,
-                    segments: finalCaptions.map((c) => ({start: c.start, end: c.end, text: c.text})),
-                    leftTitle: compareLeftTitleValue,
-                    rightTitle: compareRightTitleValue,
-                    durationSeconds: renderWindow.durationSeconds,
-                  })).plan,
-                );
-            console.log('[COMPARE_STICKER_PLANNER]', {
-              source: hasApprovedPreviewTimeline ? 'preview-approved' : 'fallback',
-              overlayCount: plannedOverlayTimeline.length,
-            });
+          const compareWinnerValue = resolveCompareWinner(readString(body.compareWinner || body.winner));
+          const compareScenes = buildCompareScenes({
+            stickerPlan: plannedOverlayTimeline.map((item) => ({
+              start: Number(item.start ?? 0),
+              end: Number(item.end ?? 0),
+              pose: String(item.stickerPose || item.pose || 'sticker_comparing_both_sides_explainer'),
+              reason: String(item.title || item.text || item.body || ''),
+            })),
+            leftTitle: compareLeftTitleValue,
+            rightTitle: compareRightTitleValue,
+            durationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
+            captions: finalCaptions,
+            winner: compareWinnerValue,
+          });
 
-            const compareWinnerValue = resolveCompareWinner(readString(body.compareWinner || body.winner));
-            const compareScenes = buildCompareScenes({
-              stickerPlan: plannedOverlayTimeline.map((item) => ({
-                start: Number(item.start ?? 0),
-                end: Number(item.end ?? 0),
-                pose: String(item.stickerPose || item.pose || 'sticker_comparing_both_sides_explainer'),
-                reason: String(item.title || item.text || item.body || ''),
-              })),
-              leftTitle: compareLeftTitleValue,
-              rightTitle: compareRightTitleValue,
-              durationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
-              captions: finalCaptions,
-              winner: compareWinnerValue,
-            });
-
-            return {
+          return {
             audioUrl: planningMedia.mediaUrl,
             mediaUrl: planningMedia.mediaUrl,
             sourceAudioUrl: planningMedia.mediaUrl,
@@ -2243,185 +2352,234 @@ export async function POST(request: Request) {
             durationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
             sourceDurationSeconds: Math.min(90, renderWindow.durationSeconds || 90),
           };
-          })()
+        })()
         : {}),
       ...((mode as string) === 'autoCaption'
         ? (() => {
-            const autoCaptions = previewCaptions
-              ? previewCaptions.map((c) => ({start: Number(c.start), end: Number(c.end), text: String(c.text), words: Array.isArray(c.words) ? c.words : undefined}))
-              : buildCompareCaptionsFromGroq(renderWindow);
-            const finalCaptions = autoCaptions.length > 0
-              ? autoCaptions
-              : (plan.renderProps?.captions || []).map((c: any) => ({start: c.start, end: c.end, text: c.text})).filter((c: any) => c.text);
+          const autoCaptions = previewCaptions
+            ? previewCaptions.map((c) => ({ start: Number(c.start), end: Number(c.end), text: String(c.text), words: Array.isArray(c.words) ? c.words : undefined }))
+            : buildCompareCaptionsFromGroq(renderWindow);
+          const finalCaptions = autoCaptions.length > 0
+            ? autoCaptions
+            : (plan.renderProps?.captions || []).map((c: any) => ({ start: c.start, end: c.end, text: c.text })).filter((c: any) => c.text);
 
-            // Pre-compute beat energy timeline from Groq word timestamps
-            const energyWords = (renderWindow.words || [])
-              .filter((w: any) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end))
-              .map((w: any) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) }));
-            const durationSec = renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS;
-            const energyTimeline = buildEnergyTimeline(energyWords, durationSec, 30);
-            const beatPeakFrames = findBeatPeaks(energyTimeline, 0.65, 8);
+          // Pre-compute beat energy timeline from Groq word timestamps
+          const energyWords = (renderWindow.words || [])
+            .filter((w: any) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end))
+            .map((w: any) => ({ word: String(w.word), start: Number(w.start), end: Number(w.end) }));
+          const durationSec = renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS;
+          const energyTimeline = buildEnergyTimeline(energyWords, durationSec, 30);
+          const beatPeakFrames = findBeatPeaks(energyTimeline, 0.65, 8);
 
-            const captionScenes = buildAutoCaptionScenes(finalCaptions, durationSec);
+          const captionScenes = buildAutoCaptionScenes(finalCaptions, durationSec);
 
-            return {
-              scenes: captionScenes,
-              captions: finalCaptions,
-              subtitleChunks: finalCaptions,
-              transcriptSegments: renderWindow.segments || [],
-              transcript: renderWindow.transcript,
-              sourceScript: renderWindow.transcript,
-              backgroundMusic: false,
-              backgroundMusicSrc: '',
-              durationSeconds: durationSec,
-              overlayTimeline: [],
-              assetTimeline: [],
-              energyTimeline,
-              beatPeakFrames,
-            };
-          })()
+          return {
+            scenes: captionScenes,
+            captions: finalCaptions,
+            subtitleChunks: finalCaptions,
+            transcriptSegments: renderWindow.segments || [],
+            transcript: renderWindow.transcript,
+            sourceScript: renderWindow.transcript,
+            backgroundMusic: false,
+            backgroundMusicSrc: '',
+            durationSeconds: durationSec,
+            overlayTimeline: [],
+            assetTimeline: [],
+            energyTimeline,
+            beatPeakFrames,
+          };
+        })()
         : {}),
       ...(mode === 'whiteboardVideo'
         ? await (async () => {
-            // Use dedicated whiteboard segment builder (sentence-boundary based),
-            // NOT buildCompareCaptionsFromGroq which is tuned for compare/caption modes.
-            const wbWords = (renderWindow.words || [])
-              .filter((w) => readString(w.word) && Number.isFinite(w.start) && Number.isFinite(w.end))
-              .map((w) => ({ word: readString(w.word), start: Number(w.start), end: Number(w.end) }));
-            const wbSegments = buildWhiteboardSegments(wbWords, renderWindow.durationSeconds);
+          // Use dedicated whiteboard segment builder (sentence-boundary based),
+          // NOT buildCompareCaptionsFromGroq which is tuned for compare/caption modes.
+          const wbWords = (renderWindow.words || [])
+            .filter((w) => readString(w.word) && Number.isFinite(w.start) && Number.isFinite(w.end))
+            .map((w) => ({ word: readString(w.word), start: Number(w.start), end: Number(w.end) }));
+          const wbSegments = buildWhiteboardSegments(wbWords, renderWindow.durationSeconds);
 
-            const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
-            const activeTranscript = readString(body.editorialTranscript) || readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
-            const fontPersonality = readString(body.fontPersonality) || 'balsamiq';
-            const markerColor = readString(body.markerColor) || 'auto';
-            const handStyle = readString(body.handStyle) || 'right';
-            const showHand = body.showHand !== undefined ? Boolean(body.showHand) : (handStyle !== 'none');
-            const wbAspectRatio = '9:16' as const;
+          const wbBoard = resolveWhiteboardBoard(readString(body.whiteboardBoard));
+          const activeTranscript = readString(body.editorialTranscript) || readString(body.editedTranscript) || readString(body.customTranscript) || renderWindow.transcript;
+          const fontPersonality = readString(body.fontPersonality) || 'balsamiq';
+          const markerColor = readString(body.markerColor) || 'auto';
+          const handStyle = readString(body.handStyle) || 'right';
+          const showHand = body.showHand !== undefined ? Boolean(body.showHand) : (handStyle !== 'none');
+          const visualTheme = readString(body.visualTheme) || 'educational';
+          const wbAspectRatio = '9:16' as const;
 
-            // Pass word-level timestamps so planner can compute real timing.
-            const wbPlan = body.plan ? body.plan : await planWhiteboardVideo({
-              transcript: activeTranscript,
-              segments: wbSegments.map((s) => ({ start: s.start, end: s.end, text: s.text })),
-              words: wbWords,
-              durationSeconds: renderWindow.durationSeconds,
-              topicTitle: topicTitle || undefined,
-              boardStyle: wbBoard,
-              aspectRatio: '9:16',
-            });
+          // Pass word-level timestamps so planner can compute real timing.
+          const wbPlan = body.plan ? body.plan : await planWhiteboardVideo({
+            transcript: activeTranscript,
+            segments: wbSegments.map((s) => ({ start: s.start, end: s.end, text: s.text })),
+            words: wbWords,
+            durationSeconds: renderWindow.durationSeconds,
+            topicTitle: topicTitle || undefined,
+            boardStyle: wbBoard,
+            aspectRatio: '9:16',
+          });
 
-            console.log('[WHITEBOARD_PLANNER]', {
-              source: wbPlan.source,
-              title: wbPlan.title,
-              pointCount: wbPlan.points.length,
-              board: wbBoard,
-              wordCount: wbWords.length,
-              segmentCount: wbSegments.length,
-              aspectRatio: wbAspectRatio,
-            });
+          console.log('[WHITEBOARD_PLANNER]', {
+            source: wbPlan.source,
+            title: wbPlan.title,
+            pointCount: wbPlan.points.length,
+            board: wbBoard,
+            wordCount: wbWords.length,
+            segmentCount: wbSegments.length,
+            aspectRatio: wbAspectRatio,
+          });
 
-            return {
-              title: wbPlan.title,
-              titleColor: wbPlan.titleColor,
-              layoutType: wbPlan.layoutType,
-              infographicData: wbPlan.infographicData,
-              showHand,
-              handStyle,
-              markerColor,
-              language: wbPlan.language,
-              direction: wbPlan.direction,
-              points: wbPlan.points,
-              tableRows: wbPlan.tableRows,
-              quiz: wbPlan.quiz,
-              conclusion: wbPlan.conclusion,
-              conclusionTime: wbPlan.conclusionTime,
-              scenes: wbPlan.scenes,
-              fontPersonality,
-              boardStyle: wbBoard,
-              bgmUrl: customBgmUrl || readString(body.bgmUrl) || (body.bgmTrackId && body.bgmTrackId !== 'none' ? ('assets/reusable/music/' + (body.bgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : body.bgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : body.bgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : body.bgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : body.bgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : 'parasail-silent-partner.mp3')) : undefined),
-              bgmVolume: typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12,
-              enableSfx: body.enableSfx !== false,
-              aspectRatio: wbAspectRatio,
-              captions: [],
-              durationSeconds: renderWindow.durationSeconds,
-              transcript: activeTranscript,
-              soundCues: wbPlan.points.map((p: unknown) => ({
-                time: (p as { startTime?: number }).startTime ?? 0,
-                type: 'paper' as const,
-                volume: 0.35,
-              })),
-              overlayTimeline: [],
-              assetTimeline: [],
-            };
-          })()
+          return {
+            title: wbPlan.title,
+            titleColor: wbPlan.titleColor,
+            layoutType: wbPlan.layoutType,
+            infographicData: wbPlan.infographicData,
+            showHand,
+            handStyle,
+            markerColor,
+            language: wbPlan.language,
+            direction: wbPlan.direction,
+            points: wbPlan.points,
+            tableRows: wbPlan.tableRows,
+            quiz: wbPlan.quiz,
+            conclusion: wbPlan.conclusion,
+            conclusionTime: wbPlan.conclusionTime,
+            scenes: wbPlan.scenes,
+            fontPersonality,
+            boardStyle: wbBoard,
+            visualTheme,
+            bgmUrl: customBgmUrl || readString(body.bgmUrl) || (body.bgmTrackId && body.bgmTrackId !== 'none' ? ('assets/reusable/music/' + (body.bgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : body.bgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : body.bgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : body.bgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : body.bgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : 'parasail-silent-partner.mp3')) : undefined),
+            bgmVolume: typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12,
+            enableSfx: body.enableSfx !== false,
+            aspectRatio: wbAspectRatio,
+            captions: [],
+            durationSeconds: renderWindow.durationSeconds,
+            transcript: activeTranscript,
+            soundCues: wbPlan.points.map((p: unknown) => ({
+              time: (p as { startTime?: number }).startTime ?? 0,
+              type: 'paper' as const,
+              volume: 0.35,
+            })),
+            overlayTimeline: [],
+            assetTimeline: [],
+          };
+        })()
         : {}),
       ...((mode === 'facelessVideo' || mode === 'facelessShorts') || mode === 'aiVideoGenerator'
         ? await (async () => {
-            const facelessCaptions = Array.isArray(body.approvedCaptions) && body.approvedCaptions.length > 0
-              ? body.approvedCaptions
-              : buildCompareCaptionsFromGroq(renderWindow);
-            const allWords = Array.isArray(renderWindow.words) ? renderWindow.words : [];
-            const transcriptChunks = (renderWindow.segments || []).map((seg: any) => {
-              const sStart = Number(seg.start || 0);
-              const sEnd = Number(seg.end || 0);
-              return {
-                text: String(seg.text || ''),
-                start: sStart,
-                end: sEnd,
-                words: allWords.length > 0
-                  ? allWords.filter((w: any) => Number(w.start || 0) >= sStart - 0.08 && Number(w.end || 0) <= sEnd + 0.08)
-                  : undefined,
-              };
-            }).filter((c: any) => c.text && c.end > c.start);
+          const facelessCaptions = Array.isArray(body.approvedCaptions) && body.approvedCaptions.length > 0
+            ? body.approvedCaptions
+            : buildCompareCaptionsFromGroq(renderWindow);
+          const allWords = Array.isArray(renderWindow.words) ? renderWindow.words : [];
+          const transcriptChunks = (renderWindow.segments || []).map((seg: any) => {
+            const sStart = Number(seg.start || 0);
+            const sEnd = Number(seg.end || 0);
+            return {
+              text: String(seg.text || ''),
+              start: sStart,
+              end: sEnd,
+              words: allWords.length > 0
+                ? allWords.filter((w: any) => Number(w.start || 0) >= sStart - 0.08 && Number(w.end || 0) <= sEnd + 0.08)
+                : undefined,
+            };
+          }).filter((c: any) => c.text && c.end > c.start);
 
-            const headingFont = readString(body.headingFont) || 'Montserrat';
-            const subheadingFont = readString(body.subheadingFont) || 'Plus Jakarta Sans';
-            const bodyFont = readString(body.bodyFont) || readString(body.typographyFont) || 'Inter';
-            const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'solid-white';
-            const subtitleStyle = readString(body.subtitleStyle) || 'classic-clean';
-            const captionAnimationStyle = readString(body.captionAnimationStyle) || 'bouncy';
-            const captionPosition = readString(body.captionPosition) || 'bottom';
+          const headingFont = readString(body.headingFont) || 'Montserrat';
+          const subheadingFont = readString(body.subheadingFont) || 'Plus Jakarta Sans';
+          const bodyFont = readString(body.bodyFont) || readString(body.typographyFont) || 'Inter';
+          const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'solid-white';
+          const subtitleStyle = readString(body.subtitleStyle) || 'classic-clean';
+          const captionAnimationStyle = readString(body.captionAnimationStyle) || 'bouncy';
+          const captionPosition = readString(body.captionPosition) || 'bottom';
+          const visualTheme = readString(body.visualTheme) || 'modern-saas';
 
-            const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Video';
+          const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Video';
 
-            // If user confirmed a storyboard blueprint in studio, reuse it with 100% fidelity
-            const userProvidedScenes = Array.isArray(body.sceneBlueprint) && body.sceneBlueprint.length > 0
-              ? body.sceneBlueprint
-              : null;
+          // If user confirmed a storyboard blueprint in studio, reuse it with 100% fidelity
+          const userProvidedScenes = Array.isArray(body.sceneBlueprint) && body.sceneBlueprint.length > 0
+            ? body.sceneBlueprint
+            : null;
 
-            const targetAspectRatio: '16:9' | '9:16' = mode === 'facelessShorts' ? '9:16' : '16:9';
-            const targetVideoType: 'facelessVideo' | 'facelessShorts' = mode === 'facelessShorts' ? 'facelessShorts' : 'facelessVideo';
+          const targetAspectRatio: '16:9' | '9:16' = mode === 'facelessShorts' ? '9:16' : '16:9';
+          const targetVideoType: 'facelessVideo' | 'facelessShorts' = mode === 'facelessShorts' ? 'facelessShorts' : 'facelessVideo';
 
-            const blueprint = userProvidedScenes
-              ? {
-                  title: videoTitle,
-                  overallNarrativeMood: 'Confirmed Storyboard',
-                  totalDurationSeconds: renderWindow.durationSeconds,
-                  totalScenes: userProvidedScenes.length,
-                  scenes: userProvidedScenes,
-                }
-              : await generateStructuredSceneBlueprint(
-                  transcriptChunks.length ? transcriptChunks : [{ text: renderWindow.transcript, start: 0, end: renderWindow.durationSeconds, words: allWords.length > 0 ? allWords : undefined }],
-                  { title: videoTitle, headingFont, bodyFont, backgroundTheme, aspectRatio: targetAspectRatio, videoType: targetVideoType }
-                );
-            const graphicScenes = planFacelessGraphics(blueprint.scenes);
-            blueprint.scenes = graphicScenes;
+          const blueprint = userProvidedScenes
+            ? {
+              title: videoTitle,
+              overallNarrativeMood: 'Confirmed Storyboard',
+              totalDurationSeconds: renderWindow.durationSeconds,
+              totalScenes: userProvidedScenes.length,
+              scenes: userProvidedScenes,
+            }
+            : await generateStructuredSceneBlueprint(
+              transcriptChunks.length ? transcriptChunks : [{ text: renderWindow.transcript, start: 0, end: renderWindow.durationSeconds, words: allWords.length > 0 ? allWords : undefined }],
+              { title: videoTitle, headingFont, bodyFont, backgroundTheme, aspectRatio: targetAspectRatio, videoType: targetVideoType }
+            );
+          const graphicScenes = planFacelessGraphics(blueprint.scenes);
+          blueprint.scenes = graphicScenes;
 
-            // ── Strict Visual Composition Rule (Founder Directive) ──
-            // Maximum 10% stock image share of video timeline.
-            // Remaining 90%+ is explained through animated text, large detailed SVG illustrations,
-            // diagrams, shapes, infographics, and motion graphics.
-            const totalDurationSec = renderWindow.durationSeconds || 60;
-            const maxImageDurationAllowed = totalDurationSec * 0.35; // balanced 35% B-roll share
-            const totalSceneCount = blueprint.scenes.length || 1;
-            const maxImageScenesAllowed = Math.max(1, Math.min(4, Math.floor(totalSceneCount * 0.35)));
+          // Execute 16-Specialist Production Crew for Faceless Video & Shorts
+          if (targetVideoType === 'facelessShorts' || targetVideoType === 'facelessVideo') {
+            const crewOutput = await runFacelessShortsProductionCrew(
+              {
+                transcript: renderWindow.transcript,
+                words: allWords,
+                transcriptChunks,
+                durationSeconds: renderWindow.durationSeconds || 60,
+                topicTitle: videoTitle,
+                bgmTrackId: readString(body.bgmTrackId) || 'parasail',
+                bgmVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
+                customBgmUrl: customBgmUrl || undefined,
+                subtitleStyle: subtitleStyle || 'glow-viral',
+                captionPosition,
+                captionAnimationStyle: (captionAnimationStyle as any) || 'smooth',
+                brandNamesHint: readString(body.brandNamesHint) || undefined,
+                smartPunchIns: body.smartPunchIns !== false,
+                punchInIntensity: (body.punchInIntensity as any) || 'medium',
+                enableSfx: body.facelessEnableSfx !== false,
+                backgroundTheme,
+              },
+              blueprint.scenes
+            );
+            blueprint.scenes = crewOutput.scenes;
+          }
 
-            let mappedBrollUrls: Record<number, string> = {};
-            const userProvidedBroll = (body.brollUrls && typeof body.brollUrls === 'object') ? body.brollUrls : {};
+          // ── Strict Visual Composition Rule (Founder Directive) ──
+          // Maximum 10% stock image share of video timeline.
+          // Remaining 90%+ is explained through animated text, large detailed SVG illustrations,
+          // diagrams, shapes, infographics, and motion graphics.
+          const totalDurationSec = renderWindow.durationSeconds || 60;
+          const maxImageDurationAllowed = totalDurationSec * 0.35; // balanced 35% B-roll share
+          const totalSceneCount = blueprint.scenes.length || 1;
+          const maxImageScenesAllowed = Math.max(1, Math.min(4, Math.floor(totalSceneCount * 0.35)));
 
-            if (Object.keys(userProvidedBroll).length > 0) {
-              // If user provided brollUrls in studio, strictly enforce the 10% maximum budget
+          let mappedBrollUrls: Record<number, string> = {};
+          const userProvidedBroll = (body.brollUrls && typeof body.brollUrls === 'object') ? body.brollUrls : {};
+
+          if (Object.keys(userProvidedBroll).length > 0) {
+            // If user provided brollUrls in studio, strictly enforce the 10% maximum budget
+            let currentImageDuration = 0;
+            for (const [sNumStr, url] of Object.entries(userProvidedBroll)) {
+              if (!url) continue;
+              const sNum = Number(sNumStr);
+              const sceneItem = blueprint.scenes.find((s: any) => s.sceneNumber === sNum);
+              const sceneDur = sceneItem?.duration || 5;
+              if (currentImageDuration + sceneDur <= maxImageDurationAllowed && Object.keys(mappedBrollUrls).length < maxImageScenesAllowed) {
+                mappedBrollUrls[sNum] = String(url);
+                currentImageDuration += sceneDur;
+              }
+            }
+          } else if (maxImageScenesAllowed > 0) {
+            // Only search library if the 10% budget allows at least 1 image scene
+            try {
+              const libraryMatches = await planImagesFromLibraryForScenes(blueprint.scenes, {
+                aspectRatio: targetAspectRatio,
+                videoType: 'facelessVideo',
+                minimumScore: 8,
+              });
+              // Pick at most 1 scene within the 10% budget limit
               let currentImageDuration = 0;
-              for (const [sNumStr, url] of Object.entries(userProvidedBroll)) {
+              for (const [sNumStr, url] of Object.entries(libraryMatches)) {
                 if (!url) continue;
                 const sNum = Number(sNumStr);
                 const sceneItem = blueprint.scenes.find((s: any) => s.sceneNumber === sNum);
@@ -2429,96 +2587,78 @@ export async function POST(request: Request) {
                 if (currentImageDuration + sceneDur <= maxImageDurationAllowed && Object.keys(mappedBrollUrls).length < maxImageScenesAllowed) {
                   mappedBrollUrls[sNum] = String(url);
                   currentImageDuration += sceneDur;
+                  break;
                 }
               }
-            } else if (maxImageScenesAllowed > 0) {
-              // Only search library if the 10% budget allows at least 1 image scene
-              try {
-                const libraryMatches = await planImagesFromLibraryForScenes(blueprint.scenes, {
-                  aspectRatio: targetAspectRatio,
-                  videoType: 'facelessVideo',
-                  minimumScore: 8,
-                });
-                // Pick at most 1 scene within the 10% budget limit
-                let currentImageDuration = 0;
-                for (const [sNumStr, url] of Object.entries(libraryMatches)) {
-                  if (!url) continue;
-                  const sNum = Number(sNumStr);
-                  const sceneItem = blueprint.scenes.find((s: any) => s.sceneNumber === sNum);
-                  const sceneDur = sceneItem?.duration || 5;
-                  if (currentImageDuration + sceneDur <= maxImageDurationAllowed && Object.keys(mappedBrollUrls).length < maxImageScenesAllowed) {
-                    mappedBrollUrls[sNum] = String(url);
-                    currentImageDuration += sceneDur;
-                    break;
-                  }
-                }
-              } catch (err) {
-                console.warn('[FACELESS_VIDEO_PLANNER] Library visual matching fallback error:', err);
-              }
+            } catch (err) {
+              console.warn('[FACELESS_VIDEO_PLANNER] Library visual matching fallback error:', err);
             }
+          }
 
-            console.log('[FACELESS_VIDEO_PLANNER]', {
-              totalScenes: blueprint.totalScenes,
-              mappedBrollCount: 0,
-              customBgUrl: 'disabled-in-svg-mode',
-            });
-            const sfxEvents = generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);
-            const chapterEvents = detectChaptersFromTranscript(transcriptChunks, 30);
-            const stickerEvents = Array.isArray(body.stickerEvents) && body.stickerEvents.length > 0
-              ? body.stickerEvents
-              : [];
+          console.log('[FACELESS_VIDEO_PLANNER]', {
+            totalScenes: blueprint.totalScenes,
+            mappedBrollCount: 0,
+            customBgUrl: 'disabled-in-svg-mode',
+          });
+          const sfxEvents = generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);
+          const chapterEvents = detectChaptersFromTranscript(transcriptChunks, 30);
+          const stickerEvents = Array.isArray(body.stickerEvents) && body.stickerEvents.length > 0
+            ? body.stickerEvents
+            : [];
 
-            console.log('[FACELESS_VIDEO_PLANNER]', {
-              totalScenes: blueprint.totalScenes,
-              mappedBrollCount: Object.keys(mappedBrollUrls).length,
-              customBgUrl: 'disabled-in-svg-mode',
-              sfxCount: sfxEvents.length,
-              chapterCount: chapterEvents.length,
-              stickerCount: stickerEvents.length,
-            });
+          console.log('[FACELESS_VIDEO_PLANNER]', {
+            totalScenes: blueprint.totalScenes,
+            mappedBrollCount: Object.keys(mappedBrollUrls).length,
+            customBgUrl: 'disabled-in-svg-mode',
+            sfxCount: sfxEvents.length,
+            chapterCount: chapterEvents.length,
+            stickerCount: stickerEvents.length,
+          });
 
-            return {
-              title: videoTitle,
-              headingFont,
-              subheadingFont,
-              typographyFont: bodyFont,
-              backgroundTheme,
-              customBgUrl: '',
-              subtitleStyle,
-              captionThemeId: subtitleStyle || 'glow-viral',
-              captionAnimationStyle,
-              captionPosition,
-              musicUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
-              musicSrc: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
-              musicVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
-              bgmUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
-              bgmVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
-              sceneBlueprint: blueprint.scenes,
-              brollUrls: Object.fromEntries(
-                Object.entries(mappedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
-              ),
-              sfxEvents,
-              chapterEvents,
-              stickerEvents,
-              templateConfig: {
-                captionThemeId: subtitleStyle,
-                lowerThirdId: 'tech_modern',
-                stickerPackId: 'none',
-              },
-              showCaptions: body.showCaptions !== false && body.enableCaptions !== false,
-              captions: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
-              subtitleChunks: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
-              words: renderWindow.words,
-              segments: renderWindow.segments,
-              transcript: renderWindow.transcript,
-              durationSeconds: renderWindow.durationSeconds,
-              audioSrc: planningMedia.mediaUrl,
-              audioUrl: planningMedia.mediaUrl,
-              mediaUrl: planningMedia.mediaUrl,
-              aspectRatio: targetAspectRatio,
-              mediaType: 'audio' as const,
-            };
-          })()
+          return {
+            title: videoTitle,
+            creatorHandle: readString(body.creatorHandle) || undefined,
+            headingFont,
+            subheadingFont,
+            typographyFont: bodyFont,
+            backgroundTheme,
+            customBgUrl: '',
+            subtitleStyle,
+            captionThemeId: subtitleStyle || 'glow-viral',
+            captionAnimationStyle,
+            captionPosition,
+            musicUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
+            musicSrc: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
+            musicVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
+            bgmUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
+            bgmVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
+            sceneBlueprint: blueprint.scenes,
+            brollUrls: Object.fromEntries(
+              Object.entries(mappedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
+            ),
+            sfxEvents,
+            chapterEvents,
+            stickerEvents,
+            templateConfig: {
+              captionThemeId: subtitleStyle,
+              lowerThirdId: 'tech_modern',
+              stickerPackId: 'none',
+            },
+            showCaptions: body.showCaptions !== false && body.enableCaptions !== false,
+            captions: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
+            subtitleChunks: (body.showCaptions !== false && body.enableCaptions !== false) ? facelessCaptions : [],
+            words: renderWindow.words,
+            segments: renderWindow.segments,
+            transcript: renderWindow.transcript,
+            durationSeconds: renderWindow.durationSeconds,
+            audioSrc: planningMedia.mediaUrl,
+            audioUrl: planningMedia.mediaUrl,
+            mediaUrl: planningMedia.mediaUrl,
+            aspectRatio: targetAspectRatio,
+            visualTheme,
+            mediaType: 'audio' as const,
+          };
+        })()
         : {}),
       mediaType,
       mediaFit: templateConfig.mediaFit,
@@ -2554,202 +2694,206 @@ export async function POST(request: Request) {
       compositionId: composition,
       // Compare and Typography preserve the uploaded voiceover without generated background music.
 
-                  ...(mode === 'aiShortsPolisher' || (templateName as string) === 'AI_SHORTS_POLISHER'
+      ...(mode === 'aiShortsPolisher' || (templateName as string) === 'AI_SHORTS_POLISHER'
         ? (() => {
-            const shortsDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 60);
-            const shortsTitle = readString(body.topicTitle) || topicTitle || 'AI Shorts Polisher';
-            const promoBgmTrackId = readString(body.bgmTrackId);
-            const shortsBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
-              ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
-              : undefined);
+          const shortsDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 60);
+          const shortsTitle = readString(body.topicTitle) || topicTitle || 'AI Shorts Polisher';
+          const promoBgmTrackId = readString(body.bgmTrackId);
+          const shortsBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
+            ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
+            : undefined);
 
-            // Align word timestamps if creator provided edited transcript
-            let polisherWords = renderWindow.words || [];
-            const editedText = readString(body.editorialTranscript)?.trim();
-            if (editedText && polisherWords.length > 0) {
-              const editedTokens = editedText.split(/\s+/).filter(Boolean);
-              if (Math.abs(editedTokens.length - polisherWords.length) <= Math.max(4, polisherWords.length * 0.35)) {
-                polisherWords = editedTokens.map((w, idx) => {
-                  const orig = polisherWords[Math.min(idx, polisherWords.length - 1)];
-                  return {
-                    word: w,
-                    start: orig.start,
-                    end: orig.end,
-                  };
-                });
-              }
+          // Align word timestamps if creator provided edited transcript
+          let polisherWords = renderWindow.words || [];
+          const editedText = readString(body.editorialTranscript)?.trim();
+          if (editedText && polisherWords.length > 0) {
+            const editedTokens = editedText.split(/\s+/).filter(Boolean);
+            if (Math.abs(editedTokens.length - polisherWords.length) <= Math.max(4, polisherWords.length * 0.35)) {
+              polisherWords = editedTokens.map((w, idx) => {
+                const orig = polisherWords[Math.min(idx, polisherWords.length - 1)];
+                return {
+                  word: w,
+                  start: orig.start,
+                  end: orig.end,
+                };
+              });
             }
+          }
 
-            const shortsCaptions = buildCompareCaptionsFromGroq({ ...renderWindow, words: polisherWords });
+          const shortsCaptions = buildCompareCaptionsFromGroq({ ...renderWindow, words: polisherWords });
 
-            return {
-              title: shortsTitle,
-              aspectRatio: '9:16',
-              durationSeconds: shortsDur,
-              sourceDurationSeconds: shortsDur,
-              smartPunchIns: body.smartPunchIns !== false,
-              punchInIntensity: readString(body.punchInIntensity) || 'medium',
-              silenceJumpCuts: body.silenceJumpCuts !== false,
-              silenceSensitivity: readString(body.silenceSensitivity) || 'tight',
-              captionStyle: readString(body.captionStyle) || 'Pop Word',
-              captionPosition: readString(body.captionPosition) || 'bottom',
-              faceFraming: readString(body.faceFraming) || 'center',
-              mediaSrc: mediaUrl,
-              captions: shortsCaptions,
-              subtitleChunks: shortsCaptions,
-              words: polisherWords,
-              segments: renderWindow.segments,
-              transcript: editedText || renderWindow.transcript,
-              bgmUrl: shortsBgmUrl,
-              bgmVolume: Number(body.bgmVolume ?? 0.12),
-              enableSfx: body.enableSfx !== false,
-              layerItems: Array.isArray(body.layerItems) ? body.layerItems : [],
-              mediaItems: Array.isArray(body.mediaItems) ? body.mediaItems : [],
-              curvedArrows: Array.isArray(body.curvedArrows) ? body.curvedArrows : undefined,
-              equationFormula: body.equationFormula || undefined,
-              comparisonBanner: body.comparisonBanner || undefined,
-            };
-          })()
+          return {
+            title: shortsTitle,
+            aspectRatio: '9:16',
+            durationSeconds: shortsDur,
+            sourceDurationSeconds: shortsDur,
+            smartPunchIns: body.smartPunchIns !== false,
+            punchInIntensity: readString(body.punchInIntensity) || 'medium',
+            silenceJumpCuts: body.silenceJumpCuts !== false,
+            silenceSensitivity: readString(body.silenceSensitivity) || 'tight',
+            captionStyle: readString(body.captionStyle) || 'Pop Word',
+            captionPosition: readString(body.captionPosition) || 'bottom',
+            faceFraming: readString(body.faceFraming) || 'center',
+            mediaSrc: mediaUrl,
+            captions: shortsCaptions,
+            subtitleChunks: shortsCaptions,
+            words: polisherWords,
+            segments: renderWindow.segments,
+            transcript: editedText || renderWindow.transcript,
+            bgmUrl: shortsBgmUrl,
+            bgmVolume: Number(body.bgmVolume ?? 0.12),
+            enableSfx: body.enableSfx !== false,
+            visualTheme: readString(body.visualTheme) || 'modern-saas',
+            layerItems: Array.isArray(body.layerItems) ? body.layerItems : [],
+            mediaItems: Array.isArray(body.mediaItems) ? body.mediaItems : [],
+            curvedArrows: Array.isArray(body.curvedArrows) ? body.curvedArrows : undefined,
+            equationFormula: body.equationFormula || undefined,
+            comparisonBanner: body.comparisonBanner || undefined,
+          };
+        })()
         : {}),
       ...(mode === 'aiVideoPolisher' || (templateName as string) === 'AI_VIDEO_POLISHER'
         ? (() => {
-            const polisherDur = Math.min(300, requestedDurationSeconds || renderWindow.durationSeconds || 60);
-            const polisherTitle = readString(body.topicTitle) || topicTitle || 'AI YouTube Video Polisher';
-            const promoBgmTrackId = readString(body.bgmTrackId);
-            const polisherBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
-              ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
-              : undefined);
+          const polisherDur = Math.min(300, requestedDurationSeconds || renderWindow.durationSeconds || 60);
+          const polisherTitle = readString(body.topicTitle) || topicTitle || 'AI YouTube Video Polisher';
+          const promoBgmTrackId = readString(body.bgmTrackId);
+          const polisherBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
+            ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
+            : undefined);
 
-            // Align word timestamps if creator provided edited transcript
-            let polisherWords = renderWindow.words || [];
-            const editedText = readString(body.editorialTranscript)?.trim();
-            if (editedText && polisherWords.length > 0) {
-              const editedTokens = editedText.split(/\s+/).filter(Boolean);
-              if (Math.abs(editedTokens.length - polisherWords.length) <= Math.max(4, polisherWords.length * 0.35)) {
-                polisherWords = editedTokens.map((w, idx) => {
-                  const orig = polisherWords[Math.min(idx, polisherWords.length - 1)];
-                  return {
-                    word: w,
-                    start: orig.start,
-                    end: orig.end,
-                  };
-                });
-              }
+          // Align word timestamps if creator provided edited transcript
+          let polisherWords = renderWindow.words || [];
+          const editedText = readString(body.editorialTranscript)?.trim();
+          if (editedText && polisherWords.length > 0) {
+            const editedTokens = editedText.split(/\s+/).filter(Boolean);
+            if (Math.abs(editedTokens.length - polisherWords.length) <= Math.max(4, polisherWords.length * 0.35)) {
+              polisherWords = editedTokens.map((w, idx) => {
+                const orig = polisherWords[Math.min(idx, polisherWords.length - 1)];
+                return {
+                  word: w,
+                  start: orig.start,
+                  end: orig.end,
+                };
+              });
             }
+          }
 
-            const polisherCaptions = buildCompareCaptionsFromGroq({ ...renderWindow, words: polisherWords });
+          const polisherCaptions = buildCompareCaptionsFromGroq({ ...renderWindow, words: polisherWords });
 
-            return {
-              title: polisherTitle,
-              aspectRatio: '16:9',
-              durationSeconds: polisherDur,
-              sourceDurationSeconds: polisherDur,
-              smartPunchIns: body.smartPunchIns !== false,
-              punchInIntensity: readString(body.punchInIntensity) || 'medium',
-              silenceJumpCuts: body.silenceJumpCuts !== false,
-              silenceSensitivity: readString(body.silenceSensitivity) || 'normal',
-              captionStyle: readString(body.captionStyle) || 'Pop Word',
-              mediaSrc: mediaUrl,
-              captions: polisherCaptions,
-              subtitleChunks: polisherCaptions,
-              words: polisherWords,
-              segments: renderWindow.segments,
-              transcript: editedText || renderWindow.transcript,
-              bgmUrl: polisherBgmUrl,
-              bgmVolume: Number(body.bgmVolume ?? 0.12),
-              enableSfx: body.enableSfx !== false,
-              layerItems: Array.isArray(body.layerItems) ? body.layerItems : [],
-              mediaItems: Array.isArray(body.mediaItems) ? body.mediaItems : [],
-              curvedArrows: Array.isArray(body.curvedArrows) ? body.curvedArrows : undefined,
-              equationFormula: body.equationFormula || undefined,
-              comparisonBanner: body.comparisonBanner || undefined,
-            };
-          })()
+          return {
+            title: polisherTitle,
+            aspectRatio: '16:9',
+            durationSeconds: polisherDur,
+            sourceDurationSeconds: polisherDur,
+            smartPunchIns: body.smartPunchIns !== false,
+            punchInIntensity: readString(body.punchInIntensity) || 'medium',
+            silenceJumpCuts: body.silenceJumpCuts !== false,
+            silenceSensitivity: readString(body.silenceSensitivity) || 'normal',
+            captionStyle: readString(body.captionStyle) || 'Pop Word',
+            mediaSrc: mediaUrl,
+            captions: polisherCaptions,
+            subtitleChunks: polisherCaptions,
+            words: polisherWords,
+            segments: renderWindow.segments,
+            transcript: editedText || renderWindow.transcript,
+            bgmUrl: polisherBgmUrl,
+            bgmVolume: Number(body.bgmVolume ?? 0.12),
+            enableSfx: body.enableSfx !== false,
+            visualTheme: readString(body.visualTheme) || 'modern-saas',
+            layerItems: Array.isArray(body.layerItems) ? body.layerItems : [],
+            mediaItems: Array.isArray(body.mediaItems) ? body.mediaItems : [],
+            curvedArrows: Array.isArray(body.curvedArrows) ? body.curvedArrows : undefined,
+            equationFormula: body.equationFormula || undefined,
+            comparisonBanner: body.comparisonBanner || undefined,
+          };
+        })()
         : {}),
       ...(mode === 'splitScreenExplainer' || (templateName as string) === 'SPLIT_SCREEN_EXPLAINER'
         ? (() => {
-            const splitDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 60);
-            const splitTitle = readString(body.topicTitle) || topicTitle || 'Split Screen Explainer';
-            const promoBgmTrackId = readString(body.bgmTrackId);
-            const splitBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
-              ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
-              : undefined);
+          const splitDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 60);
+          const splitTitle = readString(body.topicTitle) || topicTitle || 'Split Screen Explainer';
+          const promoBgmTrackId = readString(body.bgmTrackId);
+          const splitBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
+            ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
+            : undefined);
 
-            const expVisuals = Array.isArray(body.explanationVisualUrls) && body.explanationVisualUrls.length > 0
-              ? body.explanationVisualUrls
-              : Array.isArray(body.explanationMediaUrls) && body.explanationMediaUrls.length > 0
-                ? body.explanationMediaUrls
-                : uploadedImageUrls;
+          const expVisuals = Array.isArray(body.explanationVisualUrls) && body.explanationVisualUrls.length > 0
+            ? body.explanationVisualUrls
+            : Array.isArray(body.explanationMediaUrls) && body.explanationMediaUrls.length > 0
+              ? body.explanationMediaUrls
+              : uploadedImageUrls;
 
-            const splitCaptions = buildCompareCaptionsFromGroq(renderWindow);
+          const splitCaptions = buildCompareCaptionsFromGroq(renderWindow);
 
-            return {
-              title: splitTitle,
-              topicTitle: splitTitle,
-              aspectRatio: '9:16',
-              durationSeconds: splitDur,
-              sourceDurationSeconds: splitDur,
-              creatorVideoUrl: mediaUrl,
-              mediaSrc: mediaUrl,
-              audioUrl: mediaUrl,
-              explanationMediaUrls: expVisuals,
-              explanationImages: expVisuals,
-              captions: splitCaptions,
-              subtitleChunks: splitCaptions,
-              captionThemeId: readString(body.subtitleStyle || body.captionThemeId) || 'glow-viral',
-              subtitleStyle: readString(body.subtitleStyle || body.captionThemeId) || 'glow-viral',
-              bgmUrl: splitBgmUrl,
-              bgmVolume: Number(body.bgmVolume ?? 0.12),
-              enableSfx: body.enableSfx !== false,
-            };
-          })()
+          return {
+            title: splitTitle,
+            topicTitle: splitTitle,
+            aspectRatio: '9:16',
+            durationSeconds: splitDur,
+            sourceDurationSeconds: splitDur,
+            creatorVideoUrl: mediaUrl,
+            mediaSrc: mediaUrl,
+            audioUrl: mediaUrl,
+            explanationMediaUrls: expVisuals,
+            explanationImages: expVisuals,
+            captions: splitCaptions,
+            subtitleChunks: splitCaptions,
+            captionThemeId: readString(body.subtitleStyle || body.captionThemeId) || 'glow-viral',
+            subtitleStyle: readString(body.subtitleStyle || body.captionThemeId) || 'glow-viral',
+            bgmUrl: splitBgmUrl,
+            bgmVolume: Number(body.bgmVolume ?? 0.12),
+            enableSfx: body.enableSfx !== false,
+            visualTheme: readString(body.visualTheme) || 'modern-saas',
+          };
+        })()
         : {}),
       ...(mode === 'longVideoPromo' || (templateName as string) === 'LONG_VIDEO_PROMO'
         ? (() => {
-            const promoDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 90);
-            const promoTitle = readString(body.promoTitle) || topicTitle || 'Watch Full Video';
-            const promoCtaText = readString(body.promoCtaText) || undefined;
-            const promoScenes = buildLongVideoPromoScenes({
-              durationSeconds: promoDur,
-              title: promoTitle,
-              ctaText: promoCtaText,
-            });
+          const promoDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 90);
+          const promoTitle = readString(body.promoTitle) || topicTitle || 'Watch Full Video';
+          const promoCtaText = readString(body.promoCtaText) || undefined;
+          const promoScenes = buildLongVideoPromoScenes({
+            durationSeconds: promoDur,
+            title: promoTitle,
+            ctaText: promoCtaText,
+          });
 
-            const ytUrl = readString(body.youtubeUrl);
-            let autoYtThumbnail = '';
-            if (ytUrl) {
-              const ytMatch = ytUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-              if (ytMatch && ytMatch[1]) {
-                autoYtThumbnail = `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`;
-              }
+          const ytUrl = readString(body.youtubeUrl);
+          let autoYtThumbnail = '';
+          if (ytUrl) {
+            const ytMatch = ytUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+            if (ytMatch && ytMatch[1]) {
+              autoYtThumbnail = `https://img.youtube.com/vi/${ytMatch[1]}/maxresdefault.jpg`;
             }
+          }
 
-            const promoBgmTrackId = readString(body.bgmTrackId);
-            const promoBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
-              ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
-              : undefined);
+          const promoBgmTrackId = readString(body.bgmTrackId);
+          const promoBgmUrl = customBgmUrl || readString(body.bgmUrl) || (promoBgmTrackId && promoBgmTrackId !== 'none'
+            ? ('assets/reusable/music/' + (promoBgmTrackId === 'parasail' ? 'parasail-silent-partner.mp3' : promoBgmTrackId === '19th-floor' ? '19th-floor-bobby-richards.mp3' : promoBgmTrackId === 'dutty-vibe' ? 'dutty-vibe-tracks.mp3' : promoBgmTrackId === 'book-rental' ? 'book-the-rental-wit-it-rage.mp3' : promoBgmTrackId === 'crimson-fly' ? 'crimson-fly-huma-huma.mp3' : promoBgmTrackId === 'crock-pot' ? 'crock-pot-diamond-ortiz.mp3' : promoBgmTrackId === 'illusions' ? 'illusions-anno-domini-beats.mp3' : promoBgmTrackId === 'not-for-nothing' ? 'not-for-nothing-otis-mcdonald.mp3' : promoBgmTrackId === 'something-going' ? 'something-is-going-on-godmode.mp3' : promoBgmTrackId === 'bar-scene' ? 'that-one-bar-scene-rkvc.mp3' : promoBgmTrackId === 'true-messiah' ? 'true-messiah-dj-freedem.mp3' : promoBgmTrackId === 'vishnu' ? 'vishnu-patrick-patrikios.mp3' : promoBgmTrackId === 'what-it-is' ? 'what-it-is-silent-partner.mp3' : 'parasail-silent-partner.mp3'))
+            : undefined);
 
-            return {
-              thumbnailSrc: promoThumbnailUrl || readString(body.promoThumbnailUrl) || readString(body.thumbnailUrl) || autoYtThumbnail || '',
-              thumbnailKey: promoThumbnailImageKey || undefined,
-              title: promoTitle,
-              promoGoal: readString(body.promoGoal) || 'watch-full-video',
-              ctaText: promoCtaText,
-              promoCtaStyle: readString(body.promoCtaStyle) || 'youtube-red',
-              promoCreatorHandle: readString(body.creatorHandle || body.promoCreatorHandle) || '@itnavideo',
-              promoBackgroundMode: readString(body.promoBackgroundMode) || 'blur',
-              aspectRatio: '9:16',
-              mediaAspect: 'portrait',
-              durationSeconds: promoDur,
-              sourceDurationSeconds: promoDur,
-              scenes: promoScenes,
-              captionStyle: readString(body.captionStyle) || 'Pop Word',
-              bgmUrl: promoBgmUrl,
-              bgmVolume: Number(body.bgmVolume ?? 0.12),
-              enableSfx: body.enableSfx !== false,
-              editorialTranscript: readString(body.editorialTranscript) || undefined,
-            };
-          })()
+          return {
+            thumbnailSrc: promoThumbnailUrl || readString(body.promoThumbnailUrl) || readString(body.thumbnailUrl) || autoYtThumbnail || '',
+            thumbnailKey: promoThumbnailImageKey || undefined,
+            title: promoTitle,
+            promoGoal: readString(body.promoGoal) || 'watch-full-video',
+            ctaText: promoCtaText,
+            promoCtaStyle: readString(body.promoCtaStyle) || 'youtube-red',
+            promoCreatorHandle: readString(body.creatorHandle || body.promoCreatorHandle) || '@itnavideo',
+            promoBackgroundMode: readString(body.promoBackgroundMode) || 'blur',
+            aspectRatio: '9:16',
+            mediaAspect: 'portrait',
+            durationSeconds: promoDur,
+            sourceDurationSeconds: promoDur,
+            scenes: promoScenes,
+            captionStyle: readString(body.captionStyle) || 'Pop Word',
+            bgmUrl: promoBgmUrl,
+            bgmVolume: Number(body.bgmVolume ?? 0.12),
+            enableSfx: body.enableSfx !== false,
+            visualTheme: readString(body.visualTheme) || 'modern-saas',
+            editorialTranscript: readString(body.editorialTranscript) || undefined,
+          };
+        })()
         : {}),
     };
     if ((mode as string) !== 'autoCaption' && (mode as string) !== 'compare' && (!Array.isArray(inputProps.soundCues) || !inputProps.soundCues.length)) {
@@ -2757,8 +2901,8 @@ export async function POST(request: Request) {
         styleLock,
         templateName,
         durationSeconds: Number(inputProps.durationSeconds) || renderWindow.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
-        timeline: Array.isArray(inputProps.overlayTimeline) ? inputProps.overlayTimeline as Array<{start?: number; end?: number; text?: string; type?: string}> : [],
-        captions: Array.isArray(inputProps.captions) ? inputProps.captions as Array<{start?: number; end?: number; text?: string; type?: string}> : [],
+        timeline: Array.isArray(inputProps.overlayTimeline) ? inputProps.overlayTimeline as Array<{ start?: number; end?: number; text?: string; type?: string }> : [],
+        captions: Array.isArray(inputProps.captions) ? inputProps.captions as Array<{ start?: number; end?: number; text?: string; type?: string }> : [],
       });
     }
     const imagePreflight = await repairRenderImageSources(inputProps, {
@@ -2767,10 +2911,11 @@ export async function POST(request: Request) {
       mediaKey,
       topicTitle: readString(inputProps.topicTitle),
     });
-    const preflight = validateBeforeRender({inputProps: imagePreflight.inputProps, templateName, composition, mediaType});
+    const preflight = validateBeforeRender({ inputProps: imagePreflight.inputProps, templateName, composition, mediaType });
     if (preflight) {
       const userEmail = readString(body.userEmail || body.email);
       const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+      const removeAiWatermark = Boolean(body.removeAiWatermark);
       return NextResponse.json(
         {
           ok: false,
@@ -2789,7 +2934,7 @@ export async function POST(request: Request) {
             },
           } : {}),
         },
-        {status: 422},
+        { status: 422 },
       );
     }
 
@@ -2839,7 +2984,7 @@ export async function POST(request: Request) {
     await reserveAcceptedRenderUsage({
       userId,
       renderId: render.renderId,
-      creditUnits: requestedCreditUnits ?? calculateRenderCreditUnits(mode, {durationSeconds: requestedDurationSeconds}),
+      creditUnits: requestedCreditUnits ?? calculateRenderCreditUnits(mode, { durationSeconds: requestedDurationSeconds }),
       mode,
       title: readString(imagePreflight.inputProps.topicTitle) || titleFromFile(fileName) || 'Itnavideo reel',
     });
@@ -2864,8 +3009,8 @@ export async function POST(request: Request) {
       renderWindowSource: renderWindow.source,
       planningMediaSource: planningMedia.clipped ? 'first-60s-clip' : 'original-upload',
       access,
-      creditUnits: requestedCreditUnits ?? calculateRenderCreditUnits(mode, {durationSeconds: requestedDurationSeconds}),
-      creditCost: formatCreditUnits(requestedCreditUnits ?? calculateRenderCreditUnits(mode, {durationSeconds: requestedDurationSeconds})),
+      creditUnits: requestedCreditUnits ?? calculateRenderCreditUnits(mode, { durationSeconds: requestedDurationSeconds }),
+      creditCost: formatCreditUnits(requestedCreditUnits ?? calculateRenderCreditUnits(mode, { durationSeconds: requestedDurationSeconds })),
       retentionHours: 48,
       note: 'Render started. Poll /api/reels/jobs/status for progress.',
       _renderVersion: 'v2026-06-19-subtitleRenderer',
@@ -2886,13 +3031,13 @@ export async function POST(request: Request) {
       } : {}),
       ...(process.env.NODE_ENV !== 'production'
         ? {
-            planner: {
-              provider: plan.provider,
-              model: plan.model,
-              qualityScore: plan.validation.qualityScore,
-              overlays: plan.renderProps?.overlayTimeline,
-            },
-          }
+          planner: {
+            provider: plan.provider,
+            model: plan.model,
+            qualityScore: plan.validation.qualityScore,
+            overlays: plan.renderProps?.overlayTimeline,
+          },
+        }
         : {}),
     });
   } catch (error) {
@@ -2910,6 +3055,7 @@ export async function POST(request: Request) {
 
     const userEmail = readString(body.userEmail || body.email);
     const isFounder = isFounderEmail(userEmail) || isFounderUser(userId);
+    const removeAiWatermark = Boolean(body.removeAiWatermark);
 
     return NextResponse.json(
       {
@@ -2930,7 +3076,7 @@ export async function POST(request: Request) {
           },
         } : {}),
       },
-      {status: 500},
+      { status: 500 },
     );
   }
 }
@@ -2955,7 +3101,7 @@ type RenderImageReference = {
 async function repairRenderImageSources(inputProps: Record<string, unknown>, context: RenderImageRepairContext) {
   const fallback = getRenderImageFallback();
   const refs = collectRenderImageReferences(inputProps);
-  const failures: Array<{path: string; sceneId?: string; assetId?: string; s3Key?: string; url: string; reason: string; fallback: string}> = [];
+  const failures: Array<{ path: string; sceneId?: string; assetId?: string; s3Key?: string; url: string; reason: string; fallback: string }> = [];
   const localS3UploadCache = new Map<string, string>();
 
   for (const ref of refs) {
@@ -3014,13 +3160,13 @@ async function repairRenderImageSources(inputProps: Record<string, unknown>, con
     });
   }
 
-  return {inputProps, failures};
+  return { inputProps, failures };
 }
 
-async function uploadLocalAssetToS3(src?: string, userId?: string): Promise<{ok: true; s3Url: string} | {ok: false; reason: string}> {
+async function uploadLocalAssetToS3(src?: string, userId?: string): Promise<{ ok: true; s3Url: string } | { ok: false; reason: string }> {
   try {
     const cleanSrc = String(src || '').replace(/^\/+/, '');
-    if (!cleanSrc) return {ok: false, reason: 'EMPTY_SRC'};
+    if (!cleanSrc) return { ok: false, reason: 'EMPTY_SRC' };
     const possible = [
       path.join(process.cwd(), cleanSrc),
       path.join(process.cwd(), 'public', cleanSrc),
@@ -3028,7 +3174,7 @@ async function uploadLocalAssetToS3(src?: string, userId?: string): Promise<{ok:
     ];
     const diskPath = possible.find((f) => fs.existsSync(f));
     if (!diskPath) {
-      return {ok: false, reason: 'LOCAL_IMAGE_FILE_NOT_FOUND'};
+      return { ok: false, reason: 'LOCAL_IMAGE_FILE_NOT_FOUND' };
     }
     const fileBytes = await fs.promises.readFile(diskPath);
     const ext = path.extname(diskPath).toLowerCase();
@@ -3044,11 +3190,11 @@ async function uploadLocalAssetToS3(src?: string, userId?: string): Promise<{ok:
     });
     const signedUrl = readString(await createReadUrl(s3Key));
     if (signedUrl) {
-      return {ok: true, s3Url: signedUrl};
+      return { ok: true, s3Url: signedUrl };
     }
-    return {ok: false, reason: 'S3_SIGNED_URL_FAILED'};
+    return { ok: false, reason: 'S3_SIGNED_URL_FAILED' };
   } catch (err) {
-    return {ok: false, reason: `LOCAL_UPLOAD_FAILED_${sanitizeSegment(err instanceof Error ? err.message : 'unknown')}`};
+    return { ok: false, reason: `LOCAL_UPLOAD_FAILED_${sanitizeSegment(err instanceof Error ? err.message : 'unknown')}` };
   }
 }
 
@@ -3204,55 +3350,55 @@ function buildRenderFrameKeyword(value: string) {
   return (words.slice(0, 2).join(' ') || 'KEY POINT').toUpperCase();
 }
 
-async function validateRenderableImageSource(src: string): Promise<{ok: true} | {ok: false; reason: string}> {
+async function validateRenderableImageSource(src: string): Promise<{ ok: true } | { ok: false; reason: string }> {
   const value = readString(src);
-  if (!value) return {ok: false, reason: 'EMPTY_IMAGE_SRC'};
-  if (/^data:image\//i.test(value)) return {ok: true};
-  if (/^blob:/i.test(value)) return {ok: false, reason: 'BLOB_URL_NOT_RENDERABLE'};
+  if (!value) return { ok: false, reason: 'EMPTY_IMAGE_SRC' };
+  if (/^data:image\//i.test(value)) return { ok: true };
+  if (/^blob:/i.test(value)) return { ok: false, reason: 'BLOB_URL_NOT_RENDERABLE' };
   if (/^https?:\/\//i.test(value)) return validateRemoteImageUrl(value);
   return validateLocalImageSource(value);
 }
 
-async function validateRemoteImageUrl(url: string): Promise<{ok: true} | {ok: false; reason: string}> {
+async function validateRemoteImageUrl(url: string): Promise<{ ok: true } | { ok: false; reason: string }> {
   if (/cloudinary\.com/i.test(url) || /amazonaws\.com/i.test(url)) {
-    return {ok: true};
+    return { ok: true };
   }
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), RENDER_IMAGE_URL_TIMEOUT_MS);
   try {
     const response = await fetch(url, {
       method: 'GET',
-      headers: {Range: 'bytes=0-0'},
+      headers: { Range: 'bytes=0-0' },
       redirect: 'follow',
       signal: controller.signal,
     });
-    if (!response.ok) return {ok: false, reason: `REMOTE_IMAGE_HTTP_${response.status}`};
+    if (!response.ok) return { ok: false, reason: `REMOTE_IMAGE_HTTP_${response.status}` };
     const contentType = response.headers.get('content-type') || '';
     if (contentType && !/^image\//i.test(contentType) && !/octet-stream/i.test(contentType)) {
-      return {ok: false, reason: `REMOTE_IMAGE_BAD_CONTENT_TYPE_${contentType.slice(0, 48)}`};
+      return { ok: false, reason: `REMOTE_IMAGE_BAD_CONTENT_TYPE_${contentType.slice(0, 48)}` };
     }
-    return {ok: true};
+    return { ok: true };
   } catch (error) {
     const reason = error instanceof Error && error.name === 'AbortError'
       ? 'REMOTE_IMAGE_TIMEOUT'
       : `REMOTE_IMAGE_FETCH_FAILED_${sanitizeSegment(error instanceof Error ? error.message : 'unknown')}`;
-    return {ok: false, reason};
+    return { ok: false, reason };
   } finally {
     clearTimeout(timeout);
   }
 }
 
-function validateLocalImageSource(src?: string): {ok: true} | {ok: false; reason: string} {
+function validateLocalImageSource(src?: string): { ok: true } | { ok: false; reason: string } {
   const cleanSrc = String(src || '').replace(/^\/+/, '');
-  if (!cleanSrc) return {ok: false, reason: 'EMPTY_LOCAL_IMAGE_SRC'};
-  if (!/\.(?:png|jpe?g|webp|avif)$/i.test(cleanSrc)) return {ok: false, reason: 'LOCAL_IMAGE_UNSUPPORTED_EXTENSION'};
+  if (!cleanSrc) return { ok: false, reason: 'EMPTY_LOCAL_IMAGE_SRC' };
+  if (!/\.(?:png|jpe?g|webp|avif)$/i.test(cleanSrc)) return { ok: false, reason: 'LOCAL_IMAGE_UNSUPPORTED_EXTENSION' };
   const possible = [
     path.join(process.cwd(), 'public', cleanSrc),
     path.join(process.cwd(), 'public', decodeURIComponent(cleanSrc)),
   ];
   return possible.some((file) => fs.existsSync(file))
-    ? {ok: true}
-    : {ok: false, reason: 'LOCAL_IMAGE_FILE_MISSING'};
+    ? { ok: true }
+    : { ok: false, reason: 'LOCAL_IMAGE_FILE_MISSING' };
 }
 
 function getRenderImageFallback() {
@@ -3297,17 +3443,17 @@ async function readJson(request: Request) {
 }
 
 function readLambdaConfig():
-  | {ok: true; region: AwsRegion; functionName: string; serveUrl: string; concurrency: number}
-  | {ok: false; error: string} {
+  | { ok: true; region: AwsRegion; functionName: string; serveUrl: string; concurrency: number }
+  | { ok: false; error: string } {
   const region = readAwsRegion(process.env.REMOTION_AWS_REGION || process.env.AWS_REGION);
   const functionName = clean(process.env.REMOTION_LAMBDA_FUNCTION_NAME);
   const serveUrl = normalizeServeUrl(clean(process.env.REMOTION_LAMBDA_SERVE_URL));
   const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY || 12);
   const concurrency = Math.min(30, Math.max(4, Number.isFinite(configuredConcurrency) ? configuredConcurrency : 12));
   if (!functionName || !serveUrl) {
-    return {ok: false, error: 'The render system is not deployed yet.'};
+    return { ok: false, error: 'The render system is not deployed yet.' };
   }
-  return {ok: true, region, functionName, serveUrl, concurrency};
+  return { ok: true, region, functionName, serveUrl, concurrency };
 }
 
 function normalizeServeUrl(value: string) {
@@ -3338,7 +3484,7 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
   // Total running Lambdas (workers + orchestrator) must NEVER exceed 6, otherwise AWS rejects with Rate Exceeded.
   // With max 5 minutes (9,000 frames), concurrency: 5 gives 1,800 frames per worker (~3.5 minutes render time, safely under the 15-minute Lambda timeout).
   // For a short video (e.g. 708 frames = ~24s), concurrency: 2 gives ~354 frames per worker (~30s render time).
-  const cleanRequest = {...request};
+  const cleanRequest = { ...request };
   delete (cleanRequest as any).framesPerLambda;
 
   const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 5;
@@ -3350,11 +3496,11 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
 
   const attempts: LambdaRenderRequest[] = [
     // Attempt 1: Optimal safe concurrency (2 to 5 workers max)
-    {...cleanRequest, concurrency: safeConcurrency, maxRetries: 3},
+    { ...cleanRequest, concurrency: safeConcurrency, maxRetries: 3 },
     // Attempt 2: Conservative fallback (e.g. 3 workers)
-    {...cleanRequest, concurrency: Math.max(2, Math.floor(safeConcurrency / 2)), maxRetries: 3},
+    { ...cleanRequest, concurrency: Math.max(2, Math.floor(safeConcurrency / 2)), maxRetries: 3 },
     // Attempt 3: Minimum parallel fail-safe (2 workers)
-    {...cleanRequest, concurrency: 2, maxRetries: 3},
+    { ...cleanRequest, concurrency: 2, maxRetries: 3 },
   ];
   let lastError: unknown;
 
@@ -3481,11 +3627,11 @@ async function transcribeForPlanning({
   let primaryWarning = '';
   try {
     const groqStart = Date.now();
-    const result = await transcribeMediaUrlWithGroq({mediaUrl, fileName, contentType, language, maxSeconds, skipMediaPreparation, prompt});
+    const result = await transcribeMediaUrlWithGroq({ mediaUrl, fileName, contentType, language, maxSeconds, skipMediaPreparation, prompt });
     console.log('[TIMING] Groq transcription:', Date.now() - groqStart, 'ms | hasTranscript:', Boolean(result.transcript));
     if (result.transcript) {
       if (!outputLanguage) {
-        return {...result, source: 'groq' as const};
+        return { ...result, source: 'groq' as const };
       }
       const translateStart = Date.now();
       const translated = await repairTranscriptionToLanguage({
@@ -3526,10 +3672,10 @@ async function transcribeForPlanning({
         geminiResult.segments?.length
       );
       if (!outputLanguage) {
-        return {...geminiResult, source: 'gemini' as const};
+        return { ...geminiResult, source: 'gemini' as const };
       }
       return repairTranscriptionToLanguage(
-        {...geminiResult, source: 'gemini' as const},
+        { ...geminiResult, source: 'gemini' as const },
         outputLanguage
       );
     }
@@ -3562,8 +3708,8 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
-      const {GoogleGenAI} = await import('@google/genai');
-      const ai = new GoogleGenAI({apiKey: geminiKey});
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey: geminiKey });
       const prompt = [
         'Translate this short-form video transcription into clean natural English only.',
         'Preserve exact meaning, names, numbers, official terms, and factual claims.',
@@ -3573,19 +3719,19 @@ async function repairTranscriptionEnglishIfNeeded<T extends GroqLikeTranscriptio
         'CORRECTION DICTIONARY: sip→SIP, emi→EMI, rbi→RBI, nps→NPS, ppf→PPF, pan→PAN, gst→GST, nifty fifty→Nifty 50, demat→Demat, kyc→KYC, ipo→IPO, etf→ETF, upsc→UPSC, ssc→SSC',
         '',
         'INPUT:',
-        JSON.stringify({transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({index: i, text: seg.text}))}),
+        JSON.stringify({ transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({ index: i, text: seg.text })) }),
       ].join('\n');
 
       const response = await ai.models.generateContent({
         model: DEFAULT_GEMINI_MODEL,
-        contents: [{role: 'user', parts: [{text: prompt}]}],
-        config: {temperature: 0.2, maxOutputTokens: 3000},
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: { temperature: 0.2, maxOutputTokens: 3000 },
       });
       const text = (response.text || '').replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
       const repaired = parseTranslationResponse(text);
       if (repaired?.transcript) {
         const repairedSegments = mergeRepairedSegments(transcription.segments, repaired.segments);
-        return {...transcription, transcript: repaired.transcript, segments: repairedSegments, words: undefined, languageHint: 'english', rawTranscript: transcription.rawTranscript || transcription.transcript};
+        return { ...transcription, transcript: repaired.transcript, segments: repairedSegments, words: undefined, languageHint: 'english', rawTranscript: transcription.rawTranscript || transcription.transcript };
       }
     } catch (err) {
       console.warn('[ENGLISH_REPAIR] Gemini processing bypassed:', err instanceof Error ? err.message : '');
@@ -3646,15 +3792,15 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
 
   try {
     console.log('[TRANSLATION] Gemini translating to:', targetLang, '| segments:', transcription.segments?.length || 0);
-    const {GoogleGenAI} = await import('@google/genai');
-    const ai = new GoogleGenAI({apiKey: geminiKey});
+    const { GoogleGenAI } = await import('@google/genai');
+    const ai = new GoogleGenAI({ apiKey: geminiKey });
 
-    const prompt = `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers, and factual claims. Keep it natural and readable for short-form video subtitles. Return ONLY valid JSON with keys "transcript" (full translated text) and "segments" (array of {index, text}). Segment count must match input. No markdown, no explanation.\n\nINPUT:\n${JSON.stringify({transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({index: i, text: seg.text}))})}`;
+    const prompt = `Translate this video transcription into ${targetLang}. Preserve meaning, names, numbers, and factual claims. Keep it natural and readable for short-form video subtitles. Return ONLY valid JSON with keys "transcript" (full translated text) and "segments" (array of {index, text}). Segment count must match input. No markdown, no explanation.\n\nINPUT:\n${JSON.stringify({ transcript: transcription.transcript, segments: (transcription.segments || []).map((seg, i) => ({ index: i, text: seg.text })) })}`;
 
     const response = await ai.models.generateContent({
       model: DEFAULT_GEMINI_MODEL,
-      contents: [{role: 'user', parts: [{text: prompt}]}],
-      config: {temperature: 0.3, maxOutputTokens: 3000},
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: { temperature: 0.3, maxOutputTokens: 3000 },
     });
 
     const text = (response.text || '').replace(/```json\s*/gi, '').replace(/```\s*/gi, '').trim();
@@ -3680,7 +3826,7 @@ async function repairTranscriptionToLanguage<T extends GroqLikeTranscription>(tr
   }
 }
 
-function parseTranslationResponse(content: string): {transcript: string; segments: Array<{index: number; text: string}>} | null {
+function parseTranslationResponse(content: string): { transcript: string; segments: Array<{ index: number; text: string }> } | null {
   if (!content) return null;
   try {
     const parsed = JSON.parse(content);
@@ -3688,18 +3834,18 @@ function parseTranslationResponse(content: string): {transcript: string; segment
     const transcript = readString(parsed.transcript);
     const segments = Array.isArray(parsed.segments)
       ? parsed.segments
-          .map((segment) => isRecord(segment)
-            ? {index: Number(segment.index), text: readString(segment.text)}
-            : null)
-          .filter((segment): segment is {index: number; text: string} => Boolean(segment && Number.isFinite(segment.index) && segment.text))
+        .map((segment) => isRecord(segment)
+          ? { index: Number(segment.index), text: readString(segment.text) }
+          : null)
+        .filter((segment): segment is { index: number; text: string } => Boolean(segment && Number.isFinite(segment.index) && segment.text))
       : [];
-    return transcript ? {transcript, segments} : null;
+    return transcript ? { transcript, segments } : null;
   } catch {
     return null;
   }
 }
 
-function parseEnglishRepairResponse(payload: unknown): {transcript: string; segments: Array<{index: number; text: string}>} | null {
+function parseEnglishRepairResponse(payload: unknown): { transcript: string; segments: Array<{ index: number; text: string }> } | null {
   const text = extractResponsesText(payload);
   if (!text) return null;
   try {
@@ -3708,12 +3854,12 @@ function parseEnglishRepairResponse(payload: unknown): {transcript: string; segm
     const transcript = readString(parsed.transcript);
     const segments = Array.isArray(parsed.segments)
       ? parsed.segments
-          .map((segment) => isRecord(segment)
-            ? {index: Number(segment.index), text: readString(segment.text)}
-            : null)
-          .filter((segment): segment is {index: number; text: string} => Boolean(segment && Number.isFinite(segment.index) && segment.text))
+        .map((segment) => isRecord(segment)
+          ? { index: Number(segment.index), text: readString(segment.text) }
+          : null)
+        .filter((segment): segment is { index: number; text: string } => Boolean(segment && Number.isFinite(segment.index) && segment.text))
       : [];
-    return {transcript, segments};
+    return { transcript, segments };
   } catch {
     return null;
   }
@@ -3735,7 +3881,7 @@ function extractResponsesText(payload: unknown): string {
   return '';
 }
 
-function mergeRepairedSegments(original: ReelTranscriptSegment[] | undefined, repaired: Array<{index: number; text: string}>): ReelTranscriptSegment[] | undefined {
+function mergeRepairedSegments(original: ReelTranscriptSegment[] | undefined, repaired: Array<{ index: number; text: string }>): ReelTranscriptSegment[] | undefined {
   if (!original?.length || repaired.length !== original.length) return original;
   const repairedByIndex = new Map(repaired.map((segment) => [segment.index, segment.text]));
   return original.map((segment, index) => ({
@@ -3747,7 +3893,7 @@ function mergeRepairedSegments(original: ReelTranscriptSegment[] | undefined, re
 
 function stabilizeCompareOverlayTimeline(
   overlays: Array<Record<string, unknown>>,
-  captions: Array<{start: number; end: number; text: string}>,
+  captions: Array<{ start: number; end: number; text: string }>,
   durationSeconds: number,
   leftTitle: string,
   rightTitle: string,
@@ -3755,13 +3901,13 @@ function stabilizeCompareOverlayTimeline(
   const source: Array<Record<string, unknown>> = overlays.length
     ? overlays
     : captions.map((caption, index) => ({
-        id: `compare-beat-${index + 1}`,
-        start: caption.start,
-        end: caption.end,
-        text: caption.text,
-        body: caption.text,
-        title: '',
-      }));
+      id: `compare-beat-${index + 1}`,
+      start: caption.start,
+      end: caption.end,
+      text: caption.text,
+      body: caption.text,
+      title: '',
+    }));
 
   const isShortReel = durationSeconds <= 20;
   const minHoldSeconds = isShortReel ? 1.5 : 3.0;
@@ -3807,7 +3953,7 @@ function stabilizeCompareOverlayTimeline(
 
   normalized.forEach((overlay, index) => {
     if (!current) {
-      current = {...overlay, id: `compare-pose-${groups.length + 1}`};
+      current = { ...overlay, id: `compare-pose-${groups.length + 1}` };
       texts = [overlay.text].filter(Boolean);
       return;
     }
@@ -3823,7 +3969,7 @@ function stabilizeCompareOverlayTimeline(
 
     if (shouldBreak) {
       flush();
-      current = {...overlay, id: `compare-pose-${groups.length + 1}`};
+      current = { ...overlay, id: `compare-pose-${groups.length + 1}` };
       texts = [overlay.text].filter(Boolean);
       return;
     }
@@ -3881,7 +4027,7 @@ function pickComparePoseForStableBeat(textValue: string, index: number, total: n
  */
 function applyStickerPlanToOverlays(
   overlays: Array<Record<string, unknown>>,
-  stickerPlan: Array<{start: number; end: number; pose: string}>,
+  stickerPlan: Array<{ start: number; end: number; pose: string }>,
 ): Array<Record<string, unknown>> {
   if (!stickerPlan.length) return overlays;
 
@@ -3927,7 +4073,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
     }));
 
   if (words.length) {
-    type CaptionGroup = {start: number; end: number; text: string; words?: Array<{word: string; start: number; end: number}>};
+    type CaptionGroup = { start: number; end: number; text: string; words?: Array<{ word: string; start: number; end: number }> };
     const captions: CaptionGroup[] = [];
     let group: typeof words = [];
 
@@ -3946,7 +4092,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
         start: roundSeconds(group[0].start),
         end: roundSeconds(Math.max(group[group.length - 1].end, group[0].start + 0.55)),
         text: group.map((item) => item.word).join(' '),
-        words: group.map((item) => ({word: item.word, start: roundSeconds(item.start), end: roundSeconds(item.end)})),
+        words: group.map((item) => ({ word: item.word, start: roundSeconds(item.start), end: roundSeconds(item.end) })),
       });
       group = [];
     };
@@ -3992,7 +4138,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
   if (segments.length) {
     return segments.flatMap((segment) => {
       const parts = readString(segment.text).split(/\s+/).filter(Boolean);
-      const chunks: Array<{start: number; end: number; text: string}> = [];
+      const chunks: Array<{ start: number; end: number; text: string }> = [];
       const chunkSize = 5;
       const duration = Math.max(0.8, Number(segment.end) - Number(segment.start));
       const totalChunks = Math.max(1, Math.ceil(parts.length / chunkSize));
@@ -4017,7 +4163,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
   const chunkSize = 5;
   const totalChunks = Math.max(1, Math.ceil(fallbackWords.length / chunkSize));
 
-  return Array.from({length: totalChunks}).map((_, index) => ({
+  return Array.from({ length: totalChunks }).map((_, index) => ({
     start: roundSeconds((fallbackDuration / totalChunks) * index),
     end: roundSeconds((fallbackDuration / totalChunks) * (index + 1)),
     text: fallbackWords.slice(index * chunkSize, index * chunkSize + chunkSize).join(' '),
@@ -4028,9 +4174,9 @@ function buildCompareCaptionsFromGroq(renderWindow: {
  * Build captions from word-level timestamps for a clip, adjusting times relative to clip start.
  */
 function buildCaptionsFromWords(
-  words: Array<{word: string; start: number; end: number}>,
+  words: Array<{ word: string; start: number; end: number }>,
   clipStartSeconds: number
-): Array<{start: number; end: number; text: string; words?: Array<{word: string; start: number; end: number}>}> {
+): Array<{ start: number; end: number; text: string; words?: Array<{ word: string; start: number; end: number }> }> {
   const adjusted = words
     .filter((w) => w.word && Number.isFinite(w.start) && Number.isFinite(w.end))
     .map((w) => ({
@@ -4041,7 +4187,7 @@ function buildCaptionsFromWords(
 
   if (!adjusted.length) return [];
 
-  const captions: Array<{start: number; end: number; text: string; words: Array<{word: string; start: number; end: number}>}> = [];
+  const captions: Array<{ start: number; end: number; text: string; words: Array<{ word: string; start: number; end: number }> }> = [];
   let group: typeof adjusted = [];
 
   const flush = () => {
@@ -4050,7 +4196,7 @@ function buildCaptionsFromWords(
       start: roundSeconds(group[0].start),
       end: roundSeconds(Math.max(group[group.length - 1].end, group[0].start + 0.5)),
       text: group.map((item) => item.word).join(' '),
-      words: group.map((item) => ({word: item.word, start: roundSeconds(item.start), end: roundSeconds(item.end)})),
+      words: group.map((item) => ({ word: item.word, start: roundSeconds(item.start), end: roundSeconds(item.end) })),
     });
     group = [];
   };
@@ -4071,7 +4217,7 @@ function selectBackgroundMusic({
 }: {
   topicTitle: string;
   transcript: string;
-}): {category: string; mood: string; src: string; volume: number} {
+}): { category: string; mood: string; src: string; volume: number } {
   const text = `${topicTitle} ${transcript}`.toLowerCase();
   const rules = [
     {
@@ -4132,11 +4278,11 @@ function selectBackgroundMusic({
  * {start,end} windows in seconds. Falls back to an even split when boundaries are sparse.
  */
 function planMultiImageTimings(
-  captions: Array<{start: number; end: number}>,
+  captions: Array<{ start: number; end: number }>,
   imageCount: number,
   durationSeconds: number,
-): Array<{start: number; end: number}> {
-  if (imageCount <= 1) return [{start: 0, end: durationSeconds}];
+): Array<{ start: number; end: number }> {
+  if (imageCount <= 1) return [{ start: 0, end: durationSeconds }];
   const minGap = Math.max(1.2, durationSeconds / (imageCount * 3));
   const boundaries = Array.from(
     new Set(
@@ -4165,13 +4311,13 @@ function planMultiImageTimings(
   }
 
   const points = [0, ...cuts, durationSeconds];
-  const windows = Array.from({length: imageCount}, (_, i) => ({
+  const windows = Array.from({ length: imageCount }, (_, i) => ({
     start: Number(points[i].toFixed(2)),
     end: Number(points[i + 1].toFixed(2)),
   }));
   const ok = windows.every((w, i) => w.end > w.start && (i === 0 || w.start >= windows[i - 1].start));
   if (!ok) {
-    return Array.from({length: imageCount}, (_, i) => ({
+    return Array.from({ length: imageCount }, (_, i) => ({
       start: Number(((i * durationSeconds) / imageCount).toFixed(2)),
       end: Number((((i + 1) * durationSeconds) / imageCount).toFixed(2)),
     }));
@@ -4217,7 +4363,7 @@ function findFirstSpeechActivity(transcription: PlanningTranscription): {
     .map((word) => word.start)
     .find((start) => Number.isFinite(start) && start >= 0);
   if (wordStart !== undefined) {
-    return {startSeconds: wordStart, source: 'voice-activity'};
+    return { startSeconds: wordStart, source: 'voice-activity' };
   }
 
   const segmentStart = getTranscriptionSegments(transcription)
@@ -4225,10 +4371,10 @@ function findFirstSpeechActivity(transcription: PlanningTranscription): {
     .map((segment) => segment.start)
     .find((start) => Number.isFinite(start) && start >= 0);
   if (segmentStart !== undefined) {
-    return {startSeconds: segmentStart, source: 'timestamp-segment'};
+    return { startSeconds: segmentStart, source: 'timestamp-segment' };
   }
 
-  return {startSeconds: 0, source: 'start'};
+  return { startSeconds: 0, source: 'start' };
 }
 
 function getTranscriptionWords(transcription: PlanningTranscription): ReelWord[] | undefined {
@@ -4337,14 +4483,14 @@ function toMode(value: string): ReelMode | null {
   return null;
 }
 
-function getUploadedMediaType({mode, contentType}: {mode: ReelMode; contentType: string}): 'audio' | 'video' | 'image' {
+function getUploadedMediaType({ mode, contentType }: { mode: ReelMode; contentType: string }): 'audio' | 'video' | 'image' {
   if (mode === 'autoCaption') return contentType.startsWith('audio/') ? 'audio' : 'video';
   if (mode === 'youtubeSubtitleGenerator') return contentType.startsWith('audio/') ? 'audio' : 'video';
   if (mode === 'compare') return contentType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'imageToVideoAi') return contentType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'bookSummary') return contentType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'whiteboardVideo') return contentType.startsWith('video/') ? 'video' : 'audio';
-    if (mode === 'longVideoClips') return 'video';
+  if (mode === 'longVideoClips') return 'video';
   return contentType.startsWith('audio/') ? 'audio' : 'video';
 }
 
@@ -4517,6 +4663,7 @@ function validateBeforeRender({
 }
 
 function humanTemplateName(templateName: string) {
+  if (templateName === 'AI_VIDEO_GENERATOR') return 'AI Video Generator';
   if (templateName === 'BOOK_SUMMARY') return 'Book Summary Video';
   if (templateName === 'YOUTUBE_SUBTITLE_GENERATOR') return 'YouTube Subtitle Generator';
   if (templateName === 'IMAGE_TO_VIDEO_AI') return 'Image to Video AI';
@@ -4544,7 +4691,7 @@ function sceneIntentToType(intent: string): 'title' | 'narration' | 'typography'
 }
 
 /** Extract a meaningful keyword for typography fallback when no image is available */
-function extractKeyword(scene: {emphasis?: string[]; assetQuery?: string}, captions: {text: string}[]): string {
+function extractKeyword(scene: { emphasis?: string[]; assetQuery?: string }, captions: { text: string }[]): string {
   // Try emphasis words from scene plan
   if (scene.emphasis?.length) return scene.emphasis[0];
   // Try asset query (scene director's suggested visual)

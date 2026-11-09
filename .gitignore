@@ -127,6 +127,8 @@ __samples/
 
 # Temporary and scratch files
 /scratch/
+/*.png
+/find_cloudinary_urls.js
 
 .vercel
 .vercel-itnavideo/

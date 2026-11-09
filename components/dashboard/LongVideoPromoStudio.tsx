@@ -5,57 +5,56 @@ import Image from "next/image";
 import {
   Sparkles,
   Upload,
-  CheckCircle2,
-  Video,
-  ArrowRight,
-  Clock3,
-  Film,
+  UploadCloud,
   Check,
-  Palette,
-  Sliders,
-  Tv,
-  Clock,
-  ShieldCheck,
-  Loader2,
+  CheckCircle2,
+  Trash2,
   Play,
   Pause,
-  Image as ImageIcon,
-  Youtube,
-  Music,
-  Volume2,
-  FileText,
-  Eye,
   AlertCircle,
+  RefreshCw,
+  Tv,
   X,
-  Lock,
+  FileText,
+  Volume2,
+  VolumeX,
+  Sliders,
   Layers,
-  Wand2,
-  ChevronRight,
+  Zap,
+  Film,
+  Eye,
+  Video,
+  Image as ImageIcon,
+  CheckCheck,
+  Edit3,
+  Lock,
   ChevronLeft,
+  ChevronRight,
+  Music,
+  ArrowRight,
+  Search,
+  Type,
+  Youtube,
+  Radio,
+  ExternalLink,
+  ArrowUp,
+  MousePointerClick,
 } from "lucide-react";
-import { BorderBeam } from "@/components/magicui/BorderBeam";
-import { KINETIC_STYLES, type KineticStyleDefinition } from "@/lib/captions/kineticStyles";
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
+import {
+  AWS_BGM_TRACKS,
+  getBgmTrackAudioUrl,
+  THIRTY_TWO_CAPTION_STYLES,
+  renderPreviewCaptionWords,
+  type LibraryBgmTrack,
+} from "@/components/dashboard/ImageToVideoStudio";
 
-// Slice the top 20 curated kinetic styles for Long Video Promo
-export const PROMO_CAPTION_STYLES: KineticStyleDefinition[] = KINETIC_STYLES.slice(0, 20);
-
-// Curated AWS S3 Production Background Music Tracks
-export const AWS_PROMO_BGM_TRACKS = [
-  { id: "parasail", label: "Calm Lofi (Recommended)", category: "Lo-Fi", path: "assets/reusable/music/parasail-silent-partner.mp3", desc: "Warm acoustic lofi guitar" },
-  { id: "19th-floor", label: "Deep Focus & Ambient", category: "Piano", path: "assets/reusable/music/19th-floor-bobby-richards.mp3", desc: "Inspiring subtle piano tone" },
-  { id: "dutty-vibe", label: "Optimistic Beat", category: "Upbeat", path: "assets/reusable/music/dutty-vibe-tracks.mp3", desc: "Gentle positive acoustic rhythm" },
-  { id: "book-rental", label: "Energetic Narrative", category: "Story", path: "assets/reusable/music/book-the-rental-wit-it-rage.mp3", desc: "Dynamic narrative flow" },
-  { id: "crimson-fly", label: "Cinematic Drama", category: "Cinematic", path: "assets/reusable/music/crimson-fly-huma-huma.mp3", desc: "Emotional documentary drive" },
-  { id: "crock-pot", label: "Funky Chill Groove", category: "Chill", path: "assets/reusable/music/crock-pot-diamond-ortiz.mp3", desc: "Playful lofi pulse" },
-  { id: "illusions", label: "Modern Swagger Beat", category: "Beats", path: "assets/reusable/music/illusions-anno-domini-beats.mp3", desc: "Modern high-production beat" },
-  { id: "not-for-nothing", label: "Lounge Instrumental", category: "Lounge", path: "assets/reusable/music/not-for-nothing-otis-mcdonald.mp3", desc: "Smooth brass & relaxed tempo" },
-  { id: "something-going", label: "Philosophical Mystery", category: "Deep", path: "assets/reusable/music/something-is-going-on-godmode.mp3", desc: "Pensive intrigue & discovery" },
-  { id: "bar-scene", label: "Acoustic Folk Narrative", category: "Acoustic", path: "assets/reusable/music/that-one-bar-scene-rkvc.mp3", desc: "Warm acoustic guitar storytelling" },
-  { id: "true-messiah", label: "Victorious Inspiration", category: "Epic", path: "assets/reusable/music/true-messiah-dj-freedem.mp3", desc: "Triumphant motivational melody" },
-  { id: "vishnu", label: "Zen Reflection", category: "Zen", path: "assets/reusable/music/vishnu-patrick-patrikios.mp3", desc: "Serene ambient meditation" },
-  { id: "what-it-is", label: "Smooth Motown", category: "Motown", path: "assets/reusable/music/what-it-is-silent-partner.mp3", desc: "Catchy positive baseline" },
-  { id: "none", label: "No Background Music", category: "Mute", path: "none", desc: "Pure video audio only" },
-];
+export const PROMO_STEPS = [
+  { step: 1, title: "Upload", desc: "Clip & 16:9 Thumbnail" },
+  { step: 2, title: "Music", desc: "Soundtrack & SFX" },
+  { step: 3, title: "Style", desc: "Captions & CTA Button" },
+  { step: 4, title: "Preview", desc: "9:16 Shorts Simulator" },
+] as const;
 
 export function extractYoutubeId(url: string): string | null {
   const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
@@ -120,6 +119,9 @@ export interface LongVideoPromoStudioProps {
 
   onGenerate: () => void;
   isGenerating: boolean;
+
+  removeAiWatermark?: boolean;
+  onRemoveAiWatermarkChange?: (val: boolean) => void;
 }
 
 export function LongVideoPromoStudio({
@@ -157,8 +159,13 @@ export function LongVideoPromoStudio({
   onEditorialTranscriptChange,
   onGenerate,
   isGenerating,
+  removeAiWatermark = false,
+  onRemoveAiWatermarkChange,
 }: LongVideoPromoStudioProps) {
-  // Local state fallbacks
+  // Stepper State
+  const [currentStep, setCurrentStep] = useState<number>(1);
+
+  // Thumbnail State
   const [internalThumbMode, setInternalThumbMode] = useState<"upload" | "youtube">(thumbnailMode);
   const activeThumbMode = thumbnailMode || internalThumbMode;
   const setThumbMode = (m: "upload" | "youtube") => {
@@ -173,61 +180,59 @@ export function LongVideoPromoStudio({
     if (onYoutubeUrlChange) onYoutubeUrlChange(val);
   };
 
-  const [internalGoal, setInternalGoal] = useState<LongVideoPromoGoal>(promoGoal || "watch-full-video");
-  const currentGoal = promoGoal || internalGoal;
-  const handleGoalSelect = (goal: LongVideoPromoGoal) => {
-    setInternalGoal(goal);
-    if (onPromoGoalChange) onPromoGoalChange(goal);
-  };
+  // Thumbnail Local Preview URL
+  const [thumbLocalUrl, setThumbLocalUrl] = useState<string>("");
+  useEffect(() => {
+    if (activeThumbMode === "upload" && promoThumbnailFile) {
+      const url = URL.createObjectURL(promoThumbnailFile);
+      setThumbLocalUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else if (activeThumbMode === "youtube" && activeYoutubeUrl) {
+      const ytThumb = getYoutubeThumbnail(activeYoutubeUrl);
+      setThumbLocalUrl(ytThumb || "");
+    } else {
+      setThumbLocalUrl("");
+    }
+  }, [promoThumbnailFile, activeThumbMode, activeYoutubeUrl]);
 
-  const [internalCtaStyle, setInternalCtaStyle] = useState<"youtube-red" | "emerald" | "glass" | "tiktok-yellow">(promoCtaStyle);
-  const activeCtaStyle = promoCtaStyle || internalCtaStyle;
-  const handleCtaStyleSelect = (style: "youtube-red" | "emerald" | "glass" | "tiktok-yellow") => {
-    setInternalCtaStyle(style);
-    if (onPromoCtaStyleChange) onPromoCtaStyleChange(style);
-  };
+  // Video Local Preview URL & Duration
+  const [videoLocalUrl, setVideoLocalUrl] = useState<string>("");
+  const [videoDuration, setVideoDuration] = useState<number>(0);
+  useEffect(() => {
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setVideoLocalUrl(url);
+      const v = document.createElement("video");
+      v.src = url;
+      v.onloadedmetadata = () => {
+        setVideoDuration(Math.round(v.duration || 0));
+      };
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setVideoLocalUrl("");
+      setVideoDuration(0);
+    }
+  }, [selectedFile]);
 
-  const [internalBgMode, setInternalBgMode] = useState<"blur" | "solid" | "white">(promoBackgroundMode);
-  const activeBgMode = promoBackgroundMode || internalBgMode;
-  const handleBgModeSelect = (mode: "blur" | "solid" | "white") => {
-    setInternalBgMode(mode);
-    if (onPromoBackgroundModeChange) onPromoBackgroundModeChange(mode);
-  };
-
-  // Caption Styles state
-  const [internalCaptionStyle, setInternalCaptionStyle] = useState<string>(captionStyle);
-  const activeCaptionStyle = captionStyle || internalCaptionStyle;
-  const handleCaptionStyleSelect = (st: string) => {
-    setInternalCaptionStyle(st);
-    if (onCaptionStyleChange) onCaptionStyleChange(st);
-  };
+  // Caption Styles Filter
   const [captionCategoryTab, setCaptionCategoryTab] = useState<string>("All");
+  const [captionSearch, setCaptionSearch] = useState<string>("");
 
-  // Filtered caption styles
   const filteredCaptionStyles = useMemo(() => {
-    if (captionCategoryTab === "All") return PROMO_CAPTION_STYLES;
-    return PROMO_CAPTION_STYLES.filter((s) => s.category === captionCategoryTab);
-  }, [captionCategoryTab]);
+    return THIRTY_TWO_CAPTION_STYLES.filter((style) => {
+      const matchesCategory = captionCategoryTab === "All" || style.category === captionCategoryTab;
+      const matchesSearch =
+        style.name.toLowerCase().includes(captionSearch.toLowerCase()) ||
+        style.description.toLowerCase().includes(captionSearch.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [captionCategoryTab, captionSearch]);
 
-  // Audio / BGM audition state
-  const [internalBgmTrack, setInternalBgmTrack] = useState<string>(bgmTrackId);
-  const activeBgmTrack = bgmTrackId || internalBgmTrack;
-  const handleBgmTrackSelect = (id: string) => {
-    setInternalBgmTrack(id);
-    if (onBgmTrackIdChange) onBgmTrackIdChange(id);
-  };
-
-  const [internalBgmVolume, setInternalBgmVolume] = useState<number>(bgmVolume);
-  const activeBgmVolume = typeof bgmVolume === "number" ? bgmVolume : internalBgmVolume;
-  const handleVolumeChange = (vol: number) => {
-    setInternalBgmVolume(vol);
-    if (onBgmVolumeChange) onBgmVolumeChange(vol);
-  };
-
+  // Audio / BGM Auditioning
   const [auditioningTrack, setAuditioningTrack] = useState<string | null>(null);
   const audioAuditionRef = useRef<HTMLAudioElement | null>(null);
 
-  const toggleAudition = (track: typeof AWS_PROMO_BGM_TRACKS[0]) => {
+  const toggleAudition = (track: LibraryBgmTrack) => {
     if (track.path === "none") return;
     if (auditioningTrack === track.id) {
       if (audioAuditionRef.current) {
@@ -239,9 +244,10 @@ export function LongVideoPromoStudio({
       if (audioAuditionRef.current) {
         audioAuditionRef.current.pause();
       }
-      const audio = new window.Audio(`https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/${track.path}`);
-      audio.volume = Math.max(0.05, Math.min(1, activeBgmVolume * 2));
-      audio.play().catch(() => {});
+      const audioUrl = getBgmTrackAudioUrl(track);
+      const audio = new window.Audio(audioUrl);
+      audio.volume = Math.max(0.05, Math.min(1, (bgmVolume || 0.12) * 2));
+      audio.play().catch(() => { });
       audio.onended = () => setAuditioningTrack(null);
       audioAuditionRef.current = audio;
       setAuditioningTrack(track.id);
@@ -257,811 +263,839 @@ export function LongVideoPromoStudio({
     };
   }, []);
 
-  // Thumbnail preview URL
-  const [thumbLocalUrl, setThumbLocalUrl] = useState<string>("");
-  useEffect(() => {
-    if (activeThumbMode === "upload" && promoThumbnailFile) {
-      const url = URL.createObjectURL(promoThumbnailFile);
-      setThumbLocalUrl(url);
-      return () => URL.revokeObjectURL(url);
-    } else if (activeThumbMode === "youtube" && activeYoutubeUrl) {
-      const ytThumb = getYoutubeThumbnail(activeYoutubeUrl);
-      setThumbLocalUrl(ytThumb || "");
-    } else {
-      setThumbLocalUrl("");
-    }
-  }, [promoThumbnailFile, activeThumbMode, activeYoutubeUrl]);
+  // CTA Text Fallbacks
+  const displayCtaText = promoCtaText?.trim() || "Watch the full video";
+  const displayCreatorHandle = promoCreatorHandle?.trim() || "@creator";
 
-  // Video preview URL
-  const [videoLocalUrl, setVideoLocalUrl] = useState<string>("");
-  useEffect(() => {
-    if (selectedFile) {
-      const url = URL.createObjectURL(selectedFile);
-      setVideoLocalUrl(url);
-      return () => URL.revokeObjectURL(url);
-    } else {
-      setVideoLocalUrl("");
-    }
-  }, [selectedFile]);
-
-  // Compulsory Live Preview Gate state
+  // Compulsory Live Preview Gate
   const [previewConfirmed, setPreviewConfirmed] = useState<boolean>(false);
 
-  // File drop / select handlers
-  const handleVideoDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file && (file.type.startsWith("video/") || file.name.match(/\.(mp4|mov|webm)$/i))) {
-      onSelectFile(file);
-    }
-  };
-
-  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) onSelectFile(file);
-  };
-
-  const handleThumbDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      onPromoThumbnailFileChange(file);
-    }
-  };
-
-  const handleThumbSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) onPromoThumbnailFileChange(file);
-  };
-
-  // Video duration reader
-  const [videoDuration, setVideoDuration] = useState<number>(0);
-  useEffect(() => {
-    if (!selectedFile) {
-      setVideoDuration(0);
-      return;
-    }
-    const v = document.createElement("video");
-    const u = URL.createObjectURL(selectedFile);
-    v.src = u;
-    v.onloadedmetadata = () => {
-      setVideoDuration(Math.round(v.duration || 0));
-      URL.revokeObjectURL(u);
-    };
-    v.onerror = () => URL.revokeObjectURL(u);
-  }, [selectedFile]);
-
-  const isReadyToRender = Boolean(selectedFile && (promoThumbnailFile || (activeThumbMode === "youtube" && activeYoutubeUrl)));
+  // Verification whether ready to generate
+  const hasThumbnail = Boolean(promoThumbnailFile || (activeThumbMode === "youtube" && activeYoutubeUrl));
+  const hasVideo = Boolean(selectedFile);
+  const isReadyToRender = hasThumbnail && hasVideo;
 
   return (
-    <div className="w-full space-y-8">
-      {/* Top Banner: Crisp White Header */}
-      <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8 shadow-xs">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-xs font-bold text-orange-700">
-              <Tv size={13} className="text-[#0066FF]" />
-              <span>9:16 Vertical Promo Reel • Traffic Booster</span>
+    <div className="h-full flex flex-col bg-white overflow-hidden text-slate-800">
+      {/* ── ROW 1: STUDIO HEADER & 4-STEP STEPPER BAR ── */}
+      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3.5 shrink-0 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          {/* Studio Title */}
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <Tv size={18} className="text-orange-600" />
+                Long Video Promo Studio
+              </h1>
+              <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 border border-orange-200 px-2.5 py-0.5 text-[11px] font-bold text-orange-700">
+                <Sparkles size={11} className="text-orange-600" />
+                9:16 Vertical Promo
+              </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 font-sans">
-              Long Video Promo Studio
-            </h1>
-            <p className="text-sm text-slate-500 leading-relaxed max-w-2xl">
-              Turn any long YouTube video, podcast, or lecture into a high-converting 9:16 vertical teaser reel with stacked thumbnail card, dynamic title, teaser clip, and call-to-action button.
+            <p className="text-xs text-slate-500 font-medium">
+              Convert any long YouTube video or podcast into a high-converting teaser reel driving clicks to the full video.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Render Cost</span>
-              <span className="text-base font-black text-slate-900">1 Credit / Video</span>
-            </div>
+          {/* Stepper Navigation Pills */}
+          <div className="flex items-center gap-1 sm:gap-1.5 self-center sm:self-auto overflow-x-auto no-scrollbar py-0.5">
+            {PROMO_STEPS.map((step) => {
+              const isActive = currentStep === step.step;
+              const isDone =
+                (step.step === 1 && hasThumbnail && hasVideo) ||
+                (step.step === 2 && Boolean(bgmTrackId)) ||
+                (step.step === 3 && Boolean(captionStyle)) ||
+                currentStep > step.step;
+
+              return (
+                <button
+                  key={step.step}
+                  type="button"
+                  onClick={() => setCurrentStep(step.step)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isActive
+                      ? "bg-orange-600 text-white shadow-xs"
+                      : isDone
+                        ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
+                        : "bg-transparent text-slate-400 hover:text-slate-600"
+                    }`}
+                >
+                  <span
+                    className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${isActive
+                        ? "bg-white text-orange-600"
+                        : isDone
+                          ? "bg-emerald-500 text-white"
+                          : "bg-slate-200 text-slate-600"
+                      }`}
+                  >
+                    {isDone && !isActive ? <Check size={10} strokeWidth={3} /> : step.step}
+                  </span>
+                  <span>{step.title}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Pricing Allowance Badge */}
+          <div className="hidden lg:flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
+              <Zap size={13} className="text-orange-600 fill-orange-600" />
+              1 Credit / Video • Up to 90s
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Main Studio Grid: Left Controls (2 Cols) | Right 9:16 Live Preview (1 Col) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Form Controls (7 Cols) */}
-        <div className="lg:col-span-7 space-y-6">
+      {/* ── ROW 2: STEP CONTENT (SCROLLABLE WORKSPACE) ── */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <div className="max-w-5xl mx-auto space-y-6">
 
-          {/* Section 1: Thumbnail Source (Upload or YouTube Auto-Extract) */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
-                  <ImageIcon size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900 font-sans">1. 16:9 Thumbnail Image</h3>
-                  <p className="text-xs text-slate-500">Upload your cover image or paste YouTube link for automatic extraction</p>
-                </div>
-              </div>
-
-              {/* Mode Switcher Tabs */}
-              <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
-                <button
-                  type="button"
-                  onClick={() => setThumbMode("upload")}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
-                    activeThumbMode === "upload"
-                      ? "bg-white text-slate-900 shadow-xs border border-slate-200"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  Upload File
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setThumbMode("youtube")}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition flex items-center gap-1 ${
-                    activeThumbMode === "youtube"
-                      ? "bg-white text-red-600 shadow-xs border border-slate-200"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  <Youtube size={13} />
-                  <span>YouTube URL</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Thumbnail Mode 1: File Upload */}
-            {activeThumbMode === "upload" ? (
-              <div>
-                {promoThumbnailFile ? (
-                  <div className="relative rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {thumbLocalUrl && (
-                        <div className="relative h-14 w-24 rounded-lg overflow-hidden border border-emerald-300 bg-slate-900">
-                          <img src={thumbLocalUrl} alt="Thumbnail preview" className="h-full w-full object-cover" />
-                        </div>
-                      )}
-                      <div>
-                        <p className="text-xs font-bold text-slate-900 truncate max-w-xs">{promoThumbnailFile.name}</p>
-                        <p className="text-[11px] text-emerald-700 font-semibold">16:9 Thumbnail loaded</p>
-                      </div>
+          {/* ──────────────── STEP 1: UPLOAD THUMBNAIL & VIDEO CLIP ──────────────── */}
+          {currentStep === 1 && (
+            <div className="space-y-6">
+              {/* Section 1A: 16:9 Thumbnail Image */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200">
+                      <ImageIcon size={18} />
                     </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                        1. 16:9 Thumbnail Image (Cover)
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Upload your 16:9 thumbnail or paste a YouTube URL for automatic extraction
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Mode Switcher */}
+                  <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1 shrink-0">
                     <button
                       type="button"
-                      onClick={() => onPromoThumbnailFileChange(null)}
-                      className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 hover:text-red-600 hover:border-red-200 transition"
-                      title="Remove thumbnail"
+                      onClick={() => setThumbMode("upload")}
+                      className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${activeThumbMode === "upload"
+                          ? "bg-white text-slate-900 shadow-2xs border border-slate-200"
+                          : "text-slate-500 hover:text-slate-900"
+                        }`}
                     >
-                      <X size={15} />
+                      Upload File
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setThumbMode("youtube")}
+                      className={`px-3 py-1 text-xs font-bold rounded-lg transition flex items-center gap-1 cursor-pointer ${activeThumbMode === "youtube"
+                          ? "bg-white text-red-600 shadow-2xs border border-slate-200"
+                          : "text-slate-500 hover:text-slate-900"
+                        }`}
+                    >
+                      <Youtube size={13} className="text-red-600" />
+                      <span>YouTube URL</span>
                     </button>
                   </div>
-                ) : (
-                  <div
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={handleThumbDrop}
-                    className="relative rounded-xl border-2 border-dashed border-slate-300 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/20 p-6 text-center transition cursor-pointer"
-                  >
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={handleThumbSelect}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    />
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-slate-200 shadow-xs text-[#0066FF]">
-                        <Upload size={18} />
-                      </div>
-                      <p className="text-xs font-bold text-slate-800">
-                        Drop 16:9 cover image here, or <span className="text-[#0066FF] underline">browse</span>
-                      </p>
-                      <p className="text-[11px] text-slate-400">Recommended 1280×720 PNG, JPG, or WebP</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Thumbnail Mode 2: YouTube Link Automatic Extraction */
-              <div className="space-y-3">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-red-500">
-                    <Youtube size={18} />
-                  </div>
-                  <input
-                    type="url"
-                    value={activeYoutubeUrl}
-                    onChange={(e) => handleYoutubeChange(e.target.value)}
-                    placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:bg-white focus:border-red-500 focus:outline-none transition shadow-2xs"
-                  />
                 </div>
 
-                {/* Auto Extracted Thumbnail Feedback */}
-                {activeYoutubeUrl && (
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 flex items-center gap-3">
-                    {thumbLocalUrl ? (
-                      <div className="relative h-14 w-24 rounded-lg overflow-hidden border border-slate-300 bg-black shrink-0">
-                        <img src={thumbLocalUrl} alt="YouTube thumbnail" className="h-full w-full object-cover" />
+                {/* Upload Mode Dropzone */}
+                {activeThumbMode === "upload" && (
+                  <div className="space-y-3">
+                    {promoThumbnailFile ? (
+                      <div className="flex items-center justify-between rounded-xl border border-emerald-300 bg-emerald-50/50 p-4">
+                        <div className="flex items-center gap-3">
+                          {thumbLocalUrl && (
+                            <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-2xs">
+                              <Image
+                                src={thumbLocalUrl}
+                                alt="Thumbnail preview"
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-xs font-bold text-slate-900">{promoThumbnailFile.name}</p>
+                            <p className="text-[11px] text-slate-500">
+                              {(promoThumbnailFile.size / (1024 * 1024)).toFixed(1)} MB • 16:9 Thumbnail Ready
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => onPromoThumbnailFileChange(null)}
+                          className="text-xs font-bold text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                        >
+                          Remove
+                        </button>
                       </div>
                     ) : (
-                      <div className="h-14 w-24 rounded-lg border border-dashed border-slate-300 bg-slate-100 flex items-center justify-center text-slate-400 shrink-0">
-                        <AlertCircle size={16} />
+                      <label className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-slate-50 hover:border-orange-400 p-8 text-center transition cursor-pointer">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200 mb-2">
+                          <Upload size={20} />
+                        </div>
+                        <p className="text-xs font-bold text-slate-800">
+                          Click to browse or drop your 16:9 thumbnail image
+                        </p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">PNG, JPG, or WebP up to 10MB</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) onPromoThumbnailFileChange(file);
+                          }}
+                        />
+                      </label>
+                    )}
+                  </div>
+                )}
+
+                {/* YouTube URL Mode */}
+                {activeThumbMode === "youtube" && (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Youtube
+                          size={16}
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-red-600 pointer-events-none"
+                        />
+                        <input
+                          type="url"
+                          value={activeYoutubeUrl}
+                          onChange={(e) => handleYoutubeChange(e.target.value)}
+                          placeholder="Paste YouTube link (e.g. https://youtube.com/watch?v=...)"
+                          className="w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {thumbLocalUrl && (
+                      <div className="flex items-center gap-3 rounded-xl border border-emerald-300 bg-emerald-50/50 p-3">
+                        <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-100 shadow-2xs">
+                          <Image
+                            src={thumbLocalUrl}
+                            alt="Extracted thumbnail"
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
+                        <div>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-300">
+                            <Check size={10} /> MaxRes Thumbnail Extracted
+                          </span>
+                          <p className="text-[11px] text-slate-600 font-mono mt-1 truncate max-w-sm">
+                            {activeYoutubeUrl}
+                          </p>
+                        </div>
                       </div>
                     )}
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-slate-900 truncate">
-                        {thumbLocalUrl ? "YouTube MaxRes Thumbnail Detected" : "Enter a valid YouTube video URL"}
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        {thumbLocalUrl ? "Auto-synced into 9:16 top card" : "Example: https://youtu.be/dQw4w9WgXcQ"}
-                      </p>
-                    </div>
                   </div>
                 )}
               </div>
-            )}
-          </div>
 
-          {/* Section 2: Upload Promo Video Clip */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
-                <Film size={18} />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-slate-900 font-sans">2. Promo Teaser Clip (Up to 90s)</h3>
-                <p className="text-xs text-slate-500">The actual teaser moment from your video (MP4, MOV, or WEBM)</p>
-              </div>
-            </div>
-
-            {selectedFile ? (
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-white font-bold">
-                    <Video size={18} />
+              {/* Section 1B: Teaser Video Clip Dropzone */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200">
+                    <Film size={18} />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-900 truncate max-w-xs">{selectedFile.name}</p>
-                    <p className="text-[11px] text-emerald-700 font-semibold">
-                      {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • {videoDuration > 0 ? `${videoDuration}s duration` : "Ready"}
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                      2. Teaser Video Clip (Up to 90s)
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Upload the highlight hook clip to show in the promo preview
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onSelectFile(null)}
-                  className="rounded-lg border border-slate-200 bg-white p-2 text-slate-500 hover:text-red-600 hover:border-red-200 transition"
-                  title="Remove video"
-                >
-                  <X size={15} />
-                </button>
-              </div>
-            ) : (
-              <div
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={handleVideoDrop}
-                className="relative rounded-xl border-2 border-dashed border-slate-300 hover:border-[#0066FF] bg-slate-50 hover:bg-blue-50/20 p-6 text-center transition cursor-pointer"
-              >
-                <input
-                  type="file"
-                  accept="video/mp4,video/quicktime,video/webm"
-                  onChange={handleVideoSelect}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white border border-slate-200 shadow-xs text-[#0066FF]">
-                    <Video size={18} />
-                  </div>
-                  <p className="text-xs font-bold text-slate-800">
-                    Drop teaser video clip here, or <span className="text-[#0066FF] underline">browse</span>
-                  </p>
-                  <p className="text-[11px] text-slate-400">Horizontal or vertical clips up to 90 seconds (1080p MP4)</p>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Section 3: Promo Details (Title, Handle, Goal, CTA Style) */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
-                <Tv size={18} />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-slate-900 font-sans">3. Title & Traffic Conversion</h3>
-                <p className="text-xs text-slate-500">Configure headline typography and call-to-action button</p>
-              </div>
-            </div>
+                {selectedFile ? (
+                  <div className="rounded-xl border border-emerald-300 bg-emerald-50/50 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                          <Film size={20} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">{selectedFile.name}</p>
+                          <p className="text-[11px] text-slate-500">
+                            {(selectedFile.size / (1024 * 1024)).toFixed(1)} MB • Duration:{" "}
+                            <span className="font-bold text-slate-800">{videoDuration}s</span> (max 90s)
+                          </p>
+                        </div>
+                      </div>
 
-            {/* Title Field */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-700">Video Headline Title</label>
-                <span className="text-[11px] text-slate-400">{promoTitle.length}/80 chars</span>
-              </div>
-              <input
-                type="text"
-                maxLength={80}
-                value={promoTitle}
-                onChange={(e) => onPromoTitleChange(e.target.value)}
-                placeholder="e.g. How I Built a Profitable AI Business from Scratch"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-semibold focus:bg-white focus:border-[#0066FF] focus:outline-none transition shadow-2xs"
-              />
-            </div>
-
-            {/* Creator Handle */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">Channel / Creator Handle</label>
-                <input
-                  type="text"
-                  value={promoCreatorHandle}
-                  onChange={(e) => onPromoCreatorHandleChange(e.target.value)}
-                  placeholder="@yourchannel"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:bg-white focus:border-[#0066FF] focus:outline-none transition shadow-2xs"
-                />
-              </div>
-
-              {/* Custom CTA Text Override */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">Custom Button Text (Optional)</label>
-                <input
-                  type="text"
-                  maxLength={36}
-                  value={promoCtaText}
-                  onChange={(e) => onPromoCtaTextChange && onPromoCtaTextChange(e.target.value)}
-                  placeholder="Defaults to goal text"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-medium focus:bg-white focus:border-[#0066FF] focus:outline-none transition shadow-2xs"
-                />
-              </div>
-            </div>
-
-            {/* Promo Goal Tabs */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700">Promo Goal (Traffic Objective)</label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                {[
-                  { id: "watch-full-video", title: "Watch Full Video", sub: "Drives traffic to YouTube link" },
-                  { id: "subscribers", title: "Channel Growth", sub: "Focuses on subscribers" },
-                  { id: "promote-episode", title: "New Episode", sub: "Highlights series release" },
-                ].map((g) => (
-                  <button
-                    key={g.id}
-                    type="button"
-                    onClick={() => handleGoalSelect(g.id as LongVideoPromoGoal)}
-                    className={`rounded-xl border p-3 text-left transition ${
-                      currentGoal === g.id
-                        ? "border-[#0066FF] bg-blue-50/50 shadow-xs"
-                        : "border-slate-200 bg-slate-50 hover:bg-white text-slate-700"
-                    }`}
-                  >
-                    <p className="text-xs font-bold text-slate-900">{g.title}</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">{g.sub}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA Button Style & Background Mode */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700">CTA Button Color</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: "youtube-red", label: "YouTube Red", dot: "bg-red-600" },
-                    { id: "emerald", label: "Emerald Green", dot: "bg-emerald-600" },
-                    { id: "glass", label: "Obsidian Glass", dot: "bg-slate-900" },
-                    { id: "tiktok-yellow", label: "TikTok Yellow", dot: "bg-yellow-400" },
-                  ].map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => handleCtaStyleSelect(s.id as any)}
-                      className={`flex items-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition ${
-                        activeCtaStyle === s.id
-                          ? "border-[#0066FF] bg-blue-50/40 text-slate-900 shadow-2xs"
-                          : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-white"
-                      }`}
-                    >
-                      <span className={`h-3 w-3 rounded-full ${s.dot}`} />
-                      <span className="truncate">{s.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700">Reel Background Canvas</label>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {[
-                    { id: "blur", label: "Ambient Blur" },
-                    { id: "solid", label: "Charcoal" },
-                    { id: "white", label: "White Studio" },
-                  ].map((bg) => (
-                    <button
-                      key={bg.id}
-                      type="button"
-                      onClick={() => handleBgModeSelect(bg.id as any)}
-                      className={`rounded-xl border p-2.5 text-center text-xs font-bold transition ${
-                        activeBgMode === bg.id
-                          ? "border-[#0066FF] bg-blue-50/50 text-orange-950 shadow-2xs"
-                          : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-white"
-                      }`}
-                    >
-                      {bg.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: 20 Standalone Kinetic Caption Styles */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
-                  <Wand2 size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900 font-sans">4. 20 Kinetic Caption Styles</h3>
-                  <p className="text-xs text-slate-500">Pick an animated typography style for speech subtitles</p>
-                </div>
-              </div>
-
-              <span className="text-[11px] font-bold text-[#0066FF] bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-                Active: {activeCaptionStyle}
-              </span>
-            </div>
-
-            {/* Category Filter Tabs */}
-            <div className="flex flex-wrap gap-1.5 border-b border-slate-100 pb-2">
-              {["All", "Single Word", "Line Captions", "Stacks", "Typewriter", "Editorial"].map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setCaptionCategoryTab(tab)}
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                    captionCategoryTab === tab
-                      ? "bg-slate-900 text-white shadow-2xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* 20 Styles Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto pr-1">
-              {filteredCaptionStyles.map((style) => {
-                const isSelected = activeCaptionStyle === style.name;
-                return (
-                  <button
-                    key={style.id}
-                    type="button"
-                    onClick={() => handleCaptionStyleSelect(style.name)}
-                    className={`flex flex-col items-start justify-between rounded-xl border p-3 text-left transition relative ${
-                      isSelected
-                        ? "border-[#0066FF] bg-blue-50/40 ring-2 ring-orange-500/20"
-                        : "border-slate-200 bg-slate-50 hover:bg-white hover:border-slate-300"
-                    }`}
-                  >
-                    <span className="text-xs font-black text-slate-900 leading-tight">{style.name}</span>
-                    <div className="mt-2 flex items-center justify-between w-full">
-                      <span className="text-[10px] font-semibold text-slate-500 uppercase">{style.category}</span>
-                      {isSelected && <Check size={13} className="text-[#0066FF] stroke-[3]" />}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Section 5: Background Music & Audio Controls (12% Default) */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
-                  <Music size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900 font-sans">5. Background Music &amp; Audio Level</h3>
-                  <p className="text-xs text-slate-500">Curated cloud tracks ducked to 12% so speech remains pristine</p>
-                </div>
-              </div>
-
-              {/* SFX Toggle */}
-              <label className="flex items-center gap-2 cursor-pointer bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                <input
-                  type="checkbox"
-                  checked={enableSfx}
-                  onChange={(e) => onEnableSfxChange && onEnableSfxChange(e.target.checked)}
-                  className="rounded border-slate-300 text-[#0066FF] focus:ring-[#0066FF] h-3.5 w-3.5"
-                />
-                <span className="text-xs font-bold text-slate-700">SFX Whooshes</span>
-              </label>
-            </div>
-
-            {/* Volume Slider */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-700 flex items-center gap-1.5">
-                  <Volume2 size={15} className="text-[#0066FF]" />
-                  Background Music Volume
-                </span>
-                <span className="font-black text-[#0066FF] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
-                  {Math.round(activeBgmVolume * 100)}% (12% Default)
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="0.4"
-                step="0.01"
-                value={activeBgmVolume}
-                onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                className="w-full accent-orange-600 cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-slate-400 font-semibold">
-                <span>0% (Muted)</span>
-                <span className="text-[#0066FF] font-bold">12% Voice Safe</span>
-                <span>40% Loud</span>
-              </div>
-            </div>
-
-            {/* Music Library & Audition */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto pr-1">
-              {AWS_PROMO_BGM_TRACKS.map((track) => {
-                const isSelected = activeBgmTrack === track.id;
-                const isPlaying = auditioningTrack === track.id;
-
-                return (
-                  <div
-                    key={track.id}
-                    className={`flex items-center justify-between rounded-xl border p-2.5 transition ${
-                      isSelected
-                        ? "border-[#0066FF] bg-blue-50/40 ring-1 ring-orange-500/20"
-                        : "border-slate-200 bg-slate-50 hover:bg-white"
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => handleBgmTrackSelect(track.id)}
-                      className="text-left min-w-0 flex-1 mr-2"
-                    >
-                      <p className="text-xs font-bold text-slate-900 truncate">{track.label}</p>
-                      <p className="text-[10px] text-slate-500 truncate">{track.desc}</p>
-                    </button>
-
-                    {track.path !== "none" && (
                       <button
                         type="button"
-                        onClick={() => toggleAudition(track)}
-                        className={`p-1.5 rounded-lg border transition shrink-0 ${
-                          isPlaying
-                            ? "bg-[#0066FF] text-white border-orange-600 animate-pulse"
-                            : "bg-white text-slate-600 border-slate-200 hover:text-slate-900"
-                        }`}
-                        title={isPlaying ? "Pause preview" : "Play preview"}
+                        onClick={() => onSelectFile(null)}
+                        className="text-xs font-bold text-rose-600 hover:text-rose-700 transition cursor-pointer"
                       >
-                        {isPlaying ? <Pause size={13} /> : <Play size={13} />}
+                        Remove
                       </button>
+                    </div>
+
+                    {videoLocalUrl && (
+                      <div className="rounded-lg overflow-hidden border border-slate-200 bg-black aspect-video max-h-48 flex items-center justify-center">
+                        <video
+                          src={videoLocalUrl}
+                          controls
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
                     )}
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Custom BGM Upload */}
-            <div className="pt-1">
-              <label className="text-xs font-bold text-slate-700 block mb-1.5">Or Upload Custom Background Music</label>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-xs font-bold text-slate-700 cursor-pointer transition shadow-2xs">
-                  <Upload size={14} className="text-[#0066FF]" />
-                  <span>Choose MP3 / WAV</span>
-                  <input
-                    type="file"
-                    accept="audio/mp3,audio/wav,audio/mpeg"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file && onCustomBgmFileSelect) onCustomBgmFileSelect(file);
-                    }}
-                    className="hidden"
-                  />
-                </label>
-                {customBgmFile && (
-                  <span className="text-xs font-semibold text-emerald-700 truncate max-w-xs">
-                    ✓ {customBgmFile.name}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 6: Spoken Narration Editorial Transcript Editor */}
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#0066FF] border border-orange-100">
-                  <FileText size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900 font-sans">6. Editorial Transcript Editor</h3>
-                  <p className="text-xs text-slate-500">Correct any speech transcription spelling mistakes before rendering</p>
-                </div>
-              </div>
-            </div>
-
-            <textarea
-              rows={3}
-              value={editorialTranscript}
-              onChange={(e) => onEditorialTranscriptChange && onEditorialTranscriptChange(e.target.value)}
-              placeholder="Paste or edit the spoken dialogue text here to fix typos, technical keywords, or brand names..."
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-mono focus:bg-white focus:border-[#0066FF] focus:outline-none transition leading-relaxed shadow-2xs"
-            />
-          </div>
-        </div>
-
-        {/* Right Column: Compulsory Live 9:16 Mockup Simulator & Gate (5 Cols) */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-5">
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Eye size={16} className="text-[#0066FF]" />
-                <h3 className="text-sm font-black text-slate-900 font-sans">Compulsory 9:16 Visual Preview</h3>
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-                Interactive Mockup
-              </span>
-            </div>
-
-            {/* 9:16 Phone Canvas Simulator */}
-            <div className="relative mx-auto w-full max-w-[310px] aspect-[9/16] rounded-[32px] border-[6px] border-slate-900 bg-slate-950 overflow-hidden shadow-2xl flex flex-col justify-between p-3.5">
-              {/* Simulator Background */}
-              {activeBgMode === "white" ? (
-                <div className="absolute inset-0 bg-gradient-to-b from-white via-slate-50 to-slate-100 pointer-events-none" />
-              ) : activeBgMode === "blur" && thumbLocalUrl ? (
-                <div
-                  className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-35 scale-125 pointer-events-none"
-                  style={{ backgroundImage: `url(${thumbLocalUrl})` }}
-                />
-              ) : (
-                <div className="absolute inset-0 bg-radial from-slate-900 via-slate-950 to-black pointer-events-none" />
-              )}
-
-              {/* TOP: 16:9 Thumbnail Levitation Card */}
-              <div className="relative z-10 w-full rounded-xl overflow-hidden border border-white/20 bg-slate-900 aspect-video shadow-lg">
-                {thumbLocalUrl ? (
-                  <img src={thumbLocalUrl} alt="Cover" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="h-full w-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-slate-800/80">
-                    <ImageIcon size={22} />
-                    <span className="text-[10px] font-bold">16:9 Thumbnail</span>
-                  </div>
-                )}
-
-                {/* Badge Top Left */}
-                <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-red-600/95 text-white px-2 py-0.5 rounded-md text-[9px] font-black tracking-wider uppercase">
-                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
-                  FULL VIDEO
-                </div>
-
-                {/* Central Play Pulse Ring */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-9 w-9 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/60 flex items-center justify-center shadow-lg">
-                    <div className="w-0 h-0 border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent border-l-[9px] border-l-white ml-0.5" />
-                  </div>
-                </div>
-              </div>
-
-              {/* MIDDLE: Headline Title */}
-              <div className="relative z-10 text-center px-1 my-1">
-                <h4
-                  className={`text-xs font-black tracking-tight leading-snug line-clamp-2 ${
-                    activeBgMode === "white" ? "text-slate-900" : "text-white"
-                  }`}
-                >
-                  {promoTitle || "Your YouTube Video Title Goes Here"}
-                </h4>
-                {promoCreatorHandle && (
-                  <p className="text-[10px] font-bold text-[#0066FF] mt-0.5">{promoCreatorHandle}</p>
+                  <label className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-slate-50 hover:border-orange-400 p-8 text-center transition cursor-pointer">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200 mb-2">
+                      <Film size={20} />
+                    </div>
+                    <p className="text-xs font-bold text-slate-800">
+                      Click to browse or drop your promo teaser video
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">MP4, MOV, or WEBM up to 90 seconds</p>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) onSelectFile(file);
+                      }}
+                    />
+                  </label>
                 )}
               </div>
 
-              {/* LOWER: Video Clip Stage + Active Animated Caption */}
-              <div className="relative z-10 w-full aspect-video rounded-xl overflow-hidden border border-white/20 bg-black shadow-md flex items-center justify-center">
-                {videoLocalUrl ? (
-                  <video src={videoLocalUrl} autoPlay loop muted playsInline className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-slate-400 gap-1">
-                    <Film size={20} className="text-[#0066FF]" />
-                    <span className="text-[10px] font-semibold">Teaser Clip Preview</span>
+              {/* Section 1C: Video Title & Creator Handle */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 block mb-1.5">
+                      Full Video Title (Headline)
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={80}
+                      value={promoTitle}
+                      onChange={(e) => onPromoTitleChange(e.target.value)}
+                      placeholder="e.g. How I Built a $10k/mo Business in 60 Days"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Displayed on the promo reel header • {promoTitle.length}/80
+                    </span>
                   </div>
-                )}
 
-                {/* REC Status Badge */}
-                <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-black/70 backdrop-blur-md px-1.5 py-0.5 rounded text-[8px] font-mono font-bold text-white">
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                  REC
-                </div>
-
-                {/* Mock Subtitle Preview with Active Caption Style */}
-                <div className="absolute bottom-2 inset-x-2 flex justify-center pointer-events-none">
-                  <div className="bg-black/85 backdrop-blur-md border border-[#0066FF]/50 rounded-lg px-2 py-0.5 text-center shadow-md">
-                    <span className="text-[10px] font-black text-amber-300 uppercase tracking-tight">
-                      [{activeCaptionStyle}] VIRAL MOMENT
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 block mb-1.5">
+                      Creator Channel / Handle
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={40}
+                      value={promoCreatorHandle}
+                      onChange={(e) => onPromoCreatorHandleChange(e.target.value)}
+                      placeholder="e.g. @YourChannel"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Displayed alongside the call-to-action button
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* BOTTOM: Traffic Driving CTA Pill */}
-              <div className="relative z-10 text-center pt-1">
-                <div
-                  className={`inline-flex flex-col items-center justify-center w-full py-2 px-3 rounded-xl font-black text-xs shadow-lg transition ${
-                    activeCtaStyle === "youtube-red"
-                      ? "bg-red-600 text-white"
-                      : activeCtaStyle === "emerald"
-                      ? "bg-emerald-600 text-white"
-                      : activeCtaStyle === "tiktok-yellow"
-                      ? "bg-yellow-400 text-slate-900"
-                      : "bg-slate-900 text-white border border-white/20"
-                  }`}
+              {/* Bottom Navigation */}
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition cursor-pointer"
                 >
-                  <span>{promoCtaText || (currentGoal === "subscribers" ? "SUBSCRIBE FOR MORE" : "WATCH FULL VIDEO")}</span>
-                  <span className="text-[9px] font-medium opacity-85">Link in bio &amp; comments</span>
+                  <span>Next: Music &amp; Audio</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ──────────────── STEP 2: MUSIC & SOUND DESIGN ──────────────── */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Background Music &amp; Sound Design</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Select a background soundtrack from the curated cloud library or upload custom audio.
+                  </p>
+                </div>
+
+                {/* AWS S3 Track Selector Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {AWS_BGM_TRACKS.map((track) => {
+                    const isSelected = (bgmTrackId || "parasail") === track.id;
+                    const isAuditioning = auditioningTrack === track.id;
+
+                    return (
+                      <div
+                        key={track.id}
+                        className={`rounded-xl border p-3.5 transition-all flex flex-col justify-between ${isSelected
+                            ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
+                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/60"
+                          }`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-100/70 px-2 py-0.5 rounded-full">
+                              {track.category}
+                            </span>
+                            {isSelected && (
+                              <span className="flex items-center gap-1 text-[10px] font-black text-orange-600">
+                                <Check size={12} strokeWidth={3} /> Selected
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="text-xs font-bold text-slate-900 mt-1">{track.label}</h4>
+                          <p className="text-[11px] text-slate-500 leading-tight mt-0.5">{track.desc}</p>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-200/60">
+                          {track.path !== "none" ? (
+                            <button
+                              type="button"
+                              onClick={() => toggleAudition(track)}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${isAuditioning
+                                  ? "bg-orange-600 text-white"
+                                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                                }`}
+                            >
+                              {isAuditioning ? <Pause size={12} /> : <Play size={12} />}
+                              <span>{isAuditioning ? "Stop" : "Preview"}</span>
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-slate-400">Pure Speech</span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => onBgmTrackIdChange?.(track.id)}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${isSelected
+                                ? "bg-orange-600 text-white"
+                                : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                              }`}
+                          >
+                            {isSelected ? "Active" : "Select"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Ducked Volume Slider */}
+                <div className="pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-slate-800">
+                        BGM Volume: <span className="text-orange-600 font-mono">{Math.round((bgmVolume ?? 0.12) * 100)}%</span>
+                      </label>
+                      <span className="text-[10px] text-slate-400">Default: 12% (Speech Ducking)</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={bgmVolume ?? 0.12}
+                      onChange={(e) => onBgmVolumeChange?.(parseFloat(e.target.value))}
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3.5">
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Viral Hook SFX Transitions</p>
+                      <p className="text-[11px] text-slate-500">Subtle whoosh sound effects on title and thumbnail reveal</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={enableSfx}
+                      onChange={(e) => onEnableSfxChange?.(e.target.checked)}
+                      className="h-4 w-4 rounded accent-orange-600 cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                {/* Navigation Buttons */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(1)}
+                    className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                  >
+                    ← Back to Upload
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(3)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-orange-700 transition cursor-pointer"
+                  >
+                    <span>Next: Style &amp; CTA</span>
+                    <ArrowRight size={14} />
+                  </button>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Compulsory Review Checkbox Gate */}
-            <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3.5 space-y-2">
-              <label className="flex items-start gap-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={previewConfirmed}
-                  onChange={(e) => setPreviewConfirmed(e.target.checked)}
-                  className="mt-0.5 rounded border-amber-400 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
-                />
-                <span className="text-xs font-bold text-amber-950 leading-tight">
-                  I have reviewed this 9:16 promo reel preview and approve generating the final render.
-                </span>
-              </label>
-              <p className="text-[11px] text-amber-700 pl-6.5">
-                Preview confirmation is compulsory before cloud rendering to avoid wasting credits.
-              </p>
+          {/* ──────────────── STEP 3: CAPTIONS & CTA STYLING ──────────────── */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              {/* Background Theme Mode */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <h3 className="text-base font-bold text-slate-900">Canvas Backdrop Theme</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {[
+                    { id: "blur", title: "Ambient Blur", desc: "Dynamic cinematic blur of the source video" },
+                    { id: "solid", title: "Charcoal Solid", desc: "Deep dark studio backdrop with high contrast" },
+                    { id: "white", title: "White Studio", desc: "Clean modern white editorial background" },
+                  ].map((m) => {
+                    const isBg = (promoBackgroundMode || "blur") === m.id;
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => onPromoBackgroundModeChange?.(m.id as any)}
+                        className={`rounded-xl border p-3.5 text-left transition cursor-pointer ${isBg
+                            ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
+                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
+                          }`}
+                      >
+                        <p className="text-xs font-bold text-slate-900">{m.title}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">{m.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* CTA Button Settings */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <h3 className="text-base font-bold text-slate-900">Call-to-Action (CTA) Pill</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 block mb-1.5">
+                      CTA Button Label
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={40}
+                      value={promoCtaText}
+                      onChange={(e) => onPromoCtaTextChange?.(e.target.value)}
+                      placeholder="Watch the full video"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none"
+                    />
+                    <span className="text-[10px] text-slate-400 mt-1 block">
+                      Default: &quot;Watch the full video • Link in bio&quot;
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-800 block mb-1.5">
+                      Button Color Style
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: "youtube-red", label: "YouTube Red", bg: "bg-red-600 text-white" },
+                        { id: "emerald", label: "Emerald Green", bg: "bg-emerald-600 text-white" },
+                        { id: "glass", label: "Obsidian Glass", bg: "bg-slate-900 text-white" },
+                        { id: "tiktok-yellow", label: "TikTok Yellow", bg: "bg-yellow-400 text-slate-950 font-black" },
+                      ].map((s) => {
+                        const isStyle = (promoCtaStyle || "youtube-red") === s.id;
+                        return (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => onPromoCtaStyleChange?.(s.id as any)}
+                            className={`rounded-xl border p-2 text-center text-xs font-bold transition cursor-pointer ${isStyle
+                                ? "border-orange-500 ring-2 ring-orange-500/20 bg-orange-50"
+                                : "border-slate-200 bg-white hover:bg-slate-50"
+                              }`}
+                          >
+                            <span className={`inline-block px-2 py-0.5 rounded text-[10px] ${s.bg}`}>
+                              {s.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 32 Caption Styles Selector */}
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">32 Animated Kinetic Caption Styles</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Subtitles will animate synced to spoken words in the teaser clip
+                    </p>
+                  </div>
+
+                  {/* Search Filter */}
+                  <div className="relative w-full sm:w-48">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={captionSearch}
+                      onChange={(e) => setCaptionSearch(e.target.value)}
+                      placeholder="Search style..."
+                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Category Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+                  {["All", "Hormozi", "Minimal", "Neon & Glow", "Dynamic", "Cinematic", "Comic & Pop"].map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setCaptionCategoryTab(cat)}
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${captionCategoryTab === cat
+                          ? "bg-slate-900 text-white"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 32 Styles Grid with Live Word Previews */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto pr-1 no-scrollbar">
+                  {filteredCaptionStyles.map((style) => {
+                    const isSelected = (captionStyle || "Pop Word") === style.name;
+                    return (
+                      <button
+                        key={style.id}
+                        type="button"
+                        onClick={() => onCaptionStyleChange?.(style.name)}
+                        className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${isSelected
+                            ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
+                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
+                          }`}
+                      >
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-[10px] font-bold text-slate-500 truncate max-w-[85%]">
+                            {style.name}
+                          </span>
+                          {isSelected && <Check size={12} className="text-orange-600 shrink-0" strokeWidth={3} />}
+                        </div>
+
+                        {/* Animated Sample Word Preview */}
+                        <div className="my-auto py-1 flex items-center justify-center">
+                          {renderPreviewCaptionWords(style)}
+                        </div>
+
+                        <span className="text-[9px] text-slate-400 truncate">{style.category}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                >
+                  ← Back to Music
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(4)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-orange-700 transition cursor-pointer"
+                >
+                  <span>Next: Live Simulator</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
             </div>
+          )}
 
-            {/* Primary Action Button */}
-            <button
-              type="button"
-              onClick={onGenerate}
-              disabled={!isReadyToRender || !previewConfirmed || isGenerating}
-              className={`w-full py-4 px-6 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
-                isReadyToRender && previewConfirmed && !isGenerating
-                  ? "bg-[#0066FF] hover:bg-[#0052CC] text-white active:scale-[0.99] shadow-[#0066FF]/25"
-                  : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
-              }`}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  <span>Submitting Render Job...</span>
-                </>
-              ) : !previewConfirmed ? (
-                <>
-                  <Lock size={15} />
-                  <span>Confirm Preview Above to Unlock</span>
-                </>
-              ) : !selectedFile ? (
-                <>
-                  <Video size={15} />
-                  <span>Upload Promo Video to Render</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} />
-                  <span>Render 9:16 Promo Reel (1 Credit)</span>
-                </>
-              )}
-            </button>
-          </div>
+          {/* ──────────────── STEP 4: LIVE 9:16 PREVIEW SIMULATOR & RENDER ──────────────── */}
+          {currentStep === 4 && (
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">Live 9:16 Vertical Promo Simulator</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Review the exact stacked 3D thumbnail card, teaser player, and CTA button before cloud rendering.
+                    </p>
+                  </div>
+
+                  {/* Watermark Toggle */}
+                  {onRemoveAiWatermarkChange && (
+                    <WatermarkRemoverToggle
+                      removeAiWatermark={removeAiWatermark}
+                      onRemoveAiWatermarkChange={onRemoveAiWatermarkChange}
+                      variant="inline"
+                    />
+                  )}
+                </div>
+
+                {/* 9:16 Vertical Phone Mockup Simulator */}
+                <div className="flex justify-center py-4">
+                  <div className="relative w-72 h-[520px] rounded-[36px] bg-slate-950 p-3 shadow-2xl ring-1 ring-slate-800 flex flex-col justify-between overflow-hidden">
+                    {/* Simulated Background */}
+                    {thumbLocalUrl && promoBackgroundMode === "blur" && (
+                      <div className="absolute inset-0 z-0 opacity-25 filter blur-xl scale-125">
+                        <Image src={thumbLocalUrl} alt="Backdrop" fill className="object-cover" unoptimized />
+                      </div>
+                    )}
+
+                    {/* Phone Notch */}
+                    <div className="relative z-10 mx-auto h-4 w-24 rounded-full bg-slate-900 flex items-center justify-center">
+                      <div className="h-1.5 w-1.5 rounded-full bg-slate-700" />
+                    </div>
+
+                    {/* Stacked Element 1: 16:9 Thumbnail 3D Card with "FULL VIDEO" Badge */}
+                    <div className="relative z-10 w-full mt-2 space-y-1">
+                      <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/20 shadow-lg bg-slate-900">
+                        {thumbLocalUrl ? (
+                          <Image src={thumbLocalUrl} alt="Thumbnail" fill className="object-cover" unoptimized />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center h-full text-slate-500 text-xs">
+                            <ImageIcon size={20} className="mb-1" />
+                            <span>No Thumbnail</span>
+                          </div>
+                        )}
+                        <span className="absolute top-2 left-2 rounded-md bg-red-600/90 text-white font-black text-[9px] px-1.5 py-0.5 shadow-xs">
+                          FULL VIDEO
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-black text-white truncate px-1">
+                        {promoTitle || "Your Full Video Title Here"}
+                      </p>
+                    </div>
+
+                    {/* Stacked Element 2: Teaser Video Player with "PREVIEW" Chip & Captions */}
+                    <div className="relative z-10 w-full my-auto space-y-1">
+                      <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-white/20 shadow-lg bg-black flex items-center justify-center">
+                        {videoLocalUrl ? (
+                          <video src={videoLocalUrl} className="h-full w-full object-cover" autoPlay muted loop />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-slate-500 text-xs">
+                            <Film size={20} className="mb-1" />
+                            <span>No Teaser Video</span>
+                          </div>
+                        )}
+                        <span className="absolute top-2 left-2 rounded-md bg-blue-600/90 text-white font-black text-[9px] px-1.5 py-0.5 shadow-xs">
+                          PREVIEW
+                        </span>
+
+                        {/* Animated Caption Strip Overlay */}
+                        <div className="absolute bottom-2 inset-x-2 text-center">
+                          <span className="inline-block rounded-md bg-black/75 px-2 py-0.5 text-[10px] font-black text-yellow-300 shadow-xs">
+                            {captionStyle || "Pop Word"} Captions
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Stacked Element 3: Animated Up-Arrow & Dynamic CTA Pill */}
+                    <div className="relative z-10 w-full mb-2 flex flex-col items-center gap-1.5">
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-white/80 animate-bounce">
+                        <ArrowUp size={12} className="text-orange-400" />
+                        <span>Watch now</span>
+                      </div>
+
+                      <div
+                        className={`w-full py-2 px-3 rounded-xl shadow-lg flex items-center justify-between text-center ${promoCtaStyle === "emerald"
+                            ? "bg-emerald-600 text-white"
+                            : promoCtaStyle === "glass"
+                              ? "bg-white/10 backdrop-blur-md text-white border border-white/20"
+                              : promoCtaStyle === "tiktok-yellow"
+                                ? "bg-yellow-400 text-slate-950 font-black"
+                                : "bg-red-600 text-white"
+                          }`}
+                      >
+                        <div className="text-left">
+                          <p className="text-[10px] font-black leading-tight truncate">{displayCtaText}</p>
+                          <p className="text-[9px] opacity-80 leading-tight">Link in bio</p>
+                        </div>
+                        <span className="text-[9px] font-bold opacity-75">{displayCreatorHandle}</span>
+                      </div>
+                    </div>
+
+                    {/* Phone Bottom Pill Indicator */}
+                    <div className="relative z-10 mx-auto h-1 w-20 rounded-full bg-white/30" />
+                  </div>
+                </div>
+
+                {/* Review Gate Confirmation Checkbox */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={previewConfirmed}
+                      onChange={(e) => setPreviewConfirmed(e.target.checked)}
+                      className="h-4 w-4 rounded accent-orange-600 mt-0.5 cursor-pointer"
+                    />
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">
+                        I have reviewed this 9:16 vertical promo layout and approve cloud rendering
+                      </p>
+                      <p className="text-[11px] text-slate-500">
+                        AWS Remotion Lambda will render a 1080×1920 30 FPS MP4 with ducked background music and animated captions.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Cloud Render Action Bar */}
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(3)}
+                    className="text-xs font-bold text-slate-600 hover:text-slate-900 transition"
+                  >
+                    ← Back to Style
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={!isReadyToRender || !previewConfirmed || isGenerating}
+                    onClick={onGenerate}
+                    className="group relative flex h-12 w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 px-8 text-xs font-black text-white shadow-md shadow-orange-600/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <RefreshCw size={15} className="animate-spin" />
+                        <span>Submitting Render Job...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={15} className="transition group-hover:rotate-12" />
+                        <span>Render Promo Video (1 Credit)</span>
+                        <ArrowRight size={14} />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

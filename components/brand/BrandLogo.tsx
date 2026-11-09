@@ -13,10 +13,10 @@ export type BrandLogoProps = {
   priority?: boolean;
 };
 
-const sizeMap: Record<string, { height: number; width: number; icon: number; badge: string }> = {
-  sm: { height: 28, width: 128, icon: 28, badge: 'px-1.5 py-0.5 text-[8px]' },
-  md: { height: 36, width: 165, icon: 36, badge: 'px-2 py-0.5 text-[9px]' },
-  lg: { height: 46, width: 210, icon: 46, badge: 'px-2.5 py-1 text-[10px]' },
+const sizeMap: Record<string, { height: number; width: number; icon: number; badge: string; responsiveClass: string }> = {
+  sm: { height: 26, width: 119, icon: 24, badge: 'px-1.5 py-0.5 text-[8px]', responsiveClass: 'max-h-[20px] sm:max-h-[26px]' },
+  md: { height: 32, width: 146, icon: 28, badge: 'px-2 py-0.5 text-[9px]', responsiveClass: 'max-h-[24px] sm:max-h-[32px]' },
+  lg: { height: 42, width: 192, icon: 36, badge: 'px-2.5 py-1 text-[10px]', responsiveClass: 'max-h-[30px] sm:max-h-[42px]' },
 };
 
 export default function BrandLogo({
@@ -36,12 +36,14 @@ export default function BrandLogo({
           width: Math.round(size * 4.58),
           icon: size,
           badge: 'px-2 py-0.5 text-[9px]',
+          responsiveClass: `max-h-[${Math.round(size * 0.75)}px] sm:max-h-[${size}px]`,
         }
       : sizeMap[String(size)] || sizeMap.md;
 
   const isLight = variant === 'light';
-  const logoSrc = isLight ? '/brand/itnavideo-logo.webp' : '/brand/itnavideo-logo-dark.webp';
-  const iconSrc = '/brand/itnavideo-icon.webp';
+  // Use ultra-high-definition 2130x465 master source for crystal-clear rendering across all screens
+  const logoSrc = isLight ? '/brand/itnavideo-logo-full.png' : '/brand/itnavideo-logo-dark.png';
+  const iconSrc = '/brand/icon.svg';
 
   const badgeStyle = isLight
     ? 'border-orange-500/30 bg-orange-500/10 text-orange-700'
@@ -49,26 +51,28 @@ export default function BrandLogo({
 
   const content = (
     <span className={`inline-flex flex-col ${className}`}>
-      <span className="inline-flex items-center gap-2 select-none">
+      <span className="inline-flex items-center gap-1.5 sm:gap-2 select-none">
         {iconOnly ? (
           <Image
             src={iconSrc}
             alt="Itnavideo Icon"
-            width={s.icon}
-            height={s.icon}
+            width={s.icon * 2}
+            height={s.icon * 2}
             priority={priority}
-            className="h-auto w-auto object-contain transition-transform duration-200 group-hover:scale-105"
-            style={{ maxHeight: `${s.icon}px` }}
+            quality={95}
+            className={`h-auto w-auto object-contain transition-transform duration-200 group-hover:scale-105 ${s.responsiveClass}`}
+            style={{ width: 'auto' }}
           />
         ) : (
           <Image
             src={logoSrc}
             alt="Itnavideo Logo"
-            width={s.width}
-            height={s.height}
+            width={s.width * 2}
+            height={s.height * 2}
             priority={priority}
-            className="h-auto w-auto object-contain transition-transform duration-200 group-hover:scale-[1.01]"
-            style={{ maxHeight: `${s.height}px`, width: 'auto' }}
+            quality={95}
+            className={`h-auto w-auto object-contain transition-transform duration-200 group-hover:scale-[1.01] ${s.responsiveClass}`}
+            style={{ width: 'auto' }}
           />
         )}
 
@@ -80,7 +84,7 @@ export default function BrandLogo({
       </span>
 
       {showTagline && (
-        <span className={`text-[11px] font-medium tracking-tight mt-1 ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
+        <span className={`text-[10px] sm:text-[11px] font-medium tracking-tight mt-0.5 ${isLight ? 'text-zinc-500' : 'text-zinc-400'}`}>
           Don&apos;t edit, just speak.
         </span>
       )}

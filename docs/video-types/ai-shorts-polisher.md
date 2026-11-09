@@ -66,7 +66,41 @@ Per **Rule 8.B.4 of `AGENTS.md` (Anti-Repetition & Visual Diversity Policy)**, t
 
 ---
 
-## 4. Pipeline Stages & Execution Flow
+## 4. Modernized 4-Step Studio Architecture (Aligned with Unified Studio Standard)
+
+The AI Shorts Polisher Studio (`components/dashboard/AiShortsPolisherStudio.tsx`) adheres strictly to the unified 4-step stepper workflow established in `ImageToVideoStudio`:
+
+```mermaid
+graph TD
+    A[Step 1: Upload Takes & PIP Layers] --> B[Step 2: Music & Audio Design]
+    B --> C[Step 3: Silence Cuts, Punch-Ins & 32 Caption Styles]
+    C --> D[Step 4: Live 9:16 Simulator & Cloud Render]
+```
+
+### The 4 Interactive Steps:
+1. **Step 1: Upload Takes & PIP Overlays (`Upload`)**:
+   - Primary Vertical Video Takes: Dropzone for smartphone vertical videos/takes with multi-take reordering (Move Up/Down), in/out trimming, duration detection, and waveform scrubber.
+   - Picture-in-Picture (PIP) / Floating Overlay Layers: Add screenshot / reaction clip / graphic with position selector (Top-Right, Top-Left, Bottom-Right, Bottom-Left, Center).
+   - Video Title input.
+   - Pricing notice: 1 Credit / Video (9:16 vertical MP4 up to 90s).
+2. **Step 2: Music & Audio Design (`Music`)**:
+   - 14 AWS S3 background tracks with in-card audio auditioning.
+   - Ducked volume slider with default set to 12% (`0.12`).
+   - Viral SFX hook transitions toggle and custom music upload.
+3. **Step 3: Retention Cuts & 32 Caption Styles (`Style`)**:
+   - Smart Silence Jump-Cuts: Toggle + Sensitivity (`Tight` 300ms for TikTok, `Normal` 450ms, `Gentle` 600ms).
+   - Dynamic Camera Punch-Ins: Toggle + Intensity (`Subtle` +5%, `Medium` +12%, `Dramatic` +18%).
+   - 32 animated typography styles with category filtering and live animated word previews.
+   - Caption positioning: Bottom, Center, Top.
+   - Visual Callouts (Curved Arrow, Equation Card, Comparison Banner).
+4. **Step 4: Live Simulator & Cloud Render (`Preview`)**:
+   - Interactive 9:16 vertical phone mockup showing live punch-in preview, PIP card, animated captions, and speech waveform equalizer.
+   - Watermark remover toggle and compulsory review gate checkbox.
+   - 1-click cloud render button (1 Credit).
+
+---
+
+## 5. Pipeline Stages & Execution Flow
 
 ```mermaid
 flowchart LR

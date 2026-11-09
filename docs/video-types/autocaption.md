@@ -1,20 +1,25 @@
 # Auto Caption Generator (`autocaption.md`)
 
 ## 1. Overview & Purpose
-**Auto Caption Generator** is Itnavideo's executive and high-retention video captioning engine built for short-form (TikTok, Instagram Reels, YouTube Shorts) and long-form captioned video. It transcribes spoken dialogue with Groq Whisper, calculates word-level precision timestamps, and burns in viral caption animations (Alex Hormozi style, Corporate Executive, MrBeast impact, Submagic glow, dynamic M3 pills, bouncy spring physics, and auto-fit safe zones).
+**Auto Caption Generator** is Itnavideo's executive and high-retention video captioning engine built exclusively for 9:16 short-form video (TikTok, Instagram Reels, YouTube Shorts). Widescreen 16:9 YouTube subtitles use the separate YouTube Subtitle Generator (`youtubesubtitles.md`).
 
-The dedicated studio dashboard (`/dashboard/auto-caption`) features a **Strictly 9:16 Vertical WhiteStair Studio**:
-- **WhiteStair 2-Step Workflow**:
-  - **Step 1 (Upload View)**: High-converting video dropzone (up to 90s) with auto 16kHz audio extraction and fast language verification.
-  - **Step 2 (Studio Editor View)**: Interactive workspace featuring live 9:16 synchronized preview player, two-tone caption styling, and instant cloud render CTA.
-- **Single-Line Two-Tone Dynamic Caption Engine (`WhiteStairCaptionRenderer.tsx`)**:
-  - **Rhythm-Balanced Phrases**: Spoken words are dynamically segmented into natural cadence phrases (3-5 words) rather than rigid multi-line blocks.
-  - **Two-Tone Contrast Styling**: High-contrast pairing of vibrant lead words (e.g., Gold `#FACC15`, Cyan `#22D3EE`, Hot Pink `#F43F5E`) with crisp contrast words (White `#FFFFFF`).
-  - **Millisecond Playback Sync**: Real-time binding with video player `currentTime`, featuring dynamic active word scaling (`1.08x`) and subtle glow filter.
-  - **Master WhiteStair Template Catalog (`whiteStairTemplates.ts`)**: Direct selection across top creator styles (`Creator 4`, `Creator 3`, `Solo`, `Crazy`, `Spark`, `Story`, etc.).
-- **Two-Column Responsive Stage**:
-  - **Left Column**: Script review & word replacer, font & placement controls, and WhiteStair template gallery.
-  - **Right Column**: 9:16 phone-framed live player (`AutoCaptionBeforeAfterPlayer.tsx`) rendering live dynamic two-tone subtitles, with 1-click cloud render and SRT subtitle download.
+It transcribes spoken dialogue with Groq Whisper, calculates frame-accurate word timestamps (30 FPS / ~33ms resolution), and burns in high-impact animated captions. Creators can review and edit transcripts, preview animations in real time, and export clean 1080×1920 MP4 files in under 45 seconds.
+
+### Target Audience & Use Cases
+- **Short-Form Creators**: Instagram Reels, YouTube Shorts, and TikTok creators who need bold, synchronized captions to hook viewers who watch on mute.
+- **Podcast Clip Editors**: Creators converting long interviews into bite-sized talking-head reels.
+- **Educators & Coaches**: Instructors sharing lessons, tutorials, and quick tips.
+- **Founders & Executives**: Leaders publishing company updates, keynote excerpts, and thought leadership.
+
+### What Problem It Solves
+Adding word-level animated captions manually takes **15 to 30 minutes per video** in Premiere, CapCut, or After Effects. Auto Caption automates this in seconds with frame-accurate sync, professional typography, safe-zone compliance, and 1-click text editing.
+
+### Core Value Proposition
+1. **Frame-Accurate Sync**: Subtitle transitions are locked to video frames (~33ms at 30 FPS) with speech audio.
+2. **Transcript Editor (P0)**: Spoken words, names, and Hinglish spellings can be edited directly before rendering.
+3. **Structured 3-Axis Style Engine**: Clean combination of Animation × Look × Color without confusing duplicate presets.
+4. **Platform Safe Zones**: Guaranteed clearance for Instagram Reels and TikTok bottom handles and right-side action buttons.
+5. **Dual Export**: Download burned-in 1080p MP4 or export standalone `.SRT` and `.VTT` subtitle files.
 
 ---
 
@@ -22,197 +27,279 @@ The dedicated studio dashboard (`/dashboard/auto-caption`) features a **Strictly
 
 | Attribute | Specification |
 | :--- | :--- |
-| **Video Type ID** | `auto-caption` / `AUTO_CAPTION_GENERATOR` |
+| **Video Type ID** | `autoCaption` / `AUTO_CAPTION_GENERATOR` |
+| **Internal ID** | `AUTO_CAPTION_REEL` |
 | **Composition ID** | `AUTO_CAPTION_GENERATOR` |
 | **Template Location** | `remotion/templates/AUTO_CAPTION_GENERATOR/template.tsx` |
 | **Dashboard Studio** | `components/dashboard/AutoCaptionStudio.tsx` |
 | **Dashboard Route** | `/dashboard/auto-caption` |
-| **Showcase Player** | `components/dashboard/AutoCaptionBeforeAfterPlayer.tsx` |
-| **Style Asset Directory**| `itnavideo-assets/autocaptionvideos/*.mp4` (100 Cloudinary preview videos) |
 | **Aspect Ratio** | **9:16 Vertical Only (1080×1920 Full HD)** |
-| **Resolution & Quality** | **1080p Full HD (1080×1920 @ 30 FPS MP4)** |
-| **Frame Rate** | 30 FPS |
-| **Max Video Duration** | **Up to 90 Seconds (90s)** |
-| **Primary Category** | 9:16 Vertical Short-Form |
-| **Credit Cost** | **FREE • 5 Daily Renders** (0 Credits, account sign-in required) |
-| **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |
-| **Transcription Engine**| Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Gemini 2.0 Flash `asia-south1`) |
-| **Cloud Engine** | AWS Lambda (Remotion in `us-east-1` Mumbai) |
+| **Resolution & Frame Rate** | **1080p Full HD (1080×1920 @ 30 FPS MP4)** |
+| **Video Duration** | **3 Seconds to 90 Seconds (90s Max)** |
+| **Export Formats** | 1080p MP4 (H.264 + AAC) + Optional `.SRT` / `.VTT` Subtitles |
+| **Original Audio** | 100% Preserved (plays exactly as uploaded with zero re-encoding loss) |
+| **Free Tier Policy** | **5 Free Renders Daily** (0 Credits, sign-in required). Subtle top-right watermark. |
+| **Paid Tier Policy** | **100% Unbranded** (Zero watermarks, full commercial license). |
+| **Failed Render Protection**| **Automatic Quota Refund**: If a render or transcription fails, the daily slot or credit is immediately restored. |
+| **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Warm Orange Accents |
+| **Primary Transcription** | Extracted 16kHz mono audio → Groq Whisper Cloud API (Word-level timestamps) |
+| **Fallback Transcription** | Secondary Cloud Whisper API + Forced Alignment (Frame-accurate alignment preserved) |
+| **Cloud Engine** | AWS Lambda (Remotion in `us-east-1`) |
 
 ---
 
-## 3. User Inputs & Upload Requirements
+## 3. User Inputs & Audio-Only Handling
 
-1. **Talking-Head / Short Video or Audio (Required)**:
-   - Formats: MP4, MOV, WEBM, MP3, WAV, M4A.
-   - Resolution: 9:16 vertical (1080×1920 1080p Full HD) or 16:9 (1920×1080 1080p Full HD) for YouTube subtitles.
-   - Audio quality: Clear spoken voice (English or Roman Hinglish).
-   - Audio Extraction Rule: Heavy media is never sent directly to Groq. 16kHz mono audio is extracted first.
-2. **Top 50 Kinetic Caption Styles (Master 50-Style Engine at Top of Studio)**:
-   - **Single Word (1–20)**: `Pop Word`, `Slam Headline`, `Zoom Punch`, `Drop Bounce`, `Marker Tag`, `Glitch`, `Flip Card`, `Blur Reveal`, `Spin In`, `Outline Only`, `Gradient Word`, `Serif Italic`, `Retro Shadow`, `Sticker`, `3D Extrude`, `Terminal Tag`, `Wipe Reveal`, `Whisper`, `Heartbeat`, `Underline Swipe`.
-   - **Line Captions (21–43)**: `Karaoke Line`, `Box Highlight`, `Neon Glow`, `Pill Highlight`, `Underline Track`, `Color Fill`, `Bold Pop Caption`, `Subtitle Classic`, `Highlighter`, `Build Up`, `Slide Words`, `Rainbow`, `Shadow Lift`, `Blur Focus`, `Strike Past`, `Outline Fill`, `Bounce Active`, `Gold Luxe`, `Arcade`, `Handwritten`, `Cinema`, `Bubbles`, `Tilt Words`.
-   - **Stacks (44–46)**: `Word Stack`, `Stack Big Left`, `Stack Center`.
-   - **Typewriter (47–48)**: `Terminal Typewriter`, `Paper Typewriter`.
-   - **Editorial (49–50)**: `Editorial Mix`, `Editorial Dark Gold`.
-   - Features: Top stepper navigation (`◀ 13/50 · Retro Shadow ▶`), 1–50 Numbered Grid, Category filter tabs, auto-switch every 3.5s, and instant live video sync.
-3. **Caption Theme & Animation Style (Catalog Presets)**:
-   - `Luxury Dual-Script`: High-converting luxury real estate & fashion style pairing *Playfair Display Italic* in Champagne Gold (`#FDE68A`) with crisp *Montserrat 900* in white.
-   - `Metallic Gloss 3D`: 3D metallic chrome & violet gloss sheen (`#D8B4FE` / `#A855F7`) with deep ambient drop shadow (`0 8px 24px rgba(0,0,0,0.9)`).
-   - `Whisper Editorial`: Translucent frosted glass capsule (`rgba(0,0,0,0.45)`, `backdrop-blur: 16px`) with spaced lowercase *Newsreader Serif* in soft warm white.
-   - `Creator Punch Stack`: 2-line high-retention stacked punch in Canary Yellow (`#FACC15`) with high-contrast black border.
-   - `Creator 3`: Hormozi-style lime pop with dark drop shadow and bold punch.
-   - `Crazy Gradient`: Dynamic animated violet/fuchsia gradient fill with stroke.
-   - `Spark Glow`: Radiant golden spark glow for motivational and luxury hooks.
-   - `Gamer Bold`: High-energy gaming font with bold borders and neon green punch.
-   - `Cursive Contrast`: High-end italic serif/script contrast for podcast gems.
-   - `Discipline Red`: High-urgency crimson text for fitness and mindset reels.
-   - `Kinetic Multicolor`: Word-by-word cycling neon colors for maximal retention.
-   - `Impact Glow`: Heavy condensed bold with ambient white/cyan illumination.
-   - `Red Wipe`: Horizontal red highlight wipe across active spoken words.
-   - `Punch Yellow`: Fast punchy yellow subtitle pop favored by top creators.
-   - `Master Pill`: Clean high-contrast pill backdrop container.
-   - `Solo Pop`: Single prominent word at center screen with bounce physics.
-  - Kids creators: `Rainbow Pop`, `Bubble Bounce`, `Storybook Spark`, `Crayon Caption`, `Candy Karaoke`, `Toon Word Pop`.
-  - 2D animation: `Comic Burst 2D`, `Cel Shade 2D`, `Anime Kinetic 2D`, `Flat Motion 2D`, `Pixel Pop 2D`, `Cutout Story 2D`.
-  - 3D creators: `Toy Block 3D`, `Depth Pop 3D`, `Chrome Bounce 3D`, `Holo Glass 3D`, `Neon Voxel 3D`, `Orbit Motion 3D`, `Cinema Depth 3D`.
-3. **Enterprise Tone & Compliance Modes**:
-   - `Corporate Executive`: Clean subtle highlight with minimal distraction, calibrated for internal briefings, boardroom videos, and stakeholder reports.
-   - `Keynote Stage`: High-impact typography with elegant gold/white highlights for CEO keynotes and company announcements.
-   - `Social Engagement`: Dynamic bouncy kinetic word springs designed for viral shorts, marketing clips, and thought-leadership reels.
-4. **Supported Caption Languages**:
-   - English (Original Speech)
-   - Hinglish (Roman Script - Hindi speech converted to clean Latin text)
-   - *Note*: Multi-language translation APIs are paused. Subtitles match uploaded audio in English or Roman Hinglish.
-5. **Typography & Direct Style Gallery (No Category Filters)**:
-   - **Direct Style Access Policy**: Style presets are displayed directly in a unified, high-converting visual gallery without category filter tabs. Users do not navigate category filters; they select styles directly from the visible preview grid.
-   - Font family: Impact, Montserrat, Anton, Inter, Archivo Black, Syne, Fraunces.
-   - Screen placement: Top, Center, Bottom (Safe zone margin compliant).
-   - Word pop click sound: Optional subtle typewriter/pop audio on word transition.
+### Supported Inputs
+| Input Type | Supported Formats | Visual Canvas Handling |
+|:---|:---|:---|
+| **Video** | MP4, MOV, WEBM | Plays full-screen behind captions. |
+| **Audio-Only** | MP3, WAV, M4A, AAC | Automatically renders on an **Obsidian Dark Studio Canvas** (`#070B14` to `#0E1526` gradient) with a subtle glowing center audio waveform. |
+
+### Input Controls
+1. **Media Upload**: File dropzone accepting video or audio up to 90 seconds. If video exceeds 90s, an interactive trim slider allows the creator to select the exact 90-second segment before processing.
+2. **Language Toggle**: Simple 2-way toggle:
+   - `English` (Default)
+   - `Hinglish` (Roman Hindi/Urdu — transcribes Hindi speech into Latin Roman script, eliminating broken Devanagari text).
+3. **Style Selector**: 3-Axis visual style picker (Animation × Look × Palette).
+4. **Position & Safe Zone**:
+   - `Bottom` (Default, 77% down, safe from TikTok/Reels UI)
+   - `Center` (50% down)
+   - `Top` (20% down)
+5. **Transcript Editor (P0)**: Review and edit detected words before burning into the final video.
+6. **Text Case Toggle**: `UPPERCASE` (High-energy punch) or `Sentence case` (Standard).
+7. **Optional Pop Sound (`wordClickSound`)**: Opt-in (Default: **OFF**). Adds a subtle 120ms debounced typewriter/pop click on word transitions.
+
+### Strict Boundaries — Inputs NOT Collected
+- ❌ **No stock B-roll or AI images**: User footage or the Obsidian gradient is the sole background.
+- ❌ **No background music**: User video audio is 100% preserved. No BGM is injected.
+- ❌ **No AI storyboarding or scene splitting**: Auto Caption is a single-scene continuous overlay.
 
 ---
 
-## 4. Dedicated Processing Pipeline (UI Stepper)
+## 4. 9:16 Canvas Layout & Safe Zone Geometry
 
-> [!CAUTION]
-> **No Asset Matching & No AI Storyboarding**: Auto Caption operates directly on the user's uploaded video or audio. Never show "Matching visual assets" or "Planning AI scenes" in the stepper.
+Short-form platforms (TikTok, Instagram Reels, YouTube Shorts) place dense interface buttons on top of videos. The layout engine enforces strict asymmetrical safe zones:
+
+```
+┌─────────────────────────────────────────┐
+│              TOP SAFE ZONE              │ ← Profile & Search Bar (~120px)
+│                                         │
+│                                         │
+│                                         │
+│                                         │
+│               USER VIDEO                │
+│           (1080×1920 Canvas)            │
+│                                         │
+│                                         │
+│                                         │
+├───────────────────────────────────┬─────┤
+│   ┌───────────────────────────┐   │  ♥  │ ← Right UI Action Column
+│   │    ANIMATED CAPTIONS      │   │  💬 │   Clearance: 140px right margin
+│   │   (Max width: 800px)      │   │  ↗  │   (Likes, Comments, Shares)
+│   └───────────────────────────┘   │  ♫  │
+├───────────────────────────────────┴─────┤
+│             BOTTOM SAFE ZONE            │ ← Handles, Captions & Sound Bar
+│              (~23% / 440px)             │   Clearance: Y-position clamped at 77%
+└─────────────────────────────────────────┘
+```
+
+### Safe Zone Parameters
+- **Bottom Clearance**: Default caption placement sits at `bottom: 23%` (Y-center at 77% of canvas height, ~1480px). This keeps text strictly above usernames, sound titles, and scrubber bars.
+- **Right UI Clearance**: Right margin is padded by **140px** to avoid the vertical like, comment, share, and remix buttons.
+- **Left Margin**: Padded by **60px** for balanced visual weight.
+- **Maximum Text Container Width**: Clamped at **840px** (leaving 240px buffer across the 1080px canvas).
+- **Non-9:16 Video Handling**:
+  - `Center Cover Crop` (Default): Zooms to fill 9:16 canvas.
+  - `Fit with Blurred Background`: Preserves entire 16:9 or square frame at center with Gaussian-blurred duplicated video filling the vertical top and bottom.
+
+---
+
+## 5. Structured 3-Axis Style Taxonomy
+
+Rather than managing 50 disconnected style presets, Auto Caption organizes typography into **3 Modular Axes**:
+
+$$\text{Caption Style} = \text{Animation Engine} \times \text{Container Look} \times \text{Color Palette}$$
+
+### Axis 1: Animation Engine (How words appear)
+1. `Word Pop`: Words scale in with an elastic spring (`1.00x` $\to$ `1.12x` $\to$ `1.00x`).
+2. `Karaoke Fill`: Words reveal color fill smoothly from left to right as spoken.
+3. `Shorts Focus`: Only the currently active word is highlighted; previous words fade to clean neutral gray.
+4. `Slam Headline`: High-energy single-word punch in the screen center.
+5. `Typewriter`: Letter-by-letter mechanical reveal with optional pop sound.
+6. `Slide Flow`: Words glide upward gently with subtle opacity fade.
+
+### Axis 2: Container Look (Typography & Background shape)
+1. `Clean Floating`: Pure typography with high-contrast text stroke and ambient drop shadow (No bounding box).
+2. `Solid Pill`: Rounded pill badge container (`border-radius: 9999px`) behind words.
+3. `Highlight Box`: Crisp rectangular backdrop with slight rounded corners (`border-radius: 8px`).
+4. `Marker Stroke`: Organic hand-drawn highlighter brush stroke behind the active word.
+5. `Editorial Serif`: Elegant serif typography (*Playfair Display* / *Newsreader*) with subtle frosted glass pill.
+6. `3D Extruded`: Thick condensed bold font with 3D bottom extrusion and black outline.
+
+### Axis 3: Color Palette (High-contrast presets)
+1. `Canary Gold`: Crisp White text + Electric Canary Yellow (`#FACC15`) active word.
+2. `Neon Mint`: Crisp White text + Vibrant Mint Green (`#10B981`) active word.
+3. `Cyan Pulse`: Crisp White text + Vivid Cyan (`#06B6D4`) active word.
+4. `Sunset Coral`: Crisp White text + Coral Orange (`#F97316`) active word.
+5. `Crimson Urgent`: Bold White text + Emergency Crimson (`#EF4444`) active word.
+6. `Monochrome Minimal`: Pure White text + Neutral Silver (`#94A3B8`) inactive words.
+
+### Master Preset Catalog (Stable IDs)
+Common combinations are exposed as 1-click presets in the studio:
+- `bold_impact` (Word Pop × Clean Floating × Canary Gold)
+- `shorts_focus` (Shorts Focus × Clean Floating × Cyan Pulse)
+- `karaoke_flow` (Karaoke Fill × Highlight Box × Canary Gold)
+- `executive_pill` (Word Pop × Solid Pill × Monochrome Minimal)
+- `marker_explainer` (Word Pop × Marker Stroke × Canary Gold)
+- `editorial_luxury` (Slide Flow × Editorial Serif × Canary Gold)
+- `comic_pop` (Word Pop × 3D Extruded × Canary Gold)
+
+---
+
+## 6. Dynamic Word Cadence & Deterministic Emphasis
+
+### Smart Cadence Chunking
+- **Single-Word Modes (`slam_headline`)**: Strictly 1 word per frame group.
+- **Phrase Modes (`bold_impact`, `karaoke_flow`)**: Dynamically groups words into natural spoken phrases of **2 to 4 words** (Maximum duration: 1.4 seconds per group).
+- **Silence Tail Protection**: Caption chunk end timestamp is extended by **+120ms tail** (`chunk.end = lastWord.end + 0.12`). This prevents subtitles from abruptly blinking out between rapid sentence pauses.
+- **Number & Currency Shield**: Currency symbols, percentages, and numbers (e.g. `\$10,000`, `45%`, `2.5M`, `₹500`) are guaranteed never to be split across line breaks.
+
+### Automatic Keyword Emphasis
+Without requiring expensive LLM tokens, the caption engine deterministically highlights key trigger words:
+- **Numbers & Metrics**: Any token containing digits (`10x`, `100%`, `\$5,000`) automatically renders in the accent color with `1.08x` scale.
+- **UPPERCASE Words**: Spoken words capitalized for emphasis inherit the primary highlight.
+- **Click-to-Emphasize**: In the Transcript Editor, creators can click any word to toggle its highlight star on/off.
+
+---
+
+## 7. Dedicated Processing Pipeline (UI Stepper)
 
 ```mermaid
 graph TD
-    A[Upload 9:16 Video / Audio] --> B[Extract 16kHz Mono Audio Track]
-    B --> C[Transcribe via Groq Whisper Cloud API]
-    C -->|Fallback if needed| D[Gemini 2.0 Flash asia-south1]
-    C --> E[Word-Level Timestamp Sync & Grouping]
+    A[Upload 9:16 Video / Audio] --> B[Audio Preflight: 16kHz Mono Extraction]
+    B --> C[Speech-to-Text: Groq Whisper Cloud API]
+    C -->|Fallback if needed| D[Secondary Cloud Whisper + Forced Alignment]
+    C --> E[Hallucination Filter & VAD Cleanup]
     D --> E
-    E --> F[Apply Motion Springs, Typography & Safe Zones]
-    F --> G[Render 1080p 30 FPS MP4 on AWS Lambda]
+    E --> F[Interactive Transcript Editor & Live Preview]
+    F --> G[Remotion Cloud Render: 1080p 30 FPS MP4 on AWS Lambda]
+    G --> H[Dual Delivery: 1080p MP4 + .SRT/.VTT Subtitle Download]
 ```
 
-### UI Stepper Stages:
-1. **Video Upload & Audio Extraction**: Extracting 16kHz mono audio track, verifying duration (<= 180s for 9:16 / <= 720s for 16:9), and routing audio to Groq Whisper (Fallback: Gemini). Heavy video is never sent directly to Groq.
-2. **Groq Whisper Transcription**: High-accuracy speech recognition with millisecond word timestamps.
-3. **Word Timestamp Grouping**: Clustering words into 3-5 word readable chunks (max 1.5s per chunk).
-4. **Caption Styling & Safe Zone Fit**: Aligning words to 9:16 UI overlay safe margins (avoiding IG reels UI buttons).
-5. **Render Final Reel**: AWS Lambda Remotion engine encoding 1080p 30 FPS MP4 with burned-in animated subtitles.
+### Pipeline Stages
+1. **Audio Preflight & Normalization**:
+   - Extracts lightweight 16kHz mono audio. Raw video is never sent directly to transcription APIs.
+   - Normalizes audio stream and detects true speech duration.
+2. **Groq Whisper Transcription**:
+   - Generates frame-accurate word timestamps (`start` and `end` times).
+   - Hallucination Filter: Automatically purges common Whisper silence hallucinations (`"Thank you for watching"`, `"[Music]"`, `"[Applause]"`).
+3. **Interactive Transcript Review (P0)**:
+   - Creator can review transcribed sentences in the studio, correct misheard names or brand spellings, and toggle word highlights.
+   - Remotion player provides instantaneous in-browser preview without server re-renders.
+4. **Lambda 1080p Cloud Render**:
+   - Compiles composition with `delayRender()` font verification to prevent fallback font pop-in.
+   - Burns in chosen 3-axis styles with frame-accurate sync.
+5. **Dual Delivery**:
+   - Direct download of final 1080×1920 MP4 (served via high-speed 48-hour S3 presigned URL).
+   - One-click export of clean `.SRT` and `.VTT` subtitle caption files.
 
 ---
 
-## 5. Remotion Composition Props
+## 8. Remotion Composition Props & Stable Schema
 
 ```typescript
 export interface SubtitleWord {
   word: string;
   start: number; // in seconds
   end: number;   // in seconds
+  isEmphasized?: boolean;
 }
 
 export interface SubtitleChunk {
   text: string;
-  words?: SubtitleWord[];
+  words: SubtitleWord[];
   start: number;
   end: number;
 }
 
+export type CaptionStyleId =
+  | 'bold_impact'
+  | 'shorts_focus'
+  | 'karaoke_flow'
+  | 'executive_pill'
+  | 'marker_explainer'
+  | 'editorial_luxury'
+  | 'comic_pop';
+
 export interface AutoCaptionGeneratorProps {
   mediaSrc: string;
-  captions?: SubtitleChunk[];
-  subtitleChunks?: SubtitleChunk[];
-  captionStyle: string; // Preset key e.g. "Creator 3", "Submagic Glow", "Crazy Gradient"
-  textColor?: string;
-  highlightColor?: string;
+  mediaType: 'video' | 'audio';
+  subtitleChunks: SubtitleChunk[];
+  captionStyle: CaptionStyleId;
+  captionPosition: 'top' | 'center' | 'bottom';
+  textCase: 'uppercase' | 'original';
   activeWordColor?: string;
-  backgroundColor?: string;
-  captionPosition?: "top" | "center" | "bottom";
-  fontSize?: "small" | "medium" | "large" | "xlarge";
+  inactiveWordColor?: string;
+  fontSize: 'small' | 'medium' | 'large' | 'xlarge';
   fontFamily?: string;
-  showBackground?: boolean;
-  watermark?: boolean;
-  wordClickSound?: boolean;
-  captionEmphasisAnimation?: "bounce" | "glow" | "none";
-  language?: string;
+  showWatermark: boolean;
+  wordClickSound: boolean;
+  non916FitMode?: 'cover_crop' | 'blurred_background';
+  durationSeconds: number;
 }
 ```
 
 ---
 
-## 6. Language & Script Policy
-- **Supported Outputs**: English and Roman Hinglish captions.
-- **Strict Latin/Roman Script**: Clean typography rendering without Devanagari script clipping.
-- **Word-Level Sync**: Millisecond-accurate word timing synced directly to spoken dialogue.
+## 9. Edge Cases & Fallback Matrix
+
+| Edge Case | Root Cause | Automated System Action | User Feedback |
+|:---|:---|:---|:---|
+| **No speech detected** | Background music or silent clip | Renders clean video without caption overlay | "No dialogue detected; video exported without captions." |
+| **Whisper API spike** | Rate limit or server error | Seamless fallback to Secondary Whisper + Forced Alignment | Transparent processing, zero delay |
+| **Video > 90s** | Long-form video uploaded | Studio opens interactive 90s trim scrubber | "Please select your 90s clip to caption." |
+| **Video < 3s** | Ultra-short file | Accepted and rendered normally down to 3s | Normal completion |
+| **Whisper hallucination** | Audio silence or room tone | VAD filter strips out repeat thank-you/music tags | Clean transcript generated |
+| **Long word ($\ge 12$ chars)** | Long technical terms | `adaptiveFontScaling` reduces word size by 15% | Word fits safely within container |
+| **16:9 widescreen video** | Landscape media | User can choose `Center Crop` or `Blurred Background` | Clean framing without black bars |
+| **Render failure** | Lambda memory or network drop | Status route logs failure and restores quota | "Render failed. Your daily slot has been refunded." |
 
 ---
 
-## 7. Edge Cases & Safeguards
-- **Platform UI Interference (23% Safe Zone)**: Y-position presets default to `bottom: 23%` (or 22%-24% safe padding) to stay completely clear of Instagram Reels / TikTok bottom user handles, captions & CTA buttons.
-- **Audio SFX Debouncing**: Word click SFX enforced with a 120ms minimum gap (`minFrameGap = Math.ceil(0.12 * DEFAULT_FPS)`) to prevent audio popping on rapid dialogue.
-- **Adaptive Font Scaling for Long Words**: Words $\ge 12$ characters scale down font size by 15%–20% to prevent container clipping in pill overlays.
-- **Transcription Fallback**: If Groq Whisper Cloud API encounters rate-limits or downtime, system automatically falls back to Gemini 2.0 Flash (`asia-south1`).
+## 10. Watermark & Branding Rules
+
+- **Free Tier (5 Daily Renders)**:
+  - Watermark: Subtle semi-transparent `Itnavideo` watermark mark.
+  - Position: **Top-Right corner** (`top: 40px; right: 40px; opacity: 0.6`).
+  - Collision Safety: Positioned at the top of the canvas, strictly separated from bottom captions (77% down) and right-side UI buttons.
+- **Paid Tier**:
+  - **100% Unbranded**: Zero watermarks, zero tags, ready for commercial publishing.
 
 ---
 
-## 8. Visual-First Studio Stage, Cloud Video Playback & Real Animation Previews
-- **Zero Static Screenshots Policy**: All static poster overlays, screenshots, and mock text canvases have been completely replaced with genuine cloud video streams. Every caption style renders an actual HTML5 `<video>` element loaded from Cloudinary (`itnavideo-assets/autocaptionvideos/${videoFilename}`).
-- **Top Video Stage (`AutoCaptionBeforeAfterPlayer.tsx`)**:
-  - Always active: before user upload, it streams the selected caption style's real Cloudinary Full HD video showing authentic synchronized caption animations.
-  - Upon user file upload, it seamlessly switches to the user's uploaded video with real-time kinetic subtitle simulation.
-- **Dedicated Style Video Carousel (`AutoCaptionStyleCarousel.tsx`)**:
-  - All 100 Shorts styles map one-to-one to 100 Cloudinary preview videos with saved transcripts; each card plays its clip with synced caption overlay and a matching Cloudinary-generated frame poster while the video buffers.
-  - Run `node scripts/generate-autocaption-posters.mjs` after adding preview videos to warm the cached frame posters for every completed catalog entry.
-  - Each Cloudinary preview card overlays its matching saved, word-timed transcript while playing, positioned in the lower safe area; user-uploaded media never receives an unrelated catalog transcript.
-  - When a user clicks or selects any style card (`isSelected || isPlaying`), the video immediately plays with full caption kinetics and synchronized sound.
-  - Hover-preview support: moving cursor over any card initiates instant video playback with zero UI stutter.
-  - Controls: Dedicated Play/Pause, Mute/Unmute audio, and Favorite toggles on every card.
-- **Cloud Storage & Mapping**:
-  - Video repository: `https://res.cloudinary.com/dhouh9idx/video/upload/f_auto,q_auto/itnavideo-assets/autocaptionvideos/${videoFilename}`.
-  - All 100/48 style variants map directly to verified 1080p Cloudinary videos with deterministic fallback covering every preset.
+## 11. Exhaustive Quality Assurance (QA) Checklist
+
+- [ ] Video renders in full 1080×1920 portrait without letterboxing or black borders.
+- [ ] Subtitle sync is frame-accurate to speech (~33ms at 30 FPS).
+- [ ] Active spoken word is distinct in color and subtle spring scale.
+- [ ] Bottom captions sit at 77% height with 140px right clearance (avoids all TikTok/Reels UI).
+- [ ] Transcript Editor correctly reflects user edits (fixed spellings, custom words).
+- [ ] Audio-only uploads render with Obsidian dark gradient and animated waveform.
+- [ ] Numbers, currency symbols, and percentages never break across line breaks.
+- [ ] Hinglish audio generates clean Roman script captions without broken Devanagari characters.
+- [ ] Non-9:16 videos apply chosen fit mode (Center Crop or Blurred Background).
+- [ ] Free tier renders display watermark in top-right only; paid renders are completely clean.
+- [ ] In the event of a failed render, the user's daily render slot or credit is automatically refunded.
+- [ ] Lambda `delayRender()` verifies web font readiness before frame encoding.
 
 ---
 
-## 9. Modern Interactive Render Screen & Progress Engine
-- **Zero Blue Colors**: Fully unified under the **Google Analytics Dark Theme** (`#070B14`, `#0E1526`, `#151E30`) with warm orange accents (`#FF6D00` $\to$ `#FF8F00` $\to$ `#FFA726`).
-- **Animated BorderBeam (`BorderBeam.tsx`)**: Glowing dynamic border beam orbits the render container while generating.
-- **Neural Audio Visualizer (`AudioSpectrumVisualizer.tsx`)**: Live soundwave frequencies pulse during Groq Whisper transcription and frame compilation.
-- **Dedicated 4-Stage Stepper**:
-  1. `Project Prep` — Parsing audio stream & aspect safe zones
-  2. `Groq Whisper` — Transcribing speech with millisecond precision
-  3. `Kinetic Subtitles` — Applying karaoke word bounce & neon highlights
-  4. `1080p Cloud Render` — AWS Lambda rendering 1080×1920 Full HD MP4
-- **Live Time Remaining**: Displays live elapsed time and accurate countdown (`~35s remaining`).
-- **1080p Full HD Player & Social Copy**: Embedded video player upon completion, direct download action, and 1-click social media title/description/hashtag generator.
+## 12. Strict Prohibitions (What to Avoid)
 
----
-
-## 10. Pipeline Error Checklist & Auto-Fix Matrix
-
-| Pipeline Stage | Potential Error / Failure | Root Cause | Automated Recovery / Fix | User-Facing Action / Feedback |
-| :--- | :--- | :--- | :--- | :--- |
-| **1. Upload & Format** | `DURATION_EXCEEDED` | Video duration > 90s (Shorts) or > 10m (YouTube Widescreen) | Backend preflight check stops before Lambda allocation | Clear banner: "Please trim video under limit" |
-| **1. Upload & Format** | `UNSUPPORTED_VIDEO_CODEC` | Obscure format or audio track missing | Automated container validation and audio track check | Notification to check video sound stream |
-| **2. Audio Extraction** | `HEAVY_VIDEO_TRANSCRIPTION_CRASH` | Raw video file sent to Whisper API | Backend extracts 16kHz mono audio first via streaming wrapper | Fast lightweight audio payload sent to Groq |
-| **3. Speech Transcription** | `GROQ_RATE_LIMIT_429` | Groq API rate limit or momentary spike | Instant fallback to Google Gemini 2.0 Flash (`asia-south1`) | Transparent transcription completion |
-| **3. Speech Transcription** | `NO_SPEECH_DETECTED` | Instrumental background music or silent clip | Returns `NO_SPEECH_DETECTED` reason code | "No clear spoken dialogue detected in your video. Please check audio." |
-| **4. Word Alignment** | `OUT_OF_BOUNDS_TIMESTAMPS` | Spoken timestamps exceed video duration | Normalizes timestamps using `Math.min(w.end, durationSeconds)` | Captions perfectly clamped within visible timeline |
-| **5. Subtitle Styling** | `LONG_WORD_CONTAINER_OVERFLOW` | Words $\ge 12$ characters overflowing screen margin | `adaptiveFontScaling` scales text down 15-20% and wraps automatically | Subtitle text always fits safely on screen |
-| **6. Remotion Lambda Render** | `LAMBDA_OOM_OR_TIMEOUT` | Heavy 1080p frames exceeding memory | Concurrency tuning & frameRange `[0, totalFrames - 1]` | Fast multi-part rendering |
-| **6. Remotion Lambda Render** | `RENDER_CRASH_OR_NETWORK_ERROR` | Lambda execution error | Status route intercepts fatal state, refunds reserved credits | Clear error notification + 1-click retry |
-| **7. File Download** | `EXPIRED_PRESIGNED_S3_LINK` | Download link accessed after 48 hours | Polling status route dynamically signs a fresh 48-hour download URL | Always-valid high-speed S3 download |
-
+- ❌ **DO NOT** use trademarked creator names (e.g. Hormozi, MrBeast) in code, props, or user UI. Use neutral descriptive names (`bold_impact`, `creator_punch`).
+- ❌ **DO NOT** inject background music or audio effects automatically.
+- ❌ **DO NOT** output Devanagari script for Hindi audio (Roman Hinglish only).
+- ❌ **DO NOT** let captions enter the right 140px margin in the bottom third of the screen.
+- ❌ **DO NOT** run visual asset matching or AI B-roll director logic.
+- ❌ **DO NOT** use sentence-level timestamps when word-level timestamps are required.

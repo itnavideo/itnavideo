@@ -144,14 +144,14 @@ export function FacelessStoryboardTimeline({
           <div className="flex items-center gap-2.5">
             <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
             <h3 className="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-              <span>Scene Timeline &amp; Visual Storyboard</span>
+              <span>{title}</span>
             </h3>
             <span className="rounded-full bg-white/[0.06] border border-white/[0.1] px-2.5 py-0.5 text-xs font-semibold text-zinc-300">
               {scenes.length} Scenes
             </span>
           </div>
           <p className="text-xs text-zinc-400 mt-1 max-w-2xl">
-            Each scene is synchronized with your narration audio. Review scene headings, narration timing, and swap visual assets directly below.
+            {subtitle}
           </p>
         </div>
 

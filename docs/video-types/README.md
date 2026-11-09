@@ -6,12 +6,13 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
 
 ---
 
-## 1. 🎬 16:9 Widescreen Long-Form Category (5 Studios — Strictly 16:9 Only — Up to 5 Minutes)
+## 1. 🎬 16:9 Widescreen Long-Form Category (6 Studios — Strictly 16:9 Only — Up to 5 Minutes)
 
 | # | Video Type | Directory & Spec | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus | Remotion Composition ID |
 |---|---|---|:---:|:---:|:---:|---|---|
+| 0 | **AI Video Generator (Flagship)** | [`aivideogenerator.md`](./aivideogenerator.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Creative Launchpad (Prompt + Optional Assets) → AI Director → CapCut-Style Multitrack Timeline & Free Edit → 1080p Cloud Render | `AI_VIDEO_GENERATOR` |
 | 1 | **Faceless Video (Long-Form)** | [`01-faceless-video/`](./01-faceless-video/README.md) · [`facelessvideo.md`](./facelessvideo.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Script/Audio → transcript-grounded AI planning and animated SVG diagrams/charts with music | `FACELESS_VIDEO` |
-| 2 | **Book Summary Video** | [`02-book-summary/`](./02-book-summary/README.md) · [`booksummary.md`](./booksummary.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Book Quotes/Audio → Cinematic Chapter Visuals | `BOOK_SUMMARY_VIDEO` |
+| 2 | **Book Summary Video** | [`booksummary.md`](./booksummary.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Book Quotes/Audio → Cinematic Chapter Visuals | `BOOK_SUMMARY_VIDEO` |
 | 3 | **Image to Video AI** | [`03-image-to-video-ai/`](./03-image-to-video-ai/README.md) · [`imagetovideoai.md`](./imagetovideoai.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Audio + Scene Images → Ken Burns Motion, 32 Caption Styles & Subtitle Sync | `IMAGE_TO_VIDEO_AI` |
 | 4 | **YouTube Subtitles Generator** | [`04-youtube-subtitles/`](./04-youtube-subtitles/README.md) · [`youtubesubtitles.md`](./youtubesubtitles.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Video/Audio → High-Contrast Spoken Captions | `AUTO_CAPTION_GENERATOR` |
 | 5 | **AI YouTube Video Polisher** | [`12-ai-video-polisher/`](./12-ai-video-polisher/README.md) · [`ai-video-polisher.md`](./ai-video-polisher.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Video/Multi-Take Shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay | `AI_VIDEO_POLISHER` |
@@ -22,11 +23,11 @@ As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Mas
 
 | # | Video Type | Directory & Spec | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus | Remotion Composition ID |
 |---|---|---|:---:|:---:|:---:|---|---|
-| 1 | **Auto Caption Reel** | [`06-auto-caption-reel/`](./06-auto-caption-reel/README.md) · [`autocaption.md`](./autocaption.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Video/Audio → Kinetic Glowing Captions & Subtitles | `AUTO_CAPTION_GENERATOR` |
+| 1 | **Auto Caption Reel** | [`autocaption.md`](./autocaption.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Video/Audio → Kinetic Glowing Captions & Subtitles | `AUTO_CAPTION_GENERATOR` |
 | 2 | **Compare Explainer** | [`07-compare-explainer/`](./07-compare-explainer/README.md) · [`compare-explainer.md`](./compare-explainer.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Voiceover + 2 Images → VS Battle Arena & Product Comparison | `COMPARE_EXPLAINER` |
 | 3 | **Whiteboard Animation** | [`09-whiteboard-video/`](./09-whiteboard-video/README.md) · [`whiteboard-video.md`](./whiteboard-video.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Audio → AI Strategy Board Scenes & SVG Drawing | `WHITEBOARD_VIDEO` |
 | 4 | **Long Video Promo** | [`10-long-video-promo/`](./10-long-video-promo/README.md) · [`long-video-promo.md`](./long-video-promo.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Teaser Audio/Video → Kinetic Teaser Overlays | `LONG_VIDEO_PROMO` |
-| 5 | **Faceless Shorts** | [`faceless-shorts.md`](./faceless-shorts.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Voiceover → Faceless Short Visuals | `FACELESS_SHORTS` |
+| 5 | **Faceless Shorts (Vertical)** | [`faceless-shorts.md`](./faceless-shorts.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Voiceover → 16-Specialist Production Crew (500+ SVGs, 538 S3 Images, 32 Captions, Brand Kits, Voice Isolation) → 1080p Cloud Render (Separate from 16:9 Faceless Video) | `FACELESS_SHORTS` |
 | 6 | **AI Shorts Polisher** | [`13-ai-shorts-polisher/`](./13-ai-shorts-polisher/README.md) · [`ai-shorts-polisher.md`](./ai-shorts-polisher.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Smartphone Video/Shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay | `AI-SHORTS-POLISHER` |
 | 7 | **Split-Screen Explainer** | [`split-screen-explainer.md`](./split-screen-explainer.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | 50/50 Dual Zone (Top: cycling visual assets, Bottom: creator talking head) → Dynamic zoom pulses & glowing captions | `SPLIT-SCREEN-EXPLAINER` |
 | 8 | **Long Video to Shorts Clips** | [`05-long-video-to-shorts/`](./05-long-video-to-shorts/README.md) · [`longvideoclips.md`](./longvideoclips.md) | Input 16:9/9:16 -> Output 9:16 | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **1 Credit / Clip** | Long Video → Virality Hook Detection & 9:16 Reframe | `LONG_VIDEO_CLIPS` |

@@ -131,16 +131,20 @@ export const SUBTITLE_PRESETS: Record<string, SubtitlePreset> = {
   "Whisper Editorial": { name: "Whisper Editorial", style: "whisper-podcast", fontFamily: "Newsreader, Playfair Display, serif", textColor: "#F8FAFC", highlightColor: "#FDE047", backgroundColor: "rgba(0,0,0,0.45)", fontSize: "medium" },
   "Creator Punch Stack": { name: "Creator Punch Stack", style: "creator-punch-stack", fontFamily: "Montserrat, Anton, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", backgroundColor: "rgba(10,10,15,0.75)", fontSize: "large" },
   // Flagship Auto Caption Styles
-  "Hormozi Viral Pop": { name: "Hormozi Viral Pop", style: "one-word", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#22C55E", fontSize: "xlarge" },
-  "MrBeast Shorts Impact": { name: "MrBeast Shorts Impact", style: "mrbeast-16-9", fontFamily: "Impact, Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFE500", fontSize: "xlarge" },
+  "Bold Impact": { name: "Bold Impact", style: "one-word", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#22C55E", fontSize: "xlarge" },
+  "Hormozi Viral Pop": { name: "Bold Impact", style: "one-word", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#22C55E", fontSize: "xlarge" },
+  "Headline Slam": { name: "Headline Slam", style: "mrbeast-16-9", fontFamily: "Impact, Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFE500", fontSize: "xlarge" },
+  "MrBeast Shorts Impact": { name: "Headline Slam", style: "mrbeast-16-9", fontFamily: "Impact, Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFE500", fontSize: "xlarge" },
   "Shorts Karaoke": { name: "Shorts Karaoke", style: "shorts-karaoke", fontFamily: "Inter, sans-serif", textColor: "#9CA3AF", highlightColor: "#111827", backgroundColor: "#F4F4F5", fontSize: "large" },
-  "Submagic Glow": { name: "Submagic Glow", style: "neon-pulse", fontFamily: "Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#A855F7", backgroundColor: "rgba(15, 23, 42, 0.85)", fontSize: "large" },
+  "Neon Aura Glow": { name: "Neon Aura Glow", style: "neon-pulse", fontFamily: "Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#A855F7", backgroundColor: "rgba(15, 23, 42, 0.85)", fontSize: "large" },
+  "Submagic Glow": { name: "Neon Aura Glow", style: "neon-pulse", fontFamily: "Montserrat, sans-serif", textColor: "#FFFFFF", highlightColor: "#A855F7", backgroundColor: "rgba(15, 23, 42, 0.85)", fontSize: "large" },
   "Kinetic Wave": { name: "Kinetic Wave", style: "crazy-gradient", fontFamily: "Impact, sans-serif", textColor: "#FFFFFF", highlightColor: "#FACC15", fontSize: "xlarge" },
   
   // Documentary & Podcast
   "Diary of a CEO": { name: "Diary of a CEO", style: "normal", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FFFFFF", fontSize: "medium" },
   "Vox Documentary": { name: "Vox Documentary", style: "cinematic", fontFamily: "Georgia, Newsreader, serif", textColor: "#FFFBEB", highlightColor: "#F59E0B", backgroundColor: "rgba(12, 10, 9, 0.90)", fontSize: "medium" },
-  "Ali Abdaal Clean Pill": { name: "Ali Abdaal Clean Pill", style: "box", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FDE047", backgroundColor: "rgba(15, 23, 42, 0.85)", fontSize: "medium" },
+  "Clean Minimal Pill": { name: "Clean Minimal Pill", style: "box", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FDE047", backgroundColor: "rgba(15, 23, 42, 0.85)", fontSize: "medium" },
+  "Ali Abdaal Clean Pill": { name: "Clean Minimal Pill", style: "box", fontFamily: "Inter, sans-serif", textColor: "#FFFFFF", highlightColor: "#FDE047", backgroundColor: "rgba(15, 23, 42, 0.85)", fontSize: "medium" },
   
   // Elevated UI Styles
   "M3 Elevated Card": { name: "M3 Elevated Card", style: "stacked", fontFamily: "Plus Jakarta Sans, sans-serif", textColor: "#FFFFFF", highlightColor: "#A855F7", backgroundColor: "rgba(28, 27, 31, 0.9)", fontSize: "large" },

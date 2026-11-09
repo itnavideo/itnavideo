@@ -33,6 +33,7 @@
     "visuals:index": "node scripts/index-visual-assets.mjs",
     "images:validate": "node scripts/sync-ai-images.mjs",
     "verify": "node scripts/validate-all-video-types.mjs",
+    "typecheck": "tsc --noEmit",
     "test:live": "node scripts/test-live-user-simulation.mjs",
     "docs:sync": "node scripts/sync-all-google-doc-tabs.mjs",
     "lint": "eslint ."

@@ -1,30 +1,21 @@
 "use client";
 
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
-import { LongVideoPromoStudio } from "@/components/dashboard/LongVideoPromoStudio";
+import {
+  LongVideoPromoStudio,
+  type LongVideoPromoGoal,
+} from "@/components/dashboard/LongVideoPromoStudio";
 import { useAuth } from "@/components/auth/AuthContext";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import {
   ArrowLeft,
-  Sparkles,
   Zap,
-  Film,
-  Download,
-  CheckCircle2,
-  AlertCircle,
   Loader2,
-  RefreshCw,
-  Upload,
-  Clapperboard,
-  History,
-  Image as ImageIcon
 } from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
-
 
 type BillingEntitlement = {
   active: boolean;
@@ -60,15 +51,6 @@ type RecentRender = {
   expiresAt: number;
 };
 
-const PROMO_RENDER_STEPS = [
-  { label: "Media & video source preparation", detail: "Loading uploaded teaser clip and preparing 9:16 vertical canvas.", threshold: 0.20, icon: Upload },
-  { label: "Teaser hook extraction & pacing", detail: "Analyzing video timeline and preparing high-retention payoff moments.", threshold: 0.45, icon: Sparkles },
-  { label: "Composing 9:16 vertical layout", detail: "Integrating 3D thumbnail card, dynamic CTA button & video player.", threshold: 0.70, icon: Film },
-  { label: "Rendering 1080p promo MP4", detail: "Exporting 30 FPS Full HD promo video ready for Shorts, Reels & TikTok.", threshold: 0.95, icon: Clapperboard },
-];
-
-export type LongVideoPromoGoal = "watch-full-video" | "subscribers" | "promote-episode";
-
 export default function LongVideoPromoPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
@@ -98,60 +80,43 @@ export default function LongVideoPromoPage() {
   // Job & render states
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [billingEntitlement, setBillingEntitlement] = useState<BillingEntitlement | null>(null);
-  const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
-  const [activeTab, setActiveTab] = useState<"studio" | "history">("studio");
+  const [showExitConfirmModal, setShowExitConfirmModal] = useState(false);
 
   const renderRequestInFlightRef = useRef(false);
 
-  // Timer for elapsed seconds
-  useEffect(() => {
-    if (jobStatus.state !== "rendering" && jobStatus.state !== "uploading") {
-      setElapsedSeconds(0);
-      return;
-    }
-    const interval = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [jobStatus.state]);
-
-
-  // Auth redirect
+  // Authentication check
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login?returnUrl=/dashboard/long-video-promo");
     }
   }, [user, authLoading, router]);
 
-  // Load duration when clip selected
+  // Read media duration when user drops a file
   useEffect(() => {
     if (!selectedFile) {
       setMediaDurationSeconds(0);
       return;
     }
     const video = document.createElement("video");
-    const url = URL.createObjectURL(selectedFile);
-    video.src = url;
+    video.preload = "metadata";
+    const objectUrl = URL.createObjectURL(selectedFile);
+    video.src = objectUrl;
     video.onloadedmetadata = () => {
-      const rawDur = video.duration || 0;
-      // Strictly clamp to max 90s per Rule 4.1 & user instructions
-      const clamped = Math.min(90, Math.max(5, Math.round(rawDur)));
-      setMediaDurationSeconds(clamped);
-      URL.revokeObjectURL(url);
+      setMediaDurationSeconds(Math.round(video.duration || 0));
+      URL.revokeObjectURL(objectUrl);
     };
     video.onerror = () => {
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(objectUrl);
     };
   }, [selectedFile]);
 
-  // Billing entitlement fetch
+  // Fetch billing entitlement
   useEffect(() => {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
+        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}`);
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
@@ -163,6 +128,7 @@ export default function LongVideoPromoPage() {
             planId: ent.planId || "paid",
             planName: ent.planName || "Creator",
             monthlyVideoLimit: limit,
+            expiresAt: ent.expiresAt,
             usage: { used, limit, remaining },
           });
         }
@@ -173,54 +139,13 @@ export default function LongVideoPromoPage() {
     fetchBilling();
   }, [user]);
 
-  // Past Renders history
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("itnavideo_promo_projects");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setRecentRenders(parsed);
-        }
-      }
-    } catch {}
-
-    if (!user) return;
-    async function fetchHistory() {
-      try {
-        const res = await fetch(`/api/reels/history?userId=${encodeURIComponent(user?.id || "")}`);
-        const payload = await res.json().catch(() => ({}));
-        if (res.ok && payload.ok && Array.isArray(payload.renders)) {
-          const promoRenders = payload.renders.filter(
-            (r: RecentRender) => r.mode === "longVideoPromo" || r.mode === "LONG_VIDEO_PROMO"
-          );
-          setRecentRenders((prev) => {
-            const map = new Map<string, RecentRender>();
-            prev.forEach((item: any) => { if (item?.id) map.set(item.id, item); });
-            promoRenders.forEach((item: any) => { if (item?.id) map.set(item.id, item); });
-            const merged = Array.from(map.values()).sort((a, b) => b.createdAt - a.createdAt);
-            try {
-              localStorage.setItem("itnavideo_promo_projects", JSON.stringify(merged.slice(0, 30)));
-            } catch {}
-            return merged;
-          });
-        }
-      } catch (err) {
-        console.warn("Could not load render history:", err);
-      }
-    }
-    fetchHistory();
-  }, [user]);
-
-
-
   const handleStartRender = async () => {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/long-video-promo");
       return;
     }
     if (!selectedFile) {
-      alert("Please upload your video first.");
+      alert("Please upload your video teaser first.");
       return;
     }
     if (renderRequestInFlightRef.current) return;
@@ -228,8 +153,8 @@ export default function LongVideoPromoPage() {
     setIsSubmitting(true);
 
     try {
-      if (typeof window !== 'undefined') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
       setJobStatus({
         state: "uploading",
@@ -334,6 +259,7 @@ export default function LongVideoPromoPage() {
         if (attempts > MAX_ATTEMPTS) {
           clearInterval(pollInterval);
           renderRequestInFlightRef.current = false;
+          setIsSubmitting(false);
           setJobStatus({
             state: "error",
             message: "Promo rendering timed out. Please check your history in a few minutes.",
@@ -357,6 +283,7 @@ export default function LongVideoPromoPage() {
           if (!statusRes.ok || !statusPayload.ok) {
             clearInterval(pollInterval);
             renderRequestInFlightRef.current = false;
+            setIsSubmitting(false);
             setJobStatus({
               state: "error",
               message: statusPayload.error || "Failed to fetch status.",
@@ -371,6 +298,7 @@ export default function LongVideoPromoPage() {
           if (hasFatalError) {
             clearInterval(pollInterval);
             renderRequestInFlightRef.current = false;
+            setIsSubmitting(false);
             const errorMsg = renderErrors[0]?.message || statusPayload.error || "Render job failed.";
             setJobStatus({
               state: "error",
@@ -379,26 +307,14 @@ export default function LongVideoPromoPage() {
             return;
           }
 
-          const isRenderComplete = (serverState === "ready" || serverState === "done" || Boolean(statusPayload.done)) && Boolean(statusPayload.outputFile);
+          const isRenderComplete =
+            (serverState === "ready" || serverState === "done" || Boolean(statusPayload.done)) &&
+            Boolean(statusPayload.outputFile);
 
           if (isRenderComplete) {
             clearInterval(pollInterval);
             renderRequestInFlightRef.current = false;
-
-            const finishedRender: RecentRender = {
-              id: renderId,
-              title: plannedTitle,
-              mode: "longVideoPromo",
-              outputFile: statusPayload.outputFile,
-              createdAt: Date.now(),
-              expiresAt: Date.now() + 48 * 60 * 60 * 1000,
-            };
-
-            setRecentRenders((prev) => {
-              const updated = [finishedRender, ...prev.filter((r) => r.id !== renderId)];
-              localStorage.setItem("itnavideo_promo_projects", JSON.stringify(updated.slice(0, 30)));
-              return updated;
-            });
+            setIsSubmitting(false);
 
             setJobStatus({
               state: "ready",
@@ -413,21 +329,29 @@ export default function LongVideoPromoPage() {
               .then((r) => r.json())
               .then((payload) => {
                 if (payload.ok && payload.entitlement) {
-                  setBillingEntitlement((curr) => curr ? {
-                    ...curr,
-                    usage: payload.usage ? {
-                      used: payload.usage.used,
-                      limit: payload.usage.limit,
-                      remaining: payload.usage.remaining
-                    } : curr.usage
-                  } : null);
+                  setBillingEntitlement((curr) =>
+                    curr
+                      ? {
+                          ...curr,
+                          usage: payload.usage
+                            ? {
+                                used: payload.usage.used,
+                                limit: payload.usage.limit,
+                                remaining: payload.usage.remaining,
+                              }
+                            : curr.usage,
+                        }
+                      : null
+                  );
                 }
-              }).catch(() => {});
+              })
+              .catch(() => {});
 
             return;
           }
 
-          const rawProgress = typeof statusPayload.progress === "number" ? statusPayload.progress : (attempts / MAX_ATTEMPTS);
+          const rawProgress =
+            typeof statusPayload.progress === "number" ? statusPayload.progress : attempts / MAX_ATTEMPTS;
           const progressEst = Math.min(0.98, Math.max(0.45, 0.45 + rawProgress * 0.53));
 
           setJobStatus({
@@ -438,14 +362,13 @@ export default function LongVideoPromoPage() {
             bucketName,
             title: plannedTitle,
           });
-
         } catch (err) {
           console.warn("Poll error:", err);
         }
       }, 3500);
-
     } catch (err: any) {
       renderRequestInFlightRef.current = false;
+      setIsSubmitting(false);
       setJobStatus({
         state: "error",
         message: err?.message || "Failed to submit promo job.",
@@ -453,38 +376,74 @@ export default function LongVideoPromoPage() {
     }
   };
 
+  const handleReset = () => {
+    setSelectedFile(null);
+    setPromoThumbnailFile(null);
+    setIsSubmitting(false);
+    setJobStatus({ state: "idle" });
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+        <p className="text-sm font-semibold text-slate-800">Loading Long Video Promo Studio...</p>
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#0066FF] selection:text-white">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs">
-        <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
+      {/* Top Navigation Bar - Unified Full Bleed Canvas */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-2xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900 hover:shadow-xs transition active:scale-95"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-            <BrandLogo size="sm" variant="light" />
+
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">Long Video Promo</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/10 px-4 py-1.5 text-xs font-black text-[#3B82F6] shadow-md shadow-[#0066FF]/10">
-                <Zap size={13} className="fill-[#3B82F6]" />
-                <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
-              </div>
-            )}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Credits badge */}
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-2xs text-slate-800">
+              <Zap size={14} className="text-orange-600 fill-orange-600" />
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
+              >
+                +Add
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
-
-        {/* Dedicated Interactive Render Engine Stage */}
-        {jobStatus.state !== "idle" && (
-          <div className="max-w-3xl mx-auto py-4">
+      {/* Main Studio Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
+        {jobStatus.state !== "idle" ? (
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="longVideoPromo"
               status={{
@@ -497,63 +456,50 @@ export default function LongVideoPromoPage() {
               title={jobStatus.title || promoTitle || selectedFile?.name?.replace(/\.[^/.]+$/, "") || "Promo Video Reel"}
               fileName={selectedFile?.name}
               onRetry={handleStartRender}
-              onReset={() => {
-                if (typeof window !== 'undefined') {
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-                setSelectedFile(null);
-                setPromoThumbnailFile(null);
-                setIsSubmitting(false);
-                setJobStatus({ state: "idle" });
-              }}
+              onReset={handleReset}
             />
           </div>
+        ) : (
+          <LongVideoPromoStudio
+            selectedFile={selectedFile}
+            onSelectFile={setSelectedFile}
+            promoThumbnailFile={promoThumbnailFile}
+            onPromoThumbnailFileChange={setPromoThumbnailFile}
+            youtubeUrl={youtubeUrl}
+            onYoutubeUrlChange={setYoutubeUrl}
+            thumbnailMode={thumbnailMode}
+            onThumbnailModeChange={setThumbnailMode}
+            promoTitle={promoTitle}
+            onPromoTitleChange={setPromoTitle}
+            promoGoal={promoGoal}
+            onPromoGoalChange={setPromoGoal}
+            promoCtaText={promoCtaText}
+            onPromoCtaTextChange={setPromoCtaText}
+            promoCreatorHandle={promoCreatorHandle}
+            onPromoCreatorHandleChange={setPromoCreatorHandle}
+            promoCtaStyle={promoCtaStyle}
+            onPromoCtaStyleChange={setPromoCtaStyle}
+            promoBackgroundMode={promoBackgroundMode}
+            onPromoBackgroundModeChange={setPromoBackgroundMode}
+            captionStyle={captionStyle}
+            onCaptionStyleChange={setCaptionStyle}
+            bgmTrackId={bgmTrackId}
+            onBgmTrackIdChange={setBgmTrackId}
+            bgmVolume={bgmVolume}
+            onBgmVolumeChange={setBgmVolume}
+            customBgmFile={customBgmFile}
+            onCustomBgmFileSelect={setCustomBgmFile}
+            enableSfx={enableSfx}
+            onEnableSfxChange={setEnableSfx}
+            editorialTranscript={editorialTranscript}
+            onEditorialTranscriptChange={setEditorialTranscript}
+            onGenerate={handleStartRender}
+            isGenerating={isSubmitting || jobStatus.state !== "idle"}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
+          />
         )}
-
-        {/* Primary Views */}
-        {jobStatus.state === "idle" && (
-          <>
-            {activeTab === "studio" && (
-              <LongVideoPromoStudio
-                selectedFile={selectedFile}
-                onSelectFile={setSelectedFile}
-                promoThumbnailFile={promoThumbnailFile}
-                onPromoThumbnailFileChange={setPromoThumbnailFile}
-                youtubeUrl={youtubeUrl}
-                onYoutubeUrlChange={setYoutubeUrl}
-                thumbnailMode={thumbnailMode}
-                onThumbnailModeChange={setThumbnailMode}
-                promoTitle={promoTitle}
-                onPromoTitleChange={setPromoTitle}
-                promoGoal={promoGoal}
-                onPromoGoalChange={setPromoGoal}
-                promoCtaText={promoCtaText}
-                onPromoCtaTextChange={setPromoCtaText}
-                promoCreatorHandle={promoCreatorHandle}
-                onPromoCreatorHandleChange={setPromoCreatorHandle}
-                promoCtaStyle={promoCtaStyle}
-                onPromoCtaStyleChange={setPromoCtaStyle}
-                promoBackgroundMode={promoBackgroundMode}
-                onPromoBackgroundModeChange={setPromoBackgroundMode}
-                captionStyle={captionStyle}
-                onCaptionStyleChange={setCaptionStyle}
-                bgmTrackId={bgmTrackId}
-                onBgmTrackIdChange={setBgmTrackId}
-                bgmVolume={bgmVolume}
-                onBgmVolumeChange={setBgmVolume}
-                customBgmFile={customBgmFile}
-                onCustomBgmFileSelect={setCustomBgmFile}
-                enableSfx={enableSfx}
-                onEnableSfxChange={setEnableSfx}
-                editorialTranscript={editorialTranscript}
-                onEditorialTranscriptChange={setEditorialTranscript}
-                onGenerate={handleStartRender}
-                isGenerating={isSubmitting || jobStatus.state !== "idle"}
-              />
-            )}
-          </>
-        )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

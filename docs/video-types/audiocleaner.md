@@ -32,22 +32,47 @@ The dedicated studio dashboard (`/dashboard/audio-cleaner`) follows an executive
 | **A/B Switcher Sync** | Proportional relative timestamp translation (`currentTime / duration`) across Before/After |
 | **Memory Protection** | `React.useEffect` automatic `URL.revokeObjectURL` cleanup on file changes and unmounts |
 | **Batch Reset Loop** | `handleFullReset()` completely resets refs, playback states, and UI analytics for instant consecutive files |
-| **Design System** | Google Analytics Obsidian Baseline (`#070B14`, `#0E1526`) + Intentional Color & Typography Variety Policy + Material Design 3 |
+| **Design System** | Clean, Polished White Aesthetic (`bg-white`, `border-slate-200`, `text-slate-900`, `bg-slate-50`) + Material Design 3 |
 | **Transcription Engine**| Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Google Gemini 2.0 Flash `asia-south1`) |
 
 ---
 
-## 3. 5-Stage Sequential User Workflow
+## 3. Modernized 4-Step Studio Architecture (Aligned with Unified Studio Standard)
+
+The AI Audio Cleaner Studio (`components/dashboard/AudioCleanStudio.tsx`) adheres strictly to the unified 4-step stepper workflow established in `ImageToVideoStudio`:
 
 ```mermaid
 graph TD
-    A[Step 1: Upload Audio / Video] --> B[Step 2: Transcribe & Scan Timeline]
+    A[Step 1: Upload Audio / Video File] --> B[Step 2: Pacing & Mastering Settings]
     B --> C[Step 3: Review & Edit Transcript Canvas]
-    C -->|Edit typos / paste script / select pacing| C
-    C -->|User clicks Clean Audio CTA| D[Step 4: FFmpeg Non-Destructive Splicing]
-    D --> E[Step 5: Live A/B Compare Preview & Master Download]
-    E -->|Click Re-edit Script| C
+    C --> D[Step 4: Master Preview & Live A/B Compare Player]
 ```
+
+### The 4 Interactive Steps:
+1. **Step 1: Upload Source Audio or Video (`Upload`)**:
+   - Drag & drop or browse any voiceover (`MP3`, `WAV`, `M4A`, `AAC`) or video (`MP4`, `MOV` with automatic 16kHz audio extraction) up to 12 minutes (720s).
+   - Instant "Test with sample audio" trigger.
+   - Live media metadata card displaying file name, size, duration, and "100% Original Voice Preserved" guarantee.
+2. **Step 2: Voice Pacing & Silence Thresholds (`Pacing`)**:
+   - **⚡ Fast Retention (300ms trigger → 100ms gap)**: Cuts every pause >300ms down to a tight 100ms buffer (ideal for high-retention video like Image to Video AI).
+   - **🎙️ Natural Flow (300ms trigger → 140ms gap)**: Balanced conversational flow for podcasts and interviews.
+   - **☕ Relaxed Cadence (450ms trigger → 200ms gap)**: Gentle trimming for audiobooks and educational talks.
+   - Master format selector: 320kbps MP3 (universal), Lossless WAV, or Apple M4A AAC.
+   - Vocal enhancement: Natural Original, Studio Clarity, Warmth Boost.
+3. **Step 3: Review & Edit Transcript Canvas (`Transcript`)**:
+   - Millisecond-accurate word timeline generated via Groq Whisper Cloud API.
+   - Full script review in a clean, accessible editor with clipboard paste, reset, and copy markdown actions.
+   - Collapsible pause inspector showing all detected silence regions, timestamps, and cut durations.
+   - One-click `[ Clean Audio & Remove Silences (N Gaps) ]` processing trigger.
+4. **Step 4: Master Preview & Live A/B Comparison (`Master`)**:
+   - Side-by-side Before/After interactive audio players with proportional scrub syncing.
+   - Instant 1-click A/B audio toggle to compare raw vs cleaned audio on the fly.
+   - Time saved audit metrics (seconds saved, % retention gain, gaps cut).
+   - High-speed direct downloads (`.mp3`, `.wav`, `.m4a`).
+   - Direct bridge: "Send to Image AI Studio" with audio pre-filled.
+   - "Upload & Clean Another Audio" reset loop.
+
+---
 
 ### Stage 1: Upload Audio or Video
 - Drag & drop or browse any audio or video file up to 12 minutes.

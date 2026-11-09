@@ -23,6 +23,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
+import { STUDIO_COUNTS } from '@/constants/studios';
+
 export interface VideoTypeItem {
   id: string;
   name: string;
@@ -43,6 +45,19 @@ export interface VideoTypeItem {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
+  {
+    id: 'ai-video-generator',
+    name: 'AI Video Generator',
+    href: '/dashboard/ai-video-generator',
+    publicHref: '/ai-video-generator',
+    icon: Sparkles,
+    iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
+    iconColorClass: 'text-orange-500',
+    aspectRatio: '16:9',
+    description: 'Prompt-to-production studio: AI Creative Director, multitrack timeline editor & 1080p cloud render.',
+    badgeLabel: 'Coming Soon',
+    imagePreview: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png',
+  },
   {
     id: 'ai-video-polisher',
     name: 'AI YouTube Video Polisher',
@@ -262,8 +277,8 @@ const TAB_CONFIGS: TabDefinition[] = [
     title: '9:16 Shorts & Reels',
     mobileLabel: '9:16 Shorts',
     mobileSub: 'TikTok & Reels',
-    mobileBadge: '8 Studios',
-    count: 8,
+    mobileBadge: `${VERTICAL_916_STUDIOS.length} Studios`,
+    count: VERTICAL_916_STUDIOS.length,
     icon: Smartphone,
     color: '#EA580C',
     activeBg: 'from-orange-600 to-amber-500',
@@ -277,8 +292,8 @@ const TAB_CONFIGS: TabDefinition[] = [
     title: '16:9 YouTube Cinema',
     mobileLabel: '16:9 Cinema',
     mobileSub: 'YouTube & Long-form',
-    mobileBadge: '5 Studios',
-    count: 5,
+    mobileBadge: `${WIDESCREEN_169_STUDIOS.length} Studios`,
+    count: WIDESCREEN_169_STUDIOS.length,
     icon: Tv,
     color: '#EA580C',
     activeBg: 'from-orange-600 to-amber-500',
@@ -292,8 +307,8 @@ const TAB_CONFIGS: TabDefinition[] = [
     title: 'Studio Audio Cleaner',
     mobileLabel: 'Audio Tool',
     mobileSub: 'Retakes & Studio Mic',
-    mobileBadge: '1 Studio',
-    count: 1,
+    mobileBadge: `${UTILITY_STUDIOS.length} Studio`,
+    count: UTILITY_STUDIOS.length,
     icon: Mic,
     color: '#EA580C',
     activeBg: 'from-orange-600 to-amber-500',
@@ -307,8 +322,8 @@ const TAB_CONFIGS: TabDefinition[] = [
     title: 'All Studios',
     mobileLabel: 'All Studios',
     mobileSub: 'Complete Video Suite',
-    mobileBadge: '14 Total',
-    count: 14,
+    mobileBadge: `${VERTICAL_916_STUDIOS.length + WIDESCREEN_169_STUDIOS.length + UTILITY_STUDIOS.length} Total`,
+    count: VERTICAL_916_STUDIOS.length + WIDESCREEN_169_STUDIOS.length + UTILITY_STUDIOS.length,
     icon: Sparkles,
     color: '#EA580C',
     activeBg: 'from-orange-600 to-amber-500',
@@ -532,7 +547,7 @@ export default function TenStudiosHubArchitecture() {
                         title={`Create video with ${item.name}`}
                         className="inline-flex items-center justify-center gap-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-1.5 py-1.5 text-[10px] sm:text-[11px] font-bold text-white shadow-xs transition-all active:scale-95 text-center"
                       >
-                        <span className="truncate">Create Video</span>
+                        <span className="truncate">{item.badgeLabel === 'Coming Soon' ? 'Coming Soon' : 'Create Video'}</span>
                         <ArrowRight size={11} className="shrink-0" />
                       </Link>
                     </div>
@@ -615,11 +630,16 @@ export default function TenStudiosHubArchitecture() {
 
                           {/* Top Badges */}
                           <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5">
-                            {item.isPopular && (
+                            {item.badgeLabel === 'Coming Soon' ? (
+                              <span className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-0.5 text-[9px] font-black text-white uppercase tracking-wider shadow-sm flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                                Coming Soon
+                              </span>
+                            ) : item.isPopular ? (
                               <span className="rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-2.5 py-0.5 text-[8px] font-black text-white uppercase tracking-wider shadow-sm">
                                 Popular
                               </span>
-                            )}
+                            ) : null}
                           </div>
 
                           {/* Format Pill Bottom Left */}
@@ -670,7 +690,7 @@ export default function TenStudiosHubArchitecture() {
                         title={`Create video with ${item.name}`}
                         className="inline-flex items-center justify-center gap-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-2 py-2 text-[11px] font-bold text-white shadow-xs transition-all active:scale-95 text-center"
                       >
-                        <span className="truncate">Create Video</span>
+                        <span className="truncate">{item.badgeLabel === 'Coming Soon' ? 'Coming Soon' : 'Create Video'}</span>
                         <ArrowRight size={12} className="shrink-0" />
                       </Link>
                     </div>

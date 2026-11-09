@@ -8,6 +8,7 @@ import {
   Video,
   Film,
   Check,
+  CheckCircle2,
   Loader2,
   Play,
   Pause,
@@ -33,27 +34,28 @@ import {
   RotateCcw,
   Maximize2,
   ShieldAlert,
+  ArrowRight,
+  ArrowLeft,
+  Trash2,
+  CheckCheck,
+  Tag,
+  Tv,
 } from "lucide-react";
-import { KINETIC_STYLES } from "@/lib/captions/kineticStyles";
-import { BROADCAST_PRESETS } from "@/components/dashboard/subpages/YoutubeSubtitlesPageClient";
+import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
+import {
+  AWS_BGM_TRACKS,
+  getBgmTrackAudioUrl,
+  THIRTY_TWO_CAPTION_STYLES,
+  renderPreviewCaptionWords,
+  type LibraryBgmTrack,
+} from "@/components/dashboard/ImageToVideoStudio";
 
-// Master AWS S3 Production Background Music Library (13+ Curated Tracks)
-export const AWS_POLISHER_BGM_TRACKS = [
-  { id: "parasail", label: "Calm Lofi (Recommended)", category: "Lo-Fi", path: "assets/reusable/music/parasail-silent-partner.mp3", desc: "Warm acoustic lofi guitar" },
-  { id: "19th-floor", label: "Deep Focus & Ambient", category: "Piano", path: "assets/reusable/music/19th-floor-bobby-richards.mp3", desc: "Inspiring subtle piano tone" },
-  { id: "dutty-vibe", label: "Optimistic Beat", category: "Upbeat", path: "assets/reusable/music/dutty-vibe-tracks.mp3", desc: "Gentle positive acoustic rhythm" },
-  { id: "book-rental", label: "Energetic Narrative", category: "Story", path: "assets/reusable/music/book-the-rental-wit-it-rage.mp3", desc: "Dynamic narrative flow" },
-  { id: "crimson-fly", label: "Cinematic Drama", category: "Cinematic", path: "assets/reusable/music/crimson-fly-huma-huma.mp3", desc: "Emotional documentary drive" },
-  { id: "crock-pot", label: "Funky Chill Groove", category: "Chill", path: "assets/reusable/music/crock-pot-diamond-ortiz.mp3", desc: "Playful lofi pulse" },
-  { id: "illusions", label: "Modern Swagger Beat", category: "Beats", path: "assets/reusable/music/illusions-anno-domini-beats.mp3", desc: "Modern high-production beat" },
-  { id: "not-for-nothing", label: "Lounge Instrumental", category: "Lounge", path: "assets/reusable/music/not-for-nothing-otis-mcdonald.mp3", desc: "Smooth brass & relaxed tempo" },
-  { id: "something-going", label: "Philosophical Mystery", category: "Deep", path: "assets/reusable/music/something-is-going-on-godmode.mp3", desc: "Pensive intrigue & discovery" },
-  { id: "bar-scene", label: "Acoustic Folk Narrative", category: "Acoustic", path: "assets/reusable/music/that-one-bar-scene-rkvc.mp3", desc: "Warm acoustic guitar storytelling" },
-  { id: "true-messiah", label: "Victorious Inspiration", category: "Epic", path: "assets/reusable/music/true-messiah-dj-freedem.mp3", desc: "Triumphant motivational melody" },
-  { id: "vishnu", label: "Zen Reflection", category: "Zen", path: "assets/reusable/music/vishnu-patrick-patrikios.mp3", desc: "Serene ambient meditation" },
-  { id: "what-it-is", label: "Smooth Motown", category: "Motown", path: "assets/reusable/music/what-it-is-silent-partner.mp3", desc: "Catchy positive baseline" },
-  { id: "none", label: "No Background Music", category: "Mute", path: "none", desc: "Pure video audio only" },
-];
+export const POLISHER_STEPS = [
+  { step: 1, title: "Upload", desc: "Takes & PIP Callouts" },
+  { step: 2, title: "Music", desc: "Soundtrack & Audio" },
+  { step: 3, title: "Style", desc: "Zooms, Cuts & Captions" },
+  { step: 4, title: "Preview", desc: "16:9 Cinema Simulator" },
+] as const;
 
 export interface UploadedMediaItem {
   id: string;
@@ -161,6 +163,9 @@ export interface AiVideoPolisherStudioProps {
 
   onGenerate: () => void;
   isGenerating: boolean;
+
+  removeAiWatermark?: boolean;
+  onRemoveAiWatermarkChange?: (val: boolean) => void;
 }
 
 export function AiVideoPolisherStudio({
@@ -178,7 +183,7 @@ export function AiVideoPolisherStudio({
   onSmartPunchInsChange,
   punchInIntensity = "medium",
   onPunchInIntensityChange,
-  captionStyle = "Pop Word",
+  captionStyle = "glow-viral",
   onCaptionStyleChange,
   bgmTrackId = "parasail",
   onBgmTrackIdChange,
@@ -220,108 +225,78 @@ export function AiVideoPolisherStudio({
   onComparisonBannerConfigChange,
   onGenerate,
   isGenerating,
+  removeAiWatermark = true,
+  onRemoveAiWatermarkChange,
 }: AiVideoPolisherStudioProps) {
-  // Caption categories & search
+  // Stepper State
+  const [currentStep, setCurrentStep] = useState<number>(1);
+
+  // Audio audition state
+  const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Music category tab
+  const [musicCategory, setMusicCategory] = useState<string>("All");
+
+  // Caption search and category tab
   const [captionCategoryTab, setCaptionCategoryTab] = useState<string>("All");
   const [captionSearchQuery, setCaptionSearchQuery] = useState<string>("");
 
-  // Combine broadcast styles + kinetic styles into one unified 50+ list
-  const combinedSubtitleStyles = useMemo(() => {
-    const list: Array<{ id: string; name: string; category: string; desc?: string; badge?: string; textColor?: string; highlightColor?: string }> = [];
+  // Callouts tab
+  const [calloutTab, setCalloutTab] = useState<"arrows" | "formula" | "comparison">("arrows");
 
-    // 1. Add Broadcast Presets
-    BROADCAST_PRESETS.forEach((p) => {
-      list.push({
-        id: p.id,
-        name: p.id,
-        category: p.category ? p.category.charAt(0).toUpperCase() + p.category.slice(1) : "Broadcast",
-        desc: p.desc,
-        badge: p.badge,
-        textColor: p.textColor,
-        highlightColor: p.highlightColor,
-      });
-    });
+  // Word replacer state
+  const [wordToFind, setWordToFind] = useState("");
+  const [wordToReplace, setWordToReplace] = useState("");
+  const [replaceNotice, setReplaceNotice] = useState<string | null>(null);
 
-    // 2. Add Kinetic Styles if not already added
-    KINETIC_STYLES.forEach((k) => {
-      if (!list.some((item) => item.name.toLowerCase() === k.name.toLowerCase())) {
-        list.push({
-          id: k.id,
-          name: k.name,
-          category: k.category || "Kinetic",
-          desc: "Dynamic motion highlight",
-          badge: "Motion",
-        });
-      }
-    });
-
-    return list;
-  }, []);
-
-  const filteredCaptionStyles = useMemo(() => {
-    let result = combinedSubtitleStyles;
-    if (captionCategoryTab !== "All") {
-      result = result.filter((s) => s.category.toLowerCase() === captionCategoryTab.toLowerCase());
-    }
-    if (captionSearchQuery.trim()) {
-      const q = captionSearchQuery.toLowerCase();
-      result = result.filter((s) => s.name.toLowerCase().includes(q) || (s.desc && s.desc.toLowerCase().includes(q)));
-    }
-    return result;
-  }, [combinedSubtitleStyles, captionCategoryTab, captionSearchQuery]);
-
-  // Audio audition state
-  const [auditioningTrack, setAuditioningTrack] = useState<string | null>(null);
-  const audioAuditionRef = useRef<HTMLAudioElement | null>(null);
-
-  const toggleAudition = (track: typeof AWS_POLISHER_BGM_TRACKS[0]) => {
-    if (track.path === "none") return;
-    if (auditioningTrack === track.id) {
-      if (audioAuditionRef.current) {
-        audioAuditionRef.current.pause();
-        audioAuditionRef.current = null;
-      }
-      setAuditioningTrack(null);
-    } else {
-      if (audioAuditionRef.current) {
-        audioAuditionRef.current.pause();
-      }
-      const audio = new Audio(`https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/${track.path}`);
-      audio.volume = Math.max(0.05, Math.min(1, bgmVolume * 2));
-      audio.play().catch(() => {});
-      audio.onended = () => setAuditioningTrack(null);
-      audioAuditionRef.current = audio;
-      setAuditioningTrack(track.id);
-    }
-  };
-
+  // Stop audition audio on unmount
   useEffect(() => {
     return () => {
-      if (audioAuditionRef.current) {
-        audioAuditionRef.current.pause();
-        audioAuditionRef.current = null;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
       }
     };
   }, []);
 
-  // Primary media handlers with Object URL revocation to save memory on 4GB RAM machines
+  const handleToggleAudition = (track: LibraryBgmTrack) => {
+    if (track.id === "none") {
+      if (audioRef.current) audioRef.current.pause();
+      setPlayingTrackId(null);
+      return;
+    }
+
+    if (playingTrackId === track.id) {
+      if (audioRef.current) audioRef.current.pause();
+      setPlayingTrackId(null);
+    } else {
+      if (audioRef.current) audioRef.current.pause();
+      const url = getBgmTrackAudioUrl(track);
+      const audio = new Audio(url);
+      audio.volume = Math.max(0.1, Math.min(1, bgmVolume * 2.5));
+      audio.play().catch(() => {});
+      audio.onended = () => setPlayingTrackId(null);
+      audioRef.current = audio;
+      setPlayingTrackId(track.id);
+    }
+  };
+
+  // Primary media handlers
   const handlePrimaryMediaSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const newItems: UploadedMediaItem[] = Array.from(files).map((f: File): UploadedMediaItem => {
-      const url = URL.createObjectURL(f);
-      return {
-        id: `media-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        file: f,
-        type: (f.type.startsWith("image/") ? "image" : "video") as "image" | "video",
-        previewUrl: url,
-        name: f.name,
-        size: f.size,
-        trimStart: 0,
-        trimEnd: 0,
-      };
-    });
+    const newItems: UploadedMediaItem[] = Array.from(files).map((f: File): UploadedMediaItem => ({
+      id: `media-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      file: f,
+      type: (f.type.startsWith("image/") ? "image" : "video") as "image" | "video",
+      previewUrl: URL.createObjectURL(f),
+      name: f.name,
+      size: f.size,
+      trimStart: 0,
+      trimEnd: 0,
+    }));
 
     onPrimaryMediaListChange([...primaryMediaList, ...newItems]);
     if (e.target) e.target.value = "";
@@ -337,7 +312,6 @@ export function AiVideoPolisherStudio({
     onPrimaryMediaListChange(primaryMediaList.filter((m) => m.id !== id));
   };
 
-  // Reorder primary takes (Move Up / Down)
   const moveMediaUp = (idx: number) => {
     if (idx <= 0) return;
     const copy = [...primaryMediaList];
@@ -356,7 +330,7 @@ export function AiVideoPolisherStudio({
     onPrimaryMediaListChange(copy);
   };
 
-  // Overlay layer handlers (PIP callouts)
+  // Overlay layer handlers (PIP)
   const handleLayerSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -369,8 +343,8 @@ export function AiVideoPolisherStudio({
       name: f.name,
       title: f.name.replace(/\.[^/.]+$/, ""),
       position: "top-right",
-      startSeconds: 4,
-      durationSeconds: 4.5,
+      startSeconds: 3,
+      durationSeconds: 4,
     }));
 
     onOverlayLayerListChange([...overlayLayerList, ...newLayers]);
@@ -387,31 +361,38 @@ export function AiVideoPolisherStudio({
     onOverlayLayerListChange(overlayLayerList.filter((l) => l.id !== id));
   };
 
-  // Clean up all object URLs when unmounting
-  useEffect(() => {
-    return () => {
-      primaryMediaList.forEach((m) => {
-        if (m.previewUrl) {
-          try {
-            URL.revokeObjectURL(m.previewUrl);
-          } catch {}
-        }
-      });
-      overlayLayerList.forEach((l) => {
-        if (l.previewUrl) {
-          try {
-            URL.revokeObjectURL(l.previewUrl);
-          } catch {}
-        }
-      });
-    };
+  // Filtered Music Tracks
+  const filteredTracks = useMemo(() => {
+    if (musicCategory === "All") return AWS_BGM_TRACKS;
+    return AWS_BGM_TRACKS.filter((t) => t.category.toLowerCase() === musicCategory.toLowerCase());
+  }, [musicCategory]);
+
+  const musicCategories = useMemo(() => {
+    const cats = Array.from(new Set(AWS_BGM_TRACKS.map((t) => t.category))).filter((c) => c !== "Mute");
+    return ["All", ...cats, "Mute"];
   }, []);
 
-  // Quick word replace tool for creator names, brands, or mistranscribed jargon
-  const [wordToFind, setWordToFind] = useState("");
-  const [wordToReplace, setWordToReplace] = useState("");
-  const [replaceNotice, setReplaceNotice] = useState<string | null>(null);
+  // Filtered Caption Styles
+  const filteredCaptionStyles = useMemo(() => {
+    let result = THIRTY_TWO_CAPTION_STYLES;
+    if (captionCategoryTab !== "All") {
+      result = result.filter((s) => s.category.toLowerCase() === captionCategoryTab.toLowerCase());
+    }
+    if (captionSearchQuery.trim()) {
+      const q = captionSearchQuery.toLowerCase();
+      result = result.filter(
+        (s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [captionCategoryTab, captionSearchQuery]);
 
+  const captionCategories = useMemo(() => {
+    const cats = Array.from(new Set(THIRTY_TWO_CAPTION_STYLES.map((s) => s.category)));
+    return ["All", ...cats];
+  }, []);
+
+  // Word Replacer
   const applyWordReplacement = () => {
     if (!wordToFind.trim()) return;
     const pattern = new RegExp(wordToFind.trim(), "gi");
@@ -423,19 +404,18 @@ export function AiVideoPolisherStudio({
       setWordToFind("");
       setWordToReplace("");
     } else {
-      setReplaceNotice(`"${wordToFind}" not found in transcript.`);
+      setReplaceNotice(`"${wordToFind}" was not found in transcript.`);
       setTimeout(() => setReplaceNotice(null), 3000);
     }
   };
 
-  // Visual Callouts Section Tab
-  const [calloutTab, setCalloutTab] = useState<"arrows" | "formula" | "comparison">("arrows");
-
+  // Preview Helpers
   const activePrimary = primaryMediaList[0];
   const activeOverlay = overlayLayerList[0];
-  const hasMedia = primaryMediaList.length > 0;
+  const selectedTrackObj = useMemo(() => {
+    return AWS_BGM_TRACKS.find((t) => t.id === bgmTrackId) || AWS_BGM_TRACKS[0];
+  }, [bgmTrackId]);
 
-  // Real-time calculated punch-in scale for live preview
   const liveZoomScale = smartPunchIns
     ? punchInIntensity === "subtle"
       ? 1.05
@@ -444,1068 +424,1200 @@ export function AiVideoPolisherStudio({
       : 1.12
     : 1.0;
 
-  return (
-    <div className="w-full space-y-8 text-white font-sans">
-      {/* Top Banner: Dark Modern Header */}
-      <div className="rounded-[28px] border border-white/10 bg-gradient-to-b from-[#131B2E] to-[#0A0E17] p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-3.5 py-1 text-xs font-bold text-blue-400">
-              <Film size={13} className="text-blue-400" />
-              <span>16:9 Widescreen Only • AI YouTube Video Co-Pilot</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-sans">
-              AI YouTube Video Polisher
-            </h1>
-            <p className="text-sm text-zinc-400 leading-relaxed max-w-2xl">
-              Turn raw talking footage and multi-take shoots into professional, engaging YouTube widescreen videos. Auto-trims dead pauses with customizable sensitivity, applies camera punch-in zooms, positions picture-in-picture callouts, and styles 40+ broadcast subtitle styles with audio ducking.
-            </p>
-          </div>
+  const canProceedToMusic = primaryMediaList.length > 0;
+  const canProceedToStyle = true;
+  const canProceedToPreview = true;
 
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="rounded-2xl border border-white/10 bg-[#151D2F] px-4 py-3 text-right">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">Duration &amp; Cost</span>
-              <span className="text-base font-black text-white">Up to 5 Min • 1 Min = 1 Cr</span>
-            </div>
-          </div>
+  return (
+    <div className="w-full flex-1 flex flex-col min-h-0 bg-slate-50/50">
+      {/* 4-Step Stepper Bar */}
+      <div className="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3.5 shrink-0 shadow-2xs">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          {POLISHER_STEPS.map((s) => {
+            const isActive = currentStep === s.step;
+            const isCompleted = currentStep > s.step;
+            return (
+              <button
+                key={s.step}
+                type="button"
+                onClick={() => setCurrentStep(s.step)}
+                className={`flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all ${
+                  isActive
+                    ? "bg-orange-50/80 border-orange-200 text-orange-950 ring-1 ring-orange-400/40 shadow-xs"
+                    : isCompleted
+                    ? "bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-slate-100/80 cursor-pointer"
+                    : "bg-white/60 border-slate-200/60 text-slate-400 hover:text-slate-600 cursor-pointer"
+                }`}
+              >
+                <div
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-black transition-all ${
+                    isActive
+                      ? "bg-orange-600 text-white shadow-2xs"
+                      : isCompleted
+                      ? "bg-emerald-600 text-white"
+                      : "bg-slate-100 text-slate-500 border border-slate-200"
+                  }`}
+                >
+                  {isCompleted ? <Check size={14} strokeWidth={3} /> : s.step}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-black truncate leading-tight tracking-tight">
+                    {s.title}
+                  </p>
+                  <p className="text-[10px] text-slate-500 truncate leading-tight font-medium mt-0.5">
+                    {s.desc}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Main Studio Grid: Left Controls (7 cols) | Right 16:9 Live Preview (5 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Form Controls */}
-        <div className="lg:col-span-7 space-y-6">
+      {/* Main Studio Body */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6">
+        <div className="max-w-5xl mx-auto space-y-6">
 
-          {/* Section 0: Project Title */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-6 shadow-xl space-y-3">
-            <label className="text-xs font-black text-zinc-300 uppercase tracking-wider block">
-              Project Title (Optional)
-            </label>
-            <input
-              type="text"
-              value={videoTitle}
-              onChange={(e) => onVideoTitleChange(e.target.value)}
-              placeholder="e.g., How to Master Next.js 16 in 2026..."
-              className="w-full px-4 py-3 rounded-xl border border-white/10 bg-zinc-900/90 text-white placeholder:text-zinc-500 text-xs font-medium focus:border-blue-500 focus:outline-none transition shadow-inner"
-            />
-          </div>
-
-          {/* Section 1: Primary Full-Screen 16:9 Media with Reordering & Trim */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  <Film size={18} />
+          {/* STEP 1: Upload (Primary Takes & PIP Callouts) */}
+          {currentStep === 1 && (
+            <div className="space-y-6 animate-fadeIn">
+              {/* Project Title Card */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <Tag size={14} className="text-orange-600" />
+                    Project Headline / YouTube Topic
+                  </label>
+                  <span className="text-[11px] font-semibold text-slate-400">Optional</span>
                 </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">1. Primary 16:9 Media &amp; Shoot Takes</h3>
-                  <p className="text-xs text-zinc-400">Upload multiple camera takes, reorder, or trim dead air</p>
-                </div>
-              </div>
-
-              <span className="text-xs font-bold text-zinc-300 bg-zinc-800/80 px-2.5 py-1 rounded-full border border-white/5">
-                {primaryMediaList.length} Clip{primaryMediaList.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-            {/* Upload Area */}
-            <label className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-700 hover:border-blue-500 bg-zinc-900/60 hover:bg-blue-500/5 p-6 text-center transition cursor-pointer group">
-              <input
-                type="file"
-                multiple
-                accept="video/mp4,video/quicktime,video/webm,image/png,image/jpeg"
-                onChange={handlePrimaryMediaSelect}
-                className="hidden"
-              />
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-800 border border-white/10 shadow-md text-blue-400 group-hover:scale-105 transition mb-2">
-                <Upload size={18} />
-              </div>
-              <p className="text-xs font-bold text-zinc-200">
-                Drop raw 16:9 widescreen video takes here, or <span className="text-blue-400 underline">browse</span>
-              </p>
-              <p className="text-[11px] text-zinc-500 mt-0.5">Supports multi-take shoots up to 5 minutes total (1920×1080 MP4)</p>
-            </label>
-
-            {/* List of uploaded primary clips with Reorder & Trim */}
-            {primaryMediaList.length > 0 && (
-              <div className="space-y-2.5 pt-2">
-                <div className="flex items-center justify-between text-[11px] font-bold text-zinc-400 px-1">
-                  <span>Take Order &amp; Trims (Drag or Use Arrows)</span>
-                  <span>{primaryMediaList.length} Total Clips</span>
-                </div>
-
-                {primaryMediaList.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-white/10 bg-zinc-900/80 p-3.5 transition hover:border-white/20"
-                  >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {/* Reorder Buttons */}
-                      <div className="flex flex-col gap-1 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => moveMediaUp(idx)}
-                          disabled={idx === 0}
-                          className="p-1 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-zinc-300 hover:text-white transition"
-                          title="Move take earlier"
-                        >
-                          <ArrowUp size={12} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveMediaDown(idx)}
-                          disabled={idx === primaryMediaList.length - 1}
-                          className="p-1 rounded bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed text-zinc-300 hover:text-white transition"
-                          title="Move take later"
-                        >
-                          <ArrowDown size={12} />
-                        </button>
-                      </div>
-
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-white text-[11px] font-black shrink-0">
-                        {idx + 1}
-                      </span>
-
-                      {item.type === "video" ? (
-                        <div className="h-10 w-16 rounded-md bg-black overflow-hidden shrink-0 border border-white/10">
-                          <video src={item.previewUrl} className="h-full w-full object-cover" muted />
-                        </div>
-                      ) : (
-                        <div className="h-10 w-16 rounded-md bg-zinc-800 overflow-hidden shrink-0 border border-white/10">
-                          <img src={item.previewUrl} alt={item.name} className="h-full w-full object-cover" />
-                        </div>
-                      )}
-
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-white truncate">{item.name}</p>
-                        <p className="text-[10px] text-zinc-400">{(item.size / (1024 * 1024)).toFixed(1)} MB</p>
-                      </div>
-                    </div>
-
-                    {/* Trim Markers */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      <div className="flex items-center gap-1.5 text-[11px] bg-zinc-800/80 px-2.5 py-1.5 rounded-lg border border-white/5">
-                        <Clock size={12} className="text-zinc-400" />
-                        <span className="text-zinc-400">Trim In:</span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.5"
-                          value={item.trimStart || 0}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value) || 0;
-                            const updated = primaryMediaList.map((m) =>
-                              m.id === item.id ? { ...m, trimStart: Math.max(0, val) } : m
-                            );
-                            onPrimaryMediaListChange(updated);
-                          }}
-                          className="w-12 px-1 py-0.5 rounded bg-zinc-900 border border-white/10 text-white text-center font-mono text-[10px] focus:outline-none focus:border-blue-500"
-                        />
-                        <span className="text-zinc-500">s</span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => removePrimaryMedia(item.id)}
-                        className="p-1.5 rounded-lg border border-white/10 bg-zinc-800 text-zinc-400 hover:text-red-400 hover:border-red-500/30 transition cursor-pointer"
-                        title="Remove take"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Section 2: Overlay Layers with Custom Positioning */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                  <Layers size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">2. Overlay Layers (Picture-in-Picture)</h3>
-                  <p className="text-xs text-zinc-400">Position callouts, screenshots, or reaction videos anywhere on screen</p>
-                </div>
-              </div>
-
-              <span className="text-xs font-bold text-zinc-300 bg-zinc-800/80 px-2.5 py-1 rounded-full border border-white/5">
-                {overlayLayerList.length} Layer{overlayLayerList.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-            {/* Layer Upload Area */}
-            <label className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-700 hover:border-purple-500 bg-zinc-900/60 hover:bg-purple-500/5 p-5 text-center transition cursor-pointer group">
-              <input
-                type="file"
-                multiple
-                accept="image/png,image/jpeg,image/webp,video/mp4"
-                onChange={handleLayerSelect}
-                className="hidden"
-              />
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 border border-white/10 shadow-md text-purple-400 group-hover:scale-105 transition mb-1.5">
-                <Plus size={17} />
-              </div>
-              <p className="text-xs font-bold text-zinc-200">
-                Add PIP overlay layers (Images or Videos)
-              </p>
-              <p className="text-[11px] text-zinc-500">Pick corner position (Top-Right, Top-Left, Bottom, or Center)</p>
-            </label>
-
-            {/* List of uploaded layers with Position Selector */}
-            {overlayLayerList.length > 0 && (
-              <div className="space-y-3 pt-1">
-                {overlayLayerList.map((layer, idx) => (
-                  <div
-                    key={layer.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-white/10 bg-zinc-900/80 p-3.5 transition hover:border-white/20"
-                  >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-600 text-white text-[11px] font-black shrink-0">
-                        L{idx + 1}
-                      </span>
-                      {layer.type === "video" ? (
-                        <div className="h-10 w-16 rounded-md bg-black overflow-hidden shrink-0 border border-white/10">
-                          <video src={layer.previewUrl} className="h-full w-full object-cover" muted />
-                        </div>
-                      ) : (
-                        <div className="h-10 w-16 rounded-md bg-zinc-800 overflow-hidden shrink-0 border border-white/10">
-                          <img src={layer.previewUrl} alt={layer.name} className="h-full w-full object-cover" />
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <input
-                          type="text"
-                          value={layer.title}
-                          onChange={(e) => {
-                            const updated = overlayLayerList.map((l) =>
-                              l.id === layer.id ? { ...l, title: e.target.value } : l
-                            );
-                            onOverlayLayerListChange(updated);
-                          }}
-                          placeholder="Overlay label..."
-                          className="text-xs font-bold text-white bg-transparent border-b border-transparent hover:border-zinc-600 focus:border-purple-400 focus:outline-none truncate w-full"
-                        />
-                        <p className="text-[10px] text-purple-400 font-semibold">Picture-in-Picture Callout</p>
-                      </div>
-                    </div>
-
-                    {/* Position Selector Dropdown */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <select
-                        value={layer.position || "top-right"}
-                        onChange={(e) => {
-                          const updated = overlayLayerList.map((l) =>
-                            l.id === layer.id ? { ...l, position: e.target.value as OverlayPosition } : l
-                          );
-                          onOverlayLayerListChange(updated);
-                        }}
-                        className="px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-[11px] font-bold focus:outline-none focus:border-purple-400 cursor-pointer"
-                      >
-                        <option value="top-right">Top-Right Corner</option>
-                        <option value="top-left">Top-Left Corner</option>
-                        <option value="bottom-right">Bottom-Right Corner</option>
-                        <option value="bottom-left">Bottom-Left Corner</option>
-                        <option value="center">Center / Split</option>
-                      </select>
-
-                      <button
-                        type="button"
-                        onClick={() => removeLayerItem(layer.id)}
-                        className="p-1.5 rounded-lg border border-white/10 bg-zinc-800 text-zinc-400 hover:text-red-400 hover:border-red-500/30 transition cursor-pointer"
-                        title="Remove layer"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Section 3: Smart AI Editing Toggles with Sensitivity & Strength */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-6 shadow-xl space-y-5">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                <Scissors size={18} />
-              </div>
-              <div>
-                <h3 className="text-base font-black text-white font-sans">3. Smart Pacing &amp; Camera Cuts</h3>
-                <p className="text-xs text-zinc-400">Silence removal sensitivity and camera punch-in strength</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Silence & Gap Cutter with Sensitivity Pills */}
-              <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-4 space-y-3">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={silenceJumpCuts}
-                    onChange={(e) => onSilenceJumpCutsChange(e.target.checked)}
-                    className="mt-0.5 rounded border-zinc-700 bg-zinc-800 text-blue-500 focus:ring-blue-500 h-4 w-4"
-                  />
-                  <div>
-                    <span className="text-xs font-black text-white block">Auto Silence &amp; Gap Cutter</span>
-                    <span className="text-[11px] text-zinc-400 leading-snug block mt-0.5">
-                      Trims dead pauses and breath gaps for YouTube pacing.
-                    </span>
-                  </div>
-                </label>
-
-                {silenceJumpCuts && (
-                  <div className="pt-2 border-t border-white/5 space-y-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Cut Sensitivity</span>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {(["tight", "normal", "gentle"] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => onSilenceSensitivityChange(mode)}
-                          className={`py-1.5 px-2 rounded-lg text-[10px] font-bold capitalize transition border ${
-                            silenceSensitivity === mode
-                              ? "bg-blue-600 text-white border-blue-500 shadow-sm"
-                              : "bg-zinc-800/80 text-zinc-400 border-white/5 hover:text-white"
-                          }`}
-                        >
-                          {mode === "tight" ? "Tight (Shorts)" : mode === "normal" ? "Normal" : "Gentle (Pod)"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Smart Camera Punch-In with Intensity Pills */}
-              <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-4 space-y-3">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={smartPunchIns}
-                    onChange={(e) => onSmartPunchInsChange(e.target.checked)}
-                    className="mt-0.5 rounded border-zinc-700 bg-zinc-800 text-blue-500 focus:ring-blue-500 h-4 w-4"
-                  />
-                  <div>
-                    <span className="text-xs font-black text-white block">Smart Camera Punch-Ins</span>
-                    <span className="text-[11px] text-zinc-400 leading-snug block mt-0.5">
-                      Dynamic zoom cuts on sentence beats to maintain attention.
-                    </span>
-                  </div>
-                </label>
-
-                {smartPunchIns && (
-                  <div className="pt-2 border-t border-white/5 space-y-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">Zoom Strength</span>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {(["subtle", "medium", "dramatic"] as const).map((intensity) => (
-                        <button
-                          key={intensity}
-                          type="button"
-                          onClick={() => onPunchInIntensityChange(intensity)}
-                          className={`py-1.5 px-2 rounded-lg text-[10px] font-bold capitalize transition border ${
-                            punchInIntensity === intensity
-                              ? "bg-blue-600 text-white border-blue-500 shadow-sm"
-                              : "bg-zinc-800/80 text-zinc-400 border-white/5 hover:text-white"
-                          }`}
-                        >
-                          {intensity === "subtle" ? "Subtle (+5%)" : intensity === "medium" ? "Standard (+12%)" : "Dramatic (+18%)"}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 4: 40+ Broadcast & Kinetic Subtitle Styles with Search & Categories */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-6 shadow-xl space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  <Wand2 size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">4. 40+ Subtitle Presets</h3>
-                  <p className="text-xs text-zinc-400">Widescreen broadcast, documentary, podcast, and kinetic styles</p>
-                </div>
-              </div>
-
-              <span className="text-[11px] font-bold text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-400/20 self-start sm:self-auto">
-                Active: {captionStyle}
-              </span>
-            </div>
-
-            {/* Search & Category Filter Bar */}
-            <div className="flex flex-col sm:flex-row gap-2.5">
-              <div className="relative flex-1">
-                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
                 <input
                   type="text"
-                  value={captionSearchQuery}
-                  onChange={(e) => setCaptionSearchQuery(e.target.value)}
-                  placeholder="Search styles (e.g. Netflix, Podcast, Minimal, MrBeast)..."
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-blue-500"
+                  value={videoTitle}
+                  onChange={(e) => onVideoTitleChange(e.target.value)}
+                  placeholder="e.g. Master Next.js 16 in 10 Minutes (Complete Guide)"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs"
                 />
               </div>
 
-              {/* Category Filter Tabs */}
-              <div className="flex flex-wrap gap-1 border-b border-white/5 pb-1">
-                {["All", "Cinematic", "Podcast", "Viral Bold", "Minimal", "Educational", "Kinetic"].map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setCaptionCategoryTab(tab)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                      captionCategoryTab.toLowerCase() === tab.toLowerCase()
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : "bg-zinc-800/80 text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Subtitles Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto pr-1">
-              {filteredCaptionStyles.map((style) => {
-                const isSelected = captionStyle === style.name;
-                return (
-                  <button
-                    key={style.id}
-                    type="button"
-                    onClick={() => onCaptionStyleChange(style.name)}
-                    className={`flex flex-col items-start justify-between rounded-xl border p-3 text-left transition relative cursor-pointer ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-500/15 ring-2 ring-blue-500/30"
-                        : "border-white/5 bg-zinc-900/80 hover:bg-zinc-800 hover:border-white/20"
-                    }`}
-                  >
-                    <span className="text-xs font-black text-white leading-tight line-clamp-1">{style.name}</span>
-                    <div className="mt-2 flex items-center justify-between w-full">
-                      <span className="text-[10px] font-semibold text-zinc-400 uppercase">{style.category}</span>
-                      {isSelected && <Check size={13} className="text-blue-400 stroke-[3]" />}
+              {/* Primary 16:9 Media Takes */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
+                      <Film size={20} />
                     </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Section 5: Background Music & Audio Level (12% Default) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  <Music size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">5. Background Music &amp; Audio Level</h3>
-                  <p className="text-xs text-zinc-400">13+ cloud tracks ducked to 12% so speech stays crisp and audible</p>
-                </div>
-              </div>
-
-              {/* SFX Toggle */}
-              <label className="flex items-center gap-2 cursor-pointer bg-zinc-800/80 px-3 py-1.5 rounded-xl border border-white/10">
-                <input
-                  type="checkbox"
-                  checked={enableSfx}
-                  onChange={(e) => onEnableSfxChange(e.target.checked)}
-                  className="rounded border-zinc-700 bg-zinc-800 text-blue-500 focus:ring-blue-500 h-3.5 w-3.5"
-                />
-                <span className="text-xs font-bold text-zinc-300">SFX Pops &amp; Whooshes</span>
-              </label>
-            </div>
-
-            {/* Volume Slider */}
-            <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-4 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-zinc-300 flex items-center gap-1.5">
-                  <Volume2 size={15} className="text-blue-400" />
-                  Background Music Volume
-                </span>
-                <span className="font-black text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-400/20">
-                  {Math.round(bgmVolume * 100)}% (12% Default)
-                </span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="0.4"
-                step="0.01"
-                value={bgmVolume}
-                onChange={(e) => onBgmVolumeChange(parseFloat(e.target.value))}
-                className="w-full accent-blue-500 cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-zinc-500 font-semibold">
-                <span>0% (Muted)</span>
-                <span className="text-blue-400 font-bold">12% Voice Safe</span>
-                <span>40% Loud</span>
-              </div>
-            </div>
-
-            {/* Curated BGM Library */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-60 overflow-y-auto pr-1">
-              {AWS_POLISHER_BGM_TRACKS.map((track) => {
-                const isSelected = bgmTrackId === track.id;
-                const isPlaying = auditioningTrack === track.id;
-
-                return (
-                  <div
-                    key={track.id}
-                    className={`flex items-center justify-between rounded-xl border p-2.5 transition ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-500/15 ring-1 ring-blue-500/30"
-                        : "border-white/5 bg-zinc-900/80 hover:bg-zinc-800"
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => onBgmTrackIdChange(track.id)}
-                      className="text-left min-w-0 flex-1 mr-2 cursor-pointer"
-                    >
-                      <p className="text-xs font-bold text-white truncate">{track.label}</p>
-                      <p className="text-[10px] text-zinc-400 truncate">{track.desc}</p>
-                    </button>
-
-                    {track.path !== "none" && (
-                      <button
-                        type="button"
-                        onClick={() => toggleAudition(track)}
-                        className={`p-1.5 rounded-lg border transition shrink-0 cursor-pointer ${
-                          isPlaying
-                            ? "bg-blue-600 text-white border-blue-500 animate-pulse"
-                            : "bg-zinc-800 text-zinc-300 border-white/10 hover:text-white"
-                        }`}
-                        title={isPlaying ? "Pause preview" : "Play preview"}
-                      >
-                        {isPlaying ? <Pause size={13} /> : <Play size={13} />}
-                      </button>
-                    )}
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900">
+                        Primary 16:9 Widescreen Takes
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Upload raw talking-head footage or shoot takes (MP4/MOV/WebM)
+                      </p>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
+                  <span className="text-xs font-black px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                    {primaryMediaList.length} Clip{primaryMediaList.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
 
-            {/* Custom BGM Upload */}
-            <div className="pt-1">
-              <label className="text-xs font-bold text-zinc-300 block mb-1.5">Or Upload Custom Background Music</label>
-              <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-white/10 bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-zinc-200 cursor-pointer transition shadow-sm">
-                  <Upload size={14} className="text-blue-400" />
-                  <span>Choose MP3 / WAV</span>
+                {/* Upload Box */}
+                <label className="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 hover:border-orange-500 bg-slate-50/60 hover:bg-orange-50/20 p-8 text-center transition cursor-pointer group">
                   <input
                     type="file"
-                    accept="audio/mp3,audio/wav,audio/mpeg"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) onCustomBgmFileSelect(file);
-                    }}
+                    multiple
+                    accept="video/mp4,video/quicktime,video/webm,image/png,image/jpeg"
+                    onChange={handlePrimaryMediaSelect}
                     className="hidden"
                   />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-slate-200 text-orange-600 shadow-xs group-hover:scale-105 transition mb-2.5">
+                    <Upload size={20} />
+                  </div>
+                  <p className="text-xs font-black text-slate-800">
+                    Click to browse or drop 16:9 video takes here
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Supports up to 5 minutes total runtime • 1920×1080 Full HD
+                  </p>
                 </label>
-                {customBgmFile && (
-                  <span className="text-xs font-semibold text-emerald-400 truncate max-w-xs">
-                    ✓ {customBgmFile.name}
-                  </span>
+
+                {/* Primary Takes List */}
+                {primaryMediaList.length > 0 && (
+                  <div className="space-y-2.5 pt-2">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 px-1">
+                      <span>Clip Order &amp; Sequence</span>
+                      <span>{primaryMediaList.length} Total</span>
+                    </div>
+
+                    {primaryMediaList.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-3 rounded-xl border border-slate-200/90 bg-white p-3 hover:border-slate-300 transition shadow-2xs"
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          {/* Reorder Buttons */}
+                          <div className="flex flex-col gap-0.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => moveMediaUp(idx)}
+                              disabled={idx === 0}
+                              className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed text-slate-600 transition"
+                              title="Move Up"
+                            >
+                              <ArrowUp size={12} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveMediaDown(idx)}
+                              disabled={idx === primaryMediaList.length - 1}
+                              className="p-1 rounded bg-slate-100 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed text-slate-600 transition"
+                              title="Move Down"
+                            >
+                              <ArrowDown size={12} />
+                            </button>
+                          </div>
+
+                          {/* Thumbnail / Icon */}
+                          <div className="relative h-12 w-16 rounded-lg bg-slate-900 overflow-hidden shrink-0 border border-slate-200 flex items-center justify-center">
+                            {item.type === "video" ? (
+                              <video
+                                src={item.previewUrl}
+                                className="h-full w-full object-cover"
+                                muted
+                                playsInline
+                              />
+                            ) : (
+                              <img
+                                src={item.previewUrl}
+                                alt={item.name}
+                                className="h-full w-full object-cover"
+                              />
+                            )}
+                            <span className="absolute bottom-0.5 right-0.5 px-1 rounded bg-black/75 text-[9px] font-bold text-white">
+                              #{idx + 1}
+                            </span>
+                          </div>
+
+                          {/* Info */}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-slate-900 truncate">
+                              {item.name}
+                            </p>
+                            <p className="text-[11px] text-slate-500">
+                              {(item.size / (1024 * 1024)).toFixed(1)} MB • {item.type.toUpperCase()}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Delete */}
+                        <button
+                          type="button"
+                          onClick={() => removePrimaryMedia(item.id)}
+                          className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                          title="Remove Take"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* Section 6: Spoken Narration & Word-Level Transcript Corrector */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  <FileText size={18} />
+              {/* Picture-in-Picture (PIP) Callout Overlays */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-600">
+                      <Layers size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900">
+                        Picture-in-Picture (PIP) Overlays
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Add floating screenshot callouts, product demos, or reaction clips
+                      </p>
+                    </div>
+                  </div>
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition cursor-pointer shadow-2xs">
+                    <Plus size={14} />
+                    <span>Add Overlay</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      onChange={handleLayerSelect}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">6. Spoken Dialogue &amp; Word-Level Corrector</h3>
-                  <p className="text-xs text-zinc-400">Correct misheard creator names or brand names while keeping audio timing</p>
-                </div>
+
+                {overlayLayerList.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
+                    <p className="text-xs font-semibold text-slate-500">
+                      No overlay callouts added. Click &quot;Add Overlay&quot; above to insert floating proof screenshots or reaction clips.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {overlayLayerList.map((layer) => (
+                      <div
+                        key={layer.id}
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="h-10 w-14 rounded-lg bg-slate-900 overflow-hidden shrink-0 border border-slate-200 flex items-center justify-center">
+                            {layer.type === "video" ? (
+                              <video
+                                src={layer.previewUrl}
+                                className="h-full w-full object-cover"
+                                muted
+                                playsInline
+                              />
+                            ) : (
+                              <img
+                                src={layer.previewUrl}
+                                alt={layer.name}
+                                className="h-full w-full object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-900 truncate">
+                              {layer.name}
+                            </p>
+                            <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                              PIP Overlay
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 self-end sm:self-center">
+                          {/* Position Selector */}
+                          <select
+                            value={layer.position || "top-right"}
+                            onChange={(e) => {
+                              const pos = e.target.value as OverlayPosition;
+                              onOverlayLayerListChange(
+                                overlayLayerList.map((l) =>
+                                  l.id === layer.id ? { ...l, position: pos } : l
+                                )
+                              );
+                            }}
+                            className="text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-blue-500"
+                          >
+                            <option value="top-right">Top Right</option>
+                            <option value="top-left">Top Left</option>
+                            <option value="bottom-right">Bottom Right</option>
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="center">Center / Split</option>
+                          </select>
+
+                          <button
+                            type="button"
+                            onClick={() => removeLayerItem(layer.id)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                            title="Remove Overlay"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
 
-            <textarea
-              rows={3}
-              value={editorialTranscript}
-              onChange={(e) => onEditorialTranscriptChange(e.target.value)}
-              placeholder="Paste or review the spoken script here to fix typos, jargon, or brand names..."
-              className="w-full px-4 py-3 rounded-xl border border-white/10 bg-zinc-900 text-white placeholder:text-zinc-500 text-xs font-mono focus:border-blue-500 focus:outline-none transition leading-relaxed shadow-inner"
-            />
-
-            {/* Quick Word & Name Replace Tool */}
-            <div className="rounded-xl border border-white/5 bg-zinc-900/60 p-3.5 space-y-2.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
-                Quick Word / Name Replacer (Preserves Timestamp Timing)
-              </span>
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <input
-                  type="text"
-                  value={wordToFind}
-                  onChange={(e) => setWordToFind(e.target.value)}
-                  placeholder="Misspelled Word (e.g. 'Grok')"
-                  className="w-full sm:w-1/2 px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-blue-500"
-                />
-                <input
-                  type="text"
-                  value={wordToReplace}
-                  onChange={(e) => setWordToReplace(e.target.value)}
-                  placeholder="Replace With (e.g. 'Groq')"
-                  className="w-full sm:w-1/2 px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs placeholder:text-zinc-500 focus:outline-none focus:border-blue-500"
-                />
+              {/* Next Button */}
+              <div className="flex justify-end pt-2">
                 <button
                   type="button"
-                  onClick={applyWordReplacement}
-                  className="w-full sm:w-auto px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition shrink-0 cursor-pointer"
+                  disabled={!canProceedToMusic}
+                  onClick={() => setCurrentStep(2)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-98"
                 >
-                  Apply Fix
+                  <span>Next: Soundtrack &amp; Audio</span>
+                  <ArrowRight size={16} />
                 </button>
               </div>
-              {replaceNotice && (
-                <p className="text-[11px] font-medium text-emerald-400">{replaceNotice}</p>
-              )}
             </div>
-          </div>
+          )}
 
-          {/* Section 7: Visual Callouts (Curved Arrows, Formula & Comparison Cards) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-6 shadow-xl space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-[#3B82F6] border border-blue-500/20">
-                  <Sparkles size={18} />
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-white font-sans">7. Visual Callouts &amp; Retention Boosters</h3>
-                  <p className="text-xs text-zinc-400">Curved arrows, math formula cards, and side-by-side comparison banners</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Sub-tabs for Callout types */}
-            <div className="flex gap-2 border-b border-white/10 pb-2">
-              <button
-                type="button"
-                onClick={() => setCalloutTab("arrows")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                  calloutTab === "arrows" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
-                }`}
-              >
-                <CornerDownLeft size={13} />
-                <span>Curved Arrow</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCalloutTab("formula")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                  calloutTab === "formula" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
-                }`}
-              >
-                <Calculator size={13} />
-                <span>Equation Formula</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCalloutTab("comparison")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                  calloutTab === "comparison" ? "bg-[#0066FF] text-white" : "bg-zinc-800/80 text-zinc-400 hover:text-white"
-                }`}
-              >
-                <Columns size={13} />
-                <span>Comparison Banner</span>
-              </button>
-            </div>
-
-            {/* Tab 1: Curved Arrow Callout */}
-            {calloutTab === "arrows" && (
-              <div className="space-y-4 rounded-xl border border-white/5 bg-zinc-900/60 p-4">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-xs font-bold text-white">Enable Animated Curved Arrow</span>
-                  <input
-                    type="checkbox"
-                    checked={curvedArrowConfig.enabled}
-                    onChange={(e) =>
-                      onCurvedArrowConfigChange?.({ ...curvedArrowConfig, enabled: e.target.checked })
-                    }
-                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
-                  />
-                </label>
-
-                {curvedArrowConfig.enabled && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <div>
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Label Text</label>
-                      <input
-                        type="text"
-                        value={curvedArrowConfig.label}
-                        onChange={(e) =>
-                          onCurvedArrowConfigChange?.({ ...curvedArrowConfig, label: e.target.value })
-                        }
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                      />
+          {/* STEP 2: Music (Soundtrack & Audio Design) */}
+          {currentStep === 2 && (
+            <div className="space-y-6 animate-fadeIn">
+              {/* Music Catalog Card */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
+                      <Music size={20} />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Direction</label>
-                      <select
-                        value={curvedArrowConfig.direction}
-                        onChange={(e) =>
-                          onCurvedArrowConfigChange?.({
-                            ...curvedArrowConfig,
-                            direction: e.target.value as ArrowCalloutConfig["direction"],
-                          })
-                        }
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
+                      <h3 className="text-sm font-black text-slate-900">
+                        Curated AWS S3 Background Tracks
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Royalty-free background score ducked automatically during speech
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Category Pills */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {musicCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setMusicCategory(cat)}
+                        className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition cursor-pointer ${
+                          musicCategory === cat
+                            ? "bg-orange-600 text-white shadow-2xs"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
                       >
-                        <option value="down-left">Down-Left</option>
-                        <option value="down-right">Down-Right</option>
-                        <option value="up-left">Up-Left</option>
-                        <option value="up-right">Up-Right</option>
-                      </select>
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Grid of Tracks */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {filteredTracks.map((track) => {
+                    const isSelected = bgmTrackId === track.id;
+                    const isAuditioning = playingTrackId === track.id;
+                    return (
+                      <div
+                        key={track.id}
+                        onClick={() => onBgmTrackIdChange(track.id)}
+                        className={`group relative flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-orange-500 bg-orange-50/50 shadow-xs ring-1 ring-orange-400/40"
+                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1 pr-2">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-xs font-black text-slate-900 truncate">
+                              {track.label}
+                            </p>
+                            {isSelected && (
+                              <CheckCircle2 size={14} className="text-orange-600 shrink-0" />
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                            {track.desc}
+                          </p>
+                        </div>
+
+                        {track.id !== "none" && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleAudition(track);
+                            }}
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition ${
+                              isAuditioning
+                                ? "bg-orange-600 border-orange-600 text-white"
+                                : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
+                            }`}
+                            title={isAuditioning ? "Pause Preview" : "Play Preview"}
+                          >
+                            {isAuditioning ? <Pause size={13} /> : <Play size={13} className="ml-0.5" />}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Volume Slider & Custom Upload */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-200/80">
+                  {/* Volume */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                        <Volume2 size={14} className="text-orange-600" />
+                        BGM Ducking Volume
+                      </label>
+                      <span className="text-xs font-bold text-slate-600">
+                        {Math.round(bgmVolume * 100)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0}
+                      max={0.5}
+                      step={0.01}
+                      value={bgmVolume}
+                      onChange={(e) => onBgmVolumeChange(parseFloat(e.target.value))}
+                      className="w-full accent-orange-600 cursor-pointer"
+                    />
+                    <p className="text-[10px] text-slate-500">
+                      Standard YouTube default is 12% to keep voiceover crisp.
+                    </p>
+                  </div>
+
+                  {/* Custom BGM Upload */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                      <Upload size={14} className="text-orange-600" />
+                      Custom Audio Upload
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold truncate transition cursor-pointer text-center">
+                        {customBgmFile ? customBgmFile.name : "Upload MP3/WAV"}
+                        <input
+                          type="file"
+                          accept="audio/mp3,audio/wav,audio/m4a,audio/aac"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) onCustomBgmFileSelect(f);
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                      {customBgmFile && (
+                        <button
+                          type="button"
+                          onClick={() => onCustomBgmFileSelect(null)}
+                          className="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-rose-600 transition"
+                          title="Clear Custom Audio"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* SFX Toggle */}
+                <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-black text-slate-900">
+                      Dynamic Transition Sound Effects (SFX)
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Subtle whoosh &amp; pop cues on scene cuts and visual callouts
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onEnableSfxChange(!enableSfx)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      enableSfx ? "bg-orange-600" : "bg-slate-200"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        enableSfx ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(1)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-2xs transition cursor-pointer"
+                >
+                  <ArrowLeft size={16} />
+                  <span>Back to Upload</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(3)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-98"
+                >
+                  <span>Next: Style &amp; Pacing</span>
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Style (Zooms, Cuts, Captions & Callouts) */}
+          {currentStep === 3 && (
+            <div className="space-y-6 animate-fadeIn">
+              {/* Pacing & Cutters Card */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
+                    <Sliders size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-slate-900">
+                      AI Video Pacing &amp; Dynamic Zooms
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Broadcast jump-cuts and camera punch-in scale controls
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Silence Trimmer */}
+                  <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Scissors size={16} className="text-orange-600" />
+                        <h4 className="text-xs font-black text-slate-900">
+                          Auto Silence &amp; Pause Cutter
+                        </h4>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={silenceJumpCuts}
+                        onChange={(e) => onSilenceJumpCutsChange(e.target.checked)}
+                        className="h-4 w-4 accent-orange-600 rounded cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      Automatically detects and trims awkward silence gaps between sentences.
+                    </p>
+                    <div className="grid grid-cols-3 gap-1.5 pt-1">
+                      {(["tight", "normal", "gentle"] as const).map((lvl) => (
+                        <button
+                          key={lvl}
+                          type="button"
+                          onClick={() => onSilenceSensitivityChange(lvl)}
+                          className={`py-1.5 px-2 rounded-lg text-center font-bold text-[11px] capitalize transition cursor-pointer border ${
+                            silenceSensitivity === lvl
+                              ? "bg-orange-600 border-orange-600 text-white shadow-2xs"
+                              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          {lvl}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Punch-In Zooms */}
+                  <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ZoomIn size={16} className="text-orange-600" />
+                        <h4 className="text-xs font-black text-slate-900">
+                          Smart Camera Punch-Ins
+                        </h4>
+                      </div>
+                      <input
+                        type="checkbox"
+                        checked={smartPunchIns}
+                        onChange={(e) => onSmartPunchInsChange(e.target.checked)}
+                        className="h-4 w-4 accent-orange-600 rounded cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      Dynamic spring frame zoom alternating at key punch-lines.
+                    </p>
+                    <div className="grid grid-cols-3 gap-1.5 pt-1">
+                      {(["subtle", "medium", "dramatic"] as const).map((int) => (
+                        <button
+                          key={int}
+                          type="button"
+                          onClick={() => onPunchInIntensityChange(int)}
+                          className={`py-1.5 px-2 rounded-lg text-center font-bold text-[11px] capitalize transition cursor-pointer border ${
+                            punchInIntensity === int
+                              ? "bg-orange-600 border-orange-600 text-white shadow-2xs"
+                              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          {int === "subtle" ? "Subtle (+5%)" : int === "medium" ? "Medium (+12%)" : "Dramatic (+18%)"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 32 Caption Styles Card */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
+                      <FileText size={20} />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1">Show at Second</label>
+                      <h3 className="text-sm font-black text-slate-900">
+                        32 Animated Caption &amp; Subtitle Styles
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Master kinetic presets with millisecond word synchronization
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Search Bar */}
+                  <div className="relative w-full sm:w-64">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      value={captionSearchQuery}
+                      onChange={(e) => setCaptionSearchQuery(e.target.value)}
+                      placeholder="Search styles..."
+                      className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs"
+                    />
+                  </div>
+                </div>
+
+                {/* Category Pills */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {captionCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setCaptionCategoryTab(cat)}
+                      className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition cursor-pointer ${
+                        captionCategoryTab === cat
+                          ? "bg-orange-600 text-white shadow-2xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Caption Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[360px] overflow-y-auto pr-1">
+                  {filteredCaptionStyles.map((style) => {
+                    const isSelected = captionStyle === style.id;
+                    return (
+                      <button
+                        key={style.id}
+                        type="button"
+                        onClick={() => onCaptionStyleChange(style.id)}
+                        className={`group relative flex flex-col items-center justify-between p-3 rounded-xl border text-center transition cursor-pointer min-h-[110px] ${
+                          isSelected
+                            ? "border-orange-500 bg-orange-50/50 shadow-xs ring-1 ring-orange-400/40"
+                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                        }`}
+                      >
+                        <div className="w-full h-12 flex items-center justify-center rounded-lg bg-slate-950 p-2 overflow-hidden shadow-inner">
+                          {renderPreviewCaptionWords(style.id)}
+                        </div>
+
+                        <div className="w-full mt-2">
+                          <p className="text-[11px] font-black text-slate-800 truncate">
+                            {style.name}
+                          </p>
+                          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">
+                            {style.category}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Misheard Word / Brand Name Replacer */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <Wand2 size={14} className="text-orange-600" />
+                    Misheard Word &amp; Brand Name Replacer
+                  </h4>
+                  {replaceNotice && (
+                    <span className="text-[11px] font-bold text-emerald-600 animate-fadeIn">
+                      {replaceNotice}
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                  <input
+                    type="text"
+                    value={wordToFind}
+                    onChange={(e) => setWordToFind(e.target.value)}
+                    placeholder="Find mistranscribed word..."
+                    className="sm:col-span-5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
+                  />
+                  <input
+                    type="text"
+                    value={wordToReplace}
+                    onChange={(e) => setWordToReplace(e.target.value)}
+                    placeholder="Replace with correct word/brand..."
+                    className="sm:col-span-5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={applyWordReplacement}
+                    disabled={!wordToFind.trim()}
+                    className="sm:col-span-2 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-bold text-xs transition cursor-pointer"
+                  >
+                    Apply
+                  </button>
+                </div>
+              </div>
+
+              {/* Visual Retention Callouts (Arrows, Formula, Comparison) */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
+                      <Sparkles size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900">
+                        Visual Retention Callout Cards
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Curved arrows, multi-step math formulas, and side-by-side comparison banners
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                    <button
+                      type="button"
+                      onClick={() => setCalloutTab("arrows")}
+                      className={`text-xs font-bold px-3 py-1 rounded-lg transition cursor-pointer ${
+                        calloutTab === "arrows"
+                          ? "bg-white text-slate-900 shadow-2xs"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Arrow
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCalloutTab("formula")}
+                      className={`text-xs font-bold px-3 py-1 rounded-lg transition cursor-pointer ${
+                        calloutTab === "formula"
+                          ? "bg-white text-slate-900 shadow-2xs"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Formula
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCalloutTab("comparison")}
+                      className={`text-xs font-bold px-3 py-1 rounded-lg transition cursor-pointer ${
+                        calloutTab === "comparison"
+                          ? "bg-white text-slate-900 shadow-2xs"
+                          : "text-slate-500 hover:text-slate-900"
+                      }`}
+                    >
+                      Comparison
+                    </button>
+                  </div>
+                </div>
+
+                {/* Arrow Tab */}
+                {calloutTab === "arrows" && onCurvedArrowConfigChange && (
+                  <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-800">
+                        Curved Arrow Callout
+                      </span>
                       <input
-                        type="number"
-                        min="1"
-                        value={curvedArrowConfig.atSeconds}
+                        type="checkbox"
+                        checked={curvedArrowConfig.enabled}
                         onChange={(e) =>
-                          onCurvedArrowConfigChange?.({
+                          onCurvedArrowConfigChange({
                             ...curvedArrowConfig,
-                            atSeconds: parseFloat(e.target.value) || 4,
+                            enabled: e.target.checked,
                           })
                         }
-                        className="w-full px-3 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs font-mono"
+                        className="h-4 w-4 accent-orange-600 rounded cursor-pointer"
                       />
                     </div>
+                    {curvedArrowConfig.enabled && (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase">Label</label>
+                          <input
+                            type="text"
+                            value={curvedArrowConfig.label}
+                            onChange={(e) =>
+                              onCurvedArrowConfigChange({
+                                ...curvedArrowConfig,
+                                label: e.target.value,
+                              })
+                            }
+                            className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase">Direction</label>
+                          <select
+                            value={curvedArrowConfig.direction}
+                            onChange={(e) =>
+                              onCurvedArrowConfigChange({
+                                ...curvedArrowConfig,
+                                direction: e.target.value as any,
+                              })
+                            }
+                            className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs bg-white"
+                          >
+                            <option value="down-left">Down Left</option>
+                            <option value="down-right">Down Right</option>
+                            <option value="up-left">Up Left</option>
+                            <option value="up-right">Up Right</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500 uppercase">Timestamp (sec)</label>
+                          <input
+                            type="number"
+                            value={curvedArrowConfig.atSeconds}
+                            onChange={(e) =>
+                              onCurvedArrowConfigChange({
+                                ...curvedArrowConfig,
+                                atSeconds: parseFloat(e.target.value) || 0,
+                              })
+                            }
+                            className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs bg-white"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* Tab 2: Equation Formula Card */}
-            {calloutTab === "formula" && (
-              <div className="space-y-4 rounded-xl border border-white/5 bg-zinc-900/60 p-4">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-xs font-bold text-white">Enable Multi-Step Math Formula Card</span>
-                  <input
-                    type="checkbox"
-                    checked={equationFormulaConfig.enabled}
-                    onChange={(e) =>
-                      onEquationFormulaConfigChange?.({ ...equationFormulaConfig, enabled: e.target.checked })
-                    }
-                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
-                  />
-                </label>
-
-                {equationFormulaConfig.enabled && (
-                  <div className="space-y-3 pt-2">
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <label className="text-[10px] font-bold text-zinc-400 block mb-1">Step 1</label>
-                        <input
-                          type="text"
-                          value={equationFormulaConfig.step1.value}
-                          onChange={(e) =>
-                            onEquationFormulaConfigChange?.({
-                              ...equationFormulaConfig,
-                              step1: { ...equationFormulaConfig.step1, value: e.target.value },
-                            })
-                          }
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-zinc-400 block mb-1">Step 2</label>
-                        <input
-                          type="text"
-                          value={equationFormulaConfig.step2.value}
-                          onChange={(e) =>
-                            onEquationFormulaConfigChange?.({
-                              ...equationFormulaConfig,
-                              step2: { ...equationFormulaConfig.step2, value: e.target.value },
-                            })
-                          }
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-zinc-400 block mb-1">Result</label>
-                        <input
-                          type="text"
-                          value={equationFormulaConfig.result.value}
-                          onChange={(e) =>
-                            onEquationFormulaConfigChange?.({
-                              ...equationFormulaConfig,
-                              result: { ...equationFormulaConfig.result, value: e.target.value },
-                            })
-                          }
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-zinc-400">Trigger at second:</span>
+                {/* Formula Tab */}
+                {calloutTab === "formula" && onEquationFormulaConfigChange && (
+                  <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-800">
+                        Equation &amp; Calculation Formula Card
+                      </span>
                       <input
-                        type="number"
-                        min="1"
-                        value={equationFormulaConfig.atSeconds}
+                        type="checkbox"
+                        checked={equationFormulaConfig.enabled}
                         onChange={(e) =>
-                          onEquationFormulaConfigChange?.({
+                          onEquationFormulaConfigChange({
                             ...equationFormulaConfig,
-                            atSeconds: parseFloat(e.target.value) || 6,
+                            enabled: e.target.checked,
                           })
                         }
-                        className="w-20 px-2.5 py-1 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs font-mono"
+                        className="h-4 w-4 accent-orange-600 rounded cursor-pointer"
                       />
                     </div>
+                    {equationFormulaConfig.enabled && (
+                      <div className="grid grid-cols-3 gap-3 pt-2 text-xs">
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500">Step 1</label>
+                          <input
+                            type="text"
+                            value={equationFormulaConfig.step1.value}
+                            onChange={(e) =>
+                              onEquationFormulaConfigChange({
+                                ...equationFormulaConfig,
+                                step1: { ...equationFormulaConfig.step1, value: e.target.value },
+                              })
+                            }
+                            className="w-full px-2 py-1 rounded border border-slate-200 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500">Step 2</label>
+                          <input
+                            type="text"
+                            value={equationFormulaConfig.step2.value}
+                            onChange={(e) =>
+                              onEquationFormulaConfigChange({
+                                ...equationFormulaConfig,
+                                step2: { ...equationFormulaConfig.step2, value: e.target.value },
+                              })
+                            }
+                            className="w-full px-2 py-1 rounded border border-slate-200 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500">Result</label>
+                          <input
+                            type="text"
+                            value={equationFormulaConfig.result.value}
+                            onChange={(e) =>
+                              onEquationFormulaConfigChange({
+                                ...equationFormulaConfig,
+                                result: { ...equationFormulaConfig.result, value: e.target.value },
+                              })
+                            }
+                            className="w-full px-2 py-1 rounded border border-slate-200 bg-white"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-            )}
 
-            {/* Tab 3: Comparison Banner */}
-            {calloutTab === "comparison" && (
-              <div className="space-y-4 rounded-xl border border-white/5 bg-zinc-900/60 p-4">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-xs font-bold text-white">Enable Side-By-Side Comparison Banner</span>
-                  <input
-                    type="checkbox"
-                    checked={comparisonBannerConfig.enabled}
-                    onChange={(e) =>
-                      onComparisonBannerConfigChange?.({ ...comparisonBannerConfig, enabled: e.target.checked })
-                    }
-                    className="rounded border-zinc-700 bg-zinc-800 text-[#0066FF] focus:ring-[#0066FF] h-4 w-4"
-                  />
-                </label>
-
-                {comparisonBannerConfig.enabled && (
-                  <div className="space-y-3 pt-2">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-zinc-400 block">Left Side (Before / Standard)</label>
-                        <input
-                          type="text"
-                          value={comparisonBannerConfig.left.title}
-                          onChange={(e) =>
-                            onComparisonBannerConfigChange?.({
-                              ...comparisonBannerConfig,
-                              left: { ...comparisonBannerConfig.left, title: e.target.value },
-                            })
-                          }
-                          placeholder="e.g. Raw Footage"
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-zinc-400 block">Right Side (After / Winner)</label>
-                        <input
-                          type="text"
-                          value={comparisonBannerConfig.right.title}
-                          onChange={(e) =>
-                            onComparisonBannerConfigChange?.({
-                              ...comparisonBannerConfig,
-                              right: { ...comparisonBannerConfig.right, title: e.target.value },
-                            })
-                          }
-                          placeholder="e.g. Polished 1080p"
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] text-zinc-400">Trigger at second:</span>
+                {/* Comparison Tab */}
+                {calloutTab === "comparison" && onComparisonBannerConfigChange && (
+                  <div className="rounded-xl border border-slate-200 p-4 space-y-3 bg-slate-50/50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-800">
+                        Side-by-Side Comparison Banner
+                      </span>
                       <input
-                        type="number"
-                        min="1"
-                        value={comparisonBannerConfig.atSeconds}
+                        type="checkbox"
+                        checked={comparisonBannerConfig.enabled}
                         onChange={(e) =>
-                          onComparisonBannerConfigChange?.({
+                          onComparisonBannerConfigChange({
                             ...comparisonBannerConfig,
-                            atSeconds: parseFloat(e.target.value) || 10,
+                            enabled: e.target.checked,
                           })
                         }
-                        className="w-20 px-2.5 py-1 rounded-lg bg-zinc-800 border border-white/10 text-white text-xs font-mono"
+                        className="h-4 w-4 accent-orange-600 rounded cursor-pointer"
                       />
                     </div>
+                    {comparisonBannerConfig.enabled && (
+                      <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500">Left Column (Standard)</label>
+                          <input
+                            type="text"
+                            value={comparisonBannerConfig.left.title}
+                            onChange={(e) =>
+                              onComparisonBannerConfigChange({
+                                ...comparisonBannerConfig,
+                                left: { ...comparisonBannerConfig.left, title: e.target.value },
+                              })
+                            }
+                            className="w-full px-2 py-1 rounded border border-slate-200 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500">Right Column (Pro Winner)</label>
+                          <input
+                            type="text"
+                            value={comparisonBannerConfig.right.title}
+                            onChange={(e) =>
+                              onComparisonBannerConfigChange({
+                                ...comparisonBannerConfig,
+                                right: { ...comparisonBannerConfig.right, title: e.target.value },
+                              })
+                            }
+                            className="w-full px-2 py-1 rounded border border-slate-200 bg-white"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Right Column: Compulsory 16:9 Live Widescreen Preview Simulator & Audio Spectrum */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-5">
-          <div className="rounded-2xl border border-white/10 bg-[#0E131F]/90 backdrop-blur-md p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Eye size={16} className="text-blue-400" />
-                <h3 className="text-sm font-black text-white font-sans">16:9 Live Dynamic Preview</h3>
+              {/* Navigation */}
+              <div className="flex items-center justify-between pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-2xs transition cursor-pointer"
+                >
+                  <ArrowLeft size={16} />
+                  <span>Back to Music</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(4)}
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-98"
+                >
+                  <span>Next: 16:9 Preview Simulator</span>
+                  <ArrowRight size={16} />
+                </button>
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 border border-blue-400/20 px-2.5 py-0.5 rounded-full">
-                Interactive Studio
-              </span>
             </div>
+          )}
 
-            {/* 16:9 Widescreen Canvas Simulator */}
-            <div className="relative mx-auto w-full aspect-video rounded-2xl border-[3px] border-zinc-800 bg-black overflow-hidden shadow-2xl flex flex-col justify-between p-3.5">
-              {/* Main Full-Screen Media with Dynamic Zoom */}
-              {activePrimary ? (
-                activePrimary.type === "video" ? (
-                  <video
-                    src={activePrimary.previewUrl}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    style={{ transform: `scale(${liveZoomScale})` }}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300"
-                  />
-                ) : (
-                  <img
-                    src={activePrimary.previewUrl}
-                    alt="Preview"
-                    style={{ transform: `scale(${liveZoomScale})` }}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300"
-                  />
-                )
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500 gap-1.5 bg-radial from-zinc-900 via-zinc-950 to-black">
-                  <Film size={32} className="text-blue-400" />
-                  <span className="text-xs font-bold text-zinc-400">16:9 YouTube Screen</span>
-                  <span className="text-[10px] text-zinc-600">Upload widescreen clips on left</span>
-                </div>
-              )}
+          {/* STEP 4: Preview (16:9 Cinema Simulator) */}
+          {currentStep === 4 && (
+            <div className="space-y-6 animate-fadeIn">
+              {/* Simulator Card */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
+                      <Tv size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900">
+                        16:9 Widescreen Cinema Simulator
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Interactive preview with dynamic punch-in zoom and PIP positioning
+                      </p>
+                    </div>
+                  </div>
 
-              {/* Status Badges: Smart Zoom + Silence Jump-Cut */}
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  {smartPunchIns && (
-                    <span className="flex items-center gap-1 bg-black/80 backdrop-blur-md text-blue-400 px-2 py-0.5 rounded-md text-[8px] font-black border border-blue-500/40 uppercase">
-                      <ZoomIn size={10} />
-                      {punchInIntensity === "subtle" ? "+5% ZOOM" : punchInIntensity === "dramatic" ? "+18% ZOOM" : "+12% ZOOM"}
-                    </span>
-                  )}
-                  {silenceJumpCuts && (
-                    <span className="flex items-center gap-1 bg-black/80 backdrop-blur-md text-emerald-400 px-2 py-0.5 rounded-md text-[8px] font-black border border-emerald-500/40 uppercase">
-                      <Scissors size={10} />
-                      {silenceSensitivity.toUpperCase()} CUTS
-                    </span>
-                  )}
-                </div>
-
-                {/* SFX Badge */}
-                {enableSfx && (
-                  <span className="bg-black/80 backdrop-blur-md text-amber-400 px-2 py-0.5 rounded-md text-[8px] font-black border border-amber-500/40 uppercase">
-                    SFX ON
+                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                    1920×1080 Full HD
                   </span>
+                </div>
+
+                {/* 16:9 Cinema Frame */}
+                <div className="relative aspect-video w-full rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 shadow-2xl flex items-center justify-center">
+                  {activePrimary ? (
+                    <div
+                      className="absolute inset-0 transition-transform duration-500 ease-out"
+                      style={{ transform: `scale(${liveZoomScale})` }}
+                    >
+                      {activePrimary.type === "video" ? (
+                        <video
+                          src={activePrimary.previewUrl}
+                          className="h-full w-full object-cover"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                        />
+                      ) : (
+                        <img
+                          src={activePrimary.previewUrl}
+                          alt="Primary Media Preview"
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-slate-600 gap-2">
+                      <Film size={36} />
+                      <p className="text-xs font-semibold">No media clips uploaded yet</p>
+                    </div>
+                  )}
+
+                  {/* Picture-in-Picture Floating Window */}
+                  {activeOverlay && (
+                    <div
+                      className={`absolute z-20 w-44 sm:w-56 rounded-xl border border-white/20 bg-black/85 shadow-2xl overflow-hidden backdrop-blur-md p-1 transition-all ${
+                        activeOverlay.position === "top-left"
+                          ? "top-4 left-4"
+                          : activeOverlay.position === "bottom-left"
+                          ? "bottom-14 left-4"
+                          : activeOverlay.position === "bottom-right"
+                          ? "bottom-14 right-4"
+                          : activeOverlay.position === "center"
+                          ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                          : "top-4 right-4"
+                      }`}
+                    >
+                      <div className="aspect-video w-full rounded-lg overflow-hidden bg-slate-900 flex items-center justify-center">
+                        {activeOverlay.type === "video" ? (
+                          <video
+                            src={activeOverlay.previewUrl}
+                            className="h-full w-full object-cover"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                          />
+                        ) : (
+                          <img
+                            src={activeOverlay.previewUrl}
+                            alt="PIP"
+                            className="h-full w-full object-cover"
+                          />
+                        )}
+                      </div>
+                      <p className="text-[10px] font-bold text-white px-1.5 py-1 truncate">
+                        {activeOverlay.name}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Punch-In Scale Badge */}
+                  {smartPunchIns && (
+                    <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 rounded-full bg-black/70 backdrop-blur-md px-3 py-1 border border-white/10 text-[10px] font-black text-orange-400">
+                      <ZoomIn size={12} />
+                      <span>{liveZoomScale.toFixed(2)}x Dynamic Zoom</span>
+                    </div>
+                  )}
+
+                  {/* Live Caption Bar Preview */}
+                  <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center px-4">
+                    <div className="max-w-md w-full flex justify-center">
+                      {renderPreviewCaptionWords(captionStyle)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recap Details Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Clips</span>
+                    <span className="text-sm font-black text-slate-900">{primaryMediaList.length} Takes</span>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Silence Trims</span>
+                    <span className="text-sm font-black text-slate-900 capitalize">
+                      {silenceJumpCuts ? silenceSensitivity : "Disabled"}
+                    </span>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Soundtrack</span>
+                    <span className="text-sm font-black text-slate-900 truncate block">
+                      {selectedTrackObj.label}
+                    </span>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Captions</span>
+                    <span className="text-sm font-black text-slate-900 capitalize truncate block">
+                      {captionStyle}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Watermark Remover Toggle */}
+                {onRemoveAiWatermarkChange && (
+                  <div className="pt-2">
+                    <WatermarkRemoverToggle
+                      removeAiWatermark={removeAiWatermark}
+                      onToggle={onRemoveAiWatermarkChange}
+                    />
+                  </div>
                 )}
               </div>
 
-              {/* Floating Picture-in-Picture (Overlay Layer) with Selected Position */}
-              {activeOverlay && (
-                <div
-                  className={`absolute z-20 w-32 aspect-video rounded-xl overflow-hidden border-2 border-white/60 shadow-xl bg-zinc-900 ${
-                    activeOverlay.position === "top-left"
-                      ? "top-4 left-4"
-                      : activeOverlay.position === "bottom-left"
-                      ? "bottom-14 left-4"
-                      : activeOverlay.position === "bottom-right"
-                      ? "bottom-14 right-4"
-                      : activeOverlay.position === "center"
-                      ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-110"
-                      : "top-4 right-4"
-                  }`}
-                >
-                  {activeOverlay.type === "video" ? (
-                    <video src={activeOverlay.previewUrl} autoPlay loop muted playsInline className="h-full w-full object-cover" />
-                  ) : (
-                    <img src={activeOverlay.previewUrl} alt={activeOverlay.title} className="h-full w-full object-cover" />
-                  )}
-                  {activeOverlay.title && (
-                    <div className="absolute bottom-0 inset-x-0 bg-black/80 px-1 py-0.5 text-[7px] font-bold text-white truncate text-center">
-                      {activeOverlay.title}
-                    </div>
-                  )}
+              {/* Action Banner */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
+                <div>
+                  <h4 className="text-sm font-black text-slate-900">
+                    Ready to Polish Your YouTube Video?
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    1 Min = 1 Credit (1 Cr/min, max 5 Credits) • Rendered in AWS Cloud
+                  </p>
                 </div>
-              )}
 
-              {/* Curved Arrow Preview Mockup */}
-              {curvedArrowConfig.enabled && (
-                <div className="absolute top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center gap-1 bg-red-600/90 text-white text-[9px] font-black px-2 py-0.5 rounded-full border border-red-400 shadow-lg animate-pulse">
-                  <CornerDownLeft size={10} />
-                  <span>{curvedArrowConfig.label}</span>
-                </div>
-              )}
-
-              {/* Lower-Third 16:9 Caption Mockup */}
-              <div className="relative z-10 flex justify-center mb-1">
-                <div className="bg-black/90 backdrop-blur-md border border-blue-500/50 rounded-xl px-4 py-1.5 text-center shadow-2xl max-w-[90%]">
-                  <span className="text-[11px] sm:text-xs font-black text-white tracking-tight">
-                    [{captionStyle}] WIDESCREEN YOUTUBE CAPTIONS
-                  </span>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(3)}
+                    className="flex-1 sm:flex-none px-5 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition cursor-pointer"
+                  >
+                    Back to Style
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isGenerating || primaryMediaList.length === 0}
+                    onClick={onGenerate}
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-orange-600 hover:bg-orange-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-black text-sm shadow-md shadow-orange-600/25 transition cursor-pointer active:scale-98"
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        <span>Submitting Render...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} />
+                        <span>Render 1080p Cloud Video</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Audio Spectrum & Waveform Indicator */}
-            <div className="rounded-xl border border-white/10 bg-zinc-900/80 p-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Activity size={14} className="text-emerald-400" />
-                <span className="text-xs font-bold text-zinc-300">Speech &amp; Audio Activity</span>
-              </div>
-              <div className="flex items-end gap-1 h-4">
-                {[4, 12, 16, 8, 14, 10, 6, 15, 12, 8, 16, 4].map((h, i) => (
-                  <span
-                    key={i}
-                    style={{ height: `${h}px` }}
-                    className={`w-1 rounded-full ${
-                      hasMedia ? "bg-gradient-to-t from-emerald-500 to-teal-400 animate-pulse" : "bg-zinc-700 h-2"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Primary Action Button */}
-            <button
-              type="button"
-              onClick={onGenerate}
-              disabled={!hasMedia || isGenerating}
-              className={`w-full py-4 px-6 rounded-xl text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
-                hasMedia && !isGenerating
-                  ? "bg-blue-600 hover:bg-blue-500 text-white active:scale-[0.99] shadow-blue-500/25"
-                  : "bg-zinc-800 text-zinc-500 cursor-not-allowed border border-white/5"
-              }`}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" />
-                  <span>Submitting Polisher Render Job...</span>
-                </>
-              ) : !hasMedia ? (
-                <>
-                  <Video size={15} />
-                  <span>Upload Raw 16:9 Video to Render</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} />
-                  <span>Render 16:9 Polished Video (1 Min = 1 Cr)</span>
-                </>
-              )}
-            </button>
-          </div>
         </div>
       </div>
     </div>

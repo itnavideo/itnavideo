@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Zap } from 'lucide-react';
+import { STUDIO_COUNT_EXACT_LABEL } from '@/constants/studios';
 
 export default function StickyMobileActionBar() {
   const [isVisible, setIsVisible] = useState(false);
@@ -42,7 +43,7 @@ export default function StickyMobileActionBar() {
         <div className="flex flex-col min-w-0 pr-1">
           <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-900">
             <Zap size={12} className="text-zinc-950 fill-zinc-950" />
-            <span>14 Studios</span>
+            <span>{STUDIO_COUNT_EXACT_LABEL}</span>
           </div>
           <span className="text-[11px] font-bold text-zinc-700 truncate">
             Instant Studio Access • 1080p HD

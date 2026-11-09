@@ -20,6 +20,8 @@ import { WhiteboardHand } from '../../components/graphics/WhiteboardHand';
 import { WhiteboardStoryInfographic, WhiteboardStoryInfographicProps } from './WhiteboardStoryInfographic';
 import { DynamicWhiteboardSceneDirector, getWhiteboardFont } from './DynamicWhiteboardSceneDirector';
 import type { WhiteboardScene } from '../../../services/ai/whiteboardPlanner';
+import { VideoVisualThemeProvider, useVideoVisualTheme } from '../../theme/VideoVisualTheme';
+import type { VideoVisualTheme } from '../../../services/design/visualDesignSystem';
 import {
   WB_CANVAS_WIDTH,
   WB_CANVAS_HEIGHT,
@@ -108,6 +110,7 @@ type WhiteboardVideoProps = {
   fontPersonality?: string;
   bgmUrl?: string;
   bgmVolume?: number;
+  visualTheme?: string | Partial<VideoVisualTheme>;
 };
 
 // ── Whiteboard Marker Fonts & Colors ─────────────────────────────────────────
@@ -193,21 +196,29 @@ function wrapWhiteboardText(
 // ── Light CSS Whiteboard Canvas Component ────────────────────────
 
 function ProceduralWhiteboardCanvas() {
+  const { theme } = useVideoVisualTheme();
+  const isDark = theme?.colors?.mode === 'dark';
+  const canvasBg = isDark ? '#0F172A' : '#FFFFFF';
+  const borderColor = isDark ? '#334155' : '#E2E8F0';
+  const outerBg = isDark ? '#020617' : '#FFFFFF';
+
   return (
     <div style={{
       position: 'absolute',
       inset: 0,
       overflow: 'hidden',
       pointerEvents: 'none',
-      background: '#FFFFFF',
+      background: outerBg,
     }}>
       <div style={{
         position: 'absolute',
         inset: 24,
         borderRadius: 28,
-        border: '6px solid #E2E8F0',
-        background: '#FFFFFF',
-        boxShadow: '0 10px 32px rgba(15, 23, 42, 0.08), inset 0 0 0 1px #F1F5F9',
+        border: `6px solid ${borderColor}`,
+        background: canvasBg,
+        boxShadow: isDark
+          ? '0 10px 32px rgba(0, 0, 0, 0.5), inset 0 0 0 1px #1E293B'
+          : '0 10px 32px rgba(15, 23, 42, 0.08), inset 0 0 0 1px #F1F5F9',
       }} />
     </div>
   );
@@ -905,7 +916,7 @@ function WhiteboardQuizView({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-function WhiteboardVideo({
+function WhiteboardVideoContent({
   mediaSrc = '',
   mediaType = 'audio',
   sourceAudioVolume = 1,
@@ -929,6 +940,7 @@ function WhiteboardVideo({
   conclusionTime,
   enableSfx = true,
   scenes = [],
+  visualTheme,
 }: WhiteboardVideoProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -1033,6 +1045,7 @@ function WhiteboardVideo({
           handStyle={handStyle}
           markerColor={markerColor}
           fontPersonality={fontPersonality}
+          visualTheme={visualTheme}
         />
 
         {/* ── AUDIO TRACK A1: Primary User Speech & Voiceover (100% Normalized) ── */}
@@ -1243,6 +1256,14 @@ function WhiteboardVideo({
         />
       )}
     </AbsoluteFill>
+  );
+}
+
+function WhiteboardVideo(props: WhiteboardVideoProps) {
+  return (
+    <VideoVisualThemeProvider theme={props.visualTheme}>
+      <WhiteboardVideoContent {...props} />
+    </VideoVisualThemeProvider>
   );
 }
 

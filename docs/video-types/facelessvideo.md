@@ -3,6 +3,14 @@
 > **Single Source of Truth** for the 16:9 Long-Form Faceless Video Generation Workflow in Itnavideo.
 > Optimized for automated YouTube Cash Cow channels, educational essayists, and documentary storytelling creators.
 
+> [!IMPORTANT]
+> **STRICT DUAL-STUDIO SEPARATION: 16:9 CINEMA vs 9:16 VERTICAL SHORTS (ZERO CONFUSION POLICY)**:
+> In Itnavideo, **16:9 Cinema Long-Form** and **9:16 Mobile Shorts** are built as **two completely separate, dedicated video types**:
+> - 🌐 **16:9 Widescreen Studio (`facelessVideo`)**: Built strictly for YouTube desktop & TV widescreen viewing (`1920×1080` Full HD). Duration: **Up to 5 Minutes (300s)**. Pricing: **1 Min = 1 Credit**.
+> - 📱 **9:16 Vertical Shorts Studio (`facelessShorts`)**: Built strictly for YouTube Shorts, Instagram Reels, and TikTok (`1080×1920` Full HD). Duration: **Up to 90 Seconds (90s)**. Pricing: **1 Credit Flat**. Spec: [`faceless-shorts.md`](./faceless-shorts.md).
+>
+> Neither studio has confusing ratio toggle buttons — each runs on its own dedicated Remotion composition, custom safe zones, and platform-calibrated visual layouts.
+
 ---
 
 ## 1. Overview & Purpose
@@ -31,15 +39,16 @@ The pipeline provides:
 | **Template Location** | `remotion/templates/FACELESS_VIDEO/template.tsx` & `FACELESS_LONG_VIDEO` |
 | **Dashboard Route** | `/dashboard/faceless-video` |
 | **Studio Component** | `components/dashboard/FacelessVideoStudio.tsx` |
+| **Guided 4-Step Studio** | Step 1: Upload (Voiceover Audio, Topic Title, Waveform, Media Clips, Transcript) • Step 2: Music (14 AWS S3 BGM tracks, in-card audio auditioning, volume slider, auto-ducking) • Step 3: Style (32 master animated caption themes, search, category pills, motion pacing) • Step 4: Preview (16:9 Cinema Widescreen live monitor, scene stepper, storyboard breakdown, watermark toggle) |
 | **Planning Endpoint** | `POST /api/reels/plan-faceless-video` |
 | **Render Endpoint** | `POST /api/reels/jobs` |
 | **Aspect Ratio** | **16:9 Widescreen Cinema Only (`1920×1080` @ 30 FPS MP4)** |
 | **Max Duration** | **Up to 5 Minutes (300s)** strictly per Rule 4.1 |
 | **Credit Rate** | **1 Min = 1 Credit** (1m=1, 5m=5 Cr) |
 | **Transcription** | Primary: Groq Whisper Cloud API · Fallback: Google Gemini 2.0 Flash (`asia-south1`) |
-| **Editorial Transcript** | In-place Markdown / Text Editor to review and fix typos or spelling mistakes before render |
-| **Subtitle Styling** | 20 Master YouTube 16:9 Caption Themes with active word highlights |
-| **Audio & BGM Level** | AWS S3 Music Catalog (13+ tracks) + Custom BGM Upload + Volume Slider (Default: 12%) |
+| **Editorial Transcript** | In-place Audio-Synced Markdown/Text Editor to review and fix typos or spelling mistakes before render |
+| **Subtitle Styling** | 32 Master Animated Caption Themes with active word highlights & live kinetic word previews |
+| **Audio & BGM Level** | AWS S3 Music Catalog (14 curated tracks) + In-Card Audio Auditioning + Custom BGM Upload + Volume Slider (Default: 12%) |
 | **User Media Assets** | Multi-file Ingest for user-uploaded MP4 video clips & images alongside automated vector scenes |
 | **Preview Requirement** | Compulsory Interactive 16:9 Live Preview with Audio Sync before cloud render |
 | **Audio Ducking** | BGM volume dynamically interpolates to 0.12 during active speech, rising to 0.28 during speech pauses |
@@ -307,6 +316,49 @@ Faceless Video executes a broadcast-grade 7-layer visual composition stack insid
 - [ ] **GATE 13**: Voiceover volume is normalized to 1.35; background music ducked to 0.12 during speech.
 - [ ] **GATE 14**: Ducking transitions smoothly with a 6-frame exponential window (no abrupt audio pops).
 - [ ] **GATE 15**: Sound effects trigger selectively on key narrative transitions.
+
+---
+
+## 4. The 14 Visual Layer Engines (16:9 Widescreen Cinema Stack)
+
+The 16:9 widescreen composition (`FACELESS-LONG-VIDEO` / `FACELESS-VIDEO`) shares the exact same modular visual layer architecture as Faceless Shorts, calibrated for 1920×1080 landscape:
+
+1. **Base Atmospheric Background (`Background.tsx`)**: Clean white, studio grid, dots, or ambient video (Z: 1–5).
+2. **Ambient Canvas Particles (`CanvasGraphicsLayer.tsx`)**: Subtle 1920×1080 drifting particles maintaining canvas vitality (Z: 6).
+3. **Pattern & Texture Layer (`MultiLayerPatternOverlay.tsx`)**: Halftone dot-matrix, technical grids, paper noise, crosshatch, and mesh (Z: 10).
+4. **Dynamic Scene Engine (`renderModularScene`)**: Horizontal roadmaps, dual-phone showcases, comparison battle arenas, chapter cards, and analytics curves (Z: 15).
+5. **Multi-Layer Image Engine (`MultiLayerImageOverlay.tsx`)**: Unlimited image layers with edge-clamped Ken Burns pan/zoom and shape clipping (Z: 18).
+6. **Multi-Layer SVG Vector Engine (`MultiLayerSvgOverlay.tsx`)**: Procedural draw-on stroke paths across 10 vector archetypes (Z: 20).
+7. **2.5D Isometric & Perspective Engine (`IsometricPerspectiveOverlay.tsx`)**: 3D shaded pedestals, floating cubes, device mockups, and angled tech stages (Z: 21).
+8. **Metric Gauges & Progress Engine (`MultiLayerGaugeOverlay.tsx`)**: Radial meters, 220° speedometers, and animated percentage rings (Z: 22).
+9. **Color Grading & LUT Layer (`MultiLayerAdjustmentOverlay.tsx`)**: 8 curated cinema LUTs (Dark Luxury, Warm Creator, Cyber Neon, etc.) via GPU CSS filters (Z: 24).
+10. **Audio Waveform & Reactivity Engine (`MultiLayerAudioVisualizerOverlay.tsx`)**: Landscape frequency waves, equalizer bars, and audiograms (Z: 25).
+11. **Dynamic Effects Engine (`MultiLayerEffectsOverlay.tsx`)**: 35mm fractal noise grain, subtle vignette, chromatic aberration, and warm light leaks (Z: 25).
+12. **Dynamic Transition Engine (`MultiLayerTransitionOverlay.tsx`)**: Whip pans, zoom snaps, and glitch cuts (Z: 25).
+13. **Kinetic Emoji & Floating Sticker Layer (`KineticEmojiLayer.tsx`)**: Speech-synchronized emoji pops (Z: 35).
+14. **Dynamic Text & Callout Engines (`MultiLayerTextOverlay.tsx` & `MultiLayerCalloutOverlay.tsx`)**: Multi-line typography with letter springs, speech bubbles, and pointers (Z: 38–39).
+15. **Broadcast HUD & Chapter Scrubber**: 16:9 top progress indicator, floating topic pill, and creator watermark handle (Z: 40–42).
+16. **Universal Subtitle Engine (`UniversalCaptionLayer.tsx`)**: 32 kinetic caption themes with speech adequacy evaluation (Z: 50).
+17. **Virtual Camera Stage (`VirtualCameraLayer.tsx`)**: Handheld camera micro-shakes, zoom punches, and Ken Burns drift (wraps Layer 3).
+
+---
+
+## 5. Unified Visual Design System Engine
+
+* **Engine Location**: `services/design/visualDesignSystem.ts`
+* **Remotion Context**: `remotion/theme/VideoVisualTheme.ts` (`<VideoVisualThemeProvider>`)
+* **Aspect Ratio Support**: Full 16:9 Widescreen Landscape (`1920×1080`)
+* **Safe-Zone Bounds**: Top 80px, Bottom 100px (YouTube scrubber/controls), Sides 120px
+
+### 6 Master Predefined Visual Themes:
+| Theme ID | Name | Color Mood | Typography Combination | Best For |
+| :--- | :--- | :--- | :--- | :--- |
+| `modern-saas` | **Modern SaaS & AI** | Clean Blue (`#3B82F6`), Slate (`#0F172A`) | Inter Bold + Inter Regular | SaaS, AI, Product explainers |
+| `bold-kinetic` | **Bold Viral Kinetic** | High-Voltage Yellow (`#FACC15`), Obsidian Slate | Anton (900) + Inter SemiBold | Viral Hooks, YouTube Shorts, Reels |
+| `premium-finance` | **Premium Finance** | Champagne Gold (`#D4AF37`), Deep Navy (`#070C1B`) | DM Sans Bold + DM Sans Regular | Finance, Real Estate, Wealth, Advisory |
+| `educational` | **Educational & Explainer** | Approachable Teal (`#0D9488`), Coral (`#F43F5E`) | Nunito ExtraBold + Nunito Regular | Education, Self-Help, Storytelling |
+| `editorial-minimal` | **Editorial Minimalist** | Warm Ivory (`#FAF8F5`), Obsidian Charcoal | Playfair Display + Inter Regular | Essays, Books, Philosophy, Quotes |
+| `futuristic-tech` | **Futuristic Cyber Tech** | Neon Cyan (`#06B6D4`), Electric Violet | Space Grotesk + Inter Regular | Web3, Deep Tech, Developer Reels |
 
 ---
 

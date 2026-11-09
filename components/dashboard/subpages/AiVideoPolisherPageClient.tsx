@@ -1,6 +1,5 @@
 "use client";
 
-import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,7 +14,7 @@ import {
 } from "@/components/dashboard/AiVideoPolisherStudio";
 import { useAuth } from "@/components/auth/AuthContext";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
-import { ArrowLeft, Sparkles, Zap, Film } from "lucide-react";
+import { ArrowLeft, Sparkles, Zap, Film, Loader2 } from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 
 type BillingEntitlement = {
@@ -54,7 +53,7 @@ export default function AiVideoPolisherPageClient() {
   const [silenceSensitivity, setSilenceSensitivity] = useState<"tight" | "normal" | "gentle">("normal");
   const [smartPunchIns, setSmartPunchIns] = useState(true);
   const [punchInIntensity, setPunchInIntensity] = useState<"subtle" | "medium" | "dramatic">("medium");
-  const [captionStyle, setCaptionStyle] = useState("Pop Word");
+  const [captionStyle, setCaptionStyle] = useState("glow-viral");
   const [bgmTrackId, setBgmTrackId] = useState("parasail");
   const [bgmVolume, setBgmVolume] = useState(0.12);
   const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
@@ -110,7 +109,9 @@ export default function AiVideoPolisherPageClient() {
     if (!user) return;
     async function fetchBilling() {
       try {
-        const res = await fetch(`/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`);
+        const res = await fetch(
+          `/api/billing/entitlement?userId=${encodeURIComponent(user?.id || "")}&email=${encodeURIComponent(user?.email || "")}`
+        );
         const payload = await res.json().catch(() => ({}));
         if (res.ok && payload.ok && payload.entitlement) {
           const ent = payload.entitlement;
@@ -197,8 +198,8 @@ export default function AiVideoPolisherPageClient() {
           type: layer.type,
           title: layer.title,
           position: layer.position || "top-right",
-          startSeconds: layer.startSeconds || 4,
-          durationSeconds: layer.durationSeconds || 4.5,
+          startSeconds: layer.startSeconds || 3,
+          durationSeconds: layer.durationSeconds || 4,
         });
       }
 
@@ -280,6 +281,7 @@ export default function AiVideoPolisherPageClient() {
         if (attempts > 120) {
           clearInterval(pollInterval);
           renderRequestInFlightRef.current = false;
+          setIsSubmitting(false);
           setJobStatus({
             state: "error",
             message: "Render timed out. Please check your dashboard history shortly.",
@@ -296,6 +298,7 @@ export default function AiVideoPolisherPageClient() {
           if (statusPayload.done && statusPayload.outputFile) {
             clearInterval(pollInterval);
             renderRequestInFlightRef.current = false;
+            setIsSubmitting(false);
             setJobStatus({
               state: "ready",
               message: "Your polished 1080p YouTube video is ready!",
@@ -307,6 +310,7 @@ export default function AiVideoPolisherPageClient() {
           } else if (statusPayload.state === "error") {
             clearInterval(pollInterval);
             renderRequestInFlightRef.current = false;
+            setIsSubmitting(false);
             setJobStatus({
               state: "error",
               message: statusPayload.error || "Rendering encountered an error. Please try again.",
@@ -325,6 +329,7 @@ export default function AiVideoPolisherPageClient() {
 
     } catch (err: any) {
       renderRequestInFlightRef.current = false;
+      setIsSubmitting(false);
       setJobStatus({
         state: "error",
         message: err?.message || "Failed to submit polisher job.",
@@ -332,41 +337,75 @@ export default function AiVideoPolisherPageClient() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+        <p className="text-sm font-semibold text-slate-800">Loading AI Video Polisher Studio...</p>
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-[#070A11] text-white selection:bg-[#0066FF] selection:text-white">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-md shadow-lg">
-        <div className="mx-auto flex max-w-7xl h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
+    <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
+      {/* Top Header: Unified Full Bleed Canvas */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-2xs shrink-0">
+        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+            {/* Modern Back Button */}
             <Link
               href="/dashboard"
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-zinc-900 text-zinc-300 hover:border-white/20 hover:text-white transition active:scale-95"
+              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="Back to Studios"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
             </Link>
-            <BrandLogo size="sm" variant="dark" />
+
+            <BrandLogo size="sm" showBadge={false} variant="light" />
+
+            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
+
+            {/* Clean Studio Breadcrumb */}
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-500">Studios</span>
+              <span className="text-slate-300 text-xs">/</span>
+              <span className="text-xs font-black text-slate-900 tracking-tight">AI Video Polisher</span>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200">
+                16:9 Cinema • 1 Min = 1 Cr
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {billingEntitlement && (
-              <div className="hidden sm:flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-bold text-[#3B82F6] shadow-xs">
-                <Zap size={13} className="fill-[#3B82F6] text-[#3B82F6]" />
-                <span>{billingEntitlement.usage?.remaining ?? 0} Credits Left</span>
-              </div>
-            )}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Balance Badge */}
+            <div className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 text-xs font-bold shadow-2xs text-slate-800">
+              <Zap size={14} className="text-orange-600 fill-orange-600" />
+              <span className="text-slate-500 hidden xs:inline">Balance:</span>
+              <span className="text-slate-900 font-black">
+                {billingEntitlement?.usage?.remaining !== undefined
+                  ? `${billingEntitlement.usage.remaining} Cr`
+                  : "10 Cr"}
+              </span>
+              <Link
+                href="/pricing"
+                className="ml-0.5 text-[11px] text-orange-600 hover:text-orange-500 underline font-black"
+              >
+                +Add
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Main Container */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
-        {jobStatus.state !== "idle" && (
-          <div className="max-w-3xl mx-auto py-4">
+      {/* Main Studio Workspace */}
+      <main className="flex-1 w-full overflow-hidden flex flex-col">
+        {jobStatus.state !== "idle" ? (
+          <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
-              mode="facelessVideo"
+              mode="aiVideoPolisher"
               status={{
                 state: jobStatus.state as any,
-                message: jobStatus.message || "Polishing YouTube video with smart zooms and phrase captions...",
+                message: jobStatus.message || "Polishing YouTube video with smart zooms and lower-third captions...",
                 progress: jobStatus.progress,
                 outputFile: jobStatus.outputFile,
                 title: jobStatus.title || videoTitle || "AI YouTube Video Polisher",
@@ -385,9 +424,7 @@ export default function AiVideoPolisherPageClient() {
               }}
             />
           </div>
-        )}
-
-        {jobStatus.state === "idle" && (
+        ) : (
           <AiVideoPolisherStudio
             primaryMediaList={primaryMediaList}
             onPrimaryMediaListChange={setPrimaryMediaList}
@@ -423,9 +460,11 @@ export default function AiVideoPolisherPageClient() {
             onComparisonBannerConfigChange={setComparisonBannerConfig}
             onGenerate={handleStartRender}
             isGenerating={isSubmitting || jobStatus.state !== "idle"}
+            removeAiWatermark={removeAiWatermark}
+            onRemoveAiWatermarkChange={setRemoveAiWatermark}
           />
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

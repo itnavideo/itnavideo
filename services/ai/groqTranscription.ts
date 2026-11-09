@@ -1,6 +1,6 @@
 import {spawn} from 'node:child_process';
 import {existsSync} from 'node:fs';
-import {mkdtemp, readFile, rm} from 'node:fs/promises';
+import {mkdtemp, readFile, rm, writeFile, unlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {normalizeTranscriptForPlanner} from './hinglishTranscript';
@@ -52,6 +52,7 @@ const MAX_TRANSCRIPTION_DOWNLOAD_BYTES = 1024 * 1024 * 120;
 const DEFAULT_TRANSCRIPTION_MAX_SECONDS = 60;
 const GROQ_TRANSCRIPTION_PROMPT = [
   'Transcribe speech with high precision sub-second word-level timestamps in clean English or clean Roman Hinglish.',
+  'Filter out background ambient noise, room reverb, fan hum, phone mic distortion, and non-speech artifacts.',
   'If speech is in Hindi or Hinglish, transcribe it phonetically in natural Latin Roman script (Roman Hinglish). Do not use Devanagari, Urdu, or Arabic script.',
   'If speech is in English, transcribe it in standard clean English.',
   'Keep official names, numbers, dates, terms, and keywords standard (e.g., AI, YouTube, Google, RBI, PAN Card, Aadhaar, Business, Finance, Investment).',
@@ -68,6 +69,43 @@ const DEFAULT_TRANSCRIPTION_PROMPT = [
   'Do not add scene directions, timestamps, headings, or timeline JSON; return only the spoken transcript.',
   'Examples of canonical terms: PAN Card, Aadhaar, Apply, Documents, Exam Date, RBI, Reserve Bank of India.',
 ].join(' ');
+
+/**
+ * Automatically normalizes any voice memo or phone audio (.m4a, .aac, .ogg, .opus)
+ * to ultra-compatible, lightweight 16kHz mono MP3 via ffmpeg before sending to Groq Whisper.
+ */
+async function convertBufferTo16kMp3(inputBuffer: Buffer, originalName?: string): Promise<Buffer | null> {
+  const ffmpegPath = findFfmpegPath();
+  if (!ffmpegPath) {
+    console.warn('[groqTranscription] ffmpeg binary not found, skipping audio normalization.');
+    return null;
+  }
+  const tmpDir = tmpdir();
+  const ext = originalName ? path.extname(originalName) || '.m4a' : '.m4a';
+  const inPath = path.join(tmpDir, `groq_in_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`);
+  const outPath = path.join(tmpDir, `groq_out_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.mp3`);
+  try {
+    await writeFile(inPath, inputBuffer);
+    await runFfmpeg(ffmpegPath, [
+      '-y',
+      '-i', inPath,
+      '-af', 'highpass=f=80,lowpass=f=8000,loudnorm=I=-16:TP=-1.5:LRA=11',
+      '-ar', '16000',
+      '-ac', '1',
+      '-c:a', 'libmp3lame',
+      '-b:a', '64k',
+      outPath,
+    ]);
+    const outBuf = await readFile(outPath);
+    return outBuf;
+  } catch (err) {
+    console.warn('[groqTranscription] ffmpeg audio normalization error:', err);
+    return null;
+  } finally {
+    try { await unlink(inPath); } catch {}
+    try { await unlink(outPath); } catch {}
+  }
+}
 
 export async function transcribeMediaUrlWithGroq({
   mediaUrl,
@@ -114,14 +152,49 @@ export async function transcribeMediaUrlWithGroq({
     form.append('timestamp_granularities[]', 'word');
   }
 
-  const response = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
+  let response = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
     method: 'POST',
     headers: {Authorization: `Bearer ${apiKey}`},
     body: form,
   });
 
   if (!response.ok) {
-    throw new Error(`Groq ${translateToEnglish ? 'translation' : 'transcription'} failed: ${response.status} ${await response.text()}`);
+    const errorText = await response.text();
+    if (response.status === 400 && (errorText.includes('unsupported_audio_format') || errorText.includes('invalid_media_file') || errorText.includes('file must be one of'))) {
+      console.log(`[groqTranscription] Groq rejected URL audio format (${response.status}), normalizing to 16kHz mono MP3 via ffmpeg...`);
+      const rawBuffer = Buffer.from(await media.blob.arrayBuffer());
+      const convertedBuffer = await convertBufferTo16kMp3(rawBuffer, fileName);
+      if (convertedBuffer && convertedBuffer.length > 0) {
+        const retryForm = new FormData();
+        const retryFilePart = new File([convertedBuffer], 'normalized_audio.mp3', { type: 'audio/mpeg' });
+        retryForm.append('file', retryFilePart, 'normalized_audio.mp3');
+        retryForm.append('model', model);
+        retryForm.append('response_format', responseFormat);
+        retryForm.append('temperature', '0');
+        appendTranscriptionGuidance(retryForm, 'GROQ', translateToEnglish, prompt);
+
+        if (groqLang && !translateToEnglish) {
+          retryForm.append('language', groqLang);
+        }
+
+        if (responseFormat === 'verbose_json') {
+          retryForm.append('timestamp_granularities[]', 'segment');
+          retryForm.append('timestamp_granularities[]', 'word');
+        }
+
+        const retryResponse = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
+          method: 'POST',
+          headers: {Authorization: `Bearer ${apiKey}`},
+          body: retryForm,
+        });
+
+        if (retryResponse.ok) {
+          console.log('[groqTranscription] Successfully transcribed normalized URL 16kHz MP3 via Groq Whisper!');
+          return normalizeGroqTranscription(await retryResponse.json(), model);
+        }
+      }
+    }
+    throw new Error(`Groq ${translateToEnglish ? 'translation' : 'transcription'} failed: ${response.status} ${errorText}`);
   }
 
   return normalizeGroqTranscription(await response.json(), model);
@@ -167,14 +240,48 @@ export async function transcribeMediaBlobWithGroq({
     form.append('timestamp_granularities[]', 'word');
   }
 
-  const response = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
+  let response = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
     method: 'POST',
     headers: {Authorization: `Bearer ${apiKey}`},
     body: form,
   });
 
   if (!response.ok) {
-    throw new Error(`Groq ${translateToEnglish ? 'translation' : 'transcription'} failed: ${response.status} ${await response.text()}`);
+    const errorText = await response.text();
+    if (response.status === 400 && (errorText.includes('unsupported_audio_format') || errorText.includes('invalid_media_file') || errorText.includes('file must be one of'))) {
+      console.log(`[groqTranscription] Groq rejected raw audio format (${response.status}), normalizing to 16kHz mono MP3 via ffmpeg...`);
+      const convertedBuffer = await convertBufferTo16kMp3(buffer, fileName);
+      if (convertedBuffer && convertedBuffer.length > 0) {
+        const retryForm = new FormData();
+        const retryFilePart = new File([convertedBuffer], 'normalized_audio.mp3', { type: 'audio/mpeg' });
+        retryForm.append('file', retryFilePart, 'normalized_audio.mp3');
+        retryForm.append('model', model);
+        retryForm.append('response_format', responseFormat);
+        retryForm.append('temperature', '0');
+        appendTranscriptionGuidance(retryForm, 'GROQ', translateToEnglish);
+
+        if (groqLang && !translateToEnglish) {
+          retryForm.append('language', groqLang);
+        }
+
+        if (responseFormat === 'verbose_json') {
+          retryForm.append('timestamp_granularities[]', 'segment');
+          retryForm.append('timestamp_granularities[]', 'word');
+        }
+
+        const retryResponse = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
+          method: 'POST',
+          headers: {Authorization: `Bearer ${apiKey}`},
+          body: retryForm,
+        });
+
+        if (retryResponse.ok) {
+          console.log('[groqTranscription] Successfully transcribed normalized 16kHz MP3 via Groq Whisper!');
+          return normalizeGroqTranscription(await retryResponse.json(), model);
+        }
+      }
+    }
+    throw new Error(`Groq ${translateToEnglish ? 'translation' : 'transcription'} failed: ${response.status} ${errorText}`);
   }
 
   return normalizeGroqTranscription(await response.json(), model);
