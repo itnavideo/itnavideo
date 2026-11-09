@@ -107,7 +107,7 @@ const MINDSET_TERMS = [
 ];
 
 MINDSET_TERMS.forEach((term, idx) => {
-  SVG_MASTER_CATALOG[`mind_${term}`Full] = {
+  SVG_MASTER_CATALOG[`mind_${term}`] = {
     id: `mind_${term}`,
     name: term.replace(/_/g, ' ').toUpperCase(),
     category: 'Mindset & Psychology',

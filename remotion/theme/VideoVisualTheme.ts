@@ -35,10 +35,10 @@ export const VideoVisualThemeProvider: React.FC<VideoVisualThemeProviderProps> =
     return resolveVisualTheme(theme, sceneOverrides, layerOverrides);
   }, [theme, sceneOverrides, layerOverrides]);
 
-  return (
-    <VideoVisualThemeContext.Provider value= { resolved } >
-    { children }
-    </VideoVisualThemeContext.Provider>
+  return React.createElement(
+    VideoVisualThemeContext.Provider,
+    { value: resolved },
+    children
   );
 };
 
