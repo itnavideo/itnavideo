@@ -34,12 +34,12 @@ This is the **single source of truth** for all AI tools (Antigravity, Codex, Kir
 - ❌ **NO Unchecked Background Daemons**: Do not spin up `remotion studio` or memory-heavy dev watchers unless explicitly requested by the user.
 
 ### MANDATORY Cloud-Only Pipeline:
-- ☁️ **Rendering Engine**: AWS Lambda (Remotion).
-- ☁️ **Transcription**: Groq Whisper Cloud API (ultra-fast, cloud-based).
+- ☁️ **Web Hosting & Deployments**: **Google Cloud Run** (`itnavideo-web` in project `geometric-hull-501707-m2`, region `us-central1`). The production website is 100% hosted on Google Cloud Run and deployed directly from this laptop via `npm run deploy:cloud` (`gcloud run deploy`).
+- ☁️ **Video Rendering Engine**: **AWS Lambda** (Remotion 30fps cloud rendering).
+- ☁️ **Video Render Storage & Temp Uploads**: **AWS S3** (`remotionlambda-useast1-2zq6twaok1`).
+- ☁️ **Transcription**: Groq Whisper Cloud API (ultra-fast, cloud-based with Gemini 2.0 Flash fallback).
 - ☁️ **AI Planning / Vision**: Google Cloud strictly for AI APIs (Gemini/Vertex AI).
-- ☁️ **Storage & Assets (Renders)**: AWS S3.
-- ☁️ **Website Images & Demo Videos**: Cloudinary.
-- ☁️ **Deployments**: AWS. Google Cloud is no longer used for hosting web/renders.
+- ☁️ **Website Images & Demo Videos**: Cloudinary (`dhouh9idx` in folder `itnavideo12345`).
 
 ### PERMITTED Local Operations:
 - ✅ **Local Laptop Deployments**: Tumhare paas 132GB local disk space hai, toh local laptop se seedha gcloud/AWS par deploy karna ab se standard rule hai.
