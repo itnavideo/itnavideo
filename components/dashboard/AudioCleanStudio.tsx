@@ -340,7 +340,7 @@ export function AudioCleanStudio({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Mic size={18} className="text-blue-600" />
+                <Mic size={18} className="text-orange-600" />
                 AI Audio Cleaner &amp; Studio
               </h1>
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700">
@@ -371,7 +371,7 @@ export function AudioCleanStudio({
                   type="button"
                   onClick={() => setCurrentStep(step.id as any)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isActive
-                      ? "bg-blue-600 text-white shadow-xs"
+                      ? "bg-orange-600 text-white shadow-xs"
                       : isDone
                         ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
                         : "bg-transparent text-slate-400 hover:text-slate-600"
@@ -379,7 +379,7 @@ export function AudioCleanStudio({
                 >
                   <span
                     className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${isActive
-                        ? "bg-white text-blue-600"
+                        ? "bg-white text-orange-600"
                         : isDone
                           ? "bg-emerald-500 text-white"
                           : "bg-slate-200 text-slate-600"
@@ -396,7 +396,7 @@ export function AudioCleanStudio({
           {/* Pricing Allowance Badge */}
           <div className="hidden lg:flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
-              <Zap size={13} className="text-blue-600 fill-blue-600" />
+              <Zap size={13} className="text-orange-500 fill-orange-500" />
               1 Credit • Up to 12 Mins
             </span>
           </div>
@@ -423,10 +423,10 @@ export function AudioCleanStudio({
                   if (file) onSelectFile(file);
                 }}
                 className={`relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-10 text-center transition-all ${isDragging
-                    ? "border-blue-500 bg-blue-50/70 scale-[1.01]"
+                    ? "border-orange-500 bg-orange-50/30 scale-[1.01]"
                     : selectedFile
                       ? "border-emerald-400 bg-emerald-50/40"
-                      : "border-slate-300 bg-slate-50/60 hover:border-blue-400 hover:bg-slate-50"
+                      : "border-slate-300 bg-slate-50/60 hover:border-orange-400 hover:bg-slate-50"
                   }`}
               >
                 {selectedFile ? (
@@ -464,7 +464,7 @@ export function AudioCleanStudio({
                       <button
                         type="button"
                         onClick={() => setCurrentStep("pacing")}
-                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer"
+                        className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-2 text-xs font-bold text-white shadow-xs hover:bg-orange-700 transition cursor-pointer"
                       >
                         <span>Configure Pacing</span>
                         <ArrowRight size={14} />
@@ -473,8 +473,8 @@ export function AudioCleanStudio({
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-3">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 shadow-xs">
-                      <Upload size={28} className="text-blue-600" />
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 text-orange-600 border border-orange-200 shadow-xs">
+                      <Upload size={28} className="text-orange-600" />
                     </div>
                     <div className="space-y-1 text-center">
                       <h3 className="text-lg sm:text-xl font-black text-slate-900">
@@ -486,7 +486,7 @@ export function AudioCleanStudio({
                     </div>
 
                     <div className="flex flex-col items-center gap-2.5 mt-2">
-                      <label className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 px-8 py-3.5 text-sm font-black text-white shadow-md shadow-blue-600/20 transition active:scale-95 cursor-pointer">
+                      <label className="inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-2xl bg-orange-600 hover:bg-orange-700 px-8 py-3.5 text-sm font-black text-white shadow-md shadow-orange-500/20 transition active:scale-95 cursor-pointer">
                         <Upload size={16} />
                         Upload Audio or Video
                         <input
@@ -511,7 +511,7 @@ export function AudioCleanStudio({
                         }}
                         className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-100 cursor-pointer shadow-2xs mt-1"
                       >
-                        <Sparkles size={13} className="text-blue-600" />
+                        <Sparkles size={13} className="text-orange-600" />
                         <span>Or test with sample audio</span>
                       </button>
 
@@ -525,8 +525,8 @@ export function AudioCleanStudio({
 
               {/* Analysis Loading Card */}
               {isAnalyzingAudio && (
-                <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-8 text-center space-y-3">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                <div className="rounded-2xl border border-orange-200 bg-orange-50/30 p-8 text-center space-y-3">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 text-orange-600">
                     <RefreshCw size={22} className="animate-spin" />
                   </div>
                   <div>
@@ -588,17 +588,17 @@ export function AudioCleanStudio({
                           }))
                         }
                         className={`relative rounded-xl border p-4 text-left transition-all cursor-pointer ${isSelected
-                            ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-500/20"
+                            ? "border-orange-600 bg-orange-50/30 ring-2 ring-orange-500/20"
                             : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/70"
                           }`}
                       >
                         {p.recommended && (
-                          <span className="absolute top-3 right-3 text-[10px] font-black uppercase tracking-wider text-blue-600 bg-blue-100/80 px-2 py-0.5 rounded-full">
+                          <span className="absolute top-3 right-3 text-[10px] font-black uppercase tracking-wider text-orange-600 bg-orange-100/80 px-2 py-0.5 rounded-full">
                             Recommended
                           </span>
                         )}
                         <h4 className="text-sm font-bold text-slate-900">{p.title}</h4>
-                        <p className="text-[11px] font-mono font-semibold text-blue-600 mt-1">{p.timing}</p>
+                        <p className="text-[11px] font-mono font-semibold text-orange-600 mt-1">{p.timing}</p>
                         <p className="text-xs text-slate-600 mt-2 leading-relaxed">{p.desc}</p>
                       </button>
                     );
@@ -628,7 +628,7 @@ export function AudioCleanStudio({
                               }))
                             }
                             className={`rounded-xl border p-2.5 text-center transition cursor-pointer ${isFmt
-                                ? "border-blue-600 bg-blue-50 text-blue-900 font-bold"
+                                ? "border-orange-600 bg-orange-50 text-blue-900 font-bold"
                                 : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                               }`}
                           >
@@ -661,7 +661,7 @@ export function AudioCleanStudio({
                               }))
                             }
                             className={`rounded-xl border p-2.5 text-center transition cursor-pointer ${isTone
-                                ? "border-blue-600 bg-blue-50 text-blue-900 font-bold"
+                                ? "border-orange-600 bg-orange-50 text-blue-900 font-bold"
                                 : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                               }`}
                           >
@@ -687,7 +687,7 @@ export function AudioCleanStudio({
                   <button
                     type="button"
                     onClick={() => setCurrentStep("transcript")}
-                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-orange-700 transition cursor-pointer"
                   >
                     <span>Next: Review Transcript</span>
                     <ArrowRight size={14} />
@@ -704,8 +704,8 @@ export function AudioCleanStudio({
                 {/* Transcript Header Ribbon */}
                 <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 bg-slate-50">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-100/70 px-3 py-1 text-xs font-bold text-blue-800">
-                      <Edit3 size={13} className="text-blue-700" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-100/70 px-3 py-1 text-xs font-bold text-blue-800">
+                      <Edit3 size={13} className="text-orange-700" />
                       Review &amp; Edit Spoken Script
                     </span>
                     <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-0.5 text-xs font-medium text-slate-700">
@@ -759,7 +759,7 @@ export function AudioCleanStudio({
 
                 {/* Editable Textarea */}
                 <div className="p-5 sm:p-6 space-y-3">
-                  <div className="relative rounded-xl border border-slate-200 bg-slate-50 p-3 focus-within:border-blue-500 focus-within:bg-white transition">
+                  <div className="relative rounded-xl border border-slate-200 bg-slate-50 p-3 focus-within:border-orange-500 focus-within:bg-white transition">
                     <textarea
                       value={currentMarkdown}
                       onChange={(e) => handleMarkdownChange(e.target.value)}
@@ -785,7 +785,7 @@ export function AudioCleanStudio({
                       className="flex w-full items-center justify-between text-left text-xs font-bold text-slate-700 hover:text-slate-900 cursor-pointer"
                     >
                       <span className="flex items-center gap-2">
-                        <Activity size={14} className="text-blue-600" />
+                        <Activity size={14} className="text-orange-600" />
                         <span>View Detected Silence Regions ({detectedPauses.length} timeline gaps)</span>
                       </span>
                       {showPauseList ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
@@ -826,7 +826,7 @@ export function AudioCleanStudio({
                 <div className="border-t border-slate-200 p-5 sm:p-6 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="text-center sm:text-left">
                     <p className="text-xs font-bold text-slate-800 flex items-center justify-center sm:justify-start gap-1.5">
-                      <Sparkles size={13} className="text-blue-600" />
+                      <Sparkles size={13} className="text-orange-600" />
                       Ready to clean audio with smart pause removal
                     </p>
                     <p className="text-[11px] text-slate-500 mt-0.5">
@@ -839,7 +839,7 @@ export function AudioCleanStudio({
                       type="button"
                       disabled={isCleaning || !audioCleanAnalysis}
                       onClick={onCleanAudio}
-                      className="group flex-1 sm:flex-none flex items-center justify-center gap-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 px-8 py-3 text-sm font-black text-white shadow-md shadow-blue-600/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      className="group flex-1 sm:flex-none flex items-center justify-center gap-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 px-8 py-3 text-sm font-black text-white shadow-md shadow-orange-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                     >
                       {isCleaning ? (
                         <>
@@ -874,7 +874,7 @@ export function AudioCleanStudio({
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="text-base sm:text-lg font-black text-slate-900">Your Cleaned Audio is Ready</h3>
-                          <span className="rounded-full bg-blue-100 border border-blue-300 px-2.5 py-0.5 text-[11px] font-bold text-blue-800">
+                          <span className="rounded-full bg-orange-100 border border-orange-300 px-2.5 py-0.5 text-[11px] font-bold text-blue-800">
                             Studio Master
                           </span>
                         </div>
@@ -887,7 +887,7 @@ export function AudioCleanStudio({
                     {/* Stats Pill */}
                     <div className="flex flex-wrap items-center gap-2 bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-xs">
                       <span className="text-slate-500">Time Saved:</span>
-                      <span className="font-bold text-blue-600 font-mono">
+                      <span className="font-bold text-orange-600 font-mono">
                         {audioCleanResult.stats?.durationSavedSeconds
                           ? `${audioCleanResult.stats.durationSavedSeconds.toFixed(1)}s`
                           : `${Math.max(0, audioCleanResult.originalDuration - audioCleanResult.cleanedDuration).toFixed(1)}s`}
@@ -1009,24 +1009,24 @@ export function AudioCleanStudio({
                     {/* CARD 2: AFTER (CLEANED STUDIO MASTER) */}
                     <div
                       className={`rounded-2xl border p-5 transition-all ${isPlayingAfter
-                          ? "border-blue-400 bg-blue-50/50 shadow-xs"
-                          : "border-blue-200 bg-blue-50/30 hover:border-blue-300"
+                          ? "border-blue-400 bg-orange-50/30 shadow-xs"
+                          : "border-orange-200 bg-orange-50/30 hover:border-orange-300"
                         }`}
                     >
-                      <div className="flex items-center justify-between border-b border-blue-200/80 pb-3">
+                      <div className="flex items-center justify-between border-b border-orange-200/80 pb-3">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`h-2.5 w-2.5 rounded-full ${isPlayingAfter ? "bg-blue-600 animate-ping" : "bg-blue-500"
+                            className={`h-2.5 w-2.5 rounded-full ${isPlayingAfter ? "bg-orange-600 animate-ping" : "bg-orange-500"
                               }`}
                           />
                           <div>
                             <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                              ✨ After <span className="text-blue-700 font-normal">(Silences Cut • Clean Master)</span>
+                              ✨ After <span className="text-orange-700 font-normal">(Silences Cut • Clean Master)</span>
                             </h4>
                             <p className="text-[10px] text-slate-500">100% natural voice preserved</p>
                           </div>
                         </div>
-                        <span className="rounded-full bg-blue-100 border border-blue-300 px-2.5 py-0.5 text-xs font-mono font-bold text-blue-800">
+                        <span className="rounded-full bg-orange-100 border border-orange-300 px-2.5 py-0.5 text-xs font-mono font-bold text-blue-800">
                           {formatTime(durationAfter || audioCleanResult.cleanedDuration)}
                         </span>
                       </div>
@@ -1037,8 +1037,8 @@ export function AudioCleanStudio({
                             type="button"
                             onClick={handleTogglePlayAfter}
                             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer shadow-xs active:scale-95 ${isPlayingAfter
-                                ? "bg-blue-600 text-white"
-                                : "bg-white text-blue-700 border border-blue-300 hover:bg-blue-50"
+                                ? "bg-orange-600 text-white"
+                                : "bg-white text-orange-700 border border-orange-300 hover:bg-orange-50"
                               }`}
                           >
                             {isPlayingAfter ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
@@ -1056,10 +1056,10 @@ export function AudioCleanStudio({
                                 setCurrentTimeAfter(newTime);
                                 if (cleanAudioRef.current) cleanAudioRef.current.currentTime = newTime;
                               }}
-                              className="w-full h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                              className="w-full h-1.5 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
                             />
                             <div className="flex justify-between text-[10px] font-mono text-slate-500">
-                              <span className={isPlayingAfter ? "text-blue-700 font-bold" : ""}>
+                              <span className={isPlayingAfter ? "text-orange-700 font-bold" : ""}>
                                 {formatTime(currentTimeAfter)}
                               </span>
                               <span>{formatTime(durationAfter || audioCleanResult.cleanedDuration)}</span>
@@ -1068,7 +1068,7 @@ export function AudioCleanStudio({
                         </div>
 
                         {/* Visual EQ Bars */}
-                        <div className="flex items-center justify-between rounded-xl bg-white px-3 py-2 border border-blue-200">
+                        <div className="flex items-center justify-between rounded-xl bg-white px-3 py-2 border border-orange-200">
                           <span className="text-[11px] text-slate-500">
                             {isPlayingAfter ? "Playing Clean Studio Master..." : "Click Play to audition cleaned track"}
                           </span>
@@ -1076,7 +1076,7 @@ export function AudioCleanStudio({
                             {[50, 85, 45, 95, 75, 60, 90].map((h, i) => (
                               <span
                                 key={i}
-                                className={`w-1 rounded-full transition-all duration-300 ${isPlayingAfter ? "bg-blue-600 animate-pulse" : "bg-slate-300"
+                                className={`w-1 rounded-full transition-all duration-300 ${isPlayingAfter ? "bg-orange-600 animate-pulse" : "bg-slate-300"
                                   }`}
                                 style={{ height: isPlayingAfter ? `${h}%` : "25%" }}
                               />
@@ -1112,13 +1112,13 @@ export function AudioCleanStudio({
                         disabled={!rawAudioUrl}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs font-bold text-slate-800 transition active:scale-95 cursor-pointer shadow-2xs disabled:opacity-50"
                       >
-                        <ArrowRightLeft size={14} className="text-blue-600" />
+                        <ArrowRightLeft size={14} className="text-orange-600" />
                         <span>Instant A/B Audio Switch</span>
                       </button>
                       <div className="text-xs">
                         <span className="text-slate-500">Auditioning: </span>
                         <span
-                          className={`font-bold ${compareMode === "after" ? "text-blue-600" : "text-rose-600"}`}
+                          className={`font-bold ${compareMode === "after" ? "text-orange-600" : "text-rose-600"}`}
                         >
                           {compareMode === "after" ? "✨ Cleaned (Pauses Cut)" : "🔴 Original (Before)"}
                         </span>
@@ -1157,7 +1157,7 @@ export function AudioCleanStudio({
                       {/* Send to Image AI Studio */}
                       <a
                         href={`/dashboard/image-to-video?audioUrl=${encodeURIComponent(audioCleanResult.outputUrl)}`}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100/70 px-4 py-2.5 text-xs font-bold text-blue-700 transition active:scale-95"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100/70 px-4 py-2.5 text-xs font-bold text-orange-700 transition active:scale-95"
                       >
                         <Sparkles size={14} />
                         <span>Send to Image AI Studio</span>
@@ -1168,7 +1168,7 @@ export function AudioCleanStudio({
                         href={`/api/download?url=${encodeURIComponent(audioCleanResult.outputUrl)}&filename=${encodeURIComponent(`itnavideo-clean-audio.${exportFmt}`)}`}
                         download={`itnavideo-clean-audio.${exportFmt}`}
                         onClick={() => setHasDownloaded(true)}
-                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 px-6 py-2.5 text-xs font-black text-white shadow-md shadow-blue-600/20 transition active:scale-95 cursor-pointer"
+                        className="inline-flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-700 px-6 py-2.5 text-xs font-black text-white shadow-md shadow-orange-500/20 transition active:scale-95 cursor-pointer"
                       >
                         <Download size={14} />
                         <span>Download Clean Audio ({exportFmt.toUpperCase()})</span>
@@ -1188,7 +1188,7 @@ export function AudioCleanStudio({
                   <button
                     type="button"
                     onClick={() => setCurrentStep(audioCleanAnalysis ? "transcript" : "upload")}
-                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-xs font-bold text-white hover:bg-blue-700 transition cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-2 text-xs font-bold text-white hover:bg-orange-700 transition cursor-pointer"
                   >
                     <span>{audioCleanAnalysis ? "Go to Transcript" : "Go to Upload"}</span>
                     <ArrowRight size={14} />

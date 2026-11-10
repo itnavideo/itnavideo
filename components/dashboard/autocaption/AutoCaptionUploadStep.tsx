@@ -129,7 +129,7 @@ export function AutoCaptionUploadStep({
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#0066FF]/20 selection:text-slate-900 font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col selection:bg-[#FF5722]/20 selection:text-slate-900 font-sans">
       {/* ── Top Header Bar (Clean YouTube Studio White) ── */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -141,23 +141,23 @@ export function AutoCaptionUploadStep({
               aria-label="Back to Dashboard"
               className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 transition group"
             >
-              <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform text-[#0066FF]" />
+              <ArrowLeft size={13} className="group-hover:-translate-x-0.5 transition-transform text-[#FF5722]" />
               <span className="sm:hidden text-xs">Back</span>
               <span className="hidden sm:inline">Back to Dashboard</span>
             </Link>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50/80 px-3 py-1.5 text-xs font-black text-slate-800 shadow-2xs">
-              <Zap size={13} className="text-[#0066FF] fill-[#0066FF]" />
+            <div className="flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50/30 px-3 py-1.5 text-xs font-black text-slate-800 shadow-2xs">
+              <Zap size={13} className="text-[#FF5722] fill-[#FF5722]" />
               <span>{creditsRemaining !== undefined ? `${creditsRemaining} Credits` : "908 Credits"}</span>
             </div>
             <button
               type="button"
               onClick={handleExploreStylesAndTemplates}
-              className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50/90 hover:bg-blue-100 hover:border-[#0066FF]/50 px-3 sm:px-3.5 py-1.5 text-xs font-bold text-[#0066FF] transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50/30 hover:bg-orange-100 hover:border-[#FF5722]/50 px-3 sm:px-3.5 py-1.5 text-xs font-bold text-[#FF5722] transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
             >
-              <Sparkles size={13} className="text-[#0066FF]" />
+              <Sparkles size={13} className="text-[#FF5722]" />
               <span className="hidden sm:inline">Explore Styles &amp; Templates</span>
               <span className="sm:hidden">Templates</span>
             </button>
@@ -172,7 +172,7 @@ export function AutoCaptionUploadStep({
           <div className="text-center space-y-2">
             <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight font-jakarta">
               Create{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E64A19] via-[#FF5722] to-[#2563EB]">
                 Captioned Reels
               </span>
             </h1>
@@ -222,11 +222,11 @@ export function AutoCaptionUploadStep({
                 onDrop={handleDrop}
                 className={`relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 sm:p-12 text-center transition-all cursor-pointer group ${
                   isDragging
-                    ? "border-[#0066FF] bg-blue-50/70 scale-[1.01]"
-                    : "border-slate-300 hover:border-[#0066FF]/80 bg-slate-50/60 hover:bg-blue-50/30"
+                    ? "border-[#FF5722] bg-orange-50/30 scale-[1.01]"
+                    : "border-slate-300 hover:border-[#FF5722]/80 bg-slate-50/60 hover:bg-orange-50/30"
                 }`}
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100/80 text-[#0066FF] group-hover:scale-110 transition-transform shadow-xs">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100/80 text-[#FF5722] group-hover:scale-110 transition-transform shadow-xs">
                   <Upload size={24} strokeWidth={2.4} />
                 </div>
                 <div className="space-y-1">
@@ -252,9 +252,9 @@ export function AutoCaptionUploadStep({
                         console.warn("Could not load sample audio:", err);
                       }
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 hover:bg-blue-100 text-xs font-bold text-[#0066FF] px-3.5 py-1.5 transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 hover:bg-orange-100 text-xs font-bold text-[#FF5722] px-3.5 py-1.5 transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
                   >
-                    <Sparkles size={13} className="text-[#0066FF]" />
+                    <Sparkles size={13} className="text-[#FF5722]" />
                     <span>Try with sample clip</span>
                   </button>
 
@@ -264,9 +264,9 @@ export function AutoCaptionUploadStep({
                       e.stopPropagation();
                       handleExploreStylesAndTemplates();
                     }}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 hover:border-[#0066FF]/60 text-xs font-bold text-slate-800 px-3.5 py-1.5 transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-50 hover:border-[#FF5722]/60 text-xs font-bold text-slate-800 px-3.5 py-1.5 transition cursor-pointer shadow-2xs hover:scale-105 active:scale-95"
                   >
-                    <Layers size={13} className="text-[#0066FF]" />
+                    <Layers size={13} className="text-[#FF5722]" />
                     <span>Explore Styles &amp; Templates</span>
                   </button>
                 </div>
@@ -275,7 +275,7 @@ export function AutoCaptionUploadStep({
               /* Selected File Preview Box */
               <div className="relative rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5 min-w-0">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-[#0066FF] shrink-0">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-100 text-[#FF5722] shrink-0">
                     <FileVideo size={22} />
                   </div>
                   <div className="min-w-0">
@@ -305,7 +305,7 @@ export function AutoCaptionUploadStep({
               {/* 1. Audio Spoken Selector */}
               <div className="space-y-1.5">
                 <label className="flex items-center gap-2 text-xs font-bold text-slate-700">
-                  <Globe size={14} className="text-[#0066FF]" />
+                  <Globe size={14} className="text-[#FF5722]" />
                   <span>Audio Spoken</span>
                 </label>
                 <div className="relative">
@@ -313,7 +313,7 @@ export function AutoCaptionUploadStep({
                     value={spokenLanguage}
                     onChange={(e) => onSpokenLanguageChange(e.target.value)}
                     disabled={isProcessing}
-                    className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100/60 px-4 py-3 text-xs sm:text-sm font-semibold text-slate-800 focus:border-[#0066FF] focus:bg-white focus:outline-none focus:ring-3 focus:ring-[#0066FF]/15 transition cursor-pointer"
+                    className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100/60 px-4 py-3 text-xs sm:text-sm font-semibold text-slate-800 focus:border-[#FF5722] focus:bg-white focus:outline-none focus:ring-3 focus:ring-[#FF5722]/15 transition cursor-pointer"
                   >
                     {AUDIO_SPOKEN_LANGUAGES.map((lang) => (
                       <option key={lang.id} value={lang.id}>
@@ -338,7 +338,7 @@ export function AutoCaptionUploadStep({
                     value={captionLanguage}
                     onChange={(e) => onCaptionLanguageChange(e.target.value)}
                     disabled={isProcessing}
-                    className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100/60 px-4 py-3 text-xs sm:text-sm font-semibold text-slate-800 focus:border-[#0066FF] focus:bg-white focus:outline-none focus:ring-3 focus:ring-[#0066FF]/15 transition cursor-pointer"
+                    className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100/60 px-4 py-3 text-xs sm:text-sm font-semibold text-slate-800 focus:border-[#FF5722] focus:bg-white focus:outline-none focus:ring-3 focus:ring-[#FF5722]/15 transition cursor-pointer"
                   >
                     {CAPTION_LANGUAGES.map((lang) => (
                       <option key={lang.id} value={lang.id}>
@@ -362,18 +362,18 @@ export function AutoCaptionUploadStep({
 
             {/* Processing Progress State (When Upload & Transcription is active) */}
             {isProcessing && (
-              <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 space-y-2.5 animate-in fade-in">
+              <div className="rounded-2xl border border-orange-200 bg-orange-50/30 p-4 space-y-2.5 animate-in fade-in">
                 <div className="flex items-center justify-between text-xs font-bold">
                   <span className="flex items-center gap-2 text-slate-800">
-                    <Loader2 size={14} className="animate-spin text-[#0066FF]" />
+                    <Loader2 size={14} className="animate-spin text-[#FF5722]" />
                     <span>{processingMessage || "Processing video & transcribing speech..."}</span>
                   </span>
-                  <span className="text-[#0066FF] font-black">{Math.round(processingProgress)}%</span>
+                  <span className="text-[#FF5722] font-black">{Math.round(processingProgress)}%</span>
                 </div>
                 {/* Progress bar */}
-                <div className="h-2 w-full rounded-full bg-blue-100 overflow-hidden">
+                <div className="h-2 w-full rounded-full bg-orange-100 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-[#0052CC] to-[#0066FF] transition-all duration-300 rounded-full"
+                    className="h-full bg-gradient-to-r from-[#E64A19] to-[#FF5722] transition-all duration-300 rounded-full"
                     style={{ width: `${Math.max(5, processingProgress)}%` }}
                   />
                 </div>
@@ -392,8 +392,8 @@ export function AutoCaptionUploadStep({
                 !selectedFile
                   ? "bg-slate-100 text-slate-500 font-bold border border-slate-200 cursor-not-allowed"
                   : isProcessing
-                  ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white cursor-wait opacity-90"
-                  : "bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white hover:brightness-105 active:scale-98 shadow-lg shadow-[#0066FF]/25 font-jakarta"
+                  ? "bg-gradient-to-r from-[#E64A19] to-[#FF5722] text-white cursor-wait opacity-90"
+                  : "bg-gradient-to-r from-[#E64A19] via-[#FF5722] to-[#2563EB] text-white hover:brightness-105 active:scale-98 shadow-lg shadow-[#FF5722]/25 font-jakarta"
               }`}
             >
               {isProcessing ? (
@@ -413,9 +413,9 @@ export function AutoCaptionUploadStep({
           </div>
 
           {/* Quick Explore Styles & Templates Banner */}
-          <div className="rounded-2xl border border-blue-200/80 bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div className="rounded-2xl border border-orange-200/80 bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-white p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0052CC] to-[#0066FF] text-white shrink-0 shadow-sm shadow-[#0066FF]/20">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#E64A19] to-[#FF5722] text-white shrink-0 shadow-sm shadow-[#FF5722]/20">
                 <Sparkles size={18} />
               </div>
               <div className="min-w-0 text-left">
@@ -430,7 +430,7 @@ export function AutoCaptionUploadStep({
             <button
               type="button"
               onClick={handleExploreStylesAndTemplates}
-              className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-blue-50 border border-blue-200 px-4 py-2 text-xs font-black text-[#0066FF] hover:text-[#0052CC] transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer font-jakarta"
+              className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-orange-50 border border-orange-200 px-4 py-2 text-xs font-black text-[#FF5722] hover:text-[#E64A19] transition shadow-2xs hover:scale-105 active:scale-95 cursor-pointer font-jakarta"
             >
               <Layers size={13} />
               <span>Explore 50+ Styles →</span>

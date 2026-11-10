@@ -353,11 +353,11 @@ export function AiShortsPolisherStudio({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Smartphone size={18} className="text-purple-600" />
+                <Smartphone size={18} className="text-orange-600" />
                 AI Shorts Polisher
               </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-0.5 text-[11px] font-bold text-purple-700">
-                <Sparkles size={11} className="text-purple-600" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 border border-orange-200 px-2.5 py-0.5 text-[11px] font-bold text-orange-700">
+                <Sparkles size={11} className="text-orange-600" />
                 9:16 Vertical Reel
               </span>
             </div>
@@ -383,7 +383,7 @@ export function AiShortsPolisherStudio({
                   onClick={() => setCurrentStep(step.step)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? "bg-purple-600 text-white shadow-xs"
+                      ? "bg-orange-600 text-white shadow-xs"
                       : isDone
                       ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
                       : "bg-transparent text-slate-400 hover:text-slate-600"
@@ -392,7 +392,7 @@ export function AiShortsPolisherStudio({
                   <span
                     className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${
                       isActive
-                        ? "bg-white text-purple-600"
+                        ? "bg-white text-orange-600"
                         : isDone
                         ? "bg-emerald-500 text-white"
                         : "bg-slate-200 text-slate-600"
@@ -409,7 +409,7 @@ export function AiShortsPolisherStudio({
           {/* Pricing Allowance Badge */}
           <div className="hidden lg:flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
-              <Zap size={13} className="text-purple-600 fill-purple-600" />
+              <Zap size={13} className="text-orange-500 fill-orange-500" />
               1 Credit / Video • Up to 90s
             </span>
           </div>
@@ -427,7 +427,7 @@ export function AiShortsPolisherStudio({
               <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-200">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200">
                       <Video size={18} />
                     </div>
                     <div>
@@ -441,7 +441,7 @@ export function AiShortsPolisherStudio({
                   </div>
 
                   <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition cursor-pointer shadow-2xs">
-                    <Plus size={14} className="text-purple-600" />
+                    <Plus size={14} className="text-orange-600" />
                     <span>Add Takes</span>
                     <input
                       type="file"
@@ -461,7 +461,7 @@ export function AiShortsPolisherStudio({
                         className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/60 p-3.5 transition hover:border-slate-300"
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 text-[11px] font-black text-purple-800 shrink-0">
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-100 text-[11px] font-black text-purple-800 shrink-0">
                             #{idx + 1}
                           </span>
                           <div className="relative h-12 w-9 rounded-lg overflow-hidden bg-black shrink-0 border border-slate-200">
@@ -511,8 +511,8 @@ export function AiShortsPolisherStudio({
                     ))}
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-slate-50 hover:border-purple-400 p-8 text-center transition cursor-pointer">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-200 mb-2">
+                  <label className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-slate-50 hover:border-orange-400 p-8 text-center transition cursor-pointer">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200 mb-2">
                       <Smartphone size={22} />
                     </div>
                     <p className="text-xs font-bold text-slate-800">
@@ -534,7 +534,7 @@ export function AiShortsPolisherStudio({
               <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-200">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200">
                       <Layers size={18} />
                     </div>
                     <div>
@@ -548,7 +548,7 @@ export function AiShortsPolisherStudio({
                   </div>
 
                   <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition cursor-pointer shadow-2xs">
-                    <Plus size={14} className="text-purple-600" />
+                    <Plus size={14} className="text-orange-600" />
                     <span>Add Layer</span>
                     <input
                       type="file"
@@ -601,7 +601,7 @@ export function AiShortsPolisherStudio({
                               }}
                               className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition cursor-pointer ${
                                 (layer.position || "top-right") === pos
-                                  ? "bg-purple-600 text-white"
+                                  ? "bg-orange-600 text-white"
                                   : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
                               }`}
                             >
@@ -624,7 +624,7 @@ export function AiShortsPolisherStudio({
                   value={videoTitle}
                   onChange={(e) => onVideoTitleChange(e.target.value)}
                   placeholder="e.g. 3 Habits That Doubled My Productivity in 30 Days"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -633,7 +633,7 @@ export function AiShortsPolisherStudio({
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-700 px-6 py-2.5 text-xs font-bold text-white shadow-xs transition cursor-pointer"
                 >
                   <span>Next: Music &amp; Audio</span>
                   <ArrowRight size={14} />
@@ -664,17 +664,17 @@ export function AiShortsPolisherStudio({
                         key={track.id}
                         className={`rounded-xl border p-3.5 transition-all flex flex-col justify-between ${
                           isSelected
-                            ? "border-purple-500 bg-purple-50/50 ring-2 ring-purple-500/20"
+                            ? "border-orange-500 bg-orange-50/30 ring-2 ring-orange-500/20"
                             : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/60"
                         }`}
                       >
                         <div>
                           <div className="flex items-center justify-between gap-1 mb-1">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-600 bg-purple-100/70 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 bg-orange-100/70 px-2 py-0.5 rounded-full">
                               {track.category}
                             </span>
                             {isSelected && (
-                              <span className="flex items-center gap-1 text-[10px] font-black text-purple-600">
+                              <span className="flex items-center gap-1 text-[10px] font-black text-orange-600">
                                 <Check size={12} strokeWidth={3} /> Selected
                               </span>
                             )}
@@ -690,7 +690,7 @@ export function AiShortsPolisherStudio({
                               onClick={() => toggleAudition(track)}
                               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
                                 isAuditioning
-                                  ? "bg-purple-600 text-white"
+                                  ? "bg-orange-600 text-white"
                                   : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
                               }`}
                             >
@@ -706,7 +706,7 @@ export function AiShortsPolisherStudio({
                             onClick={() => onBgmTrackIdChange(track.id)}
                             className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
                               isSelected
-                                ? "bg-purple-600 text-white"
+                                ? "bg-orange-600 text-white"
                                 : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
                             }`}
                           >
@@ -723,7 +723,7 @@ export function AiShortsPolisherStudio({
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-xs font-bold text-slate-800">
-                        BGM Volume: <span className="text-purple-600 font-mono">{Math.round((bgmVolume ?? 0.12) * 100)}%</span>
+                        BGM Volume: <span className="text-orange-600 font-mono">{Math.round((bgmVolume ?? 0.12) * 100)}%</span>
                       </label>
                       <span className="text-[10px] text-slate-400">Default: 12% (Speech Ducking)</span>
                     </div>
@@ -734,7 +734,7 @@ export function AiShortsPolisherStudio({
                       step={0.01}
                       value={bgmVolume ?? 0.12}
                       onChange={(e) => onBgmVolumeChange(parseFloat(e.target.value))}
-                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
                     />
                   </div>
 
@@ -747,7 +747,7 @@ export function AiShortsPolisherStudio({
                       type="checkbox"
                       checked={enableSfx}
                       onChange={(e) => onEnableSfxChange(e.target.checked)}
-                      className="h-4 w-4 rounded accent-purple-600 cursor-pointer"
+                      className="h-4 w-4 rounded accent-orange-500 cursor-pointer"
                     />
                   </div>
                 </div>
@@ -765,7 +765,7 @@ export function AiShortsPolisherStudio({
                   <button
                     type="button"
                     onClick={() => setCurrentStep(3)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-purple-700 transition cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-orange-700 transition cursor-pointer"
                   >
                     <span>Next: Punch-Ins &amp; Style</span>
                     <ArrowRight size={14} />
@@ -787,14 +787,14 @@ export function AiShortsPolisherStudio({
                   <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Scissors size={16} className="text-purple-600" />
+                        <Scissors size={16} className="text-orange-600" />
                         <h4 className="text-xs font-bold text-slate-900">Auto Silence Jump-Cuts</h4>
                       </div>
                       <input
                         type="checkbox"
                         checked={silenceJumpCuts}
                         onChange={(e) => onSilenceJumpCutsChange(e.target.checked)}
-                        className="h-4 w-4 rounded accent-purple-600 cursor-pointer"
+                        className="h-4 w-4 rounded accent-orange-500 cursor-pointer"
                       />
                     </div>
                     <p className="text-[11px] text-slate-500">Eliminates dead air pauses between sentences</p>
@@ -807,7 +807,7 @@ export function AiShortsPolisherStudio({
                           onClick={() => onSilenceSensitivityChange(s)}
                           className={`py-1 text-center rounded-lg text-[10px] font-bold transition cursor-pointer ${
                             silenceSensitivity === s
-                              ? "bg-purple-600 text-white"
+                              ? "bg-orange-600 text-white"
                               : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
                           }`}
                         >
@@ -821,14 +821,14 @@ export function AiShortsPolisherStudio({
                   <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <ZoomIn size={16} className="text-purple-600" />
+                        <ZoomIn size={16} className="text-orange-600" />
                         <h4 className="text-xs font-bold text-slate-900">Dynamic Punch-In Zooms</h4>
                       </div>
                       <input
                         type="checkbox"
                         checked={smartPunchIns}
                         onChange={(e) => onSmartPunchInsChange(e.target.checked)}
-                        className="h-4 w-4 rounded accent-purple-600 cursor-pointer"
+                        className="h-4 w-4 rounded accent-orange-500 cursor-pointer"
                       />
                     </div>
                     <p className="text-[11px] text-slate-500">Alternates zoom scale on key sentence beats</p>
@@ -841,7 +841,7 @@ export function AiShortsPolisherStudio({
                           onClick={() => onPunchInIntensityChange(lvl)}
                           className={`py-1 text-center rounded-lg text-[10px] font-bold transition cursor-pointer ${
                             punchInIntensity === lvl
-                              ? "bg-purple-600 text-white"
+                              ? "bg-orange-600 text-white"
                               : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
                           }`}
                         >
@@ -871,7 +871,7 @@ export function AiShortsPolisherStudio({
                       value={captionSearch}
                       onChange={(e) => setCaptionSearch(e.target.value)}
                       placeholder="Search style..."
-                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:outline-none"
+                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none"
                     />
                   </div>
                 </div>
@@ -885,7 +885,7 @@ export function AiShortsPolisherStudio({
                       onClick={() => setCaptionCategoryTab(cat)}
                       className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${
                         captionCategoryTab === cat
-                          ? "bg-slate-900 text-white"
+                          ? "bg-orange-500 text-white font-black shadow-xs"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       }`}
                     >
@@ -905,7 +905,7 @@ export function AiShortsPolisherStudio({
                         onClick={() => onCaptionStyleChange(style.name)}
                         className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${
                           isSelected
-                            ? "border-purple-500 bg-purple-50/50 ring-2 ring-purple-500/20"
+                            ? "border-orange-500 bg-orange-50/30 ring-2 ring-orange-500/20"
                             : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
                         }`}
                       >
@@ -913,7 +913,7 @@ export function AiShortsPolisherStudio({
                           <span className="text-[10px] font-bold text-slate-500 truncate max-w-[85%]">
                             {style.name}
                           </span>
-                          {isSelected && <Check size={12} className="text-purple-600 shrink-0" strokeWidth={3} />}
+                          {isSelected && <Check size={12} className="text-orange-600 shrink-0" strokeWidth={3} />}
                         </div>
 
                         {/* Animated Sample Word Preview */}
@@ -941,7 +941,7 @@ export function AiShortsPolisherStudio({
                 <button
                   type="button"
                   onClick={() => setCurrentStep(4)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-purple-700 transition cursor-pointer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-orange-700 transition cursor-pointer"
                 >
                   <span>Next: Live Simulator</span>
                   <ArrowRight size={14} />
@@ -1048,7 +1048,7 @@ export function AiShortsPolisherStudio({
                       type="checkbox"
                       checked={previewConfirmed}
                       onChange={(e) => setPreviewConfirmed(e.target.checked)}
-                      className="h-4 w-4 rounded accent-purple-600 mt-0.5 cursor-pointer"
+                      className="h-4 w-4 rounded accent-orange-500 mt-0.5 cursor-pointer"
                     />
                     <div>
                       <p className="text-xs font-bold text-slate-900">
@@ -1075,7 +1075,7 @@ export function AiShortsPolisherStudio({
                     type="button"
                     disabled={!hasPrimaryMedia || !previewConfirmed || isGenerating}
                     onClick={onGenerate}
-                    className="group relative flex h-12 w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 px-8 text-xs font-black text-white shadow-md shadow-purple-600/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    className="group relative flex h-12 w-full sm:w-auto items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 px-8 text-xs font-black text-white shadow-md shadow-orange-500/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isGenerating ? (
                       <>

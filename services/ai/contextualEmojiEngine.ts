@@ -135,3 +135,4 @@ export function buildContextualEmojiEvents(
 
   return events;
 }
+

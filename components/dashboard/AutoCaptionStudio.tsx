@@ -471,7 +471,7 @@ export function AutoCaptionStudio({
     onCaptionStyleChange(targetKey);
   };
 
-  const isLight = theme === "light";
+  const isLight = true;
 
   return (
     <div
@@ -482,7 +482,7 @@ export function AutoCaptionStudio({
       }`}
     >
       {/* Magic UI BorderBeam Glowing Effect */}
-      <BorderBeam size={280} duration={14} colorFrom="#0066FF" colorTo="#2563EB" />
+      <BorderBeam size={280} duration={14} colorFrom="#FF5722" colorTo="#2563EB" />
 
       {/* ── WhiteStair Caption Style Header ── */}
       <div
@@ -491,7 +491,7 @@ export function AutoCaptionStudio({
         }`}
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0052CC] via-[#0066FF] to-[#2563EB] text-white shadow-lg shadow-[#0066FF]/25">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#E64A19] via-[#FF5722] to-[#2563EB] text-white shadow-lg shadow-[#FF5722]/25">
             <Sparkles size={20} className="fill-white/20" />
           </div>
           <div>
@@ -519,7 +519,7 @@ export function AutoCaptionStudio({
             onClick={() => setActiveTab("edit")}
             className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "edit"
-                ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-md shadow-[#0066FF]/25 scale-[1.02]"
+                ? "bg-gradient-to-r from-[#E64A19] to-[#FF5722] text-white shadow-md shadow-[#FF5722]/25 scale-[1.02]"
                 : isLight
                 ? "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                 : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -534,7 +534,7 @@ export function AutoCaptionStudio({
             onClick={() => setActiveTab("templates")}
             className={`px-5 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "templates"
-                ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-md shadow-[#0066FF]/25 scale-[1.02]"
+                ? "bg-gradient-to-r from-[#E64A19] to-[#FF5722] text-white shadow-md shadow-[#FF5722]/25 scale-[1.02]"
                 : isLight
                 ? "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                 : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -549,7 +549,7 @@ export function AutoCaptionStudio({
             onClick={() => setActiveTab("script")}
             className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
               activeTab === "script"
-                ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-md shadow-[#0066FF]/25 scale-[1.02]"
+                ? "bg-gradient-to-r from-[#E64A19] to-[#FF5722] text-white shadow-md shadow-[#FF5722]/25 scale-[1.02]"
                 : isLight
                 ? "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                 : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -576,7 +576,7 @@ export function AutoCaptionStudio({
           </div>
           <a
             href="/dashboard/youtube-subtitles"
-            className="shrink-0 rounded-xl bg-[#0066FF] px-3.5 py-2 text-xs font-bold text-white hover:brightness-110 transition shadow-md"
+            className="shrink-0 rounded-xl bg-[#FF5722] px-3.5 py-2 text-xs font-bold text-white hover:brightness-110 transition shadow-md"
           >
             16:9 Subtitles →
           </a>
@@ -608,9 +608,9 @@ export function AutoCaptionStudio({
             e.stopPropagation();
             if (e.dataTransfer.files?.[0]) onSelectFile(e.dataTransfer.files[0]);
           }}
-          className="flex flex-col items-center justify-center gap-3 rounded-[24px] border-2 border-dashed border-white/15 hover:border-[#0066FF]/60 bg-[#070B14] hover:bg-[#131B2E] p-6 text-center transition-all cursor-pointer group shadow-inner"
+          className="flex flex-col items-center justify-center gap-3 rounded-[24px] border-2 border-dashed border-white/15 hover:border-[#FF5722]/60 bg-[#070B14] hover:bg-[#131B2E] p-6 text-center transition-all cursor-pointer group shadow-inner"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#0066FF]/30 bg-[#0066FF]/10 text-[#3B82F6] group-hover:scale-110 transition shadow-lg">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#FF5722]/30 bg-[#FF5722]/10 text-[#3B82F6] group-hover:scale-110 transition shadow-lg">
             <FileVideo size={24} />
           </div>
           <div className="space-y-0.5">
@@ -691,7 +691,7 @@ export function AutoCaptionStudio({
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              <Type size={14} className="text-[#0066FF]" />
+              <Type size={14} className="text-[#FF5722]" />
               <span>Caption Style Templates</span>
               <span className="rounded-full bg-slate-100 dark:bg-white/10 text-[10px] font-bold px-2 py-0.5 text-slate-600 dark:text-slate-300">
                 Names Only
@@ -703,7 +703,7 @@ export function AutoCaptionStudio({
               onClick={() => setCaptionPartTab("kinetic")}
               className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
                 captionPartTab === "kinetic"
-                  ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-sm font-jakarta"
+                  ? "bg-gradient-to-r from-[#E64A19] to-[#FF5722] text-white shadow-sm font-jakarta"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -735,7 +735,7 @@ export function AutoCaptionStudio({
                 placeholder="Search caption style templates (e.g., Hormozi, Beast, Simple, Doctor, Luxe)..."
                 value={templateChipSearch}
                 onChange={(e) => setTemplateChipSearch(e.target.value)}
-                className={`w-full rounded-xl border pl-9 pr-3.5 py-2 text-xs font-medium placeholder-slate-400 focus:border-[#0066FF] focus:outline-none transition ${
+                className={`w-full rounded-xl border pl-9 pr-3.5 py-2 text-xs font-medium placeholder-slate-400 focus:border-[#FF5722] focus:outline-none transition ${
                   isLight
                     ? "border-slate-200 bg-white text-slate-800"
                     : "border-white/10 bg-[#131B2E] text-white"
@@ -770,7 +770,7 @@ export function AutoCaptionStudio({
                   onClick={() => setTemplateCategoryFilter(cat)}
                   className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
                     templateCategoryFilter === cat
-                      ? "bg-[#0066FF] text-white shadow-xs font-black"
+                      ? "bg-[#FF5722] text-white shadow-xs font-black"
                       : isLight
                       ? "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
                       : "bg-white/5 text-slate-400 hover:text-white"
@@ -935,7 +935,7 @@ export function AutoCaptionStudio({
                   onClick={() => setKineticCategory(cat)}
                   className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
                     kineticCategory === cat
-                      ? "bg-[#0066FF] text-white shadow-xs font-black"
+                      ? "bg-[#FF5722] text-white shadow-xs font-black"
                       : isLight
                       ? "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
                       : "bg-white/5 text-slate-400 hover:text-white"
@@ -974,7 +974,7 @@ export function AutoCaptionStudio({
                       {currentKinetic.name}
                     </h4>
                   </div>
-                  <span className="rounded-full bg-blue-500/20 text-[#0066FF] border border-blue-500/30 text-[10px] font-bold px-2 py-0.5">
+                  <span className="rounded-full bg-orange-500/20 text-[#FF5722] border border-orange-500/30 text-[10px] font-bold px-2 py-0.5">
                     {currentKinetic.animation || "Motion"}
                   </span>
                 </div>
@@ -998,7 +998,7 @@ export function AutoCaptionStudio({
                     step={0.1}
                     value={kineticPreviewTime}
                     onChange={(e) => setKineticPreviewTime(parseFloat(e.target.value))}
-                    className="flex-1 accent-[#0066FF] cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+                    className="flex-1 accent-[#FF5722] cursor-pointer h-1.5 bg-slate-800 rounded-lg"
                   />
                   <span className="text-[10px] font-mono text-slate-400 w-9 text-right">
                     {kineticPreviewTime.toFixed(1)}s
@@ -1032,7 +1032,7 @@ export function AutoCaptionStudio({
                       <span className="text-[10px] font-mono font-black text-slate-400">
                         #{style.index + 1}
                       </span>
-                      <span className="text-[9px] font-bold text-[#0066FF] uppercase">
+                      <span className="text-[9px] font-bold text-[#FF5722] uppercase">
                         {style.animation || style.layout}
                       </span>
                     </div>
@@ -1060,7 +1060,7 @@ export function AutoCaptionStudio({
                         className={`text-[9px] font-bold px-2 py-0.5 rounded transition ${
                           isSelected
                             ? "bg-[#FFE14D] text-black font-black"
-                            : "bg-white/10 text-slate-300 group-hover:bg-[#0066FF] group-hover:text-white"
+                            : "bg-white/10 text-slate-300 group-hover:bg-[#FF5722] group-hover:text-white"
                         }`}
                       >
                         {isSelected ? "Active" : "Watch & Use"}
@@ -1087,7 +1087,7 @@ export function AutoCaptionStudio({
               placeholder="Search 40+ caption templates (e.g. Classic, Solo, Crazy, Hormozi)..."
               value={templateSearch}
               onChange={(e) => setTemplateSearch(e.target.value)}
-              className={`w-full rounded-2xl border pl-10 pr-9 py-2.5 text-xs font-semibold placeholder-slate-400 focus:border-[#0066FF] focus:outline-none transition shadow-inner ${
+              className={`w-full rounded-2xl border pl-10 pr-9 py-2.5 text-xs font-semibold placeholder-slate-400 focus:border-[#FF5722] focus:outline-none transition shadow-inner ${
                 isLight
                   ? "border-slate-200 bg-slate-50 text-slate-900 focus:bg-white"
                   : "border-white/10 bg-[#070B14] text-white"
@@ -1119,13 +1119,13 @@ export function AutoCaptionStudio({
                   onClick={() => handleCardClick(card)}
                   className={`group relative flex flex-col justify-between rounded-2xl border p-3 min-h-[115px] sm:min-h-[125px] cursor-pointer transition-all duration-200 select-none ${
                     isSelected
-                      ? "border-2 border-[#0066FF] bg-[#141C30] ring-4 ring-[#0066FF]/20 shadow-xl shadow-[#0066FF]/25 scale-[1.02]"
-                      : "border-white/10 bg-[#070B14] hover:border-[#0066FF]/60 hover:bg-[#101726] hover:-translate-y-0.5"
+                      ? "border-2 border-[#FF5722] bg-[#141C30] ring-4 ring-[#FF5722]/20 shadow-xl shadow-[#FF5722]/25 scale-[1.02]"
+                      : "border-white/10 bg-[#070B14] hover:border-[#FF5722]/60 hover:bg-[#101726] hover:-translate-y-0.5"
                   }`}
                 >
                   {/* Selected check badge */}
                   {isSelected && (
-                    <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#0066FF] text-white shadow-md z-10">
+                    <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF5722] text-white shadow-md z-10">
                       <Check size={11} strokeWidth={3.5} />
                     </div>
                   )}
@@ -1134,7 +1134,7 @@ export function AutoCaptionStudio({
                   <div className="flex-1 flex flex-col items-center justify-center text-center px-1">
                     {card.isCustom ? (
                       <div className="flex flex-col items-center justify-center gap-1.5 py-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-dashed border-white/30 text-white/60 group-hover:border-[#0066FF] group-hover:text-[#3B82F6] transition">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-dashed border-white/30 text-white/60 group-hover:border-[#FF5722] group-hover:text-[#3B82F6] transition">
                           <Plus size={16} />
                         </div>
                         <span className="text-[11px] font-black text-white">Custom Theme</span>
@@ -1179,7 +1179,7 @@ export function AutoCaptionStudio({
                       {card.hasDots && (
                         <div className="flex items-center gap-0.5">
                           <span className="h-1.5 w-1.5 rounded-full bg-slate-500" />
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#0066FF]" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#FF5722]" />
                           <span className="h-1.5 w-1.5 rounded-full bg-slate-500" />
                         </div>
                       )}
@@ -1274,7 +1274,7 @@ export function AutoCaptionStudio({
                       onClick={() => onCaptionPositionChange(pos.id as any)}
                       className={`min-h-[38px] rounded-xl text-xs font-black transition-all cursor-pointer flex items-center justify-center ${
                         isCur
-                          ? "bg-gradient-to-r from-[#0052CC] to-[#0066FF] text-white shadow-md shadow-[#0066FF]/25 scale-[1.02]"
+                          ? "bg-gradient-to-r from-[#E64A19] to-[#FF5722] text-white shadow-md shadow-[#FF5722]/25 scale-[1.02]"
                           : "text-slate-400 hover:text-white hover:bg-white/5"
                       }`}
                     >
@@ -1291,7 +1291,7 @@ export function AutoCaptionStudio({
                 Font Selection
               </label>
               <select
-                className="w-full rounded-2xl border border-white/10 bg-[#070B14] text-white min-h-[44px] text-xs px-3.5 focus:border-[#0066FF] focus:outline-none cursor-pointer font-bold shadow-inner"
+                className="w-full rounded-2xl border border-white/10 bg-[#070B14] text-white min-h-[44px] text-xs px-3.5 focus:border-[#FF5722] focus:outline-none cursor-pointer font-bold shadow-inner"
                 value={captionFontFamily || "preset"}
                 onChange={(e) => {
                   if (onCaptionFontFamilyChange) onCaptionFontFamilyChange(e.target.value);
@@ -1324,7 +1324,7 @@ export function AutoCaptionStudio({
                       onClick={() => onCaptionFontSizeChange && onCaptionFontSizeChange(sz)}
                       className={`min-h-[38px] rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center uppercase ${
                         isCur
-                          ? "bg-[#0066FF] text-white shadow-sm"
+                          ? "bg-[#FF5722] text-white shadow-sm"
                           : "text-slate-400 hover:text-white"
                       }`}
                     >
@@ -1350,7 +1350,7 @@ export function AutoCaptionStudio({
                   }}
                   className={`min-h-[44px] rounded-2xl border px-3 py-1.5 text-xs font-black transition cursor-pointer flex items-center justify-center ${
                     youtubeSubtitleCase === "uppercase"
-                      ? "bg-[#0066FF]/15 border-[#0066FF]/40 text-[#3B82F6]"
+                      ? "bg-[#FF5722]/15 border-[#FF5722]/40 text-[#3B82F6]"
                       : "bg-[#070B14] border-white/10 text-slate-300 hover:text-white"
                   }`}
                 >
@@ -1387,7 +1387,7 @@ export function AutoCaptionStudio({
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               {/* Text Color */}
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#070B14] p-3 shadow-inner hover:border-[#0066FF]/40 transition">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#070B14] p-3 shadow-inner hover:border-[#FF5722]/40 transition">
                 <input
                   type="color"
                   value={toValidHex(captionTextColor, "#FFFFFF")}
@@ -1404,10 +1404,10 @@ export function AutoCaptionStudio({
               </div>
 
               {/* Highlight Color */}
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#070B14] p-3 shadow-inner hover:border-[#0066FF]/40 transition">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#070B14] p-3 shadow-inner hover:border-[#FF5722]/40 transition">
                 <input
                   type="color"
-                  value={toValidHex(captionHighlightColor, "#0066FF")}
+                  value={toValidHex(captionHighlightColor, "#FF5722")}
                   onChange={(e) => onCaptionHighlightColorChange(e.target.value)}
                   className="h-9 w-9 rounded-xl border-0 cursor-pointer bg-transparent shrink-0 shadow-md"
                   title="Highlight Color"
@@ -1415,13 +1415,13 @@ export function AutoCaptionStudio({
                 <div className="flex flex-col min-w-0">
                   <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Highlight Color</span>
                   <span className="font-mono text-xs font-black text-[#3B82F6] uppercase tracking-wider">
-                    {toValidHex(captionHighlightColor, "#0066FF")}
+                    {toValidHex(captionHighlightColor, "#FF5722")}
                   </span>
                 </div>
               </div>
 
               {/* Background Color */}
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#070B14] p-3 shadow-inner hover:border-[#0066FF]/40 transition">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#070B14] p-3 shadow-inner hover:border-[#FF5722]/40 transition">
                 <input
                   type="color"
                   value={toValidHex(captionBackgroundColor || "#18181B", "#18181B")}
@@ -1443,7 +1443,7 @@ export function AutoCaptionStudio({
             {/* Quick Color Palettes */}
             <div className="flex flex-wrap items-center gap-2 pt-2">
               {[
-                { name: "Electric Blue", text: "#FFFFFF", highlight: "#0066FF", bg: "#000000", colorDot: "#0066FF" },
+                { name: "Electric Blue", text: "#FFFFFF", highlight: "#FF5722", bg: "#000000", colorDot: "#FF5722" },
                 { name: "Hot Pink", text: "#FFFFFF", highlight: "#FF2A85", bg: "#12131A", colorDot: "#FF2A85" },
                 { name: "Cyber Gold", text: "#FFFFFF", highlight: "#FACC15", bg: "#18181B", colorDot: "#FACC15" },
                 { name: "Neon Mint", text: "#FFFFFF", highlight: "#00FF9D", bg: "#0A0D14", colorDot: "#00FF9D" },
@@ -1457,7 +1457,7 @@ export function AutoCaptionStudio({
                     onCaptionHighlightColorChange(theme.highlight);
                     if (onCaptionBackgroundColorChange) onCaptionBackgroundColorChange(theme.bg);
                   }}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#070B14] hover:bg-[#131B2E] hover:border-[#0066FF]/50 px-3 py-1.5 text-xs font-black text-slate-200 transition cursor-pointer active:scale-95 shadow-sm"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#070B14] hover:bg-[#131B2E] hover:border-[#FF5722]/50 px-3 py-1.5 text-xs font-black text-slate-200 transition cursor-pointer active:scale-95 shadow-sm"
                 >
                   <span className="h-2.5 w-2.5 rounded-full shrink-0 shadow-sm" style={{ backgroundColor: theme.colorDot }} />
                   <span>{theme.name}</span>
@@ -1482,7 +1482,7 @@ export function AutoCaptionStudio({
           {/* Header */}
           <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3.5 ${isLight ? "border-slate-200" : "border-white/10"}`}>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#0052CC] to-[#0066FF] text-white font-black shadow-md shadow-[#0066FF]/20">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#E64A19] to-[#FF5722] text-white font-black shadow-md shadow-[#FF5722]/20">
                 <Zap size={16} />
               </div>
               <div>
@@ -1522,7 +1522,7 @@ export function AutoCaptionStudio({
                 onChange={(e) => {
                   if (onSpokenLanguageChange) onSpokenLanguageChange(e.target.value);
                 }}
-                className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#0066FF] focus:outline-none cursor-pointer shadow-inner"
+                className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer shadow-inner"
               >
                 {AUDIO_SPOKEN_LANGUAGES.map((lang) => (
                   <option key={lang.id} value={lang.id} className="bg-[#070B14] text-white">
@@ -1542,7 +1542,7 @@ export function AutoCaptionStudio({
                 onChange={(e) => {
                   if (onCaptionLanguageChange) onCaptionLanguageChange(e.target.value);
                 }}
-                className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#0066FF] focus:outline-none cursor-pointer shadow-inner"
+                className="w-full bg-[#070B14] text-white text-xs font-bold rounded-xl border border-white/10 px-3 py-2.5 focus:border-[#FF5722] focus:outline-none cursor-pointer shadow-inner"
               >
                 {SUBTITLE_OUTPUT_LANGUAGES.map((lang) => (
                   <option key={lang.id} value={lang.id} className="bg-[#070B14] text-white">
@@ -1560,7 +1560,7 @@ export function AutoCaptionStudio({
                 type="button"
                 onClick={handleTranscribeMedia}
                 disabled={isTranscribing || !selectedFile}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0052CC] via-[#0066FF] to-[#2563EB] px-5 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl shadow-[#0066FF]/25 hover:brightness-110 active:scale-95 transition cursor-pointer disabled:opacity-50"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#E64A19] via-[#FF5722] to-[#2563EB] px-5 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xl shadow-[#FF5722]/25 hover:brightness-110 active:scale-95 transition cursor-pointer disabled:opacity-50"
               >
                 {isTranscribing ? (
                   <>

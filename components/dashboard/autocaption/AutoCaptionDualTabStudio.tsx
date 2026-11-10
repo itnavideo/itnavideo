@@ -457,18 +457,18 @@ export function AutoCaptionDualTabStudio({
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Left: Studio Branding & Title */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0066FF] to-blue-600 text-white shadow-md shadow-blue-500/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] to-orange-600 text-white shadow-md shadow-orange-500/20">
               <Sparkles size={20} className="stroke-[2.5]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-sans">
                   Auto Caption{" "}
-                  <span className="bg-gradient-to-r from-[#0066FF] to-blue-600 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-[#FF5722] to-orange-600 bg-clip-text text-transparent">
                     AI Studio
                   </span>
                 </h1>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-[10px] font-mono font-bold uppercase tracking-wider">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-mono font-bold uppercase tracking-wider">
                   9:16 Shorts
                 </span>
               </div>
@@ -496,7 +496,7 @@ export function AutoCaptionDualTabStudio({
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all ${isCompleted
                           ? "bg-emerald-500 text-white shadow-xs shadow-emerald-500/25 ring-2 ring-emerald-500/20"
                           : isActive
-                            ? "bg-white border-2 border-[#0066FF] text-[#0066FF] shadow-[0_0_0_4px_rgba(0,102,255,0.14)] font-black"
+                            ? "bg-white border-2 border-[#FF5722] text-[#FF5722] shadow-[0_0_0_4px_rgba(0,102,255,0.14)] font-black"
                             : "bg-slate-100 border border-slate-200 text-slate-400 group-hover:border-slate-300"
                         }`}
                     >
@@ -548,7 +548,7 @@ export function AutoCaptionDualTabStudio({
         <div className="lg:hidden mt-3 pt-2.5 border-t border-slate-100 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-1.5 font-black text-slate-900 truncate">
-              <span className="text-[#0066FF] shrink-0">Step {currentStep} of 4:</span>
+              <span className="text-[#FF5722] shrink-0">Step {currentStep} of 4:</span>
               <span className="truncate">{AUTO_CAPTION_STEPS[currentStep - 1].title}</span>
               <span className="text-slate-400 font-normal hidden sm:inline">
                 · {AUTO_CAPTION_STEPS[currentStep - 1].desc}
@@ -558,7 +558,7 @@ export function AutoCaptionDualTabStudio({
               <button
                 type="button"
                 onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1) as 1 | 2 | 3 | 4))}
-                className="text-[11px] font-bold text-[#0066FF] hover:text-blue-700 cursor-pointer shrink-0 ml-2"
+                className="text-[11px] font-bold text-[#FF5722] hover:text-orange-700 cursor-pointer shrink-0 ml-2"
               >
                 ← Back
               </button>
@@ -576,7 +576,7 @@ export function AutoCaptionDualTabStudio({
                   className={`h-1.5 flex-1 rounded-full transition-all cursor-pointer hover:opacity-80 ${isDone
                       ? "bg-emerald-500 shadow-xs"
                       : isCurrent
-                        ? "bg-gradient-to-r from-[#0066FF] to-blue-500 shadow-xs"
+                        ? "bg-gradient-to-r from-[#FF5722] to-orange-500 shadow-xs"
                         : "bg-slate-200"
                     }`}
                   title={`Step ${s.step}: ${s.title}`}
@@ -608,10 +608,10 @@ export function AutoCaptionDualTabStudio({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               {/* Main Media Upload Card (Col 8) */}
               <div className="lg:col-span-8 space-y-4">
-                <div className="rounded-[28px] sm:rounded-[32px] border-2 border-blue-500/30 bg-gradient-to-b from-blue-50/20 via-white to-white p-4 sm:p-8 shadow-sm space-y-4 sm:space-y-5">
+                <div className="rounded-[28px] sm:rounded-[32px] border-2 border-orange-500/30 bg-gradient-to-b from-blue-50/20 via-white to-white p-4 sm:p-8 shadow-sm space-y-4 sm:space-y-5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-[#0066FF] text-white shadow-md shadow-blue-500/25 shrink-0">
+                      <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-[#FF5722] text-white shadow-md shadow-orange-500/25 shrink-0">
                         {isAudioFile ? <Mic size={20} className="stroke-[2.5]" /> : <Film size={20} className="stroke-[2.5]" />}
                       </div>
                       <div>
@@ -619,7 +619,7 @@ export function AutoCaptionDualTabStudio({
                           <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
                             Primary Media Input
                           </h2>
-                          <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-wider">
+                          <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-wider">
                             Required
                           </span>
                         </div>
@@ -655,17 +655,17 @@ export function AutoCaptionDualTabStudio({
                         if (e.dataTransfer.files?.[0]) onSelectFile(e.dataTransfer.files[0]);
                       }}
                       className={`group relative flex flex-col items-center justify-center rounded-[24px] sm:rounded-[28px] border-2 border-dashed min-h-[200px] sm:min-h-[240px] p-5 sm:p-10 text-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${isHeroDragging
-                          ? "border-[#0066FF] bg-blue-50/70 scale-[1.005]"
-                          : "border-blue-300 hover:border-[#0066FF] bg-white hover:bg-blue-50/40"
+                          ? "border-[#FF5722] bg-orange-50/30 scale-[1.005]"
+                          : "border-orange-300 hover:border-[#FF5722] bg-white hover:bg-orange-50/40"
                         }`}
                     >
-                      <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-blue-100 group-hover:bg-[#0066FF] text-[#0066FF] group-hover:text-white transition-all duration-200 shadow-sm mb-3 sm:mb-4">
+                      <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-orange-100 group-hover:bg-[#FF5722] text-[#FF5722] group-hover:text-white transition-all duration-200 shadow-sm mb-3 sm:mb-4">
                         <UploadCloud size={28} className="stroke-[2.5]" />
                       </div>
 
                       <p className="text-sm sm:text-lg font-black text-slate-900 mb-1">
                         Drop your 9:16 video or voiceover here, or{" "}
-                        <span className="text-[#0066FF] underline underline-offset-4">Browse File</span>
+                        <span className="text-[#FF5722] underline underline-offset-4">Browse File</span>
                       </p>
 
                       <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm leading-relaxed mb-3 sm:mb-4">
@@ -684,7 +684,7 @@ export function AutoCaptionDualTabStudio({
                           }}
                           className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 px-4 py-2 sm:py-2.5 text-xs font-bold transition shadow-2xs"
                         >
-                          <Mic size={14} className="text-[#0066FF]" />
+                          <Mic size={14} className="text-[#FF5722]" />
                           <span>Select Audio Voiceover</span>
                         </div>
                         <div
@@ -701,7 +701,7 @@ export function AutoCaptionDualTabStudio({
                               console.warn("Could not load sample audio:", err);
                             }
                           }}
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-xs font-bold text-[#0066FF] px-3.5 py-2 sm:py-2.5 transition shadow-2xs"
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-xs font-bold text-[#FF5722] px-3.5 py-2 sm:py-2.5 transition shadow-2xs"
                         >
                           <Sparkles size={13} />
                           <span>Try Sample Clip</span>
@@ -709,11 +709,11 @@ export function AutoCaptionDualTabStudio({
                       </div>
                     </div>
                   ) : (
-                    <div className="rounded-2xl sm:rounded-3xl border-2 border-blue-300/80 bg-gradient-to-b from-blue-50/40 via-white to-white p-4 sm:p-6 shadow-xs space-y-4">
+                    <div className="rounded-2xl sm:rounded-3xl border-2 border-orange-300/80 bg-gradient-to-b from-blue-50/40 via-white to-white p-4 sm:p-6 shadow-xs space-y-4">
                       {/* Top Row: File Info & Actions */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0066FF] to-blue-600 text-white shadow-md shadow-blue-500/25">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#FF5722] to-orange-600 text-white shadow-md shadow-orange-500/25">
                             {isAudioFile ? <Headphones size={22} className="stroke-[2.5]" /> : <FileVideo size={22} className="stroke-[2.5]" />}
                           </div>
                           <div className="min-w-0">
@@ -766,7 +766,7 @@ export function AutoCaptionDualTabStudio({
                                 <div
                                   style={{ height: `${barHeight}%` }}
                                   className={`w-full max-w-[4px] sm:max-w-[6px] rounded-full transition-all duration-150 ${isPlayed
-                                      ? "bg-gradient-to-t from-[#0066FF] to-blue-400 shadow-2xs"
+                                      ? "bg-gradient-to-t from-[#FF5722] to-blue-400 shadow-2xs"
                                       : "bg-slate-200"
                                     }`}
                                 />
@@ -797,7 +797,7 @@ export function AutoCaptionDualTabStudio({
               <div className="lg:col-span-4 space-y-4">
                 <div className="rounded-[28px] border border-slate-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
                   <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-                    <Settings2 size={16} className="text-[#0066FF]" />
+                    <Settings2 size={16} className="text-[#FF5722]" />
                     <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
                       Language &amp; Canvas Options
                     </h3>
@@ -806,14 +806,14 @@ export function AutoCaptionDualTabStudio({
                   {/* Spoken Language */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                      <Globe size={13} className="text-[#0066FF]" />
+                      <Globe size={13} className="text-[#FF5722]" />
                       <span>Audio Spoken Language</span>
                     </label>
                     <div className="relative">
                       <select
                         value={currentSpokenLang}
                         onChange={(e) => handleSpokenLangChange(e.target.value)}
-                        className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0066FF] focus:outline-none transition cursor-pointer shadow-2xs pr-8"
+                        className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#FF5722] focus:outline-none transition cursor-pointer shadow-2xs pr-8"
                       >
                         {AUDIO_SPOKEN_LANGUAGES.map((lang) => (
                           <option key={lang.id} value={lang.id}>
@@ -828,14 +828,14 @@ export function AutoCaptionDualTabStudio({
                   {/* Caption Language */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                      <Sparkles size={13} className="text-[#0066FF]" />
+                      <Sparkles size={13} className="text-[#FF5722]" />
                       <span>Caption Output Language</span>
                     </label>
                     <div className="relative">
                       <select
                         value={currentCaptionLang}
                         onChange={(e) => handleCaptionLangChange(e.target.value)}
-                        className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0066FF] focus:outline-none transition cursor-pointer shadow-2xs pr-8"
+                        className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-slate-50 px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#FF5722] focus:outline-none transition cursor-pointer shadow-2xs pr-8"
                       >
                         {CAPTION_LANGUAGES.map((lang) => (
                           <option key={lang.id} value={lang.id}>
@@ -873,7 +873,7 @@ export function AutoCaptionDualTabStudio({
                           type="button"
                           onClick={() => handleCanvasBgChange(preset.color)}
                           className={`flex items-center gap-1 rounded-lg border p-1.5 text-[10px] font-bold transition shadow-2xs cursor-pointer ${canvasBg.toLowerCase() === preset.color.toLowerCase()
-                              ? "border-[#0066FF] ring-2 ring-[#0066FF]/30 scale-105"
+                              ? "border-[#FF5722] ring-2 ring-[#FF5722]/30 scale-105"
                               : "border-slate-200 bg-white hover:border-slate-300"
                             }`}
                         >
@@ -898,7 +898,7 @@ export function AutoCaptionDualTabStudio({
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] to-blue-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-blue-500/20 transition cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-orange-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-orange-500/20 transition cursor-pointer"
               >
                 <span>Continue to Step 2: Music &amp; Audio</span>
                 <ChevronRight size={16} />
@@ -930,7 +930,7 @@ export function AutoCaptionDualTabStudio({
                     type="button"
                     onClick={() => setBgmCategory(cat)}
                     className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${bgmCategory === cat
-                        ? "bg-[#0066FF] text-white shadow-xs"
+                        ? "bg-[#FF5722] text-white shadow-xs"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       }`}
                   >
@@ -951,7 +951,7 @@ export function AutoCaptionDualTabStudio({
                     key={track.id}
                     onClick={() => setSelectedBgmId(track.id)}
                     className={`rounded-2xl border p-4 transition-all cursor-pointer flex flex-col justify-between gap-3 ${isSelected
-                        ? "border-[#0066FF] bg-blue-50/40 ring-2 ring-[#0066FF]/20 shadow-sm"
+                        ? "border-[#FF5722] bg-orange-50/30 ring-2 ring-[#FF5722]/20 shadow-sm"
                         : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
                       }`}
                   >
@@ -965,9 +965,9 @@ export function AutoCaptionDualTabStudio({
                             handleTogglePlayBgm(track);
                           }}
                           className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow-xs cursor-pointer ${isAuditioning
-                              ? "bg-[#0066FF] text-white animate-pulse"
+                              ? "bg-[#FF5722] text-white animate-pulse"
                               : isSelected
-                                ? "bg-[#0066FF] text-white"
+                                ? "bg-[#FF5722] text-white"
                                 : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                             }`}
                           title={isAuditioning ? "Pause preview" : "Play preview"}
@@ -990,7 +990,7 @@ export function AutoCaptionDualTabStudio({
                       </div>
 
                       {isSelected && (
-                        <span className="h-5 w-5 rounded-full bg-[#0066FF] text-white flex items-center justify-center shrink-0">
+                        <span className="h-5 w-5 rounded-full bg-[#FF5722] text-white flex items-center justify-center shrink-0">
                           <Check size={12} className="stroke-[3]" />
                         </span>
                       )}
@@ -1009,7 +1009,7 @@ export function AutoCaptionDualTabStudio({
               <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Volume2 size={16} className="text-[#0066FF]" />
+                    <Volume2 size={16} className="text-[#FF5722]" />
                     <span className="text-xs font-black text-slate-800">
                       Soundtrack Volume: {Math.round(currentBgmVolume * 100)}%
                     </span>
@@ -1026,7 +1026,7 @@ export function AutoCaptionDualTabStudio({
                   step="0.01"
                   value={currentBgmVolume}
                   onChange={(e) => handleBgmVolumeChange(parseFloat(e.target.value))}
-                  className="w-full accent-[#0066FF] cursor-pointer"
+                  className="w-full accent-[#FF5722] cursor-pointer"
                 />
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
@@ -1036,7 +1036,7 @@ export function AutoCaptionDualTabStudio({
                       id="autoducking"
                       checked={autoDucking}
                       onChange={(e) => setAutoDucking(e.target.checked)}
-                      className="rounded accent-[#0066FF] cursor-pointer"
+                      className="rounded accent-[#FF5722] cursor-pointer"
                     />
                     <label htmlFor="autoducking" className="font-bold text-slate-700 cursor-pointer">
                       Speech Auto-Ducking (Lowers music volume automatically when creator speaks)
@@ -1059,7 +1059,7 @@ export function AutoCaptionDualTabStudio({
                 <button
                   type="button"
                   onClick={() => setWordClickSound(!wordClickSound)}
-                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${wordClickSound ? "bg-[#0066FF]" : "bg-slate-300"
+                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${wordClickSound ? "bg-[#FF5722]" : "bg-slate-300"
                     }`}
                 >
                   <div
@@ -1077,7 +1077,7 @@ export function AutoCaptionDualTabStudio({
                 <button
                   type="button"
                   onClick={() => setAudioCleaningEnabled(!audioCleaningEnabled)}
-                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${audioCleaningEnabled ? "bg-[#0066FF]" : "bg-slate-300"
+                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${audioCleaningEnabled ? "bg-[#FF5722]" : "bg-slate-300"
                     }`}
                 >
                   <div
@@ -1102,7 +1102,7 @@ export function AutoCaptionDualTabStudio({
               <button
                 type="button"
                 onClick={() => setCurrentStep(3)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] to-blue-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-blue-500/20 transition cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-orange-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-orange-500/20 transition cursor-pointer"
               >
                 <span>Continue to Step 3: Caption Style</span>
                 <ChevronRight size={16} />
@@ -1127,7 +1127,7 @@ export function AutoCaptionDualTabStudio({
               </div>
 
               {/* Quick Filter Search */}
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:border-[#0066FF] transition w-full sm:w-64">
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:border-[#FF5722] transition w-full sm:w-64">
                 <Search size={14} className="text-slate-400" />
                 <input
                   type="text"
@@ -1158,7 +1158,7 @@ export function AutoCaptionDualTabStudio({
                   type="button"
                   onClick={() => setCaptionCategory(cat)}
                   className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer ${captionCategory === cat
-                      ? "bg-[#0066FF] text-white shadow-xs"
+                      ? "bg-[#FF5722] text-white shadow-xs"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                 >
@@ -1188,17 +1188,17 @@ export function AutoCaptionDualTabStudio({
                     <div
                       style={{
                         background: "radial-gradient(circle at 50% 50%, #172033 0%, #070B14 85%)",
-                        borderColor: isSelected ? "#0066FF" : undefined,
+                        borderColor: isSelected ? "#FF5722" : undefined,
                         borderWidth: isSelected ? 2 : 1,
                       }}
                       className={`aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden relative border transition-all duration-200 flex items-center justify-center p-3 ${isSelected
-                          ? "shadow-md ring-2 ring-blue-500/25 scale-[1.02]"
+                          ? "shadow-md ring-2 ring-orange-500/25 scale-[1.02]"
                           : "border-slate-200 hover:border-slate-400 hover:shadow-2xs"
                         }`}
                     >
                       {/* Active Selected Badge */}
                       {isSelected && (
-                        <div className="absolute top-2 left-2 bg-[#0066FF] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-xs z-20 pointer-events-none">
+                        <div className="absolute top-2 left-2 bg-[#FF5722] text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-xs z-20 pointer-events-none">
                           ✓ Selected
                         </div>
                       )}
@@ -1256,7 +1256,7 @@ export function AutoCaptionDualTabStudio({
                         type="button"
                         onClick={() => setCaptionPosition(pos)}
                         className={`py-2 px-3 rounded-xl text-xs font-bold uppercase transition cursor-pointer ${captionPosition === pos
-                            ? "bg-[#0066FF] text-white shadow-xs"
+                            ? "bg-[#FF5722] text-white shadow-xs"
                             : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                           }`}
                       >
@@ -1282,7 +1282,7 @@ export function AutoCaptionDualTabStudio({
                         type="button"
                         onClick={() => setAccentColor(c.color)}
                         className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-bold transition cursor-pointer ${accentColor === c.color
-                            ? "border-[#0066FF] ring-2 ring-[#0066FF]/30"
+                            ? "border-[#FF5722] ring-2 ring-[#FF5722]/30"
                             : "border-slate-200 bg-white hover:border-slate-300"
                           }`}
                       >
@@ -1323,7 +1323,7 @@ export function AutoCaptionDualTabStudio({
               <button
                 type="button"
                 onClick={() => setCurrentStep(4)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0066FF] to-blue-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-blue-500/20 transition cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#FF5722] to-orange-600 hover:brightness-110 text-white font-black text-xs px-7 py-3.5 shadow-md shadow-orange-500/20 transition cursor-pointer"
               >
                 <span>Continue to Step 4: Live Studio Monitor</span>
                 <ChevronRight size={16} />
@@ -1397,7 +1397,7 @@ export function AutoCaptionDualTabStudio({
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-between p-6 pointer-events-none">
                       <div className="flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur-md px-3 py-1 text-[10px] font-bold text-white border border-white/10 mt-6">
-                        <Mic size={12} className="text-[#0066FF]" />
+                        <Mic size={12} className="text-[#FF5722]" />
                         <span>Voiceover Audio Active</span>
                       </div>
 
@@ -1406,7 +1406,7 @@ export function AutoCaptionDualTabStudio({
                         {[24, 40, 16, 32, 48, 28, 36, 20, 44, 24].map((h, i) => (
                           <div
                             key={i}
-                            className="w-1 bg-[#0066FF] rounded-full animate-pulse"
+                            className="w-1 bg-[#FF5722] rounded-full animate-pulse"
                             style={{
                               height: `${h}px`,
                               animationDelay: `${i * 120}ms`,
@@ -1462,7 +1462,7 @@ export function AutoCaptionDualTabStudio({
                       step="0.1"
                       value={playbackTime}
                       onChange={(e) => setPlaybackTime(parseFloat(e.target.value))}
-                      className="w-full accent-[#0066FF] cursor-pointer"
+                      className="w-full accent-[#FF5722] cursor-pointer"
                     />
                   </div>
 
@@ -1482,13 +1482,13 @@ export function AutoCaptionDualTabStudio({
                 <div className="space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div className="flex items-center gap-2">
-                      <Settings2 size={16} className="text-[#0066FF]" />
+                      <Settings2 size={16} className="text-[#FF5722]" />
                       <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
                         Studio Inspector
                       </h3>
                     </div>
                     <span className="text-xs font-bold text-slate-500">
-                      Preset: <strong className="text-[#0066FF]">{captionStyle}</strong>
+                      Preset: <strong className="text-[#FF5722]">{captionStyle}</strong>
                     </span>
                   </div>
 
@@ -1502,7 +1502,7 @@ export function AutoCaptionDualTabStudio({
                           type="button"
                           onClick={() => setCaptionPosition(pos)}
                           className={`py-2 px-3 rounded-xl text-xs font-bold uppercase transition cursor-pointer ${captionPosition === pos
-                              ? "bg-[#0066FF] text-white shadow-xs"
+                              ? "bg-[#FF5722] text-white shadow-xs"
                               : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                             }`}
                         >
@@ -1528,7 +1528,7 @@ export function AutoCaptionDualTabStudio({
                           type="button"
                           onClick={() => setAccentColor(c.color)}
                           className={`flex items-center gap-1.5 rounded-xl border px-3 py-1 text-xs font-bold transition cursor-pointer ${accentColor === c.color
-                              ? "border-[#0066FF] ring-2 ring-[#0066FF]/30"
+                              ? "border-[#FF5722] ring-2 ring-[#FF5722]/30"
                               : "border-slate-200 bg-white hover:border-slate-300"
                             }`}
                         >
@@ -1556,13 +1556,13 @@ export function AutoCaptionDualTabStudio({
                   <div className="pt-2 border-t border-slate-100 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                        <Type size={14} className="text-[#0066FF]" />
+                        <Type size={14} className="text-[#FF5722]" />
                         <span>Script Review &amp; Words</span>
                       </span>
                       <button
                         type="button"
                         onClick={() => setShowWordReplacer(!showWordReplacer)}
-                        className="text-xs font-bold text-[#0066FF] hover:underline cursor-pointer"
+                        className="text-xs font-bold text-[#FF5722] hover:underline cursor-pointer"
                       >
                         {showWordReplacer ? "Hide Words" : "View Synced Words"}
                       </button>
@@ -1578,7 +1578,7 @@ export function AutoCaptionDualTabStudio({
                             <span
                               key={idx}
                               onClick={() => setPlaybackTime(w.start)}
-                              className="text-xs font-mono px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:border-[#0066FF] cursor-pointer text-slate-800 transition shadow-2xs"
+                              className="text-xs font-mono px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:border-[#FF5722] cursor-pointer text-slate-800 transition shadow-2xs"
                               title={`Jump to ${formatTime(w.start)}`}
                             >
                               {w.word}
@@ -1607,7 +1607,7 @@ export function AutoCaptionDualTabStudio({
             <div className="w-full rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 shadow-xs space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Layers size={16} className="text-[#0066FF]" />
+                  <Layers size={16} className="text-[#FF5722]" />
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
                     Multitrack Timeline Editor
                   </h3>
@@ -1619,7 +1619,7 @@ export function AutoCaptionDualTabStudio({
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition cursor-pointer shadow-2xs"
                     title="Export standard SubRip (.SRT) subtitle file"
                   >
-                    <Download size={12} className="text-[#0066FF]" />
+                    <Download size={12} className="text-[#FF5722]" />
                     <span>Download .SRT</span>
                   </button>
                   <button
@@ -1628,7 +1628,7 @@ export function AutoCaptionDualTabStudio({
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition cursor-pointer shadow-2xs"
                     title="Export WebVTT (.VTT) subtitle file"
                   >
-                    <Download size={12} className="text-[#0066FF]" />
+                    <Download size={12} className="text-[#FF5722]" />
                     <span>Download .VTT</span>
                   </button>
                   <span className="text-xs text-slate-500 font-mono hidden sm:inline">
@@ -1684,8 +1684,8 @@ export function AutoCaptionDualTabStudio({
                   onClick={onStartRender}
                   disabled={isWorking}
                   className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-3.5 text-xs font-black transition cursor-pointer ${isWorking
-                      ? "bg-[#0066FF] text-white cursor-wait animate-pulse"
-                      : "bg-gradient-to-r from-[#0066FF] via-[#2563EB] to-blue-600 hover:brightness-110 text-white shadow-lg shadow-blue-500/25"
+                      ? "bg-[#FF5722] text-white cursor-wait animate-pulse"
+                      : "bg-gradient-to-r from-[#FF5722] via-[#2563EB] to-orange-600 hover:brightness-110 text-white shadow-lg shadow-orange-500/25"
                     }`}
                 >
                   <Download size={15} className="text-white" />

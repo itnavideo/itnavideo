@@ -627,7 +627,7 @@ export function AiVideoPolisherStudio({
               <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
                       <Layers size={20} />
                     </div>
                     <div>
@@ -639,7 +639,7 @@ export function AiVideoPolisherStudio({
                       </p>
                     </div>
                   </div>
-                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition cursor-pointer shadow-2xs">
+                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-bold transition cursor-pointer shadow-2xs">
                     <Plus size={14} />
                     <span>Add Overlay</span>
                     <input
@@ -686,7 +686,7 @@ export function AiVideoPolisherStudio({
                             <p className="text-xs font-bold text-slate-900 truncate">
                               {layer.name}
                             </p>
-                            <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                            <span className="text-[10px] font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-100">
                               PIP Overlay
                             </span>
                           </div>
@@ -704,7 +704,7 @@ export function AiVideoPolisherStudio({
                                 )
                               );
                             }}
-                            className="text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-blue-500"
+                            className="text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-slate-700 focus:outline-none focus:border-orange-500"
                           >
                             <option value="top-right">Top Right</option>
                             <option value="top-left">Top Left</option>

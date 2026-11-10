@@ -1059,7 +1059,7 @@ export function FacelessShortsStudio({
                           ) : audioHealth.status === 'corrupt' ? (
                             <AlertCircle size={14} className="text-rose-600 shrink-0" />
                           ) : (
-                            <SlidersHorizontal size={14} className="text-blue-600 shrink-0" />
+                            <SlidersHorizontal size={14} className="text-orange-500 shrink-0" />
                           )}
                           <span className="font-bold text-slate-800 truncate">{audioHealth.message}</span>
                         </div>
@@ -1132,7 +1132,7 @@ export function FacelessShortsStudio({
               <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 border border-blue-200 text-blue-600">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
                       <Layers size={20} />
                     </div>
                     <div>

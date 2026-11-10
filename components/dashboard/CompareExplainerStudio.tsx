@@ -674,7 +674,7 @@ export function CompareExplainerStudio({
                   {/* Left Subject Card */}
                   <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-black uppercase text-blue-600">Option A (Left Side)</span>
+                      <span className="text-xs font-black uppercase text-slate-800">Option A (Left Side)</span>
                       {leftImageUrl && <CheckCircle2 size={16} className="text-emerald-500" />}
                     </div>
 
@@ -713,7 +713,7 @@ export function CompareExplainerStudio({
                   {/* Right Subject Card */}
                   <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-black uppercase text-purple-600">Option B (Right Side)</span>
+                      <span className="text-xs font-black uppercase text-slate-800">Option B (Right Side)</span>
                       {rightImageUrl && <CheckCircle2 size={16} className="text-emerald-500" />}
                     </div>
 
@@ -1249,7 +1249,7 @@ export function CompareExplainerStudio({
                     {/* Left Card */}
                     <div
                       className={`rounded-2xl border overflow-hidden transition-all duration-300 p-2 bg-white shadow-sm flex flex-col items-center relative ${activeSide === "left" || activeSide === "both"
-                          ? "ring-2 ring-blue-500 border-blue-400 scale-102"
+                          ? "ring-2 ring-orange-500 border-orange-400 scale-102"
                           : "opacity-80 border-slate-200"
                         }`}
                     >
@@ -1271,7 +1271,7 @@ export function CompareExplainerStudio({
                     {/* Right Card */}
                     <div
                       className={`rounded-2xl border overflow-hidden transition-all duration-300 p-2 bg-white shadow-sm flex flex-col items-center relative ${activeSide === "right" || activeSide === "both"
-                          ? "ring-2 ring-purple-500 border-purple-400 scale-102"
+                          ? "ring-2 ring-orange-500 border-orange-400 scale-102"
                           : "opacity-80 border-slate-200"
                         }`}
                     >

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import StudioHeader from "@/components/dashboard/shared/StudioHeader";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { YoutubeSubtitlesStudio } from "@/components/dashboard/YoutubeSubtitlesStudio";
@@ -362,7 +363,7 @@ export default function YoutubeSubtitlesPageClient() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 gap-3">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center text-slate-500 gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
         <p className="text-sm font-semibold text-slate-800">Loading YouTube Subtitles Studio...</p>
       </div>
@@ -372,38 +373,13 @@ export default function YoutubeSubtitlesPageClient() {
   return (
     <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
       {/* Top Navigation Bar (Clean White Surface - Full Bleed, matching Image to Video AI) */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-xl shadow-xs shrink-0">
-        <div className="w-full px-4 sm:px-8 lg:px-12 min-h-14 sm:min-h-16 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-            {/* Modern Back Button */}
-            <Link
-              href="/dashboard"
-              className="group flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-2xs active:scale-95"
-              title="Back to Studios"
-            >
-              <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
-            </Link>
-
-            <BrandLogo size="sm" showBadge={false} variant="light" />
-
-            <div className="h-4 w-px bg-slate-200 hidden sm:block" />
-
-            {/* Clean Studio Breadcrumb */}
-            <div className="hidden sm:flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-500">Studios</span>
-              <span className="text-slate-300 text-xs">/</span>
-              <span className="text-xs font-black text-slate-900 tracking-tight">YouTube Subtitles AI</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Free daily allowance badge */}
-            <div className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold shadow-xs text-emerald-800">
-              <span className="font-black">FREE • 5 Daily Videos (0 Cr)</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <StudioHeader
+        studioName="YouTube Subtitles AI"
+        aspectRatioLabel="16:9 Cinema"
+        badgeLabel="Burned Strips"
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
+        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+      />
 
       {/* Main Canvas - Full Screen Fluid Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">

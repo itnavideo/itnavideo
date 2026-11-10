@@ -731,7 +731,7 @@ export function SplitScreenExplainerStudio({
                       type="button"
                       onClick={() => setCaptionCategoryTab(cat)}
                       className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${captionCategoryTab === cat
-                          ? "bg-slate-900 text-white"
+                          ? "bg-orange-500 text-white font-black shadow-xs"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                         }`}
                     >

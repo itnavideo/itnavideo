@@ -3688,17 +3688,17 @@ export function ImageToVideoStudio({
                   {/* 5. TRACK 4: 🎵 BACKGROUND MUSIC TRACK */}
                   <div className="flex items-center gap-2">
                     <div className="w-20 sm:w-24 shrink-0 flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs font-black text-slate-700">
-                      <Music size={12} className="text-purple-600" />
+                      <Music size={12} className="text-orange-500" />
                       <span>Music</span>
                     </div>
 
-                    <div className="flex-1 h-8 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-between px-3 text-[10px] font-bold text-purple-900">
+                    <div className="flex-1 h-8 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-between px-3 text-[10px] font-bold text-orange-950">
                       <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
                         <span>{currentBgmObj.label}</span>
-                        <span className="text-purple-700 font-normal">({bgmEnabled ? `${Math.round(bgmVolume * 100)}% Volume` : 'Muted'})</span>
+                        <span className="text-orange-700 font-normal">({bgmEnabled ? `${Math.round(bgmVolume * 100)}% Volume` : 'Muted'})</span>
                       </div>
-                      <span className="font-mono text-[9px] text-purple-700 uppercase">
+                      <span className="font-mono text-[9px] text-orange-700 uppercase">
                         Auto-Ducked Soundtrack
                       </span>
                     </div>
