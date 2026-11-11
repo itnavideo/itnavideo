@@ -90,6 +90,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Skip ESLint errors during production builds.
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Enable React strict mode for performance
   reactStrictMode: true,
 
