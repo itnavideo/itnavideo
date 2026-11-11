@@ -11,6 +11,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
+import { BrandWatermark } from '../../components/BrandWatermark';
 import { UniversalCaptionLayer, CaptionChunk } from '../../components/library/UniversalCaptionLayer';
 
 export interface ImageToVideoScene {
@@ -46,6 +47,7 @@ export interface ImageToVideoAiProps {
   mediaSrc?: string;
   audioSrc?: string;
   audioUrl?: string;
+  watermark?: boolean;
   bgmUrl?: string;
   bgmVolume?: number;
   scenes?: ImageToVideoScene[];
@@ -405,6 +407,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
   visualStyle = 'cinematic-film',
   captionThemeId = 'glow-viral',
   subtitleStyle,
+  watermark = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -495,6 +498,7 @@ export const ImageToVideoAiTemplate: React.FC<ImageToVideoAiProps> = ({
           loop
         />
       )}
+      <BrandWatermark watermark={watermark} isLandscape />
     </AbsoluteFill>
   );
 };

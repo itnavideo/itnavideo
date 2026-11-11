@@ -74,11 +74,8 @@ export function useAudioDiagnostics({
 
       if (dur > maxSeconds) {
         setAudioDuration(maxSeconds);
-        const redirectTip = maxSeconds <= 90
-          ? ` Shorts are capped at 90s for mobile platforms. If your narration is longer, please use our dedicated 16:9 Faceless Video Studio (up to 5 minutes).`
-          : ` The engine will cleanly end at the nearest sentence boundary before ${maxSeconds}s.`;
-        setAudioWarning(`Audio duration is ${Math.round(dur)}s (exceeds the ${maxSeconds}s limit).${redirectTip}`);
-        setAudioHealth({ status: "exceedsMax", message: `Audio is ${Math.round(dur)}s (Exceeds ${maxSeconds}s Shorts limit)` });
+        setAudioWarning(`Videos and audio longer than ${maxSeconds} seconds are supported. Only the first ${maxSeconds} seconds will be used.`);
+        setAudioHealth({ status: "exceedsMax", message: `Audio is ${Math.round(dur)}s • First ${maxSeconds}s will be used` });
       } else {
         setAudioDuration(Math.round(dur));
         setAudioHealth({ status: "good", message: `Voiceover Ready (~${Math.round(dur)}s) • Healthy Duration` });
@@ -171,14 +168,26 @@ export function AudioHealthDiagnostics({
         </div>
       )}
 
-      {/* Amber Warning Banner */}
+      {/* Notice Banner */}
       {!error && warning && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-amber-900 animate-fadeIn">
-          <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
-          <div className="text-xs space-y-1.5 flex-1">
-            <p className="font-black text-amber-950">Audio Optimization Notice</p>
-            <p className="text-amber-800 leading-relaxed">{warning}</p>
-            {alternateStudioUrl && (
+        <div className={`flex items-start gap-3 rounded-xl border p-4 text-xs animate-fadeIn ${
+          warning.includes("longer than")
+            ? "border-blue-200 bg-blue-50/80 text-blue-900"
+            : "border-amber-200 bg-amber-50/80 text-amber-900"
+        }`}>
+          {warning.includes("longer than") ? (
+            <Clock size={18} className="text-blue-600 shrink-0 mt-0.5" />
+          ) : (
+            <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+          )}
+          <div className="space-y-1.5 flex-1">
+            <p className={`font-black ${warning.includes("longer than") ? "text-blue-950" : "text-amber-950"}`}>
+              {warning.includes("longer than") ? "Supported 9:16 Duration Policy" : "Audio Optimization Notice"}
+            </p>
+            <p className={`leading-relaxed ${warning.includes("longer than") ? "text-blue-800" : "text-amber-800"}`}>
+              {warning}
+            </p>
+            {!warning.includes("longer than") && alternateStudioUrl && (
               <div className="pt-1">
                 <a
                   href={alternateStudioUrl}

@@ -135,7 +135,7 @@ export const toolSeoPages: SeoContentPage[] = [
       "AI video generator"
     ],
     dashboardType: "auto-caption-video",
-    previewImage: "/preview/Auto Caption Reel.png",
+    previewImage: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
     howItWorks: [
       "Upload a short video with clear speech.",
       "Itnavideo transcribes the audio with Speech AI.",
@@ -617,7 +617,7 @@ export const comparisonSeoPages: SeoContentPage[] = [
     primaryKeyword: "best auto caption tools",
     relatedKeywords: ["auto caption generator", "video caption generator", "AI subtitle generator", "caption reels"],
     dashboardType: "auto-caption-video",
-    previewImage: "/preview/Auto Caption Reel.png",
+    previewImage: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
     howItWorks: ["Upload a short speaking video.", "Transcription creates word timings.", "The tool groups captions into readable chunks.", "Styles and safe-area placement make the final video social-ready."],
     benefits: ["Save manual caption timing.", "Improve mute viewing.", "Create more accessible videos.", "Make captions look intentional rather than pasted on."],
     useCases: ["Talking reels", "Podcast clips", "YouTube Shorts", "Course clips", "Business videos"],
@@ -642,7 +642,7 @@ export const comparisonSeoPages: SeoContentPage[] = [
     primaryKeyword: "itnavideo vs invideo",
     relatedKeywords: ["invideo alternative", "invideo vs itnavideo", "best invideo alternative", "ai video generator"],
     dashboardType: "image-to-video-ai",
-    previewImage: "/preview/Auto Caption Reel.png",
+    previewImage: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
     howItWorks: [
       "Upload your voiceover or audio file.",
       "Select your preferred visual style (Realistic, 2D, or 3D).",
@@ -676,7 +676,7 @@ export const comparisonSeoPages: SeoContentPage[] = [
     primaryKeyword: "itnavideo vs capcut",
     relatedKeywords: ["capcut alternative for reels", "capcut vs itnavideo", "automated caption generator", "capcut desktop alternative"],
     dashboardType: "auto-caption-reel",
-    previewImage: "/preview/Auto Caption Reel.png",
+    previewImage: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
     howItWorks: [
       "Drop your raw audio or video recording.",
       "Groq Whisper transcribes speech in milliseconds.",
@@ -710,7 +710,7 @@ export const comparisonSeoPages: SeoContentPage[] = [
     primaryKeyword: "invideo free alternative",
     relatedKeywords: ["invideo alternative", "free invideo alternative", "ai video generator no watermark", "best invideo alternative"],
     dashboardType: "image-to-video-ai",
-    previewImage: "/preview/Auto Caption Reel.png",
+    previewImage: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
     howItWorks: [
       "Sign up for free and get 10 instant creation credits.",
       "Select a Video Type: Image to Video AI, Auto Caption, or Compare Explainer.",
@@ -780,7 +780,7 @@ export const alternativeSeoPages: SeoContentPage[] = [
     primaryKeyword: "invideo alternative",
     relatedKeywords: ["invideo alternative free", "best invideo alternative", "ai video generator no watermark", "invideo vs itnavideo"],
     dashboardType: "image-to-video-ai",
-    previewImage: "/preview/Auto Caption Reel.png",
+    previewImage: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
     howItWorks: [
       "Upload your speech audio or script.",
       "Select your visual style (Realistic, 2D, or 3D).",
@@ -814,7 +814,7 @@ export const alternativeSeoPages: SeoContentPage[] = [
     primaryKeyword: "capcut pc alternative for captions",
     relatedKeywords: ["capcut pc alternative", "capcut desktop alternative", "auto caption generator", "capcut alternative for reels"],
     dashboardType: "auto-caption-reel",
-    previewImage: "/preview/Auto Caption Reel.png",
+    previewImage: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
     howItWorks: [
       "Drop raw audio or video into the studio.",
       "Groq Whisper generates millisecond-accurate word timestamps.",
@@ -847,7 +847,7 @@ export const alternativeSeoPages: SeoContentPage[] = [
     primaryKeyword: "descript alternative for creators",
     relatedKeywords: ["descript alternative", "descript vs itnavideo", "ai audio cleaner", "auto caption generator"],
     dashboardType: "ai-audio-cleaner",
-    previewImage: "/preview/Auto Caption Reel.png",
+    previewImage: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
     howItWorks: [
       "Upload speech recording or video clip.",
       "AI transcribes, cleans background noise, and detects speech retakes.",

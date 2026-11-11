@@ -12,6 +12,7 @@ import {
 } from 'remotion';
 import {PremiumAudioLayer, type PremiumSoundCue, type PremiumStyleLock} from '../../components/PremiumAudioLayer';
 import {PremiumVisualTreatment, type PremiumVisualStyleLock} from '../../components/PremiumVisualTreatment';
+import {BrandWatermark} from '../../components/BrandWatermark';
 import {resolveFont} from '../../utils/fonts';
 import {DEFAULT_FPS, secondsToFrames} from '../../constants';
 
@@ -70,6 +71,7 @@ type CompareProps = {
   rightTitle?: string;
 
   creatorHandle?: string;
+  watermark?: boolean;
   // Visual theme + comparison tone + optional winner highlight
   themeId?: 'light' | 'dark' | 'bold' | string;
   tone?: 'versus' | 'goodBad' | string;
@@ -1322,8 +1324,8 @@ export const CompareExplainer = (props: CompareProps) => {
     ? props.comparisonImageUrls
     : (((props.comparisonImages || (props as any).imageSources || []).map(pickImage).filter(Boolean)));
 
-  const leftImage = uploadedImages[0] || 'assets/reusable/images/2d/budgeting.png';
-  const rightImage = uploadedImages[1] || 'assets/reusable/images/2d/credit card debt.png';
+  const leftImage = uploadedImages[0] || 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/backgrounds/cinematic-studio-bg.png';
+  const rightImage = uploadedImages[1] || 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/backgrounds/blueprint-grid-3d.png';
 
   const leftTitle = cleanText(props.compareLeftTitle || props.leftTitle || 'Left', 40);
   const rightTitle = cleanText(props.compareRightTitle || props.rightTitle || 'Right', 40);
@@ -1762,6 +1764,7 @@ export const CompareExplainer = (props: CompareProps) => {
       ) : null}
 
       <PremiumVisualTreatment enabled={props.premiumEditing !== false} styleLock={props.styleLock} />
+      <BrandWatermark watermark={props.watermark} isLandscape={props.aspectRatio === '16:9'} />
     </AbsoluteFill>
   );
 };

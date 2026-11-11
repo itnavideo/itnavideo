@@ -8,8 +8,12 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "dhouh9idx";
-const API_KEY = process.env.CLOUDINARY_API_KEY || "972395946869552";
-const API_SECRET = process.env.CLOUDINARY_API_SECRET || "wSwqFlvlj0DhvMA5yEXyjlt8uMo";
+const API_KEY = process.env.CLOUDINARY_API_KEY || "";
+const API_SECRET = process.env.CLOUDINARY_API_SECRET || "";
+if (!API_KEY || !API_SECRET) {
+  console.error("❌ CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET must be set in .env.local");
+  process.exit(1);
+}
 const auth = Buffer.from(`${API_KEY}:${API_SECRET}`).toString('base64');
 
 const folders = [

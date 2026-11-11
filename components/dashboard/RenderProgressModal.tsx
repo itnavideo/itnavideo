@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import InteractiveRenderEngine, { JobStatus, Mode } from '@/components/render/InteractiveRenderEngine';
+import InteractiveRenderEngine, { type JobStatus, type Mode } from '@/components/render/InteractiveRenderEngine';
 import {
   requestNotificationPermission,
   sendRenderCompleteNotification,
@@ -12,7 +12,7 @@ import {
 export interface RenderProgressModalProps {
   isOpen: boolean;
   mode: Mode;
-  status: JobStatus;
+  status?: JobStatus | null;
   title?: string;
   fileName?: string;
   autoDownload?: boolean;
@@ -22,7 +22,7 @@ export interface RenderProgressModalProps {
   onClose?: () => void;
 }
 
-export default function RenderProgressModal({
+export function RenderProgressModal({
   isOpen,
   mode,
   status,
@@ -35,18 +35,19 @@ export default function RenderProgressModal({
   onClose,
 }: RenderProgressModalProps) {
   const hasTriggeredRef = useRef<string | null>(null);
+  const safeStatus: JobStatus = status || { state: 'idle' };
 
   // 1. Request Notification permission on render start
   useEffect(() => {
-    if (isOpen && (status.state === 'starting' || status.state === 'rendering')) {
-      requestNotificationPermission().catch(() => {});
+    if (isOpen && (safeStatus.state === 'starting' || safeStatus.state === 'rendering')) {
+      requestNotificationPermission().catch(() => { });
     }
-  }, [isOpen, status.state]);
+  }, [isOpen, safeStatus.state]);
 
   // 2. Trigger System Tray Notification, Audio Chime, and Auto-Download when ready
   useEffect(() => {
-    const isReady = status.state === 'ready' || Boolean(status.outputFile);
-    const renderId = status.jobId || status.outputFile || 'ready-render';
+    const isReady = safeStatus.state === 'ready' || Boolean(safeStatus.outputFile);
+    const renderId = safeStatus.jobId || safeStatus.outputFile || 'ready-render';
 
     if (isOpen && isReady && hasTriggeredRef.current !== renderId) {
       hasTriggeredRef.current = renderId;
@@ -56,23 +57,23 @@ export default function RenderProgressModal({
 
       // Trigger System Tray Notification
       sendRenderCompleteNotification({
-        title: 'Download Complete! ',
-        body: `Aapki 1080p Full HD video (${title}) render ho chuki hai. Click to view & download.`,
-        outputUrl: status.outputFile,
+        title: 'Download Ready!',
+        body: `Your 1080p Full HD video (${title}) has finished rendering. Click to view and download.`,
+        outputUrl: safeStatus.outputFile,
         onNotificationClick: () => {
-          if (status.outputFile) {
-            window.open(status.outputFile, '_blank');
+          if (safeStatus.outputFile) {
+            window.open(safeStatus.outputFile, '_blank');
           }
         },
       });
 
       // Auto-download file if enabled and output URL is available
-      if (autoDownload && status.outputFile) {
+      if (autoDownload && safeStatus.outputFile) {
         const downloadName = `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-1080p.mp4`;
-        triggerAutoDownload(status.outputFile, downloadName).catch(() => {});
+        triggerAutoDownload(safeStatus.outputFile, downloadName).catch(() => {});
       }
     }
-  }, [isOpen, status.state, status.outputFile, status.jobId, title, autoDownload]);
+  }, [isOpen, safeStatus.state, safeStatus.outputFile, safeStatus.jobId, title, autoDownload]);
 
   if (!isOpen) return null;
 
@@ -81,14 +82,16 @@ export default function RenderProgressModal({
       <div className="relative w-full max-w-2xl">
         <InteractiveRenderEngine
           mode={mode}
-          status={status}
+          status={safeStatus}
           title={title}
           fileName={fileName}
-          onRetry={onRetry || (() => {})}
-          onReset={onReset || onClose || (() => {})}
+          onRetry={onRetry || (() => { })}
+          onReset={onReset || onClose || (() => { })}
           onCancel={onCancel}
         />
       </div>
     </div>
   );
 }
+
+export default RenderProgressModal;

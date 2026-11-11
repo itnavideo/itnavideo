@@ -163,8 +163,8 @@ export function WhiteboardStudio({
   visualTheme = "educational",
   onVisualThemeChange,
 }: WhiteboardStudioProps) {
-  // ── 4-Step Guided Video Studio State (Matching ImageToVideoStudio) ──
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+  // ── Flexible Step State (supports any number of steps) ──
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   const [activeVisualTheme, setActiveVisualTheme] = useState<string>(visualTheme || "educational");
 
@@ -212,7 +212,7 @@ export function WhiteboardStudio({
       audio.src = url;
       audio.onloadedmetadata = () => {
         if (audio.duration && !isNaN(audio.duration)) {
-          setVoiceoverDuration(Math.round(audio.duration));
+          setVoiceoverDuration(Math.min(90, Math.round(audio.duration)));
         }
       };
 
@@ -237,6 +237,7 @@ export function WhiteboardStudio({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("fileName", file.name);
+      formData.append("maxSeconds", "90");
 
       const res = await fetch("/api/reels/transcribe", {
         method: "POST",
@@ -349,7 +350,7 @@ export function WhiteboardStudio({
       startTime: idx * sceneDuration,
       endTime: (idx + 1) * sceneDuration,
       duration: sceneDuration,
-      archetype: "hero_center",
+      archetype: "hero_center" as const,
       modality: "illustrative_doodle" as const,
       visualIntent: {
         beatIndex: idx,
@@ -367,17 +368,35 @@ export function WhiteboardStudio({
         drawingId: icons[idx % icons.length],
         label: line.slice(0, 24),
       },
+      transition: "erase_wipe" as const,
       accentColor: colors[idx % colors.length],
     }));
   }, [editorialTranscript, voiceoverDuration]);
 
   // Active scene for monitor preview
-  const currentScene = generatedScenes[activeSceneIndex] || generatedScenes[0] || {
+  const currentScene: WhiteboardScene = generatedScenes[activeSceneIndex] || generatedScenes[0] || {
     id: "demo",
     sceneIndex: 0,
+    startTime: 0,
+    endTime: 10,
+    duration: 10,
+    archetype: "hero_center" as const,
+    modality: "illustrative_doodle" as const,
+    visualIntent: {
+      beatIndex: 0,
+      role: "explain" as const,
+      takeaway: "Transform your ideas with whiteboard drawings",
+      type: "concept" as const,
+      entities: [],
+      action: "draw",
+      emotion: "inspirational",
+      metaphors: [],
+      soundOffTest: "Transform your ideas with whiteboard drawings",
+    },
     headline: "Transform your ideas with whiteboard drawings",
-    accentColor: "#2563EB",
     heroVisual: { drawingId: "lightbulb_idea", label: "Core Concept" },
+    transition: "erase_wipe" as const,
+    accentColor: "#2563EB",
   };
 
   const selectedFontObj =
@@ -421,34 +440,11 @@ export function WhiteboardStudio({
       />
 
       {/* ========================================================================= */}
-      {/* ROW 1: HEADER & STEPPER NAVIGATION BAR (Clean White Surface)              */}
+      {/* ROW 1: 4-STEP GUIDED STEPPER NAVIGATION BAR (Clean White Surface)          */}
       {/* ========================================================================= */}
-      <header className="shrink-0 border-b border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3.5 z-20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Left: Studio Branding & Title */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/20">
-              <PenTool size={20} className="stroke-[2.5]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-sans">
-                  Whiteboard Animation{" "}
-                  <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
-                    AI Studio
-                  </span>
-                </h1>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-mono font-bold uppercase tracking-wider">
-                  9:16 Shorts
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 hidden md:block">
-                4-Step Guided Video Studio · Spoken audio, ambient music, hand-drawn typography &amp; scene editor
-              </p>
-            </div>
-          </div>
-
-          {/* Center: Desktop Stepper (>=1024px) */}
+      <header className="shrink-0 border-b border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3 z-20">
+        <div className="max-w-7xl mx-auto flex items-center justify-center">
+          {/* Desktop Stepper (>=1024px) */}
           <nav aria-label="Studio Steps" className="hidden lg:flex items-center gap-2 lg:gap-3">
             {WHITEBOARD_STEPS.map((s, idx) => {
               const isCompleted = s.step < currentStep;
@@ -464,10 +460,10 @@ export function WhiteboardStudio({
                     {/* Circle */}
                     <div
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all ${isCompleted
-                          ? "bg-emerald-500 text-white shadow-xs shadow-emerald-500/25 ring-2 ring-emerald-500/20"
-                          : isActive
-                            ? "bg-white border-2 border-orange-500 text-orange-600 shadow-[0_0_0_4px_rgba(249,115,22,0.14)] font-black"
-                            : "bg-slate-100 border border-slate-200 text-slate-400 group-hover:border-slate-300"
+                        ? "bg-emerald-500 text-white shadow-xs shadow-emerald-500/25 ring-2 ring-emerald-500/20"
+                        : isActive
+                          ? "bg-white border-2 border-orange-500 text-orange-600 shadow-[0_0_0_4px_rgba(249,115,22,0.14)] font-black"
+                          : "bg-slate-100 border border-slate-200 text-slate-400 group-hover:border-slate-300"
                         }`}
                     >
                       {isCompleted ? <Check size={14} className="stroke-[3]" /> : s.step}
@@ -477,10 +473,10 @@ export function WhiteboardStudio({
                     <div className="text-left hidden xl:block">
                       <p
                         className={`text-xs font-black leading-tight ${isActive
-                            ? "text-slate-900"
-                            : isCompleted
-                              ? "text-emerald-700"
-                              : "text-slate-400"
+                          ? "text-slate-900"
+                          : isCompleted
+                            ? "text-emerald-700"
+                            : "text-slate-400"
                           }`}
                       >
                         {s.title}
@@ -500,18 +496,6 @@ export function WhiteboardStudio({
               );
             })}
           </nav>
-
-          {/* Right: Render Rate Badge */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="rounded-xl border border-orange-500/30 bg-orange-50/70 px-3 py-1.5 text-right shadow-2xs">
-              <span className="block text-[9px] font-bold uppercase tracking-wider text-orange-600">
-                Rule 4.1 Policy
-              </span>
-              <span className="text-xs sm:text-sm font-black text-orange-600">
-                1 Credit · 9:16 MP4
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Tablet & Mobile Stepper Bar (<1024px) */}
@@ -527,7 +511,7 @@ export function WhiteboardStudio({
             {currentStep > 1 && (
               <button
                 type="button"
-                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1) as 1 | 2 | 3 | 4))}
+                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1)))}
                 className="text-[11px] font-bold text-orange-600 hover:text-orange-700 cursor-pointer shrink-0 ml-2"
               >
                 ← Back
@@ -544,10 +528,10 @@ export function WhiteboardStudio({
                   key={s.step}
                   onClick={() => setCurrentStep(s.step)}
                   className={`h-1.5 flex-1 rounded-full transition-all cursor-pointer hover:opacity-80 ${isDone
-                      ? "bg-emerald-500 shadow-xs"
-                      : isCurrent
-                        ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-xs"
-                        : "bg-slate-200"
+                    ? "bg-emerald-500 shadow-xs"
+                    : isCurrent
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-xs"
+                      : "bg-slate-200"
                     }`}
                   title={`Step ${s.step}: ${s.title}`}
                 />
@@ -625,8 +609,8 @@ export function WhiteboardStudio({
                         if (e.dataTransfer.files?.[0]) onSelectFile(e.dataTransfer.files[0]);
                       }}
                       className={`group relative flex flex-col items-center justify-center rounded-[24px] sm:rounded-[28px] border-2 border-dashed min-h-[200px] sm:min-h-[240px] p-5 sm:p-10 text-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md ${isDraggingFile
-                          ? "border-orange-500 bg-orange-50/70 scale-[1.005]"
-                          : "border-orange-300 hover:border-orange-500 bg-white hover:bg-orange-50/40"
+                        ? "border-orange-500 bg-orange-50/70 scale-[1.005]"
+                        : "border-orange-300 hover:border-orange-500 bg-white hover:bg-orange-50/40"
                         }`}
                     >
                       <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-orange-100 group-hover:bg-orange-500 text-orange-600 group-hover:text-white transition-all duration-200 shadow-sm mb-3 sm:mb-4">
@@ -639,7 +623,7 @@ export function WhiteboardStudio({
                       </p>
 
                       <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm leading-relaxed mb-3 sm:mb-4">
-                        Supports MP3, WAV, M4A, AAC · Max 90s Duration · Automatic Drawing Speed Sync
+                        Supports MP3, WAV, M4A, AAC · Videos and audio longer than 90 seconds are supported. Only the first 90 seconds will be used.
                       </p>
 
                       <div className="flex flex-wrap items-center justify-center gap-2.5">
@@ -724,8 +708,8 @@ export function WhiteboardStudio({
                                 <div
                                   style={{ height: `${barHeight}%` }}
                                   className={`w-full max-w-[4px] sm:max-w-[6px] rounded-full transition-all duration-150 ${isPlayed
-                                      ? "bg-gradient-to-t from-orange-600 to-amber-500 shadow-2xs"
-                                      : "bg-slate-200"
+                                    ? "bg-gradient-to-t from-orange-600 to-amber-500 shadow-2xs"
+                                    : "bg-slate-200"
                                     }`}
                                 />
                               </div>
@@ -915,8 +899,8 @@ export function WhiteboardStudio({
                     type="button"
                     onClick={() => setBgmCategory(cat)}
                     className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition cursor-pointer ${bgmCategory === cat
-                        ? "bg-orange-500 text-white shadow-xs"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      ? "bg-orange-500 text-white shadow-xs"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                       }`}
                   >
                     {cat}
@@ -936,8 +920,8 @@ export function WhiteboardStudio({
                     key={track.id}
                     onClick={() => onBgmTrackIdChange(track.id)}
                     className={`rounded-2xl border p-4 transition-all cursor-pointer flex flex-col justify-between gap-3 ${isSelected
-                        ? "border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20 shadow-sm"
-                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
+                      ? "border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
                       }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -950,10 +934,10 @@ export function WhiteboardStudio({
                             handleTogglePlayBgm(track);
                           }}
                           className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform active:scale-95 shadow-xs cursor-pointer ${isAuditioning
-                              ? "bg-orange-500 text-white animate-pulse"
-                              : isSelected
-                                ? "bg-orange-500 text-white"
-                                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                            ? "bg-orange-500 text-white animate-pulse"
+                            : isSelected
+                              ? "bg-orange-500 text-white"
+                              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                             }`}
                           title={isAuditioning ? "Pause preview" : "Play preview"}
                         >
@@ -1119,8 +1103,8 @@ export function WhiteboardStudio({
                         onVisualThemeChange?.(theme.id);
                       }}
                       className={`group relative flex flex-col p-4 rounded-xl border text-left transition cursor-pointer ${isSelected
-                          ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                        ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
                         }`}
                     >
                       <div className="flex items-center justify-between w-full mb-2.5">
@@ -1159,7 +1143,7 @@ export function WhiteboardStudio({
                       {/* Typography & Background details */}
                       <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium border-t border-slate-100 pt-2 w-full mt-auto">
                         <span className="truncate">{theme.typography.headingFont}</span>
-                        <span className="capitalize font-semibold text-slate-700">{theme.background.type}</span>
+                        <span className="capitalize font-semibold text-slate-700">{theme.background.category}</span>
                       </div>
                     </button>
                   );
@@ -1194,8 +1178,8 @@ export function WhiteboardStudio({
                       key={font.id}
                       onClick={() => onFontPersonalityChange(font.id)}
                       className={`rounded-2xl border p-4 transition-all cursor-pointer flex flex-col justify-between gap-3 text-left ${isSelected
-                          ? "border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20 shadow-sm"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
+                        ? "border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
                         }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -1241,8 +1225,8 @@ export function WhiteboardStudio({
                         key={hand.id}
                         onClick={() => onHandStyleChange(hand.id)}
                         className={`rounded-2xl border p-3.5 transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 text-center ${isSelected
-                            ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20 shadow-xs"
-                            : "border-slate-200 bg-white hover:border-slate-300"
+                          ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20 shadow-xs"
+                          : "border-slate-200 bg-white hover:border-slate-300"
                           }`}
                       >
                         <span className="text-2xl">{hand.icon}</span>
@@ -1268,8 +1252,8 @@ export function WhiteboardStudio({
                         key={color.id}
                         onClick={() => onMarkerColorChange(color.id)}
                         className={`rounded-xl border p-2 transition-all cursor-pointer flex flex-col items-center justify-center gap-1 text-center ${isSelected
-                            ? "border-orange-500 ring-2 ring-orange-500/30 scale-105"
-                            : "border-slate-200 bg-white hover:border-slate-300"
+                          ? "border-orange-500 ring-2 ring-orange-500/30 scale-105"
+                          : "border-slate-200 bg-white hover:border-slate-300"
                           }`}
                       >
                         <span
@@ -1308,9 +1292,9 @@ export function WhiteboardStudio({
         )}
 
         {/* ======================================================================= */}
-        {/* STEP 4: PREVIEW (STUDIO MONITOR & SCENE STORYBOARD)                     */}
+        {/* STEP 4 (final): PREVIEW (STUDIO MONITOR & SCENE STORYBOARD)             */}
         {/* ======================================================================= */}
-        {currentStep === 4 && (
+        {currentStep === WHITEBOARD_STEPS.length && (
           <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
@@ -1457,8 +1441,8 @@ export function WhiteboardStudio({
                           key={sc.id}
                           onClick={() => setActiveSceneIndex(idx)}
                           className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${isActive
-                              ? "border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20 shadow-xs"
-                              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
+                            ? "border-orange-500 bg-orange-50/40 ring-2 ring-orange-500/20 shadow-xs"
+                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50"
                             }`}
                         >
                           <div className="flex items-center gap-3 min-w-0">
@@ -1552,10 +1536,10 @@ export function WhiteboardStudio({
                   onClick={() => onGenerate(generatedScenes)}
                   disabled={!isReadyToCreate || isGenerating}
                   className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl px-8 py-3.5 text-xs font-black transition cursor-pointer ${!isReadyToCreate
-                      ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                      : isGenerating
-                        ? "bg-orange-500 text-white cursor-wait animate-pulse"
-                        : "bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:brightness-110 text-white shadow-lg shadow-orange-500/25"
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : isGenerating
+                      ? "bg-orange-500 text-white cursor-wait animate-pulse"
+                      : "bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 hover:brightness-110 text-white shadow-lg shadow-orange-500/25"
                     }`}
                 >
                   {isGenerating ? (

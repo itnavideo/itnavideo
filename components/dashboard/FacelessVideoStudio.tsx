@@ -45,6 +45,7 @@ import {
   Headphones,
 } from "lucide-react";
 import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
+import { StudioStepper } from "@/components/dashboard/shared/StudioStepper";
 import { FacelessStoryboardTimeline } from "@/components/dashboard/FacelessStoryboardTimeline";
 import {
   AWS_BGM_TRACKS,
@@ -99,9 +100,6 @@ export interface FacelessVideoStudioProps {
 
   facelessEnableSfx?: boolean;
   onEnableSfxChange?: (enabled: boolean) => void;
-
-  visualArtStyle?: "realistic" | "3d" | "2d" | string;
-  onVisualArtStyleChange?: (style: any) => void;
 
   visualTheme?: string;
   onVisualThemeChange?: (themeId: string) => void;
@@ -163,8 +161,6 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   onPacingStyleChange,
   facelessEnableSfx = true,
   onEnableSfxChange,
-  visualArtStyle = "realistic",
-  onVisualArtStyleChange,
   visualTheme = "modern-saas",
   onVisualThemeChange,
   backgroundTheme = "solid-white",
@@ -189,8 +185,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   removeAiWatermark = true,
   onRemoveAiWatermarkChange,
 }) => {
-  // ── 4-Step Guided Video Studio State (Matching ImageToVideoStudio) ──
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+  // ── Flexible Step State (supports any number of steps) ──
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Transcribed state
   const [transcriptText, setTranscriptText] = useState("");
@@ -466,7 +462,6 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       facelessEnableSfx,
       facelessPacingStyle,
       assetSourceMode,
-      visualArtStyle,
       aspectRatio: "16:9",
       bgmUrl: finalBgmUrl,
       bgmTrackId: selectedBgmTrack,
@@ -536,43 +531,13 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           </div>
         </div>
 
-        {/* 4-Step Interactive Stepper */}
-        <div className="flex items-center gap-1.5 sm:gap-2 self-start md:self-center bg-slate-50 border border-slate-200/90 rounded-2xl p-1.5 shadow-2xs">
-          {FACELESS_STEPS.map((s) => {
-            const isActive = currentStep === s.step;
-            const isCompleted = currentStep > s.step;
-
-            return (
-              <button
-                key={s.step}
-                type="button"
-                onClick={() => setCurrentStep(s.step as 1 | 2 | 3 | 4)}
-                className={`flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20"
-                    : isCompleted
-                    ? "text-slate-800 hover:text-slate-900 hover:bg-white/60"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
-              >
-                <div
-                  className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-black transition-colors ${
-                    isActive
-                      ? "bg-orange-500 text-white"
-                      : isCompleted
-                      ? "bg-emerald-500 text-white"
-                      : "bg-slate-200 text-slate-600"
-                  }`}
-                >
-                  {isCompleted ? <Check size={11} className="stroke-[3]" /> : s.step}
-                </div>
-                <div className="text-left hidden sm:block">
-                  <span className="block leading-none">{s.title}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        {/* Flexible Studio Stepper */}
+        <StudioStepper
+          steps={FACELESS_STEPS}
+          currentStep={currentStep}
+          onStepClick={(step) => setCurrentStep(step)}
+          className="self-start md:self-center bg-slate-50 border border-slate-200/90 rounded-2xl px-2 py-1.5 shadow-2xs"
+        />
       </div>
 
       {/* ── ROW 2: Scrollable Studio Workspace ── */}
@@ -766,11 +731,11 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   <div className="flex items-center gap-2">
                     <Film size={18} className="text-orange-500" />
                     <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                      Video Topic & Headline
+                      Project Name / Video Title
                     </h3>
                   </div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    YouTube Title
+                    Optional
                   </span>
                 </div>
 
@@ -778,28 +743,12 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   type="text"
                   value={topicTitle}
                   onChange={(e) => onTopicTitleChange?.(e.target.value)}
-                  placeholder="e.g. 5 Habits That Changed My Life Forever"
+                  placeholder="e.g. The Science of Deep Focus (auto-detected if left blank)"
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none transition"
                 />
-
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <span className="text-xs font-bold text-slate-500">Popular presets:</span>
-                  {[
-                    "5 Habits That Changed My Life",
-                    "How The Top 1% Think Differently",
-                    "The Science of Deep Focus",
-                    "Why Most People Never Get Wealthy",
-                  ].map((preset) => (
-                    <button
-                      key={preset}
-                      type="button"
-                      onClick={() => onTopicTitleChange?.(preset)}
-                      className="text-xs font-bold px-3 py-1 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition cursor-pointer"
-                    >
-                      {preset}
-                    </button>
-                  ))}
-                </div>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  Used for your export file and intro badge. If left blank, it automatically uses your uploaded audio file name.
+                </p>
               </div>
 
               {/* Editable Spoken Transcript Editor */}
@@ -1427,7 +1376,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           {/* ══════════════════════════════════════════════════════════════
               STEP 4: PREVIEW (16:9 Cinema Monitor, Scene Stepper & Storyboard)
               ══════════════════════════════════════════════════════════════ */}
-          {currentStep === 4 && (
+          {currentStep === FACELESS_STEPS.length && (
             <div className="space-y-6 animate-in fade-in duration-200">
               {/* 16:9 Cinema Widescreen Live Monitor */}
               <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
@@ -1627,20 +1576,20 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           {currentStep > 1 && (
             <button
               type="button"
-              onClick={() => setCurrentStep((currentStep - 1) as 1 | 2 | 3 | 4)}
+              onClick={() => setCurrentStep((currentStep - 1))}
               className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
             >
               Back
             </button>
           )}
 
-          {currentStep < 4 ? (
+          {currentStep < FACELESS_STEPS.length ? (
             <button
               type="button"
-              onClick={() => setCurrentStep((currentStep + 1) as 1 | 2 | 3 | 4)}
+              onClick={() => setCurrentStep((currentStep + 1))}
               className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black transition cursor-pointer shadow-sm shadow-orange-500/20 active:scale-95"
             >
-              <span>Next: {FACELESS_STEPS[currentStep].title}</span>
+              <span>Next: {FACELESS_STEPS.find(s => s.step === currentStep + 1)?.title ?? "Next"}</span>
               <ArrowRight size={14} />
             </button>
           ) : (

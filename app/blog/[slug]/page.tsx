@@ -57,13 +57,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: "article",
       publishedTime: new Date(post.date).toISOString(),
       url: `${siteUrl}/blog/${post.slug}`,
-      images: [post.featuredImage || `${siteUrl}/preview/Auto Caption Reel.png`],
+      images: [post.featuredImage || `https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png`],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.excerpt,
-      images: [post.featuredImage || `${siteUrl}/preview/Auto Caption Reel.png`],
+      images: [post.featuredImage || `https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png`],
     },
   };
 }

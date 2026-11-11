@@ -1,11 +1,16 @@
 import { Composition, registerRoot } from 'remotion';
 import { ContactSheetGrid } from './components/ContactSheetGrid';
+// RM3 Fix: AutoCaptionGeneratorComposition registers TWO compositions:
+//   1. 'AUTO-CAPTION-GENERATOR'          — 9:16 Vertical Reel (autoCaption mode)
+//   2. 'AUTO-CAPTION-GENERATOR-LANDSCAPE' — 16:9 YouTube Subtitles (youtubeSubtitleGenerator mode)
 import { AutoCaptionGeneratorComposition } from './templates/AUTO_CAPTION_GENERATOR/template';
 import { CompareExplainerComposition } from './templates/COMPARE_EXPLAINER/template';
 import { LongVideoPromoComposition } from './templates/LONG_VIDEO_PROMO/template';
 import { WhiteboardVideoComposition } from './templates/WHITEBOARD_VIDEO/template';
 import { LongVideoClipsComposition } from './templates/LONG_VIDEO_CLIPS/template';
-import { LongVideoComposition } from './templates/LONG_VIDEO/template';
+// RT5 Fix: LongVideoComposition (LONG-VIDEO) removed — this composition was never dispatched
+// by the jobs route. The longVideoPro mode was merged into facelessVideo. Removing it shrinks
+// the Lambda bundle and cold-start time. Template kept on disk if needed in future.
 import { FacelessVideoComposition, FacelessVideoTemplate } from './templates/FACELESS_VIDEO/template';
 import { FacelessShortsComposition } from './templates/FACELESS_SHORTS/template';
 import { ImageToVideoAiComposition } from './templates/IMAGE_TO_VIDEO_AI/template';
@@ -14,9 +19,15 @@ import { SplitScreenExplainerComposition } from './templates/SPLIT_SCREEN_EXPLAI
 import { AiVideoPolisherComposition } from './templates/AI_VIDEO_POLISHER/template';
 import { AiShortsPolisherComposition } from './templates/AI_SHORTS_POLISHER/template';
 import { AiVideoGeneratorComposition } from './templates/AI_VIDEO_GENERATOR/template';
-import { LibraryPreview } from './motion-graphics/previews/LibraryPreview';
-// Self-contained default sample blueprint for remotion studio preview
-const DEFAULT_PREVIEW_BLUEPRINT = [
+
+// RO2 Fix: Dev-only preview compositions wrapped in NODE_ENV check to exclude from
+// production Lambda bundle — reduces cold-start time and bundle size.
+const IS_DEV = process.env.NODE_ENV !== 'production';
+// LibraryPreview only needed in Remotion Studio
+const LibraryPreview = IS_DEV ? require('./motion-graphics/previews/LibraryPreview').LibraryPreview : null;
+
+// Self-contained default sample blueprint for Remotion Studio preview only
+const DEFAULT_PREVIEW_BLUEPRINT = IS_DEV ? [
   {
     sceneNumber: 1,
     sceneType: 'hook' as const,
@@ -37,15 +48,15 @@ const DEFAULT_PREVIEW_BLUEPRINT = [
     SFX: 'whoosh',
     transition: 'cut' as const,
   },
-];
+] : [];
 
+// Production compositions — dispatched by jobs route
 const compositions = [
-  AutoCaptionGeneratorComposition,
+  AutoCaptionGeneratorComposition, // registers AUTO-CAPTION-GENERATOR + AUTO-CAPTION-GENERATOR-LANDSCAPE
   CompareExplainerComposition,
   LongVideoPromoComposition,
   WhiteboardVideoComposition,
   LongVideoClipsComposition,
-  LongVideoComposition,
   FacelessVideoComposition,
   FacelessShortsComposition,
   ImageToVideoAiComposition,
@@ -66,33 +77,38 @@ const RemotionRoot = () => (
       width={1920}
       height={1080}
     />
-    <Composition
-      id="MOTION-GRAPHICS-LIBRARY"
-      component={LibraryPreview}
-      durationInFrames={300}
-      fps={30}
-      width={1920}
-      height={1080}
-    />
-    <Composition
-      id="WIDESCREEN-QUALITY-PREVIEW"
-      component={FacelessVideoTemplate}
-      durationInFrames={600}
-      fps={30}
-      width={1920}
-      height={1080}
-      defaultProps={{
-        title: '16:9 Widescreen Quality Preview',
-        durationSeconds: 20,
-        backgroundTheme: 'solid-white',
-        headingFont: 'Montserrat',
-        subheadingFont: 'Plus Jakarta Sans',
-        typographyFont: 'Plus Jakarta Sans',
-        sceneBlueprint: DEFAULT_PREVIEW_BLUEPRINT,
-        showCaptions: false,
-        aspectRatio: '16:9' as const,
-      }}
-    />
+    {/* RO2 Fix: Dev-only compositions excluded from production Lambda bundle */}
+    {IS_DEV && LibraryPreview && (
+      <Composition
+        id="MOTION-GRAPHICS-LIBRARY"
+        component={LibraryPreview}
+        durationInFrames={300}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+    )}
+    {IS_DEV && DEFAULT_PREVIEW_BLUEPRINT.length > 0 && (
+      <Composition
+        id="WIDESCREEN-QUALITY-PREVIEW"
+        component={FacelessVideoTemplate}
+        durationInFrames={600}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={{
+          title: '16:9 Widescreen Quality Preview',
+          durationSeconds: 20,
+          backgroundTheme: 'solid-white',
+          headingFont: 'Montserrat',
+          subheadingFont: 'Plus Jakarta Sans',
+          typographyFont: 'Plus Jakarta Sans',
+          sceneBlueprint: DEFAULT_PREVIEW_BLUEPRINT,
+          showCaptions: false,
+          aspectRatio: '16:9' as const,
+        }}
+      />
+    )}
     {compositions.map((Component, index) => (
       Component ? <Component key={Component?.name || `comp-${index}`} /> : null
     ))}

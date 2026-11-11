@@ -133,7 +133,7 @@ export default function MultiVideoShowcase() {
                 >
                   <video
                     src={vid.src}
-                    poster="/preview/Auto Caption Reel.png"
+                    poster="https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png"
                     preload="auto"
                     autoPlay
                     muted

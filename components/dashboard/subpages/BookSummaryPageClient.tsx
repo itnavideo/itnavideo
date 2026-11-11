@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { BookSummaryStudio } from "@/components/dashboard/BookSummaryStudio";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 import { useAuth } from "@/components/auth/AuthContext";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
@@ -96,7 +98,7 @@ export default function BookSummaryPageClient() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ renderId: jobStatus.renderId, userId: user?.id }),
         });
-      } catch {}
+      } catch { }
     }
     renderRequestInFlightRef.current = false;
     setJobStatus({ state: "idle" });
@@ -317,13 +319,15 @@ export default function BookSummaryPageClient() {
         studioName="Book Summary AI"
         aspectRatioLabel="16:9 Cinema"
         badgeLabel="Summary Cards"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Canvas - Full Screen Fluid Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("bookSummary", billingEntitlement) ? (
+          <FeaturePaywall featureName="Book Summary Video" description="Turn book notes and voiceover into cinematic 16:9 book summary videos. Upgrade to access Book Summary Studio." />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="bookSummary"

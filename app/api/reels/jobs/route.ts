@@ -57,7 +57,9 @@ export const dynamic = 'force-dynamic';
 
 type LambdaRenderRequest = Parameters<typeof renderMediaOnLambda>[0];
 type ReelMode =
-  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'longVideoClips' | 'facelessVideo' | 'facelessShorts' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'audioClean' | 'longVideoPromo' | 'splitScreenExplainer' | 'aiVideoPolisher' | 'aiShortsPolisher';
+  // BO4 Fix: 'audioClean' removed from ReelMode — Audio Cleaner uses separate API routes
+  // (/api/audio-clean/analyze and /api/audio-clean), never /api/reels/jobs.
+  | 'compare' | 'autoCaption' | 'whiteboardVideo' | 'longVideoClips' | 'facelessVideo' | 'facelessShorts' | 'aiVideoGenerator' | 'imageToVideoAi' | 'youtubeSubtitleGenerator' | 'bookSummary' | 'longVideoPromo' | 'splitScreenExplainer' | 'aiVideoPolisher' | 'aiShortsPolisher';
 
 const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   compare: 'comparisonImages',
@@ -76,10 +78,14 @@ const MODE_TO_TEMPLATE: Partial<Record<ReelMode, ReelTemplateName>> = {
   aiShortsPolisher: 'AI_SHORTS_POLISHER',
 };
 
-// All 9:16 short video types render up to 90 seconds.
-// All 16:9 Long-Form Video types support up to 5 minutes (300 seconds / 9,000 frames) audio.
+// AW2 Fix: Remotion deleteAfter aligned to match the S3 lifecycle (TEMP_MEDIA_EXPIRATION_DAYS=2 = 48h).
+// All renderMediaOnLambda calls use '2-days' so both deletion mechanisms are consistent.
+// The API response retentionHours: 48 also matches.
 const MAX_RENDER_WINDOW_SECONDS = 90;
 const MAX_AUTO_CAPTION_SECONDS = 90;
+// BE6 Fix: explicit named constants for all 9:16 video types (all cap at 90s)
+const MAX_SPLIT_SCREEN_SECONDS = 90;
+const MAX_AI_SHORTS_POLISHER_SECONDS = 90;
 const MAX_YOUTUBE_SUBTITLE_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
 const MAX_IMAGE_TO_VIDEO_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
 const MAX_FACELESS_VIDEO_SECONDS = 5 * 60; // 300 seconds (5 minutes strictly per user standard)
@@ -105,7 +111,7 @@ function getMaxRenderWindowSecondsForTemplate(templateName?: ReelTemplateName | 
   if (
     templateName === 'FACELESS_VIDEO' ||
     templateName === 'AI_VIDEO_GENERATOR' ||
-    (templateName as string) === 'LONG_VIDEO_PRO' ||
+    // RT7 Fix: LONG_VIDEO_PRO was merged into facelessVideo — removed stale case
     (templateName as string) === 'FACELESS_LONG_VIDEO'
   ) {
     return MAX_FACELESS_VIDEO_SECONDS;
@@ -898,7 +904,7 @@ export async function POST(request: Request) {
         frameRange: [0, totalFrames - 1],
         outName,
         privacy: 'private',
-        deleteAfter: '3-days',
+        deleteAfter: '2-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1389,10 +1395,11 @@ export async function POST(request: Request) {
         audioCodec: 'aac',
         inputProps,
         frameRange: [0, totalFrames - 1],
-        framesPerLambda: 120,
+        // AW5 Fix: framesPerLambda: 120 was ignored here — startRenderWithCapacityRetry deletes it.
+        // Removed to avoid confusion. Remotion's auto-chunking handles frames per worker.
         outName,
         privacy: 'private',
-        deleteAfter: '3-days',
+        deleteAfter: '2-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1481,10 +1488,11 @@ export async function POST(request: Request) {
         audioCodec: 'aac',
         inputProps,
         frameRange: [0, totalFrames - 1],
-        framesPerLambda: 120,
+        // AW5 Fix: framesPerLambda: 120 was ignored here — startRenderWithCapacityRetry deletes it.
+        // Removed to avoid confusion. Remotion's auto-chunking handles frames per worker.
         outName,
         privacy: 'private',
-        deleteAfter: '3-days',
+        deleteAfter: '2-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1577,10 +1585,11 @@ export async function POST(request: Request) {
         audioCodec: 'aac',
         inputProps,
         frameRange: [0, totalFrames - 1],
-        framesPerLambda: 120,
+        // AW5 Fix: framesPerLambda: 120 was ignored here — startRenderWithCapacityRetry deletes it.
+        // Removed to avoid confusion. Remotion's auto-chunking handles frames per worker.
         outName,
         privacy: 'private',
-        deleteAfter: '3-days',
+        deleteAfter: '2-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1722,10 +1731,11 @@ export async function POST(request: Request) {
         audioCodec: 'aac',
         inputProps,
         frameRange: [0, totalFrames - 1],
-        framesPerLambda: 120,
+        // AW5 Fix: framesPerLambda: 120 was ignored here — startRenderWithCapacityRetry deletes it.
+        // Removed to avoid confusion. Remotion's auto-chunking handles frames per worker.
         outName,
         privacy: 'private',
-        deleteAfter: '3-days',
+        deleteAfter: '2-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1836,7 +1846,10 @@ export async function POST(request: Request) {
       }
 
       // Caption style from request
+      // BM3 Fix: recalculate credit units based on actual AI-detected clip count, not the
+      // originally requested count. This ensures correct charges when AI finds fewer clips.
       const clipCreditUnits = calculateRenderCreditUnits('longVideoClips', { clipCount: bestClips.length });
+      requestedCreditUnits = clipCreditUnits; // override initial request-time estimate
       const firstClipCreditUnits = calculateRenderCreditUnits('longVideoClips', { clipCount: 1 });
       const additionalClipCreditUnits = calculateRenderCreditUnits('longVideoClips', { clipCount: 2 }) - firstClipCreditUnits;
       const clipCaptionStyle = readString(body.captionStyle) || 'Studio Clean';
@@ -1920,7 +1933,7 @@ export async function POST(request: Request) {
           inputProps: clipInputProps,
           outName: clipOutName,
           privacy: 'private',
-          deleteAfter: '3-days',
+          deleteAfter: '2-days',
           overwrite: true,
           concurrency: config.concurrency || 6,
           maxRetries: 3,
@@ -2520,6 +2533,11 @@ export async function POST(request: Request) {
 
           // Execute 16-Specialist Production Crew for Faceless Video & Shorts
           if (targetVideoType === 'facelessShorts' || targetVideoType === 'facelessVideo') {
+            const facelessAssetMode = readString(body.assetMode);
+            const facelessImageSource =
+              facelessAssetMode === 'library' || facelessAssetMode === 'upload' || facelessAssetMode === 'mix'
+                ? (facelessAssetMode as 'library' | 'upload' | 'mix')
+                : undefined;
             const crewOutput = await runFacelessShortsProductionCrew(
               {
                 transcript: renderWindow.transcript,
@@ -2534,6 +2552,9 @@ export async function POST(request: Request) {
                 captionPosition,
                 captionAnimationStyle: (captionAnimationStyle as any) || 'smooth',
                 brandNamesHint: readString(body.brandNamesHint) || undefined,
+                imageSource: facelessImageSource,
+                uploadedImages: uploadedImageUrls,
+                uploadedVideos: [],
                 smartPunchIns: body.smartPunchIns !== false,
                 punchInIntensity: (body.punchInIntensity as any) || 'medium',
                 enableSfx: body.facelessEnableSfx !== false,
@@ -2678,9 +2699,9 @@ export async function POST(request: Request) {
       progressStyle: (mode as string) === 'autoCaption' ? 'none' : readString(body.progressStyle) || 'glow',
       wordClickSound: (mode as string) === 'autoCaption' ? false : body.wordClickSound !== false,
       mediaTrimStartSeconds: renderWindow.trimStartSeconds,
-      sourceDurationSeconds: requestedDurationSeconds || transcription.durationSeconds || renderWindow.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
-      durationSeconds: requestedDurationSeconds || renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
-      renderWindowSeconds: requestedDurationSeconds || renderWindow.durationSeconds || transcription.durationSeconds || MAX_RENDER_WINDOW_SECONDS,
+      sourceDurationSeconds: Math.min(maxRenderSeconds, requestedDurationSeconds || transcription.durationSeconds || renderWindow.durationSeconds || maxRenderSeconds),
+      durationSeconds: Math.min(maxRenderSeconds, requestedDurationSeconds || renderWindow.durationSeconds || transcription.durationSeconds || maxRenderSeconds),
+      renderWindowSeconds: Math.min(maxRenderSeconds, requestedDurationSeconds || renderWindow.durationSeconds || transcription.durationSeconds || maxRenderSeconds),
       renderWindowSource: renderWindow.source,
       planningMediaSource: planningMedia.clipped ? 'first-60s-clip' : 'original-upload',
       topicTitle: plan.renderProps?.topicTitle || topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName),
@@ -2749,6 +2770,8 @@ export async function POST(request: Request) {
             curvedArrows: Array.isArray(body.curvedArrows) ? body.curvedArrows : undefined,
             equationFormula: body.equationFormula || undefined,
             comparisonBanner: body.comparisonBanner || undefined,
+            // Fix RT2: polisher templates use brandWatermark prop (not watermark)
+            brandWatermark: !isFounder && (!access?.activePaidPlan || Boolean(access?.watermark)),
           };
         })()
         : {}),
@@ -2805,6 +2828,8 @@ export async function POST(request: Request) {
             curvedArrows: Array.isArray(body.curvedArrows) ? body.curvedArrows : undefined,
             equationFormula: body.equationFormula || undefined,
             comparisonBanner: body.comparisonBanner || undefined,
+            // Fix RT2: polisher templates use brandWatermark prop (not watermark)
+            brandWatermark: !isFounder && (!access?.activePaidPlan || Boolean(access?.watermark)),
           };
         })()
         : {}),
@@ -2969,7 +2994,7 @@ export async function POST(request: Request) {
       frameRange: [0, finalReelFrames - 1],
       outName,
       privacy: 'private',
-      deleteAfter: '3-days',
+      deleteAfter: '2-days',
       overwrite: true,
       concurrency: config.concurrency,
       maxRetries: 3,
@@ -3448,8 +3473,12 @@ function readLambdaConfig():
   const region = readAwsRegion(process.env.REMOTION_AWS_REGION || process.env.AWS_REGION);
   const functionName = clean(process.env.REMOTION_LAMBDA_FUNCTION_NAME);
   const serveUrl = normalizeServeUrl(clean(process.env.REMOTION_LAMBDA_SERVE_URL));
-  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY || 12);
-  const concurrency = Math.min(30, Math.max(4, Number.isFinite(configuredConcurrency) ? configuredConcurrency : 12));
+  // AW10 Fix: Default aligned to 6 (matches .env.example REMOTION_LAMBDA_CONCURRENCY=6).
+  // Note: memory/timeout/disk are set at deploy time via `npm run reel:lambda:deploy`, NOT here.
+  // The concurrency field returned here is passed into renderMediaOnLambda but then overridden
+  // by startRenderWithCapacityRetry which caps to a safe level per video length. (AW4)
+  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY || 6);
+  const concurrency = Math.min(30, Math.max(4, Number.isFinite(configuredConcurrency) ? configuredConcurrency : 6));
   if (!functionName || !serveUrl) {
     return { ok: false, error: 'The render system is not deployed yet.' };
   }
@@ -3487,7 +3516,9 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
   const cleanRequest = { ...request };
   delete (cleanRequest as any).framesPerLambda;
 
-  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 5;
+  // AW10 Fix: Default aligned to 6 (matches .env.example). Do not raise above 6 without
+  // checking Lambda concurrency quota (orchestrator + workers + other Lambdas = max ~10).
+  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 6;
   const maxAccountConcurrency = Math.max(2, Math.min(20, configuredConcurrency));
   const safeConcurrency = Math.min(
     maxAccountConcurrency,
@@ -4336,10 +4367,9 @@ function selectRenderWindow(transcription: PlanningTranscription, maxSeconds: nu
   const sourceDuration = Number.isFinite(transcription.durationSeconds || 0) && (transcription.durationSeconds || 0) > 0
     ? transcription.durationSeconds || maxSeconds
     : maxSeconds;
-  const speechActivity = findFirstSpeechActivity(transcription);
-  const maxTrimStart = Math.max(0, sourceDuration - maxSeconds);
-  const trimStartSeconds = Math.min(maxTrimStart, Math.max(0, speechActivity.startSeconds - SPEECH_LEAD_SECONDS));
-  const trimEndSeconds = Math.min(sourceDuration, trimStartSeconds + maxSeconds);
+  // Per Founder Directive: Take strictly the first 90 seconds (0:00 to 1:30) of uploaded media
+  const trimStartSeconds = 0;
+  const trimEndSeconds = Math.min(sourceDuration, maxSeconds);
   const durationSeconds = Math.max(1, Math.min(maxSeconds, trimEndSeconds - trimStartSeconds));
   const words = shiftWordsToWindow(getTranscriptionWords(transcription), trimStartSeconds, trimEndSeconds);
   const segments = shiftSegmentsToWindow(getTranscriptionSegments(transcription), trimStartSeconds, trimEndSeconds);
@@ -4349,8 +4379,8 @@ function selectRenderWindow(transcription: PlanningTranscription, maxSeconds: nu
     words,
     segments,
     durationSeconds,
-    trimStartSeconds: roundSeconds(trimStartSeconds),
-    source: speechActivity.source,
+    trimStartSeconds: 0,
+    source: 'start',
   };
 }
 
@@ -4470,9 +4500,10 @@ function toMode(value: string): ReelMode | null {
   if (normalized.includes('book-summary') || normalized.includes('booksummary') || normalized.includes('book_summary')) return 'bookSummary';
   if (normalized.includes('split-screen') || normalized.includes('splitscreen') || normalized.includes('split_screen')) return 'splitScreenExplainer';
   if (normalized.includes('image-to-video') || normalized.includes('imagetovideo') || normalized.includes('image_to_video')) return 'imageToVideoAi';
-  if (normalized.includes('ai-video-generator') || normalized.includes('aivideogenerator') || normalized.includes('aivideo') || normalized.includes('ai-video') || normalized.includes('text-to-video') || normalized.includes('script-to-video')) return 'facelessVideo';
+  // BE7 Fix: check ai-video-generator BEFORE the broader 'faceless' match to avoid wrong dispatch
+  if (normalized === 'aivideogenerator' || normalized === 'ai-video-generator' || normalized === 'ai_video_generator' || normalized.includes('text-to-video') || normalized.includes('script-to-video')) return 'aiVideoGenerator';
   if (normalized.includes('faceless-shorts') || normalized.includes('facelessshorts') || normalized.includes('faceless_shorts')) return 'facelessShorts';
-  if (normalized.includes('faceless') || normalized.includes('audio-to-video') || normalized.includes('longvideopro') || normalized.includes('long-video-pro')) return 'facelessVideo';
+  if (normalized.includes('faceless') || normalized.includes('audio-to-video') || normalized.includes('longvideopro') || normalized.includes('long-video-pro') || normalized.includes('aivideo') || normalized.includes('ai-video')) return 'facelessVideo';
   if (normalized.includes('compare') || normalized.includes('comparison') || normalized === 'vs') return 'compare';
   if (normalized.includes('long-video-clip') || normalized.includes('longvideoclip') || normalized.includes('video-clips')) return 'longVideoClips';
   if (normalized.includes('long-video') || normalized.includes('longvideo') || normalized.includes('promo')) return 'longVideoPromo';

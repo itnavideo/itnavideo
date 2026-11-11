@@ -333,28 +333,11 @@ export function AudioCleanStudio({
 
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden text-slate-800">
-      {/* ── ROW 1: STUDIO HEADER & 4-STEP STEPPER BAR ── */}
-      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3.5 shrink-0 shadow-2xs">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          {/* Studio Title */}
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Mic size={18} className="text-orange-600" />
-                AI Audio Cleaner &amp; Studio
-              </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700">
-                <ShieldCheck size={12} className="text-emerald-600" />
-                100% Voice Preserved
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Remove awkward pauses and dead air without altering your natural voice tone or pitch.
-            </p>
-          </div>
-
+      {/* ── ROW 1: 4-STEP GUIDED STEPPER BAR (Unified Studio Stepper) ── */}
+      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3 shrink-0 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex items-center justify-center">
           {/* Stepper Navigation Pills */}
-          <div className="flex items-center gap-1 sm:gap-1.5 self-center sm:self-auto overflow-x-auto no-scrollbar py-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5 bg-slate-50 border border-slate-200/90 rounded-2xl p-1.5 shadow-2xs">
             {[
               { id: "upload", label: "Upload", icon: Upload, completed: !!selectedFile },
               { id: "pacing", label: "Pacing", icon: Sliders, completed: !!audioCleanOptions?.pacing },
@@ -370,35 +353,29 @@ export function AudioCleanStudio({
                   key={step.id}
                   type="button"
                   onClick={() => setCurrentStep(step.id as any)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isActive
-                      ? "bg-orange-600 text-white shadow-xs"
+                  className={`inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20"
                       : isDone
-                        ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
-                        : "bg-transparent text-slate-400 hover:text-slate-600"
-                    }`}
+                        ? "text-slate-800 hover:text-slate-900 hover:bg-white/60"
+                        : "text-slate-400 hover:text-slate-600"
+                  }`}
                 >
                   <span
-                    className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${isActive
-                        ? "bg-white text-orange-600"
+                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black ${
+                      isActive
+                        ? "bg-orange-600 text-white"
                         : isDone
                           ? "bg-emerald-500 text-white"
                           : "bg-slate-200 text-slate-600"
-                      }`}
+                    }`}
                   >
-                    {isDone ? <Check size={10} strokeWidth={3} /> : idx + 1}
+                    {isDone ? <Check size={11} strokeWidth={3} /> : idx + 1}
                   </span>
                   <span>{step.label}</span>
                 </button>
               );
             })}
-          </div>
-
-          {/* Pricing Allowance Badge */}
-          <div className="hidden lg:flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
-              <Zap size={13} className="text-orange-500 fill-orange-500" />
-              1 Credit • Up to 12 Mins
-            </span>
           </div>
         </div>
       </div>
@@ -423,10 +400,10 @@ export function AudioCleanStudio({
                   if (file) onSelectFile(file);
                 }}
                 className={`relative flex flex-col items-center justify-center rounded-3xl border-2 border-dashed p-10 text-center transition-all ${isDragging
-                    ? "border-orange-500 bg-orange-50/30 scale-[1.01]"
-                    : selectedFile
-                      ? "border-emerald-400 bg-emerald-50/40"
-                      : "border-slate-300 bg-slate-50/60 hover:border-orange-400 hover:bg-slate-50"
+                  ? "border-orange-500 bg-orange-50/30 scale-[1.01]"
+                  : selectedFile
+                    ? "border-emerald-400 bg-emerald-50/40"
+                    : "border-slate-300 bg-slate-50/60 hover:border-orange-400 hover:bg-slate-50"
                   }`}
               >
                 {selectedFile ? (
@@ -588,8 +565,8 @@ export function AudioCleanStudio({
                           }))
                         }
                         className={`relative rounded-xl border p-4 text-left transition-all cursor-pointer ${isSelected
-                            ? "border-orange-600 bg-orange-50/30 ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/70"
+                          ? "border-orange-600 bg-orange-50/30 ring-2 ring-orange-500/20"
+                          : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/70"
                           }`}
                       >
                         {p.recommended && (
@@ -628,8 +605,8 @@ export function AudioCleanStudio({
                               }))
                             }
                             className={`rounded-xl border p-2.5 text-center transition cursor-pointer ${isFmt
-                                ? "border-orange-600 bg-orange-50 text-blue-900 font-bold"
-                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              ? "border-orange-600 bg-orange-50 text-blue-900 font-bold"
+                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                               }`}
                           >
                             <p className="text-xs font-bold">{fmt.label}</p>
@@ -661,8 +638,8 @@ export function AudioCleanStudio({
                               }))
                             }
                             className={`rounded-xl border p-2.5 text-center transition cursor-pointer ${isTone
-                                ? "border-orange-600 bg-orange-50 text-blue-900 font-bold"
-                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              ? "border-orange-600 bg-orange-50 text-blue-900 font-bold"
+                              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                               }`}
                           >
                             <p className="text-xs font-bold">{v.label}</p>
@@ -912,8 +889,8 @@ export function AudioCleanStudio({
                     {/* CARD 1: BEFORE (ORIGINAL AUDIO) */}
                     <div
                       className={`rounded-2xl border p-5 transition-all ${isPlayingBefore
-                          ? "border-rose-400 bg-rose-50/50 shadow-xs"
-                          : "border-slate-200 bg-slate-50/60 hover:border-slate-300"
+                        ? "border-rose-400 bg-rose-50/50 shadow-xs"
+                        : "border-slate-200 bg-slate-50/60 hover:border-slate-300"
                         }`}
                     >
                       <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
@@ -941,8 +918,8 @@ export function AudioCleanStudio({
                             onClick={handleTogglePlayBefore}
                             disabled={!rawAudioUrl}
                             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer shadow-xs active:scale-95 ${isPlayingBefore
-                                ? "bg-rose-600 text-white"
-                                : "bg-white text-rose-700 border border-slate-300 hover:bg-rose-50"
+                              ? "bg-rose-600 text-white"
+                              : "bg-white text-rose-700 border border-slate-300 hover:bg-rose-50"
                               } disabled:opacity-40`}
                           >
                             {isPlayingBefore ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
@@ -1009,8 +986,8 @@ export function AudioCleanStudio({
                     {/* CARD 2: AFTER (CLEANED STUDIO MASTER) */}
                     <div
                       className={`rounded-2xl border p-5 transition-all ${isPlayingAfter
-                          ? "border-blue-400 bg-orange-50/30 shadow-xs"
-                          : "border-orange-200 bg-orange-50/30 hover:border-orange-300"
+                        ? "border-blue-400 bg-orange-50/30 shadow-xs"
+                        : "border-orange-200 bg-orange-50/30 hover:border-orange-300"
                         }`}
                     >
                       <div className="flex items-center justify-between border-b border-orange-200/80 pb-3">
@@ -1037,8 +1014,8 @@ export function AudioCleanStudio({
                             type="button"
                             onClick={handleTogglePlayAfter}
                             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer shadow-xs active:scale-95 ${isPlayingAfter
-                                ? "bg-orange-600 text-white"
-                                : "bg-white text-orange-700 border border-orange-300 hover:bg-orange-50"
+                              ? "bg-orange-600 text-white"
+                              : "bg-white text-orange-700 border border-orange-300 hover:bg-orange-50"
                               }`}
                           >
                             {isPlayingAfter ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}

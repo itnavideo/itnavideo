@@ -16,6 +16,8 @@ export async function POST(request: Request) {
       const fileName = String(formData.get("fileName") || file?.name || "uploaded_media.mp4");
       const spokenLanguageRaw = String(formData.get("spokenLanguage") || "auto").trim().toLowerCase();
       const spokenLanguage = spokenLanguageRaw === "auto" ? undefined : spokenLanguageRaw;
+      const maxSecondsRaw = Number(formData.get("maxSeconds"));
+      const maxSeconds = Number.isFinite(maxSecondsRaw) && maxSecondsRaw > 0 ? maxSecondsRaw : undefined;
 
       if (!file || file.size === 0) {
         return NextResponse.json(
@@ -33,6 +35,7 @@ export async function POST(request: Request) {
           fileName,
           contentType: file.type || undefined,
           language: spokenLanguage,
+          maxSeconds,
         });
       } catch (groqErr: any) {
         console.warn("[Transcribe API] Direct Groq transcription failed, trying Gemini fallback:", groqErr?.message);
@@ -71,12 +74,15 @@ export async function POST(request: Request) {
     }
 
     const mediaUrl = await createReadUrl(mediaKey);
+    const maxSecondsRaw = Number(body.maxSeconds);
+    const maxSeconds = Number.isFinite(maxSecondsRaw) && maxSecondsRaw > 0 ? maxSecondsRaw : undefined;
     let result;
     try {
       result = await transcribeMediaUrlWithGroq({
         mediaUrl,
         fileName,
         language: spokenLanguage,
+        maxSeconds,
       });
     } catch (groqError: any) {
       console.warn("[Transcribe API] Groq Whisper URL transcription failed, trying Gemini fallback:", groqError?.message);

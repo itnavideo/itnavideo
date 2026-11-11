@@ -16,12 +16,16 @@
  * Total: 500+ unique vector concepts ensuring ZERO visual repetition.
  */
 
+import { searchSvgs as searchS3Svgs } from '@/services/ai/svgLibrary';
+
 export interface SvgConceptItem {
   id: string;
   name: string;
   category: string;
   keywords: string[];
   viewBox?: string;
+  /** Hosted SVG URL (when sourced from the S3 designed-SVG library). */
+  url?: string;
   paths: Array<{
     d: string;
     strokeWidth?: number;
@@ -366,6 +370,108 @@ DRAMA_TERMS.forEach((term, idx) => {
   };
 });
 
+// ── VISUAL DIVERSITY ENGINE ─────────────────────────────────────────────────
+// 500+ concepts previously shared ~10 generic category templates, making
+// back-to-back scenes look identical. This pool of distinct shape primitives is
+// assigned deterministically per concept id (by hash) so consecutive scenes
+// render visually different graphics while remaining stable across renders.
+// Hand-crafted finance concepts (no category prefix) keep their bespoke paths.
+
+const SVG_SHAPE_PRIMITIVES: Array<Array<{ d: string; colorKey: SvgConceptItem['paths'][number]['colorKey'] }>> = [
+  // 0. Concentric target rings
+  [{ d: createCirclePath(50, 50, 30), colorKey: 'primary' }, { d: createCirclePath(50, 50, 18), colorKey: 'accent' }, { d: createCirclePath(50, 50, 6), colorKey: 'highlight' }],
+  // 1. Upward line chart
+  [{ d: 'M 15 80 L 85 80', colorKey: 'primary' }, { d: 'M 15 80 L 40 55 L 60 62 L 85 25', colorKey: 'accent' }, { d: 'M 75 25 L 85 25 L 85 35', colorKey: 'highlight' }],
+  // 2. Bar chart (3 bars)
+  [{ d: 'M 20 75 L 20 50 M 35 75 L 35 35 M 50 75 L 50 20 M 65 75 L 65 40', colorKey: 'accent' }, { d: 'M 12 80 L 88 80', colorKey: 'primary' }],
+  // 3. Donut / pie
+  [{ d: createCirclePath(50, 50, 30), colorKey: 'primary' }, { d: createCirclePath(50, 50, 14), colorKey: 'highlight' }, { d: 'M 50 20 L 50 50', colorKey: 'accent' }],
+  // 4. Square frame + diagonal cross
+  [{ d: 'M 20 20 L 80 20 L 80 80 L 20 80 Z', colorKey: 'primary' }, { d: 'M 20 20 L 80 80 M 80 20 L 20 80', colorKey: 'accent' }],
+  // 5. Triangle outline
+  [{ d: 'M 50 18 L 85 78 L 15 78 Z', colorKey: 'primary' }, { d: 'M 50 40 L 50 78', colorKey: 'accent' }],
+  // 6. Diamond
+  [{ d: 'M 50 15 L 85 50 L 50 85 L 15 50 Z', colorKey: 'primary' }, { d: 'M 50 15 L 50 85 M 15 50 L 85 50', colorKey: 'highlight' }],
+  // 7. Hexagon
+  [{ d: 'M 50 15 L 82 32 L 82 68 L 50 85 L 18 68 L 18 32 Z', colorKey: 'primary' }, { d: 'M 50 15 L 50 85 M 18 32 L 82 68 M 82 32 L 18 68', colorKey: 'accent' }],
+  // 8. Pentagon
+  [{ d: 'M 50 15 L 85 42 L 72 82 L 28 82 L 15 42 Z', colorKey: 'primary' }, { d: 'M 50 15 L 50 82', colorKey: 'accent' }],
+  // 9. 5-point star
+  [{ d: 'M 50 15 L 58 38 L 84 38 L 63 54 L 71 78 L 50 64 L 29 78 L 37 54 L 16 38 L 42 38 Z', colorKey: 'primary' }, { d: 'M 50 15 L 50 64', colorKey: 'highlight' }],
+  // 10. 8-point sparkle
+  [{ d: 'M 50 12 L 55 45 L 88 50 L 55 55 L 50 88 L 45 55 L 12 50 L 45 45 Z', colorKey: 'primary' }, { d: createCirclePath(50, 50, 6), colorKey: 'highlight' }],
+  // 11. Arrow up
+  [{ d: 'M 50 15 L 75 45 L 58 45 L 58 85 L 42 85 L 42 45 L 25 45 Z', colorKey: 'accent' }],
+  // 12. Arrow right
+  [{ d: 'M 85 50 L 55 25 L 55 42 L 15 42 L 15 58 L 55 58 L 55 75 Z', colorKey: 'accent' }],
+  // 13. Double chevron up
+  [{ d: 'M 50 20 L 75 45 L 50 55 L 25 45 Z M 50 45 L 75 70 L 50 80 L 25 70 Z', colorKey: 'primary' }],
+  // 14. Plus / cross
+  [{ d: 'M 50 18 L 50 82 M 18 50 L 82 50', colorKey: 'primary' }, { d: createCirclePath(50, 50, 22), colorKey: 'accent' }],
+  // 15. X cross
+  [{ d: 'M 20 20 L 80 80 M 80 20 L 20 80', colorKey: 'danger' }, { d: createCirclePath(50, 50, 30), colorKey: 'primary' }],
+  // 16. Concentric squares
+  [{ d: 'M 18 18 L 82 18 L 82 82 L 18 82 Z', colorKey: 'primary' }, { d: 'M 32 32 L 68 32 L 68 68 L 32 68 Z', colorKey: 'accent' }, { d: 'M 44 44 L 56 44 L 56 56 L 44 56 Z', colorKey: 'highlight' }],
+  // 17. 2x2 grid
+  [{ d: 'M 20 20 L 48 20 L 48 48 L 20 48 Z M 52 20 L 80 20 L 80 48 L 52 48 Z M 20 52 L 48 52 L 48 80 L 20 80 Z M 52 52 L 80 52 L 80 80 L 52 80 Z', colorKey: 'primary' }],
+  // 18. Sine wave
+  [{ d: 'M 12 50 C 26 20 34 80 50 50 C 66 20 74 80 88 50', colorKey: 'accent' }, { d: 'M 12 80 L 88 80', colorKey: 'primary' }],
+  // 19. Zigzag / steps up
+  [{ d: 'M 15 80 L 35 80 L 35 65 L 50 65 L 50 50 L 65 50 L 65 35 L 80 35', colorKey: 'accent' }, { d: 'M 15 80 L 80 80', colorKey: 'primary' }],
+  // 20. Shield
+  [{ d: 'M 50 15 L 82 28 L 82 50 C 82 70 68 82 50 88 C 32 82 18 70 18 50 L 18 28 Z', colorKey: 'primary' }, { d: 'M 38 50 L 46 60 L 64 38', colorKey: 'success' }],
+  // 21. Crown
+  [{ d: 'M 18 75 L 82 75 L 82 55 L 68 40 L 58 60 L 50 35 L 42 60 L 32 40 L 18 55 Z', colorKey: 'accent' }, { d: 'M 18 78 L 82 78', colorKey: 'primary' }],
+  // 22. Flag
+  [{ d: 'M 25 15 L 25 85', colorKey: 'primary' }, { d: 'M 25 20 L 75 20 L 62 35 L 75 50 L 25 50 Z', colorKey: 'accent' }],
+  // 23. Mountain peaks
+  [{ d: 'M 12 80 L 38 40 L 50 58 L 70 30 L 88 80 Z', colorKey: 'primary' }, { d: 'M 12 80 L 88 80', colorKey: 'accent' }, { d: createCirclePath(70, 28, 5), colorKey: 'highlight' }],
+  // 24. Tree
+  [{ d: 'M 50 85 L 50 55', colorKey: 'primary' }, { d: 'M 50 55 L 28 55 L 50 18 L 72 55 Z', colorKey: 'success' }, { d: 'M 50 40 L 34 40 L 50 8 L 66 40 Z', colorKey: 'success' }],
+  // 25. Heart
+  [{ d: 'M 50 82 C 18 60 18 28 36 28 C 44 28 50 36 50 40 C 50 36 56 28 64 28 C 82 28 82 60 50 82 Z', colorKey: 'danger' }],
+  // 26. Lightning bolt
+  [{ d: 'M 55 12 L 30 52 L 48 52 L 42 88 L 70 44 L 52 44 Z', colorKey: 'highlight' }],
+  // 27. Droplet
+  [{ d: 'M 50 12 C 50 12 78 42 78 60 C 78 76 66 86 50 86 C 34 86 22 76 22 60 C 22 42 50 12 50 12 Z', colorKey: 'accent' }, { d: createCirclePath(44, 60, 6), colorKey: 'highlight' }],
+  // 28. Gear
+  [{ d: createCirclePath(50, 50, 24), colorKey: 'primary' }, { d: createCirclePath(50, 50, 10), colorKey: 'accent' }, { d: 'M 50 18 L 50 26 M 50 74 L 50 82 M 18 50 L 26 50 M 74 50 L 82 50 M 27 27 L 33 33 M 67 67 L 73 73 M 73 27 L 67 33 M 33 67 L 27 73', colorKey: 'highlight' }],
+  // 29. Clock
+  [{ d: createCirclePath(50, 50, 32), colorKey: 'primary' }, { d: 'M 50 50 L 50 28 M 50 50 L 68 50', colorKey: 'accent' }, { d: createCirclePath(50, 50, 3), colorKey: 'highlight' }],
+  // 30. Compass
+  [{ d: createCirclePath(50, 50, 32), colorKey: 'primary' }, { d: 'M 50 22 L 56 50 L 50 50 L 50 78 L 44 50 Z', colorKey: 'danger' }, { d: 'M 50 50 L 56 50', colorKey: 'accent' }],
+  // 31. Key
+  [{ d: createCirclePath(30, 50, 12), colorKey: 'primary' }, { d: 'M 42 50 L 82 50 M 70 50 L 70 62 M 78 50 L 78 58', colorKey: 'accent' }],
+  // 32. Lock
+  [{ d: 'M 30 45 L 30 35 C 30 24 38 18 50 18 C 62 18 70 24 70 35 L 70 45', colorKey: 'accent' }, { d: 'M 22 45 L 78 45 L 78 82 L 22 82 Z', colorKey: 'primary' }, { d: createCirclePath(50, 60, 6), colorKey: 'highlight' }],
+  // 33. Speech bubble
+  [{ d: 'M 18 25 L 82 25 L 82 65 L 55 65 L 45 80 L 45 65 L 18 65 Z', colorKey: 'accent' }, { d: 'M 32 45 L 68 45', colorKey: 'highlight' }],
+  // 34. Magnifier
+  [{ d: createCirclePath(42, 42, 18), colorKey: 'primary' }, { d: 'M 55 55 L 78 78', colorKey: 'accent' }, { d: 'M 35 42 L 49 42', colorKey: 'highlight' }],
+  // 35. Infinity loop
+  [{ d: 'M 28 50 C 28 36 44 36 50 50 C 56 64 72 64 72 50 C 72 36 56 36 50 50 C 44 64 28 64 28 50 Z', colorKey: 'accent' }],
+];
+
+function hashIdToIndex(id: string, mod: number): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) {
+    h = (h << 5) - h + id.charCodeAt(i);
+    h |= 0;
+  }
+  return Math.abs(h) % mod;
+}
+
+// Only the programmatically-generated concepts (those with a category prefix)
+// get reassigned varied primitives. Hand-crafted finance concepts (e.g.
+// money_bag_cash, growth_trend_chart) have no prefix and keep bespoke paths.
+const PROCEDURAL_PREFIXES = ['fin_', 'mind_', 'tech_', 'biz_', 'prod_', 'health_', 'edu_', 'creator_', 'strat_', 'drama_'];
+
+Object.values(SVG_MASTER_CATALOG).forEach((item) => {
+  if (!PROCEDURAL_PREFIXES.some((p) => item.id.startsWith(p))) return;
+  const primitive = SVG_SHAPE_PRIMITIVES[hashIdToIndex(item.id, SVG_SHAPE_PRIMITIVES.length)];
+  item.paths = primitive.map((p, i) => ({ d: p.d, strokeWidth: i === 0 ? 2.8 : 2.4, colorKey: p.colorKey }));
+});
+
 export const ALL_SVG_CONCEPT_IDS = Object.keys(SVG_MASTER_CATALOG);
 
 /**
@@ -381,7 +487,26 @@ export function resolveSvgFromMasterCatalog(sentenceText: string, avoidIds: stri
   const clean = sentenceText.toLowerCase();
   const avoidSet = new Set(avoidIds);
 
-  // 1. Direct Keyword Match
+  // 0. Prefer S3-hosted designed SVG illustrations when available.
+  // Falls through silently to the procedural catalog when the library is empty.
+  try {
+    const s3Matches = searchS3Svgs(sentenceText, { avoidIds, limit: 1 });
+    if (s3Matches.length > 0) {
+      const m = s3Matches[0];
+      return {
+        id: m.id,
+        name: m.title,
+        category: m.category,
+        keywords: m.keywords,
+        url: m.url,
+        paths: [],
+      };
+    }
+  } catch {
+    // S3 library unavailable — continue to procedural fallback.
+  }
+
+  // 1. Direct Keyword Match (procedural catalog)
   let bestMatch: SvgConceptItem | null = null;
   let highestScore = 0;
 

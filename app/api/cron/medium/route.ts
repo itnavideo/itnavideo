@@ -8,7 +8,7 @@ const CRON_SECRET = process.env.SEO_CRON_SECRET || process.env.CRON_SECRET || ''
 const MEDIUM_STORIES_POOL = [
   {
     title: 'Why I Stopped Hand-Keyframing Subtitles for Instagram Reels in 2026',
-    featuredImage: `${SITE_URL}/preview/Typography%20Subtitle%20%26%20Motion%20Overlay.png`,
+    featuredImage: `https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png`,
     category: 'Video Editing Trends',
     keywords: ['Instagram Reels', 'Subtitles', 'AI Video Editing', 'Typography', 'Content Creation'],
     story: `
@@ -32,7 +32,7 @@ If you are still manually editing captions in 2026, you are wasting 80% of your 
   },
   {
     title: 'How Faceless YouTube Channels Are Making $10k/Mo with AI Video Pipelines',
-    featuredImage: `${SITE_URL}/preview/Faceless%20Long%20Video.png`,
+    featuredImage: `https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png`,
     category: 'Faceless Content',
     keywords: ['Faceless YouTube', 'AI Video Pipeline', 'YouTube Shorts', 'Passive Income', 'Video Marketing'],
     story: `

@@ -17,6 +17,8 @@ import {
   Loader2,
 } from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 
 type BillingEntitlement = {
   active: boolean;
@@ -400,13 +402,15 @@ export default function LongVideoPromoPage() {
         studioName="Long Video Promo"
         aspectRatioLabel="9:16 Shorts"
         badgeLabel="YouTube Teaser"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Studio Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("longVideoPromo", billingEntitlement) ? (
+          <FeaturePaywall featureName="Long Video Promo" description="Create movie-trailer style promo reels from your long video. Upgrade to access Long Video Promo." />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="longVideoPromo"

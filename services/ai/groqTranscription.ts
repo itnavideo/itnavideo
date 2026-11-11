@@ -190,14 +190,14 @@ export async function transcribeMediaUrlWithGroq({
 
         if (retryResponse.ok) {
           console.log('[groqTranscription] Successfully transcribed normalized URL 16kHz MP3 via Groq Whisper!');
-          return normalizeGroqTranscription(await retryResponse.json(), model);
+          return normalizeGroqTranscription(await retryResponse.json(), model, maxSeconds);
         }
       }
     }
     throw new Error(`Groq ${translateToEnglish ? 'translation' : 'transcription'} failed: ${response.status} ${errorText}`);
   }
 
-  return normalizeGroqTranscription(await response.json(), model);
+  return normalizeGroqTranscription(await response.json(), model, maxSeconds);
 }
 
 export async function transcribeMediaBlobWithGroq({
@@ -205,11 +205,13 @@ export async function transcribeMediaBlobWithGroq({
   fileName,
   contentType,
   language,
+  maxSeconds,
 }: {
   blob: Blob;
   fileName: string;
   contentType?: string;
   language?: string;
+  maxSeconds?: number;
 }): Promise<GroqTranscriptionResult> {
   const apiKey = cleanEnvValue(process.env.GROQ_API_KEY);
   if (!apiKey) throw new Error('Missing GROQ_API_KEY.');
@@ -277,14 +279,14 @@ export async function transcribeMediaBlobWithGroq({
 
         if (retryResponse.ok) {
           console.log('[groqTranscription] Successfully transcribed normalized 16kHz MP3 via Groq Whisper!');
-          return normalizeGroqTranscription(await retryResponse.json(), model);
+          return normalizeGroqTranscription(await retryResponse.json(), model, maxSeconds);
         }
       }
     }
     throw new Error(`Groq ${translateToEnglish ? 'translation' : 'transcription'} failed: ${response.status} ${errorText}`);
   }
 
-  return normalizeGroqTranscription(await response.json(), model);
+  return normalizeGroqTranscription(await response.json(), model, maxSeconds);
 }
 
 
@@ -382,17 +384,38 @@ async function fetchMediaBlob(mediaUrl: string, fallbackContentType?: string) {
   };
 }
 
-function normalizeGroqTranscription(payload: unknown, model: string): GroqTranscriptionResult {
+function normalizeGroqTranscription(payload: unknown, model: string, maxSeconds?: number): GroqTranscriptionResult {
   if (!isRecord(payload)) {
     return {transcript: '', model, warning: 'Groq returned an unreadable transcription payload.'};
   }
 
   const transcript = String(payload.text || '').trim();
-  const words = normalizeWords(payload.words);
-  const segments = normalizeSegments(payload.segments);
-  const durationSeconds = readDuration(payload);
+  let words = normalizeWords(payload.words);
+  let segments = normalizeSegments(payload.segments);
+  let durationSeconds = readDuration(payload);
+
+  if (maxSeconds && maxSeconds > 0) {
+    if (words && words.length > 0) {
+      words = words.filter((w) => w.start < maxSeconds).map((w) => ({
+        ...w,
+        end: Math.min(w.end, maxSeconds),
+      }));
+    }
+    if (segments && segments.length > 0) {
+      segments = segments.filter((s) => s.start < maxSeconds).map((s) => ({
+        ...s,
+        end: Math.min(s.end, maxSeconds),
+      }));
+    }
+    if (durationSeconds) {
+      durationSeconds = Math.min(durationSeconds, maxSeconds);
+    }
+  }
+
   const normalized = normalizeTranscriptForPlanner({transcript, words, segments});
-  const cleanTranscript = normalized.transcript || transcript;
+  const cleanTranscript = (segments && segments.length > 0 && maxSeconds)
+    ? segments.map((s) => s.text).join(' ')
+    : (normalized.transcript || transcript);
 
   return {
     transcript: cleanTranscript,

@@ -41,6 +41,8 @@ export interface ProductionCrewInput {
   brandNamesHint?: string;
   uploadedImages?: string[];
   uploadedVideos?: string[];
+  /** Asset source strategy: library (Itnavideo assets) | upload (user media) | mix (uploads + library fill). */
+  imageSource?: 'library' | 'upload' | 'mix';
   smartPunchIns?: boolean;
   punchInIntensity?: 'subtle' | 'medium' | 'dramatic';
   enableSfx?: boolean;
@@ -171,17 +173,28 @@ export function executeVectorArtist(scenes: SceneBlueprintItem[]): SceneBlueprin
 export function executeMediaPlacer(
   scenes: SceneBlueprintItem[],
   uploadedImages: string[] = [],
-  uploadedVideos: string[] = []
+  uploadedVideos: string[] = [],
+  imageSource?: 'library' | 'upload' | 'mix'
 ): SceneBlueprintItem[] {
   const userMedia = [...uploadedImages, ...uploadedVideos];
+  const protectedLayouts = new Set(['hook', 'stat_card', 'comparison', 'milestone_ladder']);
 
-  // A. If user provided media, distribute it smoothly across scenes
-  if (userMedia.length > 0) {
-    const protectedLayouts = new Set(['hook', 'stat_card', 'comparison', 'milestone_ladder']);
-    return scenes.map((scene, idx) => {
+  // Resolve effective mode. Back-compat: infer from upload presence when not specified.
+  const mode: 'library' | 'upload' | 'mix' =
+    imageSource || (userMedia.length > 0 ? 'upload' : 'library');
+
+  // ── Helper: place user media on alternating eligible scenes ──
+  const applyUserMedia = (
+    scns: SceneBlueprintItem[],
+    filled?: Set<number>
+  ): { scenes: SceneBlueprintItem[]; filled: Set<number> } => {
+    const filledSet = filled ?? new Set<number>();
+    if (userMedia.length === 0) return { scenes: scns, filled: filledSet };
+    const placed = scns.map((scene, idx) => {
       if (idx % 2 === 1 && !protectedLayouts.has(scene.layoutType as string)) {
         const mediaUrl = userMedia[idx % userMedia.length];
         const isVideo = /\.(mp4|mov|webm)$/i.test(mediaUrl);
+        filledSet.add(idx);
         return {
           ...scene,
           layoutType: 'full_bleed_visual',
@@ -192,47 +205,71 @@ export function executeMediaPlacer(
       }
       return scene;
     });
+    return { scenes: placed, filled: filledSet };
+  };
+
+  // ── Helper: pull from the curated S3 library on every 3rd eligible scene ──
+  const applyLibrary = (
+    scns: SceneBlueprintItem[],
+    alreadyFilled?: Set<number>
+  ): SceneBlueprintItem[] => {
+    try {
+      const s3Library = getAllLibraryImages();
+      if (s3Library.length === 0) return scns;
+
+      const usedS3Urls = new Set<string>();
+      return scns.map((scene, idx) => {
+        // Feature S3 images across ~35-40% of scenes (every 2-3 scenes, preserving hook, stats, comparisons & steps)
+        if (alreadyFilled?.has(idx)) return scene;
+        if (idx > 0 && idx % 3 === 1 && !protectedLayouts.has(scene.layoutType as string)) {
+          const textTokens = (scene.narrationText || '').toLowerCase().split(/\s+/).filter((w) => w.length > 3);
+
+          let bestImage = s3Library.find((img) => {
+            if (usedS3Urls.has(img.url)) return false;
+            return img.tags.some((t) => textTokens.includes(t.toLowerCase()));
+          });
+
+          if (!bestImage) {
+            const available = s3Library.filter((img) => !usedS3Urls.has(img.url));
+            bestImage = available[idx % available.length] || s3Library[0];
+          }
+
+          if (bestImage && bestImage.url) {
+            usedS3Urls.add(bestImage.url);
+            return {
+              ...scene,
+              layoutType: 'full_bleed_visual',
+              visualAssetRequirement: bestImage.title || 'Curated S3 Visual',
+              brollUrl: bestImage.url,
+              kenBurnsScale: 1.06,
+            };
+          }
+        }
+        return scene;
+      });
+    } catch {
+      return scns;
+    }
+  };
+
+  // ── library: Itnavideo curated assets only ──
+  if (mode === 'library') {
+    return applyLibrary(scenes);
   }
 
-  // B. If user uploaded ZERO files, automatically pull from the 538 AWS S3 library!
-  try {
-    const s3Library = getAllLibraryImages();
-    if (s3Library.length === 0) return scenes;
-
-    const usedS3Urls = new Set<string>();
-
-    const protectedLayouts = new Set(['hook', 'stat_card', 'comparison', 'milestone_ladder']);
-    return scenes.map((scene, idx) => {
-      // Feature S3 images across ~35-40% of scenes (every 2-3 scenes, preserving hook, stats, comparisons & steps)
-      if (idx > 0 && idx % 3 === 1 && !protectedLayouts.has(scene.layoutType as string)) {
-        const textTokens = (scene.narrationText || '').toLowerCase().split(/\s+/).filter((w) => w.length > 3);
-
-        let bestImage = s3Library.find((img) => {
-          if (usedS3Urls.has(img.url)) return false;
-          return img.tags.some((t) => textTokens.includes(t.toLowerCase()));
-        });
-
-        if (!bestImage) {
-          const available = s3Library.filter((img) => !usedS3Urls.has(img.url));
-          bestImage = available[idx % available.length] || s3Library[0];
-        }
-
-        if (bestImage && bestImage.url) {
-          usedS3Urls.add(bestImage.url);
-          return {
-            ...scene,
-            layoutType: 'full_bleed_visual',
-            visualAssetRequirement: bestImage.title || 'Curated S3 Visual',
-            brollUrl: bestImage.url,
-            kenBurnsScale: 1.06,
-          };
-        }
-      }
-      return scene;
-    });
-  } catch {
-    return scenes;
+  // ── upload: user media only, no library fill ──
+  if (mode === 'upload') {
+    if (userMedia.length === 0) return scenes;
+    return applyUserMedia(scenes).scenes;
   }
+
+  // ── mix: uploads at selected beats, fill remaining eligible scenes from library ──
+  if (userMedia.length > 0) {
+    const { scenes: withUploads, filled } = applyUserMedia(scenes);
+    return applyLibrary(withUploads, filled);
+  }
+  // No uploads in mix mode → behave as library.
+  return applyLibrary(scenes);
 }
 
 // =========================================================================
@@ -568,34 +605,12 @@ export function executeSfxMaster(
 }
 
 // =========================================================================
-// SPECIALIST 16: Brand Watermark & Cloud Render Assembler (AWS Lambda Payload)
+// NOTE (BO3 Fix): executeRenderAssembler was dead code — it was defined here
+// but the orchestrator runFacelessShortsProductionCrew never called it.
+// The function and its false audit log entry ("Assembled and validated complete
+// 1080×1920 cloud render blueprint") have been removed to avoid misleading logs.
+// The orchestrator builds the final return object directly at the end.
 // =========================================================================
-export function executeRenderAssembler(
-  scenes: SceneBlueprintItem[],
-  sfxEvents: any[],
-  musicConfig: any,
-  duckingConfig: any,
-  captionsConfig: any,
-  safeZoneConfig: any,
-  durationSeconds: number,
-  topicTitle: string
-) {
-  return {
-    aspectRatio: '9:16' as const,
-    videoType: 'facelessShorts' as const,
-    resolution: { width: 1080, height: 1920, fps: 30 },
-    durationSeconds: Math.min(90, Math.max(5, durationSeconds)),
-    title: topicTitle,
-    scenes,
-    sfxEvents,
-    music: {
-      ...musicConfig,
-      ...duckingConfig,
-    },
-    captions: captionsConfig,
-    safeZones: safeZoneConfig,
-  };
-}
 
 // =========================================================================
 // MASTER ORCHESTRATOR: Executes All 16 Specialists Sequentially
@@ -675,13 +690,21 @@ export async function runFacelessShortsProductionCrew(
   });
 
   // 5. Media Placer (User Media + 538 AWS S3 Images & B-Roll)
-  scenes = executeMediaPlacer(scenes, input.uploadedImages, input.uploadedVideos);
+  const assetModeLabel =
+    input.imageSource === 'upload' ? 'User Uploads Only'
+    : input.imageSource === 'mix' ? 'Mix (Uploads + Library)'
+    : input.imageSource === 'library' ? 'Itnavideo Assets Only'
+    : (input.uploadedImages?.length ? 'User Uploads Only' : 'Itnavideo Assets Only');
+  scenes = executeMediaPlacer(scenes, input.uploadedImages, input.uploadedVideos, input.imageSource);
   auditLog.push({
     specialist: 'Media & B-Roll Placer',
     duty: 'User Assets & 538 S3 Stock Image Integration',
-    actionsTaken: input.uploadedImages?.length
-      ? `Integrated ${input.uploadedImages.length} user images`
-      : 'Auto-matched scenes from 538 AWS S3 image library with smooth Ken Burns drift',
+    actionsTaken:
+      assetModeLabel === 'User Uploads Only'
+        ? `Integrated ${input.uploadedImages?.length || 0} user uploads (${assetModeLabel})`
+        : assetModeLabel === 'Mix (Uploads + Library)'
+        ? `Placed ${input.uploadedImages?.length || 0} user uploads at selected beats, filled remaining scenes from S3 library`
+        : 'Auto-matched scenes from 538 AWS S3 image library with smooth Ken Burns drift (Itnavideo Assets Only)',
   });
 
   // 6. Stat Designer (Enrich any remaining financial metrics)
@@ -792,11 +815,9 @@ export async function runFacelessShortsProductionCrew(
     topPaddingPx: 140,
   };
 
-  auditLog.push({
-    specialist: 'Watermark Guard & Cloud Render Assembler',
-    duty: 'AWS Lambda Remotion Engine Output',
-    actionsTaken: 'Assembled and validated complete 1080×1920 cloud render blueprint',
-  });
+  // BO3 Fix: Removed the false audit log entry for 'Watermark Guard & Cloud Render Assembler'.
+  // executeRenderAssembler was dead code that was never called. The final return is assembled
+  // directly below — no separate specialist function needed.
 
   return {
     topicTitle: input.topicTitle || 'Faceless Short',

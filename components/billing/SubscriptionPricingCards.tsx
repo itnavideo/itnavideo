@@ -201,7 +201,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                 onClick={() => setBillingCycle('annual')}
                 className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-bold transition-all cursor-pointer ${
                   billingCycle === 'annual'
-                    ? 'bg-[#18181b] text-white shadow-xs'
+                    ? 'bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -306,7 +306,11 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
                   type="button"
                   disabled={loading || Boolean(loadingPlan)}
                   onClick={() => buyPlan(plan)}
-                  className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 px-5 text-xs sm:text-sm font-bold bg-zinc-950 hover:bg-zinc-800 text-white shadow-sm active:scale-98 transition-all cursor-pointer"
+                  className={`mt-8 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 px-5 text-xs sm:text-sm font-bold text-white shadow-md active:scale-98 transition-all cursor-pointer ${
+                    isPopular
+                      ? "bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 shadow-orange-500/30 hover:shadow-orange-500/40"
+                      : "bg-orange-500 hover:bg-orange-600 shadow-orange-500/20 hover:shadow-orange-500/30"
+                  }`}
                 >
                   {loadingPlan === plan.id && <Loader2 size={16} className="animate-spin" />}
                   {loadingPlan === plan.id ? "Preparing checkout..." : `Get Started with ${planShortName}`}

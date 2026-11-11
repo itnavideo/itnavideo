@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { LongVideoClipsStudio } from "@/components/dashboard/LongVideoClipsStudio";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 import { useAuth } from "@/components/auth/AuthContext";
 import { resolveSafeContentType } from "@/lib/media/presignedUpload";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -492,13 +494,15 @@ export default function LongVideoClipsPage() {
         studioName="Long Video to Clips"
         aspectRatioLabel="9:16 Shorts"
         badgeLabel="AI Hook Cutter"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Canvas - Full Screen Fluid Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("longVideoClips", billingEntitlement) ? (
+          <FeaturePaywall featureName="Long Video to Clips" description="Extract viral 9:16 short clips from long videos. Upgrade to access Long Video Clips." />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="longVideoClips"

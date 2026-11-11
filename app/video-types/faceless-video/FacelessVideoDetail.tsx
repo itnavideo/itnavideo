@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import ExploreMoreVideoTools from '@/components/landing/ExploreMoreVideoTools';
 import {
   Sparkles,
   ArrowRight,
@@ -57,6 +58,14 @@ export default function FacelessVideoDetail() {
     {
       q: 'What aspect ratios and resolutions are supported?',
       a: 'Faceless Video is optimized for 16:9 Full HD Widescreen (1920×1080 at 30 FPS) for YouTube long-form, desktop presentations, and web streaming.',
+    },
+    {
+      q: 'How does the AI match English stock B-roll to Hindi or regional language audio?',
+      a: 'Our transcription engine transcribes your speech via Groq Whisper and semantically translates key story concepts into curated English visual keywords. This allows the system to seamlessly pull contextually relevant, ultra-high-definition stock footage from international media libraries while simultaneously displaying clean Roman Hinglish subtitles on screen.',
+    },
+    {
+      q: 'What makes faceless channels built with Itnavideo stand out from generic automated slideshows?',
+      a: 'Generic automated tools stitch together low-quality AI images with robotic robotic voices that viewers immediately swipe away. Itnavideo applies documentary-grade storytelling techniques: dynamic Ken Burns camera easing, calculated scene pacing, audio auto-ducking that breathes with your voiceover, and word-synced typography modeled after high-retention creator formats.',
     },
   ];
 
@@ -505,6 +514,9 @@ export default function FacelessVideoDetail() {
           </Link>
         </div>
       </section>
+
+      {/* EXPLORE ALL 14 OTHER VIDEO TOOLS */}
+      <ExploreMoreVideoTools currentToolId="facelessVideo" />
     </div>
   );
 }

@@ -100,8 +100,8 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
   visualTheme = 'editorial-minimal',
   onVisualThemeChange,
 }) => {
-  // ── 4-Step Guided Video Studio State (Matching ImageToVideoStudio) ──
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+  // ── Flexible Step State (supports any number of steps) ──
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   const [activeVisualTheme, setActiveVisualTheme] = useState<string>(visualTheme || 'editorial-minimal');
   const [bookNotesText, setBookNotesText] = useState<string>('');
@@ -520,34 +520,11 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
       />
 
       {/* ========================================================================= */}
-      {/* ROW 1: HEADER & STEPPER NAVIGATION BAR (16:9 Cinema Design)               */}
+      {/* ROW 1: 4-STEP GUIDED STEPPER BAR (Unified Studio Stepper)                  */}
       {/* ========================================================================= */}
-      <header className="shrink-0 border-b border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3.5 z-20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          {/* Left: Studio Branding & Title */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20">
-              <BookOpen size={20} className="stroke-[2.5]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight font-sans">
-                  Book Summary{" "}
-                  <span className="bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                    AI Studio
-                  </span>
-                </h1>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-mono font-bold uppercase tracking-wider">
-                  16:9 Cinema
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 hidden md:block">
-                4-Step Guided Video Studio · Spoken narration, book chapters, soundtrack &amp; kinetic captions
-              </p>
-            </div>
-          </div>
-
-          {/* Center: Desktop Stepper (>=1024px) */}
+      <header className="shrink-0 border-b border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3 z-20">
+        <div className="max-w-7xl mx-auto flex items-center justify-center">
+          {/* Desktop Stepper (>=1024px) */}
           <nav aria-label="Studio Steps" className="hidden lg:flex items-center gap-2 lg:gap-3">
             {BOOK_SUMMARY_STEPS.map((s, idx) => {
               const isCompleted = s.step < currentStep;
@@ -599,18 +576,6 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
               );
             })}
           </nav>
-
-          {/* Right: Render Rate Badge */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="rounded-xl border border-orange-500/30 bg-orange-50/70 px-3 py-1.5 text-right shadow-2xs">
-              <span className="block text-[9px] font-bold uppercase tracking-wider text-orange-600">
-                1 Min = 1 Cr
-              </span>
-              <span className="text-xs sm:text-sm font-black text-orange-600">
-                {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""}
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Tablet & Mobile Stepper Bar (<1024px) */}
@@ -626,7 +591,7 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
             {currentStep > 1 && (
               <button
                 type="button"
-                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1) as 1 | 2 | 3 | 4))}
+                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1)))}
                 className="text-[11px] font-bold text-orange-600 hover:text-orange-700 cursor-pointer shrink-0 ml-2"
               >
                 ← Back
@@ -1443,9 +1408,9 @@ export const BookSummaryStudio: React.FC<BookSummaryStudioProps> = ({
         )}
 
         {/* ======================================================================= */}
-        {/* STEP 4: PREVIEW (16:9 CINEMA MONITOR & CHAPTER STORYBOARD)              */}
+        {/* STEP 4 (final): PREVIEW (16:9 CINEMA MONITOR & CHAPTER STORYBOARD)       */}
         {/* ======================================================================= */}
-        {currentStep === 4 && (
+        {currentStep === BOOK_SUMMARY_STEPS.length && (
           <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>

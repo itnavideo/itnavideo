@@ -204,12 +204,12 @@ export default function MadeWithItnavideoGallery() {
                     <video
                       src={item.videoSrc}
                       poster={
-                        item.videoType === 'Compare Explainer' ? '/preview/Compare Explainer.png' :
-                        item.videoType === 'Whiteboard Animation' ? '/preview/file_0000000018cc82079ca3ca5c29058919.png' :
-                        item.videoType === 'Kinetic Motion' ? '/preview/Typography Video.png' :
-                        item.videoType === 'YouTube Subtitle Generator' || item.videoType === 'Long Caption Pro' ? '/visuals/previews/long-caption-pro.png' :
-                        item.videoType === 'Long Video Pro' ? '/visuals/previews/ai-director-reel-preview.png' :
-                        '/preview/Auto Caption Reel.png'
+                        item.videoType === 'Compare Explainer' ? 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946197/file_0000000035a48208ab4068beb2a66a7d_kctvo9.png' :
+                        item.videoType === 'Whiteboard Animation' ? 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png' :
+                        item.videoType === 'Kinetic Motion' ? 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png' :
+                        item.videoType === 'YouTube Subtitle Generator' || item.videoType === 'Long Caption Pro' ? 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png' :
+                        item.videoType === 'Long Video Pro' ? 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png' :
+                        'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png'
                       }
                       preload="auto"
                       autoPlay

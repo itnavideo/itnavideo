@@ -86,3 +86,4 @@ if (completedCount === 15) {
 } else {
   console.log('WARNING: Some studios require attention.');
 }
+

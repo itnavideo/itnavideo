@@ -116,7 +116,7 @@ export default function TransformationShowcaseSection() {
               1080p Cloud Renders
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-              Render pristine 16:9 widescreen YouTube videos and 9:16 viral Shorts in under 60 seconds with zero watermarks on cloud servers.
+              Render pristine 16:9 widescreen YouTube videos and 9:16 viral Shorts in under 60 seconds. No watermark on paid plans.
             </p>
           </div>
         </div>
@@ -125,16 +125,16 @@ export default function TransformationShowcaseSection() {
         <div className="mt-10 sm:mt-12 text-center flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <a
             href="#video-types"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 hover:bg-zinc-800 px-6 sm:px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-sm hover:scale-[1.02] active:scale-95 transition-all"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 px-6 sm:px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-md shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-95 transition-all"
           >
-            <span className="hidden sm:inline">Explore All 14 Purpose-Built AI Video Studios Below</span>
-            <span className="sm:hidden">Explore All 14 Video Studios</span>
+            <span className="hidden sm:inline">Explore All 15 Purpose-Built AI Video Studios Below</span>
+            <span className="sm:hidden">Explore All 15 Video Studios</span>
             <ArrowRight size={14} />
           </a>
           <span className="text-slate-300 hidden sm:inline">•</span>
           <Link
             href="/video-types"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-950 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-orange-600 transition-colors"
           >
             <span className="hidden sm:inline">Or browse all dedicated pages &amp; specs</span>
             <span className="sm:hidden">Browse all specs</span>

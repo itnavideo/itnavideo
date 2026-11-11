@@ -1,7 +1,20 @@
 # Itnavideo — Homepage Master Architecture & Spec (`homepage.md`)
 
-> **Single Source of Truth** for the Itnavideo Homepage (`app/page.tsx`).  
-> All components, copy, limits, credit rules, studio counts, and visual design tokens are documented here.
+## Overview
+
+This document is the **Single Source of Truth** for the Itnavideo public homepage (`app/page.tsx`). It details the complete page architecture, hero positioning, conversion funnels, visual design tokens, mobile-first responsive behaviors, SEO metadata, and studio counts. Any frontend engineer, content strategist, or UI designer modifying the homepage must consult and update this document to keep the live product and documentation in perfect alignment.
+
+---
+
+## Table of Contents
+
+1. [Quick Audit and Verification Checklist](#1-quick-audit--verification-checklist-30-second-audit)
+2. [Executive Positioning and Value Hook](#2-executive-positioning--value-hook)
+3. [Studio Count Architecture](#3-studio-count-architecture)
+4. [Master Category Matrix & Duration Standards](#4-master-category-matrix--duration-standards)
+5. [Complete Homepage Section Hierarchy](#5-complete-homepage-section-hierarchy-top-to-bottom)
+6. [Brand Design Tokens & Color Hierarchy](#6-brand-design-tokens-rule-9--orange-primary-system)
+7. [Developer and Maintenance Rules](#7-developer--maintenance-rules)
 
 ---
 
@@ -24,7 +37,7 @@
 | **Mobile-First CRO** | **70% Mobile / 30% Desktop**. Sticky Mobile Action Bar appears on upward scroll with safe-area padding | ✅ Verified |
 | **Regional Audio Pipeline** | Transcribed via Groq &rarr; Semantic English translation for B-roll matching &rarr; Roman Hinglish captions | ✅ Verified |
 | **Subtitles Script** | Clean Roman Hinglish (English alphabet) only — Zero Devanagari script drift | ✅ Verified |
-| **Primary Brand Color** | **Sunset Orange / Amber (`#EA580C` / `#F97316`)** as the single primary brand color. Neutral canvas (`#FFFFFF`), dark buttons (`#09090B`), slate borders (`#E2E8F0`), and emerald (`#10B981`) strictly for success/trust badges. Zero Electric Royal Blue. | ✅ Verified |
+| **Primary Brand Color** | **Sunset Orange / Amber (`#EA580C` / `#F97316`)** as the single primary brand color. Neutral canvas (`#FFFFFF`), energetic orange gradient CTA buttons (`from-orange-600 via-amber-600 to-orange-500`), slate borders (`#E2E8F0`), and emerald (`#10B981`) strictly for success/trust badges. | ✅ Verified |
 
 ---
 
@@ -170,10 +183,10 @@ app/page.tsx
 - Highlights: 16:9 Faceless Video speed, zero laptop freezing on cloud renders, and high transcription accuracy.
 
 #### 6. Pricing Section (`components/landing/PricingSection.tsx`)
-- Dynamic local currency quotes:
-  - **Starter**: $9 / ₹499 (30 credits)
-  - **Growth**: $19 / ₹999 (75 credits)
-  - **Pro**: $39 / ₹1,999 (180 credits)
+- **Dynamic local currency quotes:**
+  - **Starter**: $19.99 / ₹999 (100 credits / 30-day pack)
+  - **Growth**: $39.99 / ₹1,999 (250 credits / 30-day pack)
+  - **Pro**: $69.99 / ₹3,499 (600 credits / 30-day pack)
 - Duration rates emphasized: 1 Min = 1 Credit for 16:9, 1 Credit flat for 9:16 Shorts.
 
 #### 7. FAQ Section (`components/FAQSection.tsx`)

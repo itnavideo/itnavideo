@@ -1,339 +1,117 @@
-# Reference Note
+# Compare Explainer Generator — Studio Specification
 
-This is a detailed Video Type spec. Start with `docs/ITNAVIDEO_MASTER_DOC.md` for the latest source of truth, then use this file for Compare Explainer implementation details.
+## Overview
 
-# Compare Explainer
+The **Compare Explainer Generator** (`compare`) generates side-by-side Versus comparison reels (`1080×1920` @ 30 FPS MP4) up to 90 seconds long. Featuring animated sticker presenter characters, split comparison image cards, animated VS badges, and synchronized subtitles, it turns product reviews, debates, and concept face-offs into engaging, digestible short-form content.
 
-## Basic Information
-
-| Field | Value |
-|-------|-------|
-| Video Type Name | Compare Explainer |
-| Internal ID | `comparisonImages` |
-| Composition ID | `comparisonImages` |
-| Dashboard Mode | `compare` |
-| Category | Education |
-
-## Purpose
-
-Compare two things side by side with a sticker presenter character explaining the differences via voiceover. Think "iPhone 15 vs Samsung S24" or "React vs Vue" — visual comparison with personality.
-
-## Who Uses It
-
-- Tech reviewers comparing products
-- Educators comparing concepts
-- Students making comparison study reels
-- Anyone explaining pros/cons of two options
-
-## Viewer Expectation
-
-The viewer sees a clean split comparison with images, a sticker character reacting and pointing, and captions from the voiceover. It should feel like a fun, digestible explainer — not a boring slide.
-
-## What Problem It Solves
-
-Making comparison videos requires editing software, finding layouts, adding animations. This gives a ready-made comparison format with a presenter character that keeps it engaging.
-
-## Why User Should Pay
-
-- Professional split comparison layout instantly
-- Animated sticker presenter adds personality without face-on-camera
-- Captions auto-synced to voiceover
-- 16 character options with 6 core poses each, plus extra poses on supported character sets — variety across videos
-- No editing or design skill needed
+- **Primary Purpose**: Create engaging side-by-side versus comparison videos for product reviews and conceptual debates.
+- **Target Audience**: Tech reviewers, finance analysts, educators, and social media debate channels.
+- **Expected Output**: 1080p Full HD (`1080×1920`) 30 FPS vertical MP4 video.
 
 ---
 
-## Required User Inputs
+## Table of Contents
 
-| Input | Type | Required | Notes |
-|-------|------|----------|-------|
-| Audio Voiceover | Audio/Video file | Yes | Must contain speech explaining the comparison |
-| Left Image | Image (PNG/JPG/WebP) | Yes | First comparison item (e.g., iPhone) |
-| Right Image | Image (PNG/JPG/WebP) | Yes | Second comparison item (e.g., Samsung) |
-
-## Optional User Inputs
-
-| Input | Type | Notes |
-|-------|------|-------|
-| Left Title | Text | Label for left item (e.g., "iPhone 15") |
-| Right Title | Text | Label for right item (e.g., "Galaxy S24") |
-| Theme | Selection | Visual theme: `white` (default clean white), `light` (soft gradient), `dark` (slate), `bold` (purple). |
-| BGM Track | Selection / Upload | 13+ Curated AWS S3 tracks or custom audio upload (default volume: 12%). |
-| Motion SFX | Toggle | Versus whooshes, badge pop, and victory chime SFX. |
-| Editorial Transcript | Text | Spoken narration editor for fixing speech typos before rendering. |
-| Visual Review Gate | Checkbox | Compulsory live preview review required before cloud render button unlocks. |
-| Comparison tone | Selection | `versus` (neutral blue vs purple, default) or `goodBad` (green = recommended, red = avoid). Drives both sides' accent colors. |
-| Winner | Selection | `none` (default), `left`, or `right`. Adds a 👑 crown on the winning title pill and a winner announcement on the closing card. |
-| Image Frame Style | Selection | `rounded` (default), `circle`, `phone`, `tilted`, `polaroid`. Controls how the comparison images are displayed. |
-| Sticker Character | Selection | Choose from 16 character sets, grouped into Teachers / 3D Characters / Professionals / Faith |
-| Subtitle Language | Not shown | No language dropdown. Captions follow the uploaded voiceover language as produced by the supported Groq transcription pipeline |
-
-### Image Frame Styles
-
-| Style | Description |
-|-------|-------------|
-| `rounded` | Thick rounded corners (24px radius), colored border, soft shadow. Default. |
-| `circle` | Images cropped into circles (380×380). No corner badge. |
-| `phone` | Phone mockup frame — thick dark bezel, top notch, deep shadow. |
-| `tilted` | 3D perspective tilt (left tilts right, right tilts left). Depth effect. |
-| `polaroid` | White polaroid frame with label at bottom ("Option A" / "Option B"). |
-
-## Inputs NOT Collected
-
-- No background image
-- No custom fonts
-- No CTA text
-- No thumbnail
-- No separate reel topic/title field
+1. [Overview](#overview)
+2. [Features and Capabilities](#features-and-capabilities)
+3. [User Workflow](#user-workflow)
+4. [UI/UX Design and Components](#uiux-design-and-components)
+5. [Colors, Typography and Design Tokens](#colors-typography-and-design-tokens)
+6. [Technical Implementation](#technical-implementation)
+7. [Business Logic, Duration and Credit Rules](#business-logic-duration-and-credit-rules)
+8. [Error Handling and Edge Cases](#error-handling-and-edge-cases)
+9. [Testing and Quality Assurance](#testing-and-quality-assurance)
+10. [Developer Notes and Guardrails](#developer-notes-and-guardrails)
 
 ---
 
-## Output Details
+## 1. Features and Capabilities
 
-| Property | Value |
-|----------|-------|
-| Default size | 1080p Full HD (`1080×1920` for 9:16 / `1920×1080` for 16:9) |
-| Supported aspect | `9:16` Vertical Shorts & `16:9` Widescreen Cinema |
-| Max duration | 90s (9:16 Shorts) / 5 Minutes / 300s (16:9 Cinema) |
-| Min duration | 8 seconds |
-| Duration source | Matches uploaded audio/video length |
-| Export format | MP4 (H.264 + AAC) |
-| Audio handling | User's uploaded voiceover plays at full volume |
-| Background music | OFF by default |
-| Premium style layer | Automatic `styleLock` and subtle `soundCues` for cohesive visual/sound design |
+- **Side-by-Side Dual Comparison Stage**: Compares two products, features, or concepts simultaneously with clean split image cards and labels.
+- **16 Animated Presenter Sticker Characters**: Select from 16 distinct sticker characters with 6 dynamic reactive poses (Pointing Left, Pointing Right, Thinking, Shocked, Happy, Neutral).
+- **Animated VS Center Badge**: High-impact center Versus badge with pulsing energy ring.
+- **Word-Level Kinetic Subtitles**: Synchronized subtitles with active-word color pops placed in mobile safe areas.
+- **Multiple Visual Themes**: Supports 4 distinct visual themes (`White Studio`, `Soft Gradient Light`, `Midnight Dark`, `Electric Purple`).
+- **Sound Design**: Curated tension-building background music and swoosh sound effects on character pose transitions.
 
 ---
 
-## Layout Rules
+## 2. User Workflow
 
-The Video Type renders a comparison layout with sticker presenter:
+The studio follows a guided 4-step workflow:
 
-```
-┌─────────────────────────────┐
-│  ┌───────────┬───────────┐  │
-│  │  LEFT     │  RIGHT    │  │  ← title bars (A vs B)
-│  │  TITLE    │  TITLE    │  │
-│  ├───────────┼───────────┤  │
-│  │           │           │  │
-│  │  LEFT     │  RIGHT    │  │  ← comparison images
-│  │  IMAGE    │  IMAGE    │  │
-│  │           │           │  │
-│  └───────────┴───────────┘  │
-├─────────────────────────────┤
-│                             │
-│    ┌───────────────────┐    │
-│    │  CAPTION TEXT      │    │  ← caption box (middle area)
-│    └───────────────────┘    │
-│                             │
-├─────────────────────────────┤
-│                             │
-│       🧑 STICKER           │  ← sticker presenter (bottom)
-│       CHARACTER             │
-│                             │
-└─────────────────────────────┘
-```
-
-### Spacing and Safe Zones
-- Title bars are fixed at `top: 112px`, `height: 88px`; each label is constrained to 40 characters, adaptive `28–44px` type, and a clipped two-line area so it never pushes into images.
-- Comparison images occupy equal contained `488×430px` panels beginning at `top: 225px`; portrait and landscape inputs keep their aspect ratio.
-- Caption box is a fixed `top: 720px`, `height: 126px` band. Captions are capped to two concise lines (up to 12 words / 78 characters) and are never allowed to grow into the presenter zone.
-- Sticker presenter has one anchored lower-safe zone from `top: 870px` to `bottom: 34px`. Pose art supplies left/right direction; the container does not move.
-- Sticker transform inputs are bounded in the renderer: scale `0.72–1.15`, horizontal offset `-110–110px`, vertical offset `-36–46px`.
-
-### Sticker Character System
-- 16 character sets available
-- 6 core poses per character: `sticker_welcome_intro_explainer`, `sticker_pointing_left_side_explainer`, `sticker_pointing_right_side_explainer`, `sticker_thinking_analysis_explainer`, `sticker_warning_issue_explainer`, `sticker_success_conclusion_explainer`
-- Extra poses when available: `sticker_questioning_surprised_explainer`, `sticker_general_explaining_key_point`, `sticker_happy_celebrating_outro`, `sticker_comparing_both_sides_explainer`
-- `sticker_welcome_intro_explainer` means the presenter opens the comparison
-- `sticker_pointing_left_side_explainer` means the sticker is using hand/stick to explain the left-side item
-- `sticker_pointing_right_side_explainer` means the sticker is using hand/stick to explain the right-side item
-- `sticker_comparing_both_sides_explainer` means the sticker is weighing both sides together
-- `sticker_questioning_surprised_explainer` means the sticker reacts to a question, surprise, or confusion
-- `sticker_general_explaining_key_point` means the sticker explains an important rule, feature, reason, or takeaway
-- Legacy aliases (`welcome`, `left`, `right`, `thinking`, `warning`, `success`, `surprised`, `explaining`, `celebrating`, `comparing`, `sticker_left`, `sticker_right`) are accepted only for older render data
-- Intent-based switching throughout the video based on content
-- Pose changes are grouped by sentence/scene intent, not by every caption chunk or keyword hit
-- Minimum pose hold is 4-6 seconds where possible, or until the current sentence/comparison beat ends
-- Sticker MUST change poses during the video — never stays static
-- Adjacent beats should keep the same pose when the same narration intent genuinely continues
-
-### Caption Handling
-- Captions generated from Groq transcript
-- No subtitle language dropdown. If the user uploads English voiceover, captions should be English; if the user uploads Hindi/Urdu/Hinglish voiceover, captions should follow the supported Roman Hindi/Urdu/Hinglish output.
-- Do not promise translation/conversion to another language from this Video Type.
-- Displayed in a box/pill in the middle area
-- Word-grouped timing (not single words)
+1. **Step 1: Upload (Voiceover Audio, Left Image & Right Image)**:
+   - Creator uploads narration audio (`.mp3`, `.wav`, `.m4a`).
+   - Uploads Left comparison item photo (e.g., iPhone 15) and Right item photo (e.g., Galaxy S24).
+   - Enters optional Left Title and Right Title labels.
+   - Cloud transcribes speech and displays the live editorial transcript for verification.
+2. **Step 2: Music & Audio Design**:
+   - Creator selects background music from 14 curated AWS S3 tracks.
+   - Sets background music volume with auto-ducking to maintain vocal clarity.
+3. **Step 3: Character Selection & Caption Theme**:
+   - Chooses presenter character and default theme.
+   - Selects animated typography style with live word previews.
+4. **Step 4: Live Phone Preview & Render**:
+   - Interactive 9:16 phone simulator previews the split-screen cards and sticker character reactions.
+   - Creator clicks **Render 1080p Compare Reel** to execute AWS Lambda cloud rendering.
 
 ---
 
-## Color and Typography Rules
+## 3. UI/UX Design and Components
 
-| Element | Style |
-|---------|-------|
-| Background | Solid or subtle gradient (clean, not distracting) |
-| Title bars | Semi-transparent dark or themed background |
-| Title text | White, bold, readable |
-| Caption text | White on dark pill/box |
-| Image borders | Subtle border or shadow for separation |
-| Sticker | Full color character PNG |
-
-### What Colors to Avoid
-- No neon or overly bright backgrounds
-- No clashing colors between title bars
-- No gradient text
-- Background should not compete with comparison images
+- **Studio Route**: `/dashboard/compare-explainer`
+- **Frontend Studio Component**: `components/dashboard/CompareExplainerStudio.tsx`
+- **Public SEO Landing Page**: `/compare-explainer` (`app/compare-explainer/page.tsx`)
+- **Design Structure**: Pure White canvas (`#FFFFFF`) with fine borders (`#E2E8F0`) and responsive 3-row layout (`Stepper Header`, `Preview Work Area`, `Sticky Action Bar`).
 
 ---
 
-## Motion Rules
+## 4. Colors, Typography and Design Tokens
 
-| Element | Animation |
-|---------|-----------|
-| Title bars | Slide in from top |
-| Comparison images | Scale in or fade in |
-| Caption text | Fade/slide per caption group |
-| Sticker character | Pose changes only at sentence/scene intent boundaries with a 4-6s stable hold |
-| Sticker pointing | `sticker_pointing_left_side_explainer` when discussing the left item, `sticker_pointing_right_side_explainer` for the right item |
-| Sticker reaction | Question/surprise/explanation/comparison/conclusion poses should appear when the narration context calls for them |
-
-### Premium Style Lock
-
-Compare Explainer now receives a shared `styleLock` from the render route. Finance comparisons such as RBI/SBI/credit card content can lock into a corporate finance palette, motion pace, sticker direction, and low-volume SFX pack so both sides of the comparison feel like one designed world instead of random scene styles.
-
-The renderer applies the premium visual treatment layer for LUT-like color consistency, light grain, vignette, and depth. For finance comparisons, micro-interactions should feel precise: soft clicks for UI emphasis, cash/count cues for money beats, and success chimes for conclusion or approval moments.
-
-### What Should NOT Animate
-- Images should not continuously bounce or float
-- No spinning or rotating elements
-- No particle effects
-- No screen shake
-- Sticker should not move position — only change pose
+- **Canvas Background**: Pure White (`#FFFFFF`) with subtle slate background accents (`#F8FAFC`).
+- **Primary Brand Accent**: Sunset Orange (`#FF5722` / `#F97316`) for active controls and primary CTA buttons.
+- **Comparison Split Accents**: Cyan Blue (`#0EA5E9`) for left item and Amber Orange (`#F59E0B`) for right item.
+- **Typography**: Inter / System Sans-serif stack (`font-sans`).
 
 ---
 
-## Asset Rules
+## 5. Technical Implementation
 
-- Sticker PNGs loaded from `public/assets/stickman/` via `staticFile()`
-- No stock images — only user-provided comparison images
-- No background music added by default
-- Subtle automatic diegetic SFX are allowed through `soundCues` only; no loud or unrelated sound effects
-- Character assets are code-referenced, not stored in template folder
-
----
-
-## Timeline / Scene Structure
-
-- Audio source = user's uploaded voiceover
-- Duration = voiceover length (capped at 180s / 3 minutes)
-- Captions = from Groq transcription (extracted audio, Fallback: Google Gemini 2.0 Flash `asia-south1`)
-- No user-facing subtitle language selector
-- Sticker pose changes driven by stabilized overlay timeline / intent detection, with captions allowed to update independently
-- Preview plan contains the canonical captions, stabilized `overlayTimeline`, sticker beats, comparison assets, and user edits before the final render.
-- On confirmation, the dashboard sends only preview-approved editable data (`previewCaptions`, `previewOverlayTimeline`, `previewStickers`, style/transform choices) with the original upload keys. The jobs route validates timing/text, keeps those approved captions and poses, and never trusts client media URLs.
-- Without preview-approved data, the deterministic local planner derives canonical intent poses from the current upload transcript. It merges genuine continuing narration into 4–6 second holds; it never forces left/right alternation merely for variety.
-- The same deterministic `styleLock` and timed `soundCues` are supplied to preview and final render. Background music remains off; source voiceover stays primary.
-- Credits are deducted only after the user confirms preview and starts final render.
-- Intent mapping: `sticker_welcome_intro_explainer` (intro), `sticker_pointing_left_side_explainer` (discussing item A / leftTitle / option A / first item), `sticker_pointing_right_side_explainer` (discussing item B / rightTitle / option B / second item), `sticker_comparing_both_sides_explainer` (both sides / vs / tradeoff), `sticker_questioning_surprised_explainer` (question / confusion / surprise), `sticker_general_explaining_key_point` (feature / reason / rule / benefit), `sticker_thinking_analysis_explainer` (neutral analysis), `sticker_warning_issue_explainer` (cons/issues), `sticker_success_conclusion_explainer` or `sticker_happy_celebrating_outro` (conclusion/recommendation/outro)
-
-### Planner Pose Instructions
-
-- Planner-facing pose names must be descriptive canonical IDs, not vague `left` / `right`.
-- Use `sticker_welcome_intro_explainer` for the opening hook only.
-- For a left-side comparison beat, output `sticker_pointing_left_side_explainer`.
-- For a right-side comparison beat, output `sticker_pointing_right_side_explainer`.
-- If both sides are discussed in the same beat, output `sticker_comparing_both_sides_explainer`.
-- For question/confusion/surprise beats, output `sticker_questioning_surprised_explainer`.
-- For important explanation beats, output `sticker_general_explaining_key_point`.
-- For warning/risk/mistake beats, output `sticker_warning_issue_explainer`.
-- For conclusion/winner/outro beats, output `sticker_success_conclusion_explainer` or `sticker_happy_celebrating_outro`.
-- Keep the same pose on adjacent beats when the same intent genuinely continues; do not force pose changes just to avoid repetition.
-- The renderer still accepts old short names as legacy aliases so old jobs do not break.
-
-## Fallback Rules
-
-| Scenario | Behavior |
-|----------|----------|
-| Missing left image | Placeholder with item label text |
-| Missing right image | Placeholder with item label text |
-| No left/right titles | Hide title bars or show "Item A" / "Item B" |
-| No sticker selected | Use default character set |
-| Transcription fails | Show error — don't render without captions |
-| Audio too short (<8s) | Clamp to minimum 8s |
-| Audio too long (>90s) | Trim to 90s |
-| Hindi/Hinglish audio | Roman Hinglish captions |
-| No speech detected | Show error — voiceover is required |
+- **Video Type ID**: `compare` / `comparisonImages`
+- **Remotion Composition ID**: `comparisonImages` (`1080×1920` @ 30 FPS)
+- **Remotion Template Directory**: `remotion/templates/comparisonImages/`
+- **Sticker Asset Library**: Vector PNG/SVG sticker character assets stored in `public/assets/stickman/`.
+- **Speech Transcription**: Groq Whisper Cloud API.
+- **Render Engine**: AWS Lambda running Remotion cloud workers in `us-east-1`.
 
 ---
 
-## QA Checklist
+## 6. Business Logic, Duration and Credit Rules
 
-- [ ] Both comparison images render at equal size, side by side
-- [ ] Title bars display correctly for both items
-- [ ] Sticker character changes poses throughout the video (not static)
-- [ ] Sticker points left when discussing left item
-- [ ] Sticker points right when discussing right item
-- [ ] Captions are synced to voiceover timing
-- [ ] Audio plays at correct volume
-- [ ] Images don't stretch or distort (maintain aspect ratio)
-- [ ] Caption box doesn't overlap sticker or images
-- [ ] All 16 sticker characters render correctly when selected
-- [ ] Preview editor can change caption text/timing and sticker character, pose, scale, and position before confirmation
-- [ ] Preview-confirmed captions, poses, character, and transform values persist in the final render
-- [ ] Long unbroken titles fit the fixed title bars without growing into image space
-- [ ] Long captions remain inside the fixed caption band and never cover the presenter
-- [ ] Out-of-range sticker scale/offset values are clamped inside the lower safe zone
-- [ ] Preview and final frames match the approved timeline, style lock, and source-voiceover treatment
-- [ ] Hindi/Hinglish audio produces Roman captions
+- **Aspect Ratio**: Strictly 9:16 Vertical Only (`1080×1920`).
+- **Maximum Output Duration**: Strictly **90 Seconds Max (90s / 2,700 frames @ 30 FPS)**.
+- **Credit Billing**: **Strictly 1 Credit** per video (Master Rule 4.1 for 9:16 Short-Form).
+- **Draft Preview**: 100% Free interactive browser preview before rendering.
 
 ---
 
-## 2026 Quality Pass (Phase A / B / C)
+## 7. Error Handling and Edge Cases
 
-**Phase A — render-critical**
-- Fonts are now self-hosted via `@remotion/google-fonts` (`resolveFont`): titles + VS badge use Anton (`DISPLAY_FONT`), captions/handle use Montserrat (`TEXT_FONT`). Previously the template used system `Arial Black/Impact`, which fell back inconsistently on Lambda Linux. Local preview and Lambda output now match.
-- Captions are empty-safe: no more hardcoded "Simple difference samjho." placeholder. The caption box only renders when real transcript/overlay text exists (whitespace-safe), so English and silent sections stay clean.
+- **No Speech Detected**: Flags `NO_SPEECH_DETECTED`; prompts user to upload audio with clear speech without deducting credits.
+- **Missing Side Image**: Fallback renders a clean high-contrast text badge displaying the item title.
+- **Render Interruption**: Credits are automatically refunded if cloud rendering encounters an AWS Lambda timeout.
 
-**Phase B — visual + product**
-- Three visual themes (`themeId`): `light`, `dark`, `bold` — each defines background, dot pattern, glow, caption glass, handle color, box background, and hook/closing card background.
-- Comparison tone (`tone`): `versus` (blue vs purple) or `goodBad` (green vs red). Threaded into title pills, image boxes, corner badges, glows, and cards.
-- Winner (`winner`): `left` / `right` / `none`. Puts a 👑 crown on the winning title pill and announces the winner on the closing card.
-- Opening hook card: first ~1.85s full-screen "A **VS** B" + topic, springs in and fades into the main layout.
-- Closing CTA card: last ~2.6s full-screen winner announcement (or "Which one wins?") + "Follow @handle" pill.
+---
 
-**Phase C — UX & Studio Streamlining**
-- Demo videos carousel removed from the studio interface (demo reels are reserved strictly for dedicated SEO pages like `/compare-explainer`).
-- Presenter character picker (2D/3D) cleanly removed from dashboard studio while new unified custom character selection is being developed.
-- Studio layout streamlined to 3 focused steps: Step 1 (Audio Voiceover), Step 2 (Dual Images & Subject Titles), Step 3 (Visual Theme & Winner Celebration).
+## 8. Testing and Quality Assurance
 
-**Server validation (`app/api/reels/jobs/route.ts`)**
-- `resolveCompareTheme` / `resolveCompareTone` / `resolveCompareWinner` validate `compareTheme`/`compareTone`/`compareWinner` against fixed allow-lists; unknown values fall back to `light` / `versus` / `none`.
+- **Typecheck Verification**: `npx tsc --noEmit` verifies all comparison props and composition interfaces.
+- **Sticker Alignment**: Confirm that presenter character does not obscure comparison image cards or subtitles.
+- **Side Switch Timing**: Confirm that sticker pointing transitions correspond to the spoken item being discussed.
 
-## What to Avoid
+---
 
-- DO NOT leave sticker in one pose for the entire video
-- DO NOT add background music by default
-- DO NOT add extra images or stock photos
-- DO NOT add random SFX; sound must map to visible/timed events such as swipe, click, warning, cash, or conclusion
-- DO NOT stretch comparison images to fill unequal areas
-- DO NOT place captions over the comparison images
-- DO NOT use AI image generation for comparison items
-- DO NOT add random decorative elements (circles, stars, lines)
-- DO NOT make the sticker too small to see or too large to dominate
-- DO NOT use Devanagari script for Hindi/Hinglish audio captions
+## 9. Developer Notes and Guardrails
 
-## Video Type Value Proposition
-
-The Video Type adds value through:
-1. **Structured comparison** — clean, equal split layout that's hard to make manually
-2. **Sticker personality** — animated presenter without needing face-on-camera
-3. **Intent-aware posing** — character reacts to content contextually
-4. **Auto captions** — synced to voiceover without manual timing
-5. **Variety** — 16 characters × 6 poses = unique combinations
-
-NOT through flashy effects, stock imagery, or AI-generated visuals.
-
-## Dedicated Page Social Proof
-
-- The dedicated `/compare-explainer` page includes a Creator Proof gallery using the 21 Instagram screenshots in the Cloudinary asset folder `compare explainer insta screenshots`.
-- The images are delivered directly from Cloudinary with responsive `f_auto`, `q_auto`, and cropped thumbnail transformations; they are not copied into Vercel/static render assets.
-- This page presents the creator-shared 100K+ follower-growth and millions-of-views proof as social proof for comparison content, followed by all 16 dashboard-available sticker presenter previews.
+- **Zero Local Rendering (Rule 0)**: Do not run local Remotion renders on developer machines; all rendering executes on AWS Lambda.
+- **Character Asset Index**: Any new sticker characters must be registered in `public/assets/stickman/` and indexed via `npm run assets:index`.

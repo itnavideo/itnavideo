@@ -377,8 +377,8 @@ export default function YoutubeSubtitlesPageClient() {
         studioName="YouTube Subtitles AI"
         aspectRatioLabel="16:9 Cinema"
         badgeLabel="Burned Strips"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Canvas - Full Screen Fluid Workspace */}

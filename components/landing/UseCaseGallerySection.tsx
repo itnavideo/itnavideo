@@ -6,7 +6,7 @@ const outputShowcase = [
   {
     title: 'Auto Caption Reel',
     body: 'Best for existing reels that need clean, readable, social-ready captions without changing the original video.',
-    src: '/preview/Auto Caption Reel.png',
+    src: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png',
     href: '/video-types/auto-caption-reel',
   },
   {

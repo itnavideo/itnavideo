@@ -29,14 +29,13 @@ export type PexelsSceneQuery = {
   query: string;
 };
 
-const DEFAULT_PEXELS_KEY = 'SSnEVHTUu4Pmf93RQB0PNoIr5U7IAGB6FTixxkh5aII6nTEj8w2IoqFu';
-
 export function getPexelsApiKey(): string {
-  return (
+  const key = (
     process.env.PEXELS_API_KEY ||
     process.env.NEXT_PUBLIC_PEXELS_API_KEY ||
-    DEFAULT_PEXELS_KEY
+    ''
   ).trim();
+  return key;
 }
 
 // In-memory query cache to minimize repeated API hits and stay well below rate limits

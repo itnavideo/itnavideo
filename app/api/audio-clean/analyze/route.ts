@@ -86,11 +86,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'Please log in first.' }, { status: 401 });
     }
 
-    // Access check
-    const access = await getRenderAccessForUser(userId, {});
+    // BM1 Fix: pass mode: 'audioClean' so the error message points users to upgrade
+    const access = await getRenderAccessForUser(userId, { mode: 'audioClean' });
     if (!access.allowed) {
       return NextResponse.json(
-        { ok: false, error: access.reason || 'No credits remaining.', upgradeUrl: '/pricing' },
+        { ok: false, error: access.reason || 'An active plan is required to use AI Audio Cleaner. Upgrade at itnavideo.com/pricing', upgradeUrl: '/pricing' },
         { status: 402 }
       );
     }

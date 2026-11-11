@@ -95,7 +95,7 @@ export default function UploadPipelineSection() {
             <div className="relative w-full max-w-[280px] rounded-2xl border border-white/15 bg-black overflow-hidden shadow-2xl aspect-[9/16]">
               <video
                 src="https://res.cloudinary.com/dhouh9idx/video/upload/v1789982713/km_20260916-3_1080p_30f_20260916_232040_qtcjtv.3gp"
-                poster="/preview/Auto Caption Reel.png"
+                poster="https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png"
                 preload="auto"
                 autoPlay
                 muted

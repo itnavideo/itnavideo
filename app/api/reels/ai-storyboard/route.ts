@@ -4,6 +4,14 @@ import { extractCharacterDna, buildFallbackStoryboard, VisualArtStyle, ScenePaci
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+/**
+ * BE10: This route is intentionally kept — it is used by AiVideoGeneratorStudio.tsx
+ * for storyboard scene generation (action: 'extract-character-dna' | 'generate-storyboard').
+ * The visualStyle '2d'|'3d' values here are intentional for the Image-to-Video AI storyboard
+ * feature (geminiSceneDirector), which is separate from the faceless shorts/video pipeline
+ * where 2D/3D were removed.
+ */
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));

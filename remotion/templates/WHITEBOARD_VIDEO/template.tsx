@@ -14,6 +14,7 @@ import { loadFont as loadKalam } from '@remotion/google-fonts/Kalam';
 import { loadFont as loadJakarta } from '@remotion/google-fonts/PlusJakartaSans';
 import { loadFont as loadInter } from '@remotion/google-fonts/Inter';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
+import { BrandWatermark } from '../../components/BrandWatermark';
 import { WHITEBOARD_VECTOR_DRAWINGS, resolveVectorDrawing } from '../../../lib/whiteboard/vectorDrawings';
 import { Whiteboard2DIcon } from '../../components/graphics/Whiteboard2DIcon';
 import { WhiteboardHand } from '../../components/graphics/WhiteboardHand';
@@ -85,6 +86,7 @@ type WhiteboardVideoProps = {
   mediaSrc?: string;
   mediaType?: 'audio' | 'video';
   sourceAudioVolume?: number;
+  watermark?: boolean;
   durationSeconds?: number;
   sourceDurationSeconds?: number;
   renderWindowSeconds?: number;
@@ -511,7 +513,8 @@ function WritingLine({
   isTitle = false,
   bulletPrefix = '',
   isHighlight = false,
-  icon,  drawingId,
+  icon,
+  drawingId,
   direction = 'ltr',
   language = 'en',
   pointIndex = 0,
@@ -941,6 +944,7 @@ function WhiteboardVideoContent({
   enableSfx = true,
   scenes = [],
   visualTheme,
+  watermark = false,
 }: WhiteboardVideoProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -1255,6 +1259,7 @@ function WhiteboardVideoContent({
           style={{ position: 'absolute', width: 0, height: 0, opacity: 0 }}
         />
       )}
+      <BrandWatermark watermark={watermark} isLandscape={false} />
     </AbsoluteFill>
   );
 }

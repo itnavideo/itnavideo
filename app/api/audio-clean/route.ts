@@ -75,10 +75,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: 'Please log in first.' }, { status: 401 });
     }
 
-    // Check access
-    const access = await getRenderAccessForUser(userId, {});
+    // Check access (BE2 Fix: pass mode so error message is specific to audioClean)
+    const access = await getRenderAccessForUser(userId, { mode: 'audioClean' });
     if (!access.allowed) {
-      return NextResponse.json({ ok: false, error: access.reason || 'No credits remaining.', upgradeUrl: '/pricing' }, { status: 402 });
+      return NextResponse.json({ ok: false, error: access.reason || 'An active plan is required to clean audio. Upgrade at itnavideo.com/pricing', upgradeUrl: '/pricing' }, { status: 402 });
     }
 
     return makeStreamingResponse(async (send) => {

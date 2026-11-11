@@ -63,6 +63,7 @@ import { CalendarGridScene } from './scenes/CalendarGridScene';
 import { MilestoneLadderScene } from './scenes/MilestoneLadderScene';
 import { ScriptBubbleScene } from './scenes/ScriptBubbleScene';
 import { FACELESS_DESIGN_TOKENS } from './facelessTokens';
+import { BrandWatermark } from '../../components/BrandWatermark';
 import { getFacelessFontAssetPath } from '../../../lib/fonts/facelessFontCatalog';
 import {
   AdaptiveCard,
@@ -105,6 +106,7 @@ export interface FacelessShortsProps {
   audioPlaybackRate?: number;
   title?: string;
   creatorHandle?: string;
+  watermark?: boolean;
   backgroundTheme?: string;
   customBgUrl?: string;
   aspectRatio?: '9:16' | '16:9';
@@ -184,6 +186,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
     sourceAudioVolume = 1.0,
     title = '',
     creatorHandle = '',
+    watermark = false,
     backgroundTheme = 'solid-white',
     customBgUrl = '',
     sfxEvents = [],
@@ -1733,12 +1736,13 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
           mixBlendMode: 'overlay',
         }}
       >
-        <filter id="faceless-film-grain">
+        <filter id="faceless-shorts-film-grain">
           <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
           <feColorMatrix type="saturate" values="0" />
         </filter>
-        <rect width="100%" height="100%" filter="url(#faceless-film-grain)" />
+        <rect width="100%" height="100%" filter="url(#faceless-shorts-film-grain)" />
       </svg>
+    <BrandWatermark watermark={watermark} isLandscape={false} />
     </AbsoluteFill>
     </VideoVisualThemeProvider>
   );

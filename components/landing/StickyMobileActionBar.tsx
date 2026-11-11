@@ -53,9 +53,9 @@ export default function StickyMobileActionBar() {
         {/* Right CTA Button */}
         <Link
           href="/dashboard"
-          className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 px-4 py-2.5 text-xs font-bold text-white shadow-sm active:scale-95 transition-all"
+          className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-500/25 active:scale-95 transition-all"
         >
-          <Sparkles size={13} className="text-zinc-400" />
+          <Sparkles size={13} className="text-white" />
           <span>Get Started</span>
           <ArrowRight size={13} />
         </Link>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import ExploreMoreVideoTools from '@/components/landing/ExploreMoreVideoTools';
 import {
   Sparkles,
   ArrowRight,
@@ -65,6 +66,14 @@ export default function WhiteboardVideoDetail() {
     {
       q: 'How fast is the rendering process?',
       a: 'Because rendering runs on high-performance AWS cloud servers, a complete 9:16 whiteboard video renders in approximately 25 to 35 seconds—with zero laptop CPU strain.',
+    },
+    {
+      q: 'Can I upload voiceover audio or video longer than 90 seconds?',
+      a: 'Yes! In accordance with Itnavideo’s universal upload standard, recordings of any length (1 minute, 2 minutes, 3 minutes) are accepted without upload rejection. The cloud engine automatically takes the first 90 seconds (0:00 to 1:30) of your recording to generate the whiteboard animation timeline.',
+    },
+    {
+      q: 'How does the AI determine which core words to illustrate with hand-drawn marker strokes?',
+      a: 'Our AI lesson director analyzes speech emphasis, vocal pauses, and key nouns in your audio track. It filters out conversational filler and selectively highlights 3 to 5 core takeaway points per scene with animated circles, underlines, and hand-drawn checkmarks, ensuring students and viewers retain the central insight.',
     },
   ];
 
@@ -585,6 +594,9 @@ export default function WhiteboardVideoDetail() {
           </Link>
         </div>
       </section>
+
+      {/* EXPLORE ALL 14 OTHER VIDEO TOOLS */}
+      <ExploreMoreVideoTools currentToolId="whiteboard" />
     </div>
   );
 }

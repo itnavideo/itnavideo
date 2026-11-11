@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import nextDynamic from 'next/dynamic';
 import Hero from '@/components/landing/Hero';
+import HomepageDemoVideo from '@/components/landing/HomepageDemoVideo';
+import HowItWorksVideo from '@/components/landing/HowItWorksVideo';
 import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
 import TransformationShowcaseSection from '@/components/landing/TransformationShowcaseSection';
 import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
@@ -8,6 +10,8 @@ import TestimonialSection from '@/components/landing/TestimonialSection';
 import { FreeCreatorUtilitiesSection } from '@/components/landing/FreeCreatorUtilitiesSection';
 import {
   HomepageFinalCta,
+  HomepageTrustStrip,
+  PlatformJourney,
 } from '@/components/landing/HomepageValueSections';
 import StickyMobileActionBar from '@/components/landing/StickyMobileActionBar';
 import { pricingPlans } from '@/lib/billing/plans';
@@ -117,9 +121,13 @@ export default function LandingPage() {
       />
 
       <Hero />
+      <HomepageTrustStrip />
+      <HomepageDemoVideo />
       <PlatformMarqueeTicker />
       <TransformationShowcaseSection />
+      <PlatformJourney />
       <TenStudiosHubArchitecture />
+      <HowItWorksVideo />
       <TestimonialSection />
       <HomepagePricing />
       <FAQSection />

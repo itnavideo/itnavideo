@@ -17,6 +17,8 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import { ArrowLeft, Sparkles, Zap, Film, Loader2 } from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 
 type BillingEntitlement = {
   active: boolean;
@@ -354,13 +356,15 @@ export default function AiVideoPolisherPageClient() {
         studioName="AI YouTube Video Polisher"
         aspectRatioLabel="16:9 Cinema"
         badgeLabel="Auto Editor"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Studio Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("aiVideoPolisher", billingEntitlement) ? (
+          <FeaturePaywall featureName="AI YouTube Video Polisher" description="Auto-edit talking-head videos with smart zooms and subtitles. Upgrade to access AI Video Polisher." />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="aiVideoPolisher"

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import ExploreMoreVideoTools from '@/components/landing/ExploreMoreVideoTools';
 import {
   Sparkles,
   ArrowRight,
@@ -586,6 +587,9 @@ export default function LongVideoPromoDetail() {
           </div>
         </div>
       </section>
+
+      {/* EXPLORE ALL 14 OTHER VIDEO TOOLS */}
+      <ExploreMoreVideoTools currentToolId="longVideoPromo" />
     </div>
   );
 }

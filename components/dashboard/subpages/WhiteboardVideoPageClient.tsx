@@ -27,6 +27,8 @@ import {
 import BrandLogo from "@/components/brand/BrandLogo";
 import { WhiteboardStudio } from "@/components/dashboard/WhiteboardStudio";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 
 type BillingEntitlement = {
   active: boolean;
@@ -311,13 +313,15 @@ export default function WhiteboardVideoPage() {
         studioName="Whiteboard Explainer"
         aspectRatioLabel="9:16 Shorts"
         badgeLabel="Stickman Animation"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(isSubmitting || (jobStatus.state !== 'idle' && jobStatus.state !== 'ready'))}
       />
 
       {/* Main Canvas - Full Screen Fluid Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("whiteboardVideo", billingEntitlement) ? (
+          <FeaturePaywall featureName="Whiteboard Animation" description="Turn voiceover into hand-drawn whiteboard animations. Upgrade to access Whiteboard Studio." />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="whiteboardVideo"

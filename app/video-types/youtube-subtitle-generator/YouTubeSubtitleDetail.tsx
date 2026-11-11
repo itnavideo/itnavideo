@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import ExploreMoreVideoTools from '@/components/landing/ExploreMoreVideoTools';
 import {
   Sparkles,
   ArrowRight,
@@ -569,10 +570,13 @@ export default function YouTubeSubtitleDetail() {
             <span>Generate 16:9 Subtitles Free</span>
           </Link>
           <div className="mt-4 text-xs text-slate-400">
-            Flat 2 Credits / Video (Up to 5m) • No Credit Card Required
+            FREE • 5 Daily Videos (Up to 5m) • No Watermark
           </div>
         </div>
       </section>
+
+      {/* EXPLORE ALL 14 OTHER VIDEO TOOLS */}
+      <ExploreMoreVideoTools currentToolId="youtubeSubtitles" />
     </div>
   );
 }

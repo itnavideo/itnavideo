@@ -71,6 +71,8 @@ export async function POST(req: Request) {
     };
 
     if (!geminiApiKey) {
+      // BM2 Fix: warn when Gemini is unavailable so the issue is visible in Cloud Run logs.
+      console.warn('[GENERATE_METADATA] GEMINI_API_KEY not configured — using deterministic fallback metadata.');
       return NextResponse.json({
         ok: true,
         source: 'deterministic',

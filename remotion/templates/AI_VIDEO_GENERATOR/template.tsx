@@ -10,6 +10,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
+import { BrandWatermark } from '../../components/BrandWatermark';
 import { UniversalCaptionLayer, CaptionChunk } from '../../components/library/UniversalCaptionLayer';
 
 export interface AiVideoGeneratorSceneProp {
@@ -30,6 +31,7 @@ export interface AiVideoGeneratorSceneProp {
 export interface AiVideoGeneratorTemplateProps {
   scenes?: AiVideoGeneratorSceneProp[];
   captions?: CaptionChunk[];
+  watermark?: boolean;
   audioUrl?: string;
   bgmUrl?: string;
   bgmVolume?: number;
@@ -90,6 +92,7 @@ const DEFAULT_SAMPLE_CAPTIONS: CaptionChunk[] = [
 export const AiVideoGeneratorTemplate: React.FC<AiVideoGeneratorTemplateProps> = ({
   scenes = DEFAULT_SAMPLE_SCENES,
   captions = DEFAULT_SAMPLE_CAPTIONS,
+  watermark = false,
   audioUrl,
   bgmUrl = 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/assets/reusable/music/parasail-silent-partner.mp3',
   bgmVolume = 0.35,
@@ -150,6 +153,7 @@ export const AiVideoGeneratorTemplate: React.FC<AiVideoGeneratorTemplateProps> =
           }}
         />
       )}
+      <BrandWatermark watermark={watermark} isLandscape={false} />
     </AbsoluteFill>
   );
 };
@@ -242,9 +246,22 @@ export const AiVideoGeneratorComposition: React.FC = () => {
       width={1920}
       height={1080}
       defaultProps={{
+        scenes: DEFAULT_SAMPLE_SCENES,
+        captions: DEFAULT_SAMPLE_CAPTIONS,
         durationSeconds: 15,
-        title: 'AI Video Generator Master Preview',
-        aspectRatio: '16:9',
+        watermark: false,
+      }}
+      calculateMetadata={({ props }) => {
+        const p = props as AiVideoGeneratorTemplateProps;
+        // RM2 Fix: dynamic duration — clamp to 300s (5 min) max so 2-min videos render fully
+        const rawDuration = Number(p.durationSeconds) || 15;
+        const durationSeconds = Math.max(5, Math.min(300, rawDuration));
+        return {
+          durationInFrames: secondsToFrames(durationSeconds, DEFAULT_FPS),
+          fps: DEFAULT_FPS,
+          width: 1920,
+          height: 1080,
+        };
       }}
     />
   );

@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { ImageToVideoStudio, ITNAVIDEO_LIBRARY_BGM, type ImageToVideoAssetMode } from "@/components/dashboard/ImageToVideoStudio";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 import { useAuth } from "@/components/auth/AuthContext";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import {
@@ -695,14 +697,16 @@ export default function ImageToVideoDashboardPage() {
         studioName="Image to Video AI"
         aspectRatioLabel="16:9 Cinema"
         badgeLabel="3D Parallax"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={userRemainingCredits}
+        isWorking={isWorking}
       />
 
       {/* Main Canvas - Full Screen Fluid Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
 
-        {(isWorking || isReady || isError) ? (
+        {billingEntitlement && isFeatureLockedForUser("imageToVideoAi", billingEntitlement) ? (
+          <FeaturePaywall featureName="Image to Video AI" description="Turn photos and voiceover into cinematic documentary videos. Upgrade to access Image to Video AI." />
+        ) : (isWorking || isReady || isError) ? (
           /* Render Monitor View (Unified InteractiveRenderEngine) */
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine

@@ -15,6 +15,12 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { SUBTITLE_PRESETS } from "@/remotion/types/subtitles";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import {
+  saveActiveRenderJob,
+  getActiveRenderJob,
+  clearActiveRenderJob,
+  attachVisibilityResumption,
+} from "@/lib/render/renderPersistence";
+import {
   ArrowLeft,
   Sparkles,
   Zap,
@@ -377,6 +383,169 @@ export default function AutoCaptionPage() {
 
 
 
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startPollingJob = (
+    jobId: string,
+    renderId: string,
+    bucketName: string,
+    plannedTitle: string
+  ) => {
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
+    saveActiveRenderJob({
+      jobId,
+      renderId,
+      bucketName,
+      title: plannedTitle,
+      mode: "autoCaption",
+      startedAt: Date.now(),
+    });
+
+    setJobStatus({
+      state: "rendering",
+      message: "AI transcription with Speech AI in progress...",
+      progress: 0.35,
+      renderId,
+      bucketName,
+      title: plannedTitle,
+    });
+
+    let attempts = 0;
+    const MAX_ATTEMPTS = 800;
+
+    const checkStatus = async () => {
+      attempts++;
+      if (attempts > MAX_ATTEMPTS) {
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+        clearActiveRenderJob("autoCaption");
+        renderRequestInFlightRef.current = false;
+        setJobStatus({
+          state: "error",
+          message: "Render took longer than usual. Please check your Projects tab shortly.",
+        });
+        return;
+      }
+
+      try {
+        const statusRes = await fetch(
+          `/api/reels/jobs/status?jobId=${encodeURIComponent(jobId)}&renderId=${encodeURIComponent(renderId)}&bucketName=${encodeURIComponent(bucketName || "")}&userId=${encodeURIComponent(user?.id || "")}&title=${encodeURIComponent(plannedTitle)}&mode=autoCaption`
+        );
+        const statusPayload = await statusRes.json().catch(() => ({}));
+
+        if (statusPayload.ok) {
+          const serverState = statusPayload.state;
+          const currentProgress = typeof statusPayload.progress === "number" ? statusPayload.progress : 0.45;
+
+          const isRenderComplete = (serverState === "ready" || serverState === "done" || Boolean(statusPayload.done)) && Boolean(statusPayload.outputFile);
+          if (isRenderComplete) {
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            clearActiveRenderJob("autoCaption");
+            renderRequestInFlightRef.current = false;
+
+            const completedRender: RecentRender = {
+              id: renderId,
+              title: plannedTitle,
+              mode: "autoCaption",
+              outputFile: statusPayload.outputFile,
+              createdAt: Date.now(),
+              expiresAt: Date.now() + 48 * 60 * 60 * 1000,
+            };
+
+            setRecentRenders((prev) => {
+              const next = [completedRender, ...prev.filter((r) => r.id !== renderId)];
+              try {
+                localStorage.setItem("itnavideo_auto_caption_projects", JSON.stringify(next.slice(0, 30)));
+              } catch {}
+              return next;
+            });
+
+            setJobStatus({
+              state: "ready",
+              message: "Viral kinetic captions styled successfully!",
+              progress: 1,
+              outputFile: statusPayload.outputFile,
+              renderId,
+              bucketName,
+              title: plannedTitle,
+            });
+
+            if (user) {
+              fetch("/api/reels/history", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  userId: user.id,
+                  renderId,
+                  bucketName,
+                  mode: "autoCaption",
+                  title: plannedTitle,
+                  outputFile: statusPayload.outputFile,
+                  createdAt: new Date().toISOString(),
+                  expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+                }),
+              }).catch((e) => console.warn("Could not save history:", e));
+            }
+          } else if (serverState === "error") {
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            clearActiveRenderJob("autoCaption");
+            renderRequestInFlightRef.current = false;
+            setJobStatus({
+              state: "error",
+              message: statusPayload.message || "Auto Caption render failed.",
+              diagnostics: statusPayload.diagnostics,
+            });
+          } else {
+            setJobStatus((prev) => ({
+              ...prev,
+              state: "rendering",
+              message: statusPayload.message || "Generating video frames and embedding styled kinetic words...",
+              progress: Math.max(prev.progress || 0.35, currentProgress),
+            }));
+          }
+        }
+      } catch (pollErr) {
+        console.warn("Polling error:", pollErr);
+      }
+    };
+
+    pollIntervalRef.current = setInterval(checkStatus, 3000);
+    checkStatus();
+  };
+
+  // Restore active job on reload or refocus
+  useEffect(() => {
+    const active = getActiveRenderJob("autoCaption");
+    if (active && active.renderId && user) {
+      startPollingJob(active.jobId || "", active.renderId, active.bucketName || "", active.title || "Auto Caption Video");
+    }
+    const cleanupVisibility = attachVisibilityResumption(() => {
+      const currentActive = getActiveRenderJob("autoCaption");
+      if (currentActive && currentActive.renderId) {
+        fetch(
+          `/api/reels/jobs/status?jobId=${encodeURIComponent(currentActive.jobId || "")}&renderId=${encodeURIComponent(currentActive.renderId)}&bucketName=${encodeURIComponent(currentActive.bucketName || "")}&userId=${encodeURIComponent(user?.id || "")}&title=${encodeURIComponent(currentActive.title || "")}&mode=autoCaption`
+        ).then(r => r.json()).then(payload => {
+          if (payload.ok && payload.outputFile) {
+            setJobStatus({
+              state: "ready",
+              message: "Viral kinetic captions styled successfully!",
+              progress: 1,
+              outputFile: payload.outputFile,
+              renderId: currentActive.renderId,
+              title: currentActive.title,
+            });
+            clearActiveRenderJob("autoCaption");
+          }
+        }).catch(() => {});
+      }
+    });
+
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      cleanupVisibility();
+    };
+  }, [user]);
+
   // Start Render Job
   async function handleStartRender() {
     if (!user) {
@@ -469,109 +638,8 @@ export default function AutoCaptionPage() {
       const renderId = jobPayload.renderId;
       const bucketName = jobPayload.bucketName;
 
-      // 3. Poll Status
-      setJobStatus({
-        state: "rendering",
-        message: "AI transcription with Speech AI in progress...",
-        progress: 0.35,
-        renderId,
-        bucketName,
-        title: plannedTitle,
-      });
-
-      let attempts = 0;
-      const MAX_ATTEMPTS = 800; // ~40 minutes max polling
-
-      const pollInterval = setInterval(async () => {
-        attempts++;
-        if (attempts > MAX_ATTEMPTS) {
-          clearInterval(pollInterval);
-          renderRequestInFlightRef.current = false;
-          setJobStatus({
-            state: "error",
-            message: "Render took longer than usual. Please check your Projects tab shortly.",
-          });
-          return;
-        }
-
-        try {
-          const statusRes = await fetch(
-            `/api/reels/jobs/status?jobId=${encodeURIComponent(jobId)}&renderId=${encodeURIComponent(renderId)}&bucketName=${encodeURIComponent(bucketName || "")}&userId=${encodeURIComponent(user.id)}&title=${encodeURIComponent(plannedTitle)}&mode=autoCaption`
-          );
-          const statusPayload = await statusRes.json().catch(() => ({}));
-
-          if (statusPayload.ok) {
-            const serverState = statusPayload.state;
-            const currentProgress = typeof statusPayload.progress === "number" ? statusPayload.progress : 0.45;
-
-            const isRenderComplete = (serverState === "ready" || serverState === "done" || Boolean(statusPayload.done)) && Boolean(statusPayload.outputFile);
-            if (isRenderComplete) {
-              clearInterval(pollInterval);
-              renderRequestInFlightRef.current = false;
-
-              const completedRender: RecentRender = {
-                id: renderId,
-                title: plannedTitle,
-                mode: "autoCaption",
-                outputFile: statusPayload.outputFile,
-                createdAt: Date.now(),
-                expiresAt: Date.now() + 48 * 60 * 60 * 1000,
-              };
-
-              setRecentRenders((prev) => {
-                const next = [completedRender, ...prev.filter((r) => r.id !== renderId)];
-                try {
-                  localStorage.setItem("itnavideo_auto_caption_projects", JSON.stringify(next.slice(0, 30)));
-                } catch {}
-                return next;
-              });
-
-              setJobStatus({
-                state: "ready",
-                message: "Viral kinetic captions styled successfully!",
-                progress: 1,
-                outputFile: statusPayload.outputFile,
-                renderId,
-                bucketName,
-                title: plannedTitle,
-              });
-
-              // Save to history db
-              fetch("/api/reels/history", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  userId: user.id,
-                  renderId,
-                  bucketName,
-                  mode: "autoCaption",
-                  title: plannedTitle,
-                  outputFile: statusPayload.outputFile,
-                  createdAt: new Date().toISOString(),
-                  expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
-                }),
-              }).catch((e) => console.warn("Could not save history:", e));
-            } else if (serverState === "error") {
-              clearInterval(pollInterval);
-              renderRequestInFlightRef.current = false;
-              setJobStatus({
-                state: "error",
-                message: statusPayload.message || "Auto Caption render failed.",
-                diagnostics: statusPayload.diagnostics,
-              });
-            } else {
-              setJobStatus((prev) => ({
-                ...prev,
-                state: "rendering",
-                message: statusPayload.message || "Generating video frames and embedding styled kinetic words...",
-                progress: Math.max(prev.progress || 0.35, currentProgress),
-              }));
-            }
-          }
-        } catch (pollErr) {
-          console.warn("Polling error:", pollErr);
-        }
-      }, 3000);
+      // 3. Start durable status polling
+      startPollingJob(jobId, renderId, bucketName || "", plannedTitle);
 
     } catch (error: any) {
       renderRequestInFlightRef.current = false;

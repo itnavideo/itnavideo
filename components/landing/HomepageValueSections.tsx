@@ -301,9 +301,9 @@ export function HomepageFinalCta() {
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-950 hover:bg-zinc-800 px-8 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg shadow-zinc-950/20 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 px-8 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/45 active:scale-95 transition-all duration-200 shrink-0 cursor-pointer"
             >
-              <Sparkles size={16} className="text-orange-400" />
+              <Sparkles size={16} className="text-white" />
               <span>Start Creating Free</span>
               <ArrowRight size={16} strokeWidth={2.5} />
             </Link>

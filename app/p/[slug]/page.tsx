@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       title: page.og_title || page.seo_title || page.title,
       description: page.og_description || page.meta_description || page.excerpt,
       url: `${siteUrl}/p/${page.slug}`,
-      images: [page.og_image || page.featured_image || `${siteUrl}/preview/Auto Caption Reel.png`],
+      images: [page.og_image || page.featured_image || `https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png`],
     },
   };
 }

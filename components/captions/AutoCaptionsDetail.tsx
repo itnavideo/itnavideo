@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import ExploreMoreVideoTools from '@/components/landing/ExploreMoreVideoTools';
 import {
   Sparkles,
   Play,
@@ -96,7 +97,7 @@ export default function AutoCaptionsDetail() {
     },
     {
       q: "How many credits does an Auto Caption Reel cost?",
-      a: "Every 9:16 vertical caption reel (up to 90 seconds, 1080x1920 30 FPS MP4) costs strictly 1 credit. There are zero subscription lock-ins or watermark fees."
+      a: "Auto Caption Reel includes 5 Free Videos daily (0 credits consumed). Additional 9:16 vertical caption reels (up to 90 seconds, 1080x1920 30 FPS MP4) cost strictly 1 credit flat with zero watermark fees."
     },
     {
       q: "Can I customize the caption positions, font sizes, and highlight colors?",
@@ -385,7 +386,7 @@ export default function AutoCaptionsDetail() {
                 </p>
               </div>
               <div className="mt-6 pt-4 border-t border-slate-100 text-xs text-slate-500 font-medium">
-                ✓ Strictly 1 Credit • Cloud Render in ~25s
+                ✓ 5 Free Daily Videos • Then 1 Credit • Cloud Render in ~25s
               </div>
             </div>
           </div>
@@ -496,10 +497,13 @@ export default function AutoCaptionsDetail() {
             <span>Add Captions to My Video Free</span>
           </Link>
           <div className="mt-4 text-xs text-slate-400">
-            Strictly 1 Credit per Video (1080p 9:16) • No Credit Card Required
+            FREE • 5 Daily Videos (1080p 9:16) • No Watermark
           </div>
         </div>
       </section>
+
+      {/* EXPLORE ALL 14 OTHER VIDEO TOOLS */}
+      <ExploreMoreVideoTools currentToolId="autoCaption" />
     </div>
   );
 }

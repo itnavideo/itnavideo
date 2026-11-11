@@ -62,7 +62,7 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     id: 'ai-video-polisher',
     name: 'AI YouTube Video Polisher',
     href: '/dashboard/ai-video-polisher',
-    publicHref: '/dashboard/ai-video-polisher',
+    publicHref: '/ai-video-polisher',
     icon: Sparkles,
     iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
     iconColorClass: 'text-orange-500',
@@ -89,7 +89,7 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     id: 'book-summary',
     name: 'Book Summary Video',
     href: '/dashboard/book-summary',
-    publicHref: '/video-types/book-summary',
+    publicHref: '/book-summary',
     icon: BookOpen,
     iconBgClass: 'bg-amber-500/15 border border-amber-500/30',
     iconColorClass: 'text-amber-500',
@@ -102,7 +102,7 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     id: 'image-to-video-ai',
     name: 'Image to Video AI',
     href: '/dashboard/image-to-video-ai',
-    publicHref: '/tools/image-to-video-ai',
+    publicHref: '/image-to-video-ai',
     icon: Film,
     iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
     iconColorClass: 'text-orange-500',
@@ -116,7 +116,7 @@ export const WIDESCREEN_169_STUDIOS: VideoTypeItem[] = [
     id: 'youtube-subtitle-generator',
     name: 'YouTube Subtitle Generator',
     href: '/dashboard/youtube-subtitles',
-    publicHref: '/video-types/youtube-subtitle-generator',
+    publicHref: '/youtube-subtitles-generator',
     icon: Captions,
     iconBgClass: 'bg-sky-500/15 border border-sky-500/30',
     iconColorClass: 'text-sky-400',
@@ -132,7 +132,7 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     id: 'ai-shorts-polisher',
     name: 'AI Shorts Polisher',
     href: '/dashboard/ai-shorts-polisher',
-    publicHref: '/dashboard/ai-shorts-polisher',
+    publicHref: '/ai-shorts-polisher',
     icon: Smartphone,
     iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
     iconColorClass: 'text-orange-500',
@@ -173,7 +173,7 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     id: 'whiteboard-video',
     name: 'Whiteboard Animation',
     href: '/dashboard/whiteboard-video',
-    publicHref: '/video-types/whiteboard-video',
+    publicHref: '/whiteboard-video',
     icon: PenTool,
     iconBgClass: 'bg-emerald-500/15 border border-emerald-500/30',
     iconColorClass: 'text-emerald-400',
@@ -186,7 +186,7 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     id: 'compare-explainer',
     name: 'Compare Explainer',
     href: '/dashboard/compare-explainer',
-    publicHref: '/video-types/compare-explainer',
+    publicHref: '/compare-explainer',
     icon: Columns,
     iconBgClass: 'bg-sky-500/15 border border-sky-500/30',
     iconColorClass: 'text-sky-400',
@@ -199,7 +199,7 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     id: 'long-video-clips',
     name: 'Long Video to Clips',
     href: '/dashboard/long-video-clips',
-    publicHref: '/video-types/long-video-clips',
+    publicHref: '/long-video-clips',
     icon: Scissors,
     iconBgClass: 'bg-orange-500/15 border border-orange-500/30',
     iconColorClass: 'text-orange-500',
@@ -213,7 +213,7 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     id: 'long-video-promo',
     name: 'Long Video Promo',
     href: '/dashboard/long-video-promo',
-    publicHref: '/video-types/long-video-promo',
+    publicHref: '/long-video-promo',
     icon: Tv,
     iconBgClass: 'bg-rose-500/15 border border-rose-500/30',
     iconColorClass: 'text-rose-400',
@@ -226,7 +226,7 @@ export const VERTICAL_916_STUDIOS: VideoTypeItem[] = [
     id: 'split-screen-explainer',
     name: 'Split Screen Explainer',
     href: '/dashboard/split-screen-explainer',
-    publicHref: '/video-types/compare-explainer',
+    publicHref: '/split-screen-explainer',
     icon: Layers,
     iconBgClass: 'bg-teal-500/15 border border-teal-500/30',
     iconColorClass: 'text-teal-400',
@@ -242,7 +242,7 @@ export const UTILITY_STUDIOS: VideoTypeItem[] = [
     id: 'audio-cleaner',
     name: 'AI Audio Cleaner',
     href: '/dashboard/audio-cleaner',
-    publicHref: '/tools/ai-audio-cleaner',
+    publicHref: '/ai-audio-cleaner',
     icon: Mic,
     iconBgClass: 'bg-emerald-500/15 border border-emerald-500/30',
     iconColorClass: 'text-emerald-400',
@@ -365,7 +365,7 @@ export default function TenStudiosHubArchitecture() {
           {/* HIGH-END UNIFIED FORMAT CAPSULE BAR (Mobile & Desktop)         */}
           {/* ───────────────────────────────────────────────────────────── */}
           <div className="pt-3 sm:pt-6 flex justify-center w-full px-1" suppressHydrationWarning>
-            <div className="inline-flex items-center gap-1 sm:gap-2 p-1.5 rounded-full bg-zinc-100 border border-zinc-200/90 shadow-xs max-w-full overflow-x-auto no-scrollbar">
+            <div className="inline-flex items-center gap-1 sm:gap-2 p-1.5 rounded-full bg-white border border-orange-200/90 shadow-sm shadow-orange-500/10 max-w-full overflow-x-auto no-scrollbar">
               {TAB_CONFIGS.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -377,18 +377,18 @@ export default function TenStudiosHubArchitecture() {
                     onClick={() => setActiveTab(tab.id)}
                     className={`group relative flex items-center gap-1.5 sm:gap-2.5 rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition-all duration-200 cursor-pointer border whitespace-nowrap shrink-0 ${
                       isActive
-                        ? 'border-zinc-950 bg-zinc-950 text-white shadow-md shadow-zinc-950/20'
-                        : 'border-transparent text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60'
+                        ? 'border-orange-500 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-md shadow-orange-500/30'
+                        : 'border-transparent text-zinc-700 hover:text-orange-600 hover:bg-orange-50/70'
                     }`}
                   >
                     <div
                       className={`flex h-6 w-6 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-105 ${
                         isActive
                           ? 'bg-white/20 text-white'
-                          : 'bg-zinc-200/70 text-zinc-600 group-hover:text-zinc-950'
+                          : 'bg-orange-100/70 text-orange-600 group-hover:bg-orange-200'
                       }`}
                     >
-                      <Icon size={14} className={isActive ? 'text-white' : 'text-zinc-600'} />
+                      <Icon size={14} className={isActive ? 'text-white' : 'text-orange-600'} />
                     </div>
 
                     <span className="font-extrabold tracking-tight hidden sm:inline">
@@ -401,8 +401,8 @@ export default function TenStudiosHubArchitecture() {
                     <span
                       className={`flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-mono font-black ${
                         isActive
-                          ? 'bg-white text-zinc-950 shadow-xs'
-                          : 'bg-zinc-200 text-zinc-700'
+                          ? 'bg-white text-orange-600 shadow-xs'
+                          : 'bg-zinc-100 text-zinc-700'
                       }`}
                     >
                       {tab.count}
@@ -537,15 +537,15 @@ export default function TenStudiosHubArchitecture() {
                       <Link
                         href={item.publicHref}
                         title={`See what ${item.name} does`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 px-1.5 py-1.5 text-[10px] sm:text-[11px] font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 transition-all text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 hover:border-orange-200 hover:bg-orange-50/50 hover:text-orange-700 px-1.5 py-1.5 text-[10px] sm:text-[11px] font-semibold text-zinc-700 transition-all text-center"
                       >
-                        <BookOpen size={11} className="text-zinc-500 shrink-0" />
+                        <BookOpen size={11} className="text-zinc-500 group-hover:text-orange-600 shrink-0" />
                         <span className="truncate">What It Does</span>
                       </Link>
                       <Link
                         href={item.href}
                         title={`Create video with ${item.name}`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-1.5 py-1.5 text-[10px] sm:text-[11px] font-bold text-white shadow-xs transition-all active:scale-95 text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 px-1.5 py-1.5 text-[10px] sm:text-[11px] font-bold text-white shadow-sm shadow-orange-500/20 hover:shadow-orange-500/35 transition-all active:scale-95 text-center"
                       >
                         <span className="truncate">{item.badgeLabel === 'Coming Soon' ? 'Coming Soon' : 'Create Video'}</span>
                         <ArrowRight size={11} className="shrink-0" />
@@ -680,15 +680,15 @@ export default function TenStudiosHubArchitecture() {
                       <Link
                         href={item.publicHref}
                         title={`See what ${item.name} does`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-2 text-[11px] font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 transition-all text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 hover:border-orange-200 hover:bg-orange-50/50 hover:text-orange-700 px-2 py-2 text-[11px] font-semibold text-zinc-700 transition-all text-center"
                       >
-                        <BookOpen size={12} className="text-zinc-500 shrink-0" />
+                        <BookOpen size={12} className="text-zinc-500 group-hover:text-orange-600 shrink-0" />
                         <span className="truncate">What It Does</span>
                       </Link>
                       <Link
                         href={item.href}
                         title={`Create video with ${item.name}`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-2 py-2 text-[11px] font-bold text-white shadow-xs transition-all active:scale-95 text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 px-2 py-2 text-[11px] font-bold text-white shadow-sm shadow-orange-500/20 hover:shadow-orange-500/35 transition-all active:scale-95 text-center"
                       >
                         <span className="truncate">{item.badgeLabel === 'Coming Soon' ? 'Coming Soon' : 'Create Video'}</span>
                         <ArrowRight size={12} className="shrink-0" />
@@ -790,15 +790,15 @@ export default function TenStudiosHubArchitecture() {
                       <Link
                         href={item.publicHref}
                         title={`See what ${item.name} does`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 px-2 py-2 text-[11px] font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 transition-all text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg border border-zinc-200 bg-zinc-50 hover:border-orange-200 hover:bg-orange-50/50 hover:text-orange-700 px-2 py-2 text-[11px] font-semibold text-zinc-700 transition-all text-center"
                       >
-                        <BookOpen size={12} className="text-zinc-500 shrink-0" />
+                        <BookOpen size={12} className="text-zinc-500 group-hover:text-orange-600 shrink-0" />
                         <span className="truncate">What It Does</span>
                       </Link>
                       <Link
                         href={item.href}
                         title={`Open ${item.name} Studio`}
-                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-zinc-950 hover:bg-zinc-800 px-2 py-2 text-[11px] font-bold text-white shadow-xs transition-all active:scale-95 text-center"
+                        className="inline-flex items-center justify-center gap-1 rounded-lg bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 px-2 py-2 text-[11px] font-bold text-white shadow-sm shadow-orange-500/20 hover:shadow-orange-500/35 transition-all active:scale-95 text-center"
                       >
                         <span className="truncate">Clean Audio</span>
                         <ArrowRight size={12} className="shrink-0" />

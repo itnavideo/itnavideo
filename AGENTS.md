@@ -4,538 +4,513 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Itnavideo — Master Agent Rules
+# Itnavideo — Master Architecture & Agent Rules (AGENTS.md)
 
-This is the **single source of truth** for all AI tools (Antigravity, Codex, Kiro, Cursor). All instructions, policies, and workflows are consolidated here.
+Welcome to **Itnavideo**, a next-generation AI video creation and editing SaaS platform designed for content creators, digital marketers, educators, and businesses. Itnavideo enables users to generate studio-quality long-form videos (16:9 widescreen) and viral short-form reels (9:16 vertical) in minutes through automated transcription, smart visual matching, kinetic typography, and cloud-based rendering.
 
----
-
-## 0.0 STRICT: Simple & Non-Technical Explanations (Founder Directive)
-
-> [!IMPORTANT]
-> **Communication Policy**:
-> - The founder is **not a technical coder** and does **not know Hindi**. 
-> - All replies, explanations, and updates MUST be written in an **easy, simple, and non-technical way in English**.
-> - Avoid overly complex jargon, deep architectural tangents, or confusing code-heavy explanations unless specifically asked.
-> - Explain *what* was done and *why* it matters in plain, simple English. Do not use Hindi.
+This document serves as the **single source of truth** and primary entry point for all software engineers, architects, and autonomous coding agents (Antigravity, Codex, Kiro, Cursor). All instructions, policies, architectural patterns, and execution workflows are consolidated here.
 
 ---
 
-## 0. STRICT: Zero Local Heavy Compute Policy (4GB RAM / HDD Machine Rule)
+## Table of Contents
 
-> [!CAUTION]
-> **Host Environment**: The developer laptop has **4GB RAM and a mechanical HDD (No SSD)**. 
-> Heavy local processing, local rendering, or memory-heavy node processes WILL cause severe disk paging (thrashing) and completely freeze/lock up the laptop.
-
-### ABSOLUTELY FORBIDDEN on Local Machine:
-- ❌ **NO Local Remotion Rendering**: Never run `npm run reel:render`, `npx remotion render`, or any local Chromium/headless browser render jobs.
-- ❌ **NO Local Heavy Media / FFmpeg Jobs**: No local transcoding, heavy local audio filters, or batch media conversions.
-- ❌ **NO Local AI / ML Models**: No running Whisper or LLMs on the local machine.
-- ❌ **NO Unchecked Background Daemons**: Do not spin up `remotion studio` or memory-heavy dev watchers unless explicitly requested by the user.
-
-### MANDATORY Cloud-Only Pipeline:
-- ☁️ **Web Hosting & Deployments**: **Google Cloud Run** (`itnavideo-web` in project `geometric-hull-501707-m2`, region `us-central1`). The production website is 100% hosted on Google Cloud Run and deployed directly from this laptop via `npm run deploy:cloud` (`gcloud run deploy`).
-- ☁️ **Video Rendering Engine**: **AWS Lambda** (Remotion 30fps cloud rendering).
-- ☁️ **Video Render Storage & Temp Uploads**: **AWS S3** (`remotionlambda-useast1-2zq6twaok1`).
-- ☁️ **Transcription**: Groq Whisper Cloud API (ultra-fast, cloud-based with Gemini 2.0 Flash fallback).
-- ☁️ **AI Planning / Vision**: Google Cloud strictly for AI APIs (Gemini/Vertex AI).
-- ☁️ **Website Images & Demo Videos**: Cloudinary (`dhouh9idx` in folder `itnavideo12345`).
-
-### PERMITTED Local Operations:
-- ✅ **Local Laptop Deployments**: Tumhare paas 132GB local disk space hai, toh local laptop se seedha gcloud/AWS par deploy karna ab se standard rule hai.
-- ✅ Code editing, file inspection, and git commands.
-- ✅ Static verification: `npx tsc --noEmit`
-- ✅ Always guard Node memory when running scripts if needed: `NODE_OPTIONS="--max-old-space-size=1024"`.
+1. [Project Overview & Mission](#1-project-overview--mission)
+2. [Product Vision & Target Audience](#2-product-vision--target-audience)
+3. [Technology Stack & Core Dependencies](#3-technology-stack--core-dependencies)
+4. [High-Level System Architecture](#4-high-level-system-architecture)
+5. [Repository Structure & Key Directories](#5-repository-structure--key-directories)
+6. [Zero Local Heavy Compute Policy (4GB RAM Safeguards)](#6-zero-local-heavy-compute-policy-4gb-ram-safeguards)
+7. [Coding Standards, Type Safety & Zero-Error Policy](#7-coding-standards-type-safety--zero-error-policy)
+8. [Database Security, Supabase Data API & Mandatory RLS](#8-database-security-supabase-data-api--mandatory-rls)
+9. [Global UI/UX Brand Guidelines & Design Tokens](#9-global-uiux-brand-guidelines--design-tokens)
+10. [Shared UI Components & Studio Workflows](#10-shared-ui-components--studio-workflows)
+11. [End-to-End Video Generation Pipeline](#11-end-to-end-video-generation-pipeline)
+12. [AI Providers, Transcription & Fallback Policy](#12-ai-providers-transcription--fallback-policy)
+13. [Remotion Cloud Rendering Engine (AWS Lambda)](#13-remotion-cloud-rendering-engine-aws-lambda)
+14. [API Architecture & Backend Route Handlers](#14-api-architecture--backend-route-handlers)
+15. [Cloud Infrastructure, Hosting & Deployments](#15-cloud-infrastructure-hosting--deployments)
+16. [Master Video Duration, Aspect Ratio & Credit Pricing System](#16-master-video-duration-aspect-ratio--credit-pricing-system)
+17. [Video Type Documentation Index (15 Active Studios)](#17-video-type-documentation-index-15-active-studios)
+18. [Homepage Documentation Reference](#18-homepage-documentation-reference)
+19. [Verification, Quality Assurance & Task Hygiene](#19-verification-quality-assurance--task-hygiene)
+20. [Documentation Maintenance Guidelines](#20-documentation-maintenance-guidelines)
 
 ---
 
-## 0.1 STRICT: Zero Automatic Git Push Policy (Founder Directive)
+## 1. Project Overview & Mission
 
-> [!CAUTION]
-> **ABSOLUTE RULE**: NEVER run `git push` or `git push origin main` automatically after tasks, code edits, or bug fixes.
-> Pushing multiple times a day wastes network bandwidth/time, causes background tasks to hang on slow connections, and disrupts rapid iteration.
-> 
-> - **Strict Exception**: Run `git push` ONLY and EXCLUSIVELY if the founder explicitly commands it (e.g., *"git push karo"*, *"push to github"*).
-> - Updating GitHub once a week or on major milestones is more than enough.
-> - Keep all ordinary development, verification, and edits strictly local.
+Itnavideo automates complex video creation workflows that traditionally require hours of manual work in desktop non-linear editing software (Adobe Premiere Pro, Final Cut Pro, DaVinci Resolve, After Effects).
+
+By combining state-of-the-art speech transcription, intelligent asset matching, automated kinetic captioning, and programmatic video rendering via Remotion, Itnavideo democratizes high-retention video production. Creators simply upload audio, enter a script, or paste a video link, and the platform delivers a fully composed, color-graded, subtitle-synced 1080p video ready for YouTube, Instagram Reels, TikTok, and LinkedIn.
 
 ---
 
-## 0.2 STRICT: Instant Response & 2-Minute Task Progress Heartbeat (Founder Directive)
+## 2. Product Vision & Target Audience
 
-> [!IMPORTANT]
-> **Instant Action & Transparent Pacing**:
-> 1. **Instant Reply**: User jab bhi bole ya task assign kare, bina kisi delay ke turant acknowledge aur clear response dena hai.
-> 2. **2-Minute Heartbeat**: Kisi bhi active task ya background command execution ke dauran har 2 minute mein status update dena mandatory hai:
->    - Kitna kaam successfully complete ho chuka hai.
->    - Kaunsa part abhi pending ya in-progress hai.
->    - Estimated time remaining (lagbhag kitne der mein done ho jayega).
+### 2.1 Target Audiences
+- **Solo Creators & YouTubers**: Seeking rapid multi-platform video repurposing, viral shorts extraction, and automated subtitles.
+- **Digital Marketers & Agencies**: Generating high-converting video advertisements, promotional explainers, and client campaign reels at scale.
+- **Educators & Course Creators**: Converting spoken lectures and audio lessons into visual whiteboard explainers and structured book summaries.
+- **Podcasters & Audio Storytellers**: Turning raw voice recordings into kinetic typography and faceless visual stories without being on camera.
 
----
-
-## 0.3 STRICT: AI Video Industry Grounding & Competitor Intelligence (No Random Answers)
-
-> [!IMPORTANT]
-> **Domain First Policy**:
-> - **Zero Random Answers**: Kabhi bhi generic ya disconnected answers nahi dena.
-> - **Itnavideo & Creator Economy Context**: Har decision, architecture choice, UI component, aur technical advice ko AI Video industry ke lens se evaluate karna hai.
-> - **Competitor & Market Benchmark**: Real-world benchmarks jaise CapCut, Opus Clip, InVideo AI, Descript, HeyGen, aur short-form retention mechanics (viral hooks, auto subtitles, kinetic typography, instant cloud render) ko dhyaan mein rakh kar deep, researched aur actionable answers dena hai.
+### 2.2 Core Product Pillars
+1. **Zero Learning Curve**: No complex timelines, keyframing, or video codec configuration required.
+2. **Speed & Scalability**: Serverless cloud rendering ensures videos are produced in parallel in under 2 minutes.
+3. **Retention-Optimized Visuals**: Built-in word-level kinetic animations, dynamic b-roll cuts every 3–5 seconds, sound effects, and clean typography.
+4. **Transparent Economics**: Clear credit pricing (1 minute = 1 credit for 16:9; 1 credit flat for 9:16 shorts; generous free daily quotas).
 
 ---
 
-## 0.4 STRICT: Post-Task Terminal & Background Task Verification (Zero Hanging Tasks)
+## 3. Technology Stack & Core Dependencies
 
-> [!CAUTION]
-> **Terminal Cleanliness Directive**:
-> - Jab bhi koi task ya sub-task complete ho, **hamesha terminal aur running background processes ko ek baar verify karna mandatory hai**.
-> - Bahut baar kaam complete hone ke baad bhi background mein commands ya tasks unintentionally chhoot jaate hain (e.g. "1 or 2 tasks running").
-> - Task khatam hone par `manage_task` (action: `list`) se ensure karein ki koi unnecessary process ya lingering command background mein na chal rahi ho. Agar koi hung/stale task ho toh use turant kill/clean karein taaki developer machine par memory/CPU load zero rahe.
-
----
-
-## 0.5 STRICT: Zero Public API Key & Database Secret Exposure Policy (Supabase & Cloud Security)
-
-> [!CAUTION]
-> **SECURITY DIRECTIVE: ZERO LEAKS & MANDATORY RLS**:
-> Kisi bhi circumstance mein koi bhi API Key, Database Secret, ya Private Credential public nahi hona chahiye. 
-> Supabase ke *"Data API access to new tables in the public schema"* notice aur cloud security breaches se bachne ke liye ye rules absolute aur non-negotiable hain.
-
-### 1. Zero Secret Exposure in Client Bundles & Git:
-- ❌ **No Hardcoding**: Kisi bhi code file (`.ts`, `.tsx`, `.dart`, `.js`, `.json`) mein API keys, tokens ya connection strings kabhi hardcode nahi karna.
-- ❌ **NO `NEXT_PUBLIC_` on Secrets**: Kisi bhi secret key ko `NEXT_PUBLIC_` prefix kabhi mat do. 
-  - `SUPABASE_SERVICE_ROLE_KEY`, `AWS_SECRET_ACCESS_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `CLOUDINARY_API_SECRET`, `RAZORPAY_KEY_SECRET` strictly server-side par rahenge.
-  - Client side par sirf safe public identifiers ja sakte hain (e.g., `NEXT_PUBLIC_SUPABASE_URL`, public `anon` key guarded by RLS, `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `NEXT_PUBLIC_RAZORPAY_KEY_ID`).
-- ❌ **Git Safety**: Sabhi sensitive keys `.env.local` ya cloud secret manager mein rahenge. Git mein `.env*` files commit karna strictly banned hai (always guarded by `.gitignore`).
-
-### 2. Supabase Data API & Public Schema Defense (Mandatory RLS):
-- 🛡️ **Mandatory Row Level Security (RLS) on ALL Public Tables**:
-  - Supabase PostgREST default taur par `public` schema ki sabhi tables ko REST API (`/rest/v1/`) par expose kar deta hai.
-  - Jab bhi koi nayi table banayi jaye, **RLS enable karna mandatory hai**:
-    ```sql
-    ALTER TABLE public.<table_name> ENABLE ROW LEVEL SECURITY;
-    ```
-  - **Zero Unprotected Tables**: Bina RLS wali table se koi bhi hacker public `anon` key use karke pura data read, insert, update ya delete kar sakta hai.
-- 🛡️ **Strict Policy Enforcement**:
-  - User-facing tables (e.g., profiles, renders, user credits) par hamesha verified policies lagayein:
-    ```sql
-    CREATE POLICY "Users can only access own data" ON public.<table_name>
-      FOR ALL USING (auth.uid() = user_id);
-    ```
-  - Backend/Internal tables (e.g. render jobs, payment logs, system metrics) par `anon` aur `authenticated` roles ka access revoke karein ya service-role only policies lagayein:
-    ```sql
-    REVOKE ALL ON TABLE public.<backend_table> FROM anon, authenticated;
-    ```
-- 🛡️ **Service Role Key Isolation**:
-  - `SUPABASE_SERVICE_ROLE_KEY` saare RLS policies ko bypass kar deta hai. Isko sirf server API routes (`app/api/*`) ya serverless backend mein use karein, kabhi bhi client browser ya Flutter mobile app bundle mein include na karein.
-
-### 3. Server-Only Execution Boundary:
-- Sensitive operations (AI calls, render triggers, DB mutations, cloud storage signing) strictly Next.js Route Handlers (`app/api/reels/jobs/*`) ya Server Actions mein execute hongi.
-- Client components (`"use client"` ya Flutter client) sirf secure endpoints ko call karenge.
-
----
-
-## 0.6 STRICT: Dual-Project Workspace Routing Policy (Web vs Flutter App)
-
-> [!IMPORTANT]
-> **Dual Repo Workspace Context**:
-> - 🌐 **Web Project Root**: `c:\Users\user\.gemini\antigravity\scratch\itnavideo` (Next.js 16, Remotion, Cloud API Routes)
-> - 📱 **Flutter App Root**: `c:\Users\user\.gemini\antigravity\scratch\itnavideo_app` (Flutter Mobile UI Client)
->
-> **Automatic Routing Rules**:
-> - When user mentions "app", "mobile", "flutter", "itnavideo app" -> Target `itnavideo_app` files.
-> - When user mentions "website", "dashboard", "remotion", "api", "backend" -> Target `itnavideo` files.
-> - The Flutter App calls live production API `https://www.itnavideo.com/api` — zero backend duplication needed.
-
----
-
-## 0.7 STRICT: Zero Eyebrow Badge & Kicker Pill Policy (Clean Enterprise Brand Directive)
-
-> [!IMPORTANT]
-> **NO EYEBROW PILL BADGES ACROSS THE ENTIRE WEBSITE**:
-> - **Forbidden Everywhere**: NEVER place small rounded-pill eyebrow tags, kicker chips, or spark badges (e.g. "✨ THE NO-CODE VIDEO TRANSFORMATION", "✨ 14 PURPOSE-BUILT STUDIOS", etc.) above H1, H2, or section headlines.
-> - **Brand Standard**: Follow the clean, confident, high-impact aesthetic of global tech leaders (Apple, Google, Stripe). Keep headlines bold, uncluttered, and direct. The visitor's eye must land immediately on the primary value proposition without competing pill clutter.
-
----
-
-## 0.8 STRICT: Navigation Architecture & Clean Header Policy (Founder Directive)
-
-> [!IMPORTANT]
-> **CLEAN HEADER & DEDICATED LANDING ROUTING**:
-> - **Zero Language Switcher on Header**: NEVER place a non-functional language toggle (EN/HI) in the navigation header. Multi-language website UI is paused, and Hinglish speech/captioning is handled strictly inside the video pipeline. A dummy switcher breaks user trust and harms SEO.
-> - **Dedicated Public Landing Pages in Navigation**: Links inside the 'Products' dropdown and mobile 'Video Studios' accordion must point directly to dedicated public marketing/landing pages (e.g. /auto-caption-generator, /faceless-video, /whiteboard-video), NOT directly to /dashboard/*. The main CTA buttons ('Get Started' / 'Dashboard') already handle direct app studio access.
-> - **Mobile Navigation Parity**: The mobile drawer must include the full 10-studio expandable accordion, Features, Pricing, Blog, Video Types, About Us, and Contact Us, with smooth overflow-y-auto scrolling.
-> - **5% Editorial Blog Accent Rule**: Highlights (yellow, orange, mint) and wavy underlines must follow the strict ~5% visual budget (at most 1 per 2-3 paragraphs) to maintain high-signal magazine-grade reading quality.
-
----
-
-## 1. Fast Work Tree (Execution Engine)
-
-Most daily work in Itnavideo focuses on **Existing Video Types** and **Dashboard UI/UX Design**. Follow these targeted workflows for fast, zero-delay completion:
-
-### A. Existing Video Types Iteration ("Check First, Update After" Policy)
-1. **Mandatory Step 1 — Check Spec First**: Before modifying any code, **directly open and read `docs/video-types/{video-type}.md`** (e.g., `imagetovideoai.md`, `autocaption.md`). Understand its exact inputs, limits, Remotion composition props, and dedicated pipeline stages.
-2. **Locate Code**: Target `remotion/templates/TEMPLATE_NAME/`, its dashboard studio in `components/dashboard/`, and `app/api/reels/jobs/route.ts`.
-3. **Visual & Motion Polish**: Update springs, animations, font highlights, and layout. (Assets strictly in `public/assets/reusable/`).
-4. **Prop Continuity**: Ensure new props have safe defaults in `services/ai/reelPlanner.ts` and `app/api/reels/jobs/route.ts` so existing render jobs never fail.
-5. **Mandatory Step 5 — Update Spec After**: Immediately update `docs/video-types/{video-type}.md` with any new props, UI changes, limits, or parameters so docs never go out of date.
-6. **Fast Verify**: Run `npx tsc --noEmit` (zero errors required).
-
-### B. Dashboard UI/UX Design Iteration
-1. **Modular Components**: Avoid adding large UI blocks to `app/dashboard/page.tsx` directly. Create isolated components in `components/` and import them.
-2. **Visual Design System**: Dark aesthetic (zinc-900/950, fine borders `white/10`, mint/orange/purple accents, smooth micro-interactions).
-3. **Reactive States**: Instant user feedback on file drop, animated progress pills, and clear error/success banners.
-4. **Targeted Edits**: Use targeted line replacements in dashboard to avoid breaking other video types.
-
----
-
-## 2. Documentation System & Video Types Registry
-
-Before working on any template or feature, check:
-1. `docs/homepage.md` — Master specification for Homepage architecture, sections, copy, & conversion funnels.
-2. `docs/video-types/README.md` — Master registry of all 10 active video types.
-3. `docs/video-types/{video-type}.md` — The single source of truth for that specific video type.
-4. `docs/ITNAVIDEO_PROJECT_CONTEXT.md` — Master project context (product, tech, rules, design system).
-5. `docs/ITNAVIDEO_WORK_TREE.md` — Fast execution framework.
-
----
-
-## 3. Subtitle & Caption Language Rule
-
-Multi-language translation is **paused**. Only English and Hinglish (Roman script) subtitles are supported via Groq Whisper. No paid translation APIs.
-
-- **Audio Handling**:
-  - Hindi / Hinglish audio → clean Roman Hinglish captions (no Devanagari script).
-  - English audio → English captions.
-- **Provider Restrictions**:
-  - Do NOT use OpenAI, Google Cloud, AWS Translate, or Azure translation APIs for subtitles.
-  - Multi-language translation (Kannada, Urdu, Arabic, French, etc.) is PAUSED.
-- **Reliability**:
-  - If transcription fails, show an error — don't silently return empty captions or fall back to fake English.
-  - Each render gets fresh captions from the current upload only. Never reuse old/cached transcript data.
-  - Keep subtitle text short and readable (max 10 words per line).
-  - `shouldSkipVisibleTextKey` must skip `captions`, `subtitleChunks`, `transcript` fields from forbidden script validation.
-
-### Template-Specific Caption Behavior
-
-| Template | Captions Needed? | Source |
-|----------|-----------------|--------|
-| `AUTO_CAPTION_REEL` | YES — primary feature | Word-grouped from transcript |
-| `VIDEO_SIMPLE_EXPLAINER` | YES — subtitle strip | From transcript segments |
-| `COMPARE_EXPLAINER` | YES — bottom strip | From transcript segments |
-| `IMAGE_STORY_COLLAGE` | Optional text overlays | From scene beats |
-| `AUTO_DRAW_EXPLAINER` | NO — whiteboard scenes | Uses scenes, not captions |
-| `VOICE_SYNCED_NOTES` | YES — note lines | From transcript segments |
-| `LONG_VIDEO_PROMO` | Optional captions | If promo clip has speech |
-| `TYPOGRAPHY_VIDEO` | YES — kinetic words | Word-level timing synced to speech |
-| `AI_AUDIO_CLEANER` | Script Review Preview | Full Groq Whisper transcript with retake detection |
-
----
-
-## 4. Provider Policy & Transcription Architecture
-
-- **Groq Whisper** → Primary speech-to-text transcription engine. Fast, cloud-based, and millisecond-accurate.
-- **Gemini (Google Cloud asia-south1)** → **Mandatory Fallback**: If Groq Whisper encounters rate-limits, downtime, or errors, system automatically falls back to Gemini 2.0 Flash for speech transcription. Also used for AI scene direction and whiteboard planning.
-- **Audio Extraction Rule**: Never send raw heavy video directly to Groq. Always extract lightweight 16kHz mono audio (MP3/WAV) before sending to Groq/Gemini.
-- **OpenAI** → Removed completely from project. No OpenAI API calls or dependencies.
-- **Local Planners First** → Keep AI usage minimal. Templates (Auto Caption, Compare, Long Video Promo, Voice Synced Notes, Audio Clean) use deterministic local logic from the transcript.
-
----
-
-## 4.1 Master Video Duration & Credit Policy (Founder Directive — STRICT FINAL)
-
-> [!CRITICAL]
-> **STRICT ASPECT RATIO, DURATION & CREDIT SYSTEM**:
-> - **All 16:9 Long-Form Videos (Up to 5 Minutes / 300s)**: Strictly 16:9 Widescreen Only. Credit Rate: **1 Min = 1 Credit** (1 Min = 1 Cr, 2 Min = 2 Cr, 3 Min = 3 Cr, 4 Min = 4 Cr, 5 Min = 5 Cr max).
-> - **All 9:16 Short-Form Videos (Up to 90 Seconds / 90s)**: Strictly 9:16 Vertical Only. Credit Rate: **1 Credit** per video (1080×1920 30 FPS MP4).
-> - **Viral Clips (`longVideoClips`)**: Strictly **1 Credit / Clip** (1 clip = 1 credit, 5 clips = 5 credits). Input up to 2 hours.
-> - **Regional & Hindi Audio Translation for Visuals**: Speech is transcribed via Groq Whisper. Regional/Hindi audio is semantically translated into English keywords to match the English stock B-roll asset library, while subtitles are rendered in clean Roman Hinglish.
-
-### Master Category Matrix & Credit Pricing
-
-| Category | Video Type / Mode | Aspect Ratio | Max Video Duration | Credit Cost | Audio & Transcriber Pipeline |
-| :--- | :--- | :---: | :---: | :---: | :--- |
-| **16:9 Long-Form** | **Faceless Video** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) → Regional to English keywords for B-roll |
-| **16:9 Long-Form** | **Book Summary** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
-| **16:9 Long-Form** | **Image to Video AI** | **16:9 Only** | **Up to 5 Minutes (300s)** | **1 Min = 1 Credit** (1m=1, 3m=3, 5m=5 Cr) | Extracted 16kHz audio → Groq Whisper (Fallback: Gemini) |
-| **16:9 Long-Form** | **YouTube Subtitles Generator** | **16:9 Only** | **Up to 5 Minutes (300s)** | **FREE • 5 Daily Videos** (0 Credits, sign-in required) |
-| **16:9 Long-Form** | **Long Video to Shorts Clips** (`longVideoClips`) | **Source: 16:9 / 9:16**<br/>**Output: 9:16 Shorts** | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **1 Credit / Clip** | Extracted audio → Groq Whisper → AI Hook Detector → Render shorts (1 Cr/Clip) |
-| **9:16 Short-Form** | **Auto Caption Reel** | **9:16 Only** | **Up to 90 Seconds (90s)** | **FREE • 5 Daily Videos** (0 Credits, sign-in required) | Extracted audio → Groq Whisper (Fallback: Gemini) |
-| **9:16 Short-Form** | **Compare Explainer** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
-| **9:16 Short-Form** | **Whiteboard / Stickman Explainer** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
-| **9:16 Short-Form** | **Long Video Promo** | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Extracted audio → Groq Whisper (Fallback: Gemini) |
-| **Utility** | **AI Studio Audio Cleaner** | **Audio Utility** | **Up to 5 Minutes (300s)** | **1 Credit** | Groq Whisper + Retake Detection + Mastering |
-
-- **Audio Extraction Rule**: Never pass raw heavy video files directly to Groq. Always extract lightweight 16kHz mono audio (MP3/WAV) before sending to Groq.
-- **Transcription Fallback**: **Primary: Groq Whisper Cloud API** (fast, cloud-based). **Fallback: Google Gemini 2.0 Flash** (`asia-south1`) if Groq encounters rate-limits or errors.
-
-
----
-
-## 5. Asset Storage, AWS & Cloudinary Rules
-
-Keep reusable/render assets in one logical place only: `public/assets` for local indexing, with production binaries served from AWS S3 (`itnavideo-media-assets`).
-
-- **No assets in templates**: Remotion template folders are strictly code-only. Do not put images, fonts, sound effects, or audio files inside `remotion/templates/*`.
-- **Folders**:
-  - One-off page assets: `public/assets/direct/*`
-  - Reusable render assets: `public/assets/reusable/*`
-  - Website UI/UX only: `public/brand`, `public/founder`, `public/visuals`
-  - Stickers: `public/assets/stickman/`
-- **Asset Indexing**: After adding/removing assets, run `npm run assets:index` so `public/assets/assets.json` stays current.
-- **Cloud Storage Separation**:
-  - Production render asset binaries live in **AWS S3**.
-  - Website images, UI graphics, and demo videos MUST be hosted on **Cloudinary** in one single folder: `itnavideo12345` (no multiple folders).
-
----
-
-## 6. Video Type Creation (5-Node Pipeline)
-
-A new Video Type is complete when all 5 are done:
-1. Remotion composition in `remotion/templates/TEMPLATE_NAME/template.tsx`
-2. Registered in `remotion/index.tsx`
-3. Entry in `VIDEO_TYPE_REGISTRY` (`services/ai/reelPlanner.ts`) with proper category
-4. Dashboard card + mode config in `app/dashboard/page.tsx`
-5. Backend render flow support in `app/api/reels/jobs/route.ts`
-
-*Composition IDs use dashes (`TEMPLATE-NAME`). Folder names use underscores (`TEMPLATE_NAME`).*
-
----
-
-## 7. Render Pipeline & Deployment
-
-### Production Pipeline
-1. User uploads file → presigned cloud storage URL
-2. `/api/reels/jobs` → Groq transcription
-3. Build render props (template-specific logic)
-4. Cloud render engine
-5. Poll `/api/reels/jobs/status` for progress
-6. Return download URL on completion (48-hour cloud storage lifecycle)
-
-### Deployment Rule
-- Deployments will now be triggered and executed from the **local laptop** directly. 
-- Rendering still happens on **AWS Lambda** for performance.
-
----
-
-## 8. STRICT RULE: Video Type Independence (Distinct Pipelines & UI Steppers)
-
-> [!IMPORTANT]
-> **NO ONE-SIZE-FITS-ALL PIPELINE**: Every Video Type in Itnavideo serves a fundamentally different purpose, uses different inputs, and executes a distinct processing pipeline. NEVER share a generic or hardcoded pipeline across all modes.
-
-### A. Core Video Type Requirements Matrix (10 Active Modes)
-
-| Video Type / Mode | User Inputs | Aspect Ratio Support | Transcription? | Asset Matching? | AI Planner? | Output Format | Pipeline Stages |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| `facelessVideo` | Script / Audio | **16:9 Only** | ✅ Groq Whisper | ✅ Stock Visuals | ✅ Full Director | 16:9 Widescreen MP4 | Script Prep → Transcribe → Match B-Roll & SFX → Render 1080p MP4 |
-| `bookSummary` | Script / Audio | **16:9 Only** | ✅ Groq Whisper | ❌ None | ❌ Local | 16:9 Widescreen MP4 | Audio Prep → Transcribe → Cinematic Chapter Visuals & Kinetic Notes → Render 1080p MP4 |
-| `imageToVideoAi` | Audio + Images | **16:9 Only** | ✅ Groq Whisper | ❌ (User Images) | ❌ Local | 16:9 Widescreen MP4 | Audio Prep → Transcribe → Scene Pacing & Parallax → Render 1080p MP4 |
-| `youtubeSubtitles` | Video / Audio | **16:9 Only** | ✅ Groq Whisper | ❌ None | ❌ None | 16:9 Widescreen MP4 | Project Prep → Transcribe Speech → Burnt-In Scrubber Subtitles → Render 1080p MP4 |
-| `autoCaption` | Video / Audio | **9:16 Only** | ✅ Groq Whisper | ❌ None | ❌ None | 9:16 Vertical MP4 | Project Prep → Transcribe Speech → Style Motion Captions → Render 1080p MP4 |
-| `compare` | Voiceover + 2 Images | **9:16 Only** | ✅ Groq Whisper | ❌ (User Images) | ❌ Local | 9:16 Vertical MP4 | Upload Received → Transcribe Audio → Build Comparison Beats → Render 1080p MP4 |
-| `whiteboardVideo` | Script / Audio | **9:16 Only** | ✅ Groq Whisper | ✅ Stickman/Icons | ✅ Gemini | 9:16 Vertical MP4 | Upload Received → Transcribe → Whiteboard Strategy Scenes → Render 1080p MP4 |
-| `longVideoPromo` | Video + Thumbnail | **9:16 Only** | ❌ (Direct Promo) | ❌ (User Media) | ❌ Local | 9:16 Vertical MP4 | Media Prep → Teaser Hook Extraction → Aspect Conforming → Render 1080p MP4 |
-| `longVideoClips` | Long Video (Up to 2h) | Input 16:9/9:16 -> Output **9:16** | ✅ Groq Whisper | ❌ None | ✅ Hook Detector | 9:16 Vertical MP4 Clips | Upload Received → Chunk Audio → AI Hook Detector → Render 1080p Shorts |
-| `audioClean` | Audio / Video | Utility | ✅ Groq Whisper | ❌ None | ❌ Local | Studio Clean MP3/WAV | Script Transcribe → Retake & Mistake Detection → Loudness & Noise Mastering → Export Studio Master |
-
-
-### B. Mandatory Implementation Rules
-
-1. **Dedicated UI Stepper Steps**:
-   - In [`components/render/InteractiveRenderEngine.tsx`](file:///C:/Users/user/.gemini/antigravity/scratch/itnavideo/components/render/InteractiveRenderEngine.tsx) and [`app/dashboard/page.tsx`](file:///C:/Users/user/.gemini/antigravity/scratch/itnavideo/app/dashboard/page.tsx) (`getRenderStepDefinitions`), **every video type must have its own tailored step sequence**.
-   - **FORBIDDEN**: Never display "Processing assets" or "Matching assets" for modes that do not pick external assets (`autoCaption`, `longVideoPromo`, `audioClean`, `compare`).
-   - **FORBIDDEN**: Never display "Transcribing speech" for modes that do not transcribe audio (`longVideoPromo`).
-
-2. **Backend Processing Isolation (`app/api/reels/jobs/route.ts`)**:
-   - Each mode must execute strictly its own required operations and bypass unnecessary network/LLM calls.
-   - Always supply `frameRange: [0, totalFrames - 1]` to Remotion Lambda based on detected media duration to prevent over-rendering default timeline lengths.
-
-3. **Status & Error Stage Accuracy**:
-   - Status messages, progress estimations, and failure stages must map directly to the specific video type's actual stages so users always know exactly what is happening in the background.
-
-### 4. Dedicated Internal Components Per Video Type (Anti-Repetition & Visual Diversity Policy):
-- **FOUNDER DIRECTIVE**: Every Video Type in Itnavideo serves a distinct creative purpose, audience format, and value proposition.
-- ❌ **FORBIDDEN: Generic Visual Components Across Modes**: Never build a single generic visual component and force multiple video types to use it. If every video type shares the exact same visual design, cards, and overlays, the resulting videos look identical, repetitive, and boring to users.
-- ✅ **Dedicated Sub-Components**: All visual Remotion components (`.tsx`), visual cards, title overlays, badge widgets, scene transitions, lower-thirds, and visual decorators MUST be created **inside each video type's dedicated template directory** (e.g., `remotion/templates/TEMPLATE_NAME/components/` or directly inside `remotion/templates/TEMPLATE_NAME/template.tsx`).
-- 🎨 **Visual Components Must Be Dedicated**: Any component that renders visual elements onto the screen (scenes, overlays, labels, animations, picture-in-picture frames, scoreboards, chapter cards) MUST be dedicated and customized for that specific video type.
-- ⚙️ **Technical Infrastructure vs. Visual Separation**: Shared non-visual technical logic (e.g. S3 upload clients, Groq Whisper transcription API, cloud render triggers, credit billing formulas, math/time helpers, audio ducking formulas) CAN live in shared `lib/` or `services/`, but visual rendering components MUST be unique per video type.
-
----
-
-## 9. Visual Design System: The Primary Brand Colors (White, Black, Flame Orange & Sunset Amber) + Complementary Palette
-
-> [!IMPORTANT]
-> **FOUNDER DIRECTIVE: THE PRIMARY BRAND PALETTE (White, Black, Orange)**:
-> Itnavideo uses **White, Black, and Flame Orange & Sunset Amber** as core primary brand colors, enriched with thoughtful complementary accents:
-> 1. **Pure Crisp White (`#FFFFFF`)**: Main page background, card surfaces, clean modal backgrounds, and trust badge containers.
-> 2. **Obsidian Black & Deep Slate (`#070B14` / `text-slate-900` / `#0E1526`)**: Primary high-contrast headlines, crisp body text, and YouTube video player mockup frames.
-> 3. **Flame Orange & Sunset Amber (`#FF5722` → `#FFA000`)**: Primary high-conversion action color used for:
->    - Main Headline Gradient (*"AI Video Generator"*)
->    - Top Kicker Badge (*"More Than AI — Your Personal Editor"*)
->    - Main CTA Button (*"Create Faceless Video Free"*)
->    - Faceless Player Showcase Outer Glow
->    - Pricing Section *"Most Popular"* Plan & Action Buttons
-> 4. **Thoughtful Complementary Palette**: Do NOT restrict the entire UI to only three colors. Use complementary colors for highlights, success/error states, badges, charts, icons, and micro-interactions (e.g. Emerald `#10B981` for completed/success states, Sky/Cyan for AI speech tags, Violet/Purple for multi-style tags, Rose/Red for errors) to make the design visually appealing, professional, and engaging without visual clutter.
-
-### A. The Core Brand Palette Tokens
-
-| Token / Element | Color Code | Tailwind Equivalent | Purpose & Usage |
+| Layer | Technologies & Packages | Version / Configuration | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Canvas / Background (Light)** | `#FFFFFF` / `#FAFAFA` | `bg-white`, `bg-[#FAFAFA]`, `bg-slate-50` | Primary clean light canvas & card surface |
-| **Canvas / Dark Mockups** | `#070B14` / `#0E1526` | `bg-[#070B14]`, `bg-[#0E1526]` | Video player mockups & high-elevation dark frames |
-| **Primary Text (Dark Surface)** | `#FFFFFF` / `#F8FAFC` | `text-white`, `text-slate-100` | Crisp high-legibility light text on dark surfaces |
-| **Primary Text (Light Surface)** | `#0F172A` / `#1E293B` | `text-slate-900`, `text-slate-800` | High-contrast headlines & readable copy |
-| **Heading Primary Gradient** | `#FF5722` → `#FF7043` → `#FFA000` | `from-[#FF5722] via-[#FF7043] to-[#FFA000]` | Signature Flame Orange & Sunset Amber gradient |
-| **Primary CTA Button** | `#FF5722` → `#FF7043` → `#FFA000` | `from-[#FF5722] via-[#FF7043] to-[#FFA000]` | High-conversion Flame Orange to Sunset Amber CTA |
-| **Secondary / Muted Text** | `#64748B` / `#94A3B8` | `text-slate-600`, `text-slate-500` | Subtitles, metadata, input placeholders |
-| **Subtle Structural Borders** | `rgba(0,0,0,0.08)` / `rgba(255,255,255,0.1)` | `border-slate-200`, `border-white/10` | Fine structural borders |
-| **Active Badges & Eyebrows** | `rgba(255,87,34,0.1)` | `bg-orange-500/10 border-orange-500/30 text-orange-700` | Feature kickers & primary tags |
-| **Status / Verified: Success** | `#10B981` | `text-emerald-500`, `bg-emerald-500/10` | Verified status, 1080p completion, checkmarks |
-| **Status: Error / Danger** | `#EF4444` | `text-red-500`, `bg-red-500/10` | Failures, delete actions, live alerts |
-| **Complementary Accents** | `#06B6D4`, `#8B5CF6`, `#F59E0B` | `text-cyan-500`, `text-purple-500`, `text-amber-500` | Specialized studio badges & icon accents |
-
-### B. Standard Component Patterns (MANDATORY COPY-PASTE PATTERNS)
-
-#### 1. Page Headings (`h1` / `h2` with Flame Orange & Sunset Amber Gradient)
-```tsx
-{/* Standard Eyebrow / Kicker */}
-<div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-orange-700">
-  <Sparkles size={14} className="text-[#FF5722]" />
-  <span>More Than AI — Your Personal Editor</span>
-</div>
-
-{/* Standard Heading with Flame Orange Gradient */}
-<h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-5xl md:text-6xl font-sans">
-  The Free{' '}
-  <span className="bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] bg-clip-text text-transparent">
-    AI Video Generator
-  </span>
-</h1>
-```
-
-#### 2. Primary & Secondary CTA Buttons
-```tsx
-{/* Primary CTA: Flame Orange & Sunset Amber Gradient */}
-<button className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] px-8 py-4 text-base font-black text-white shadow-xl shadow-orange-500/25 transition duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-95">
-  <span>Create Faceless Video Free</span>
-  <ArrowRight size={18} />
-</button>
-
-{/* Secondary CTA: Clean Surface with Orange Highlight */}
-<a href="#details" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-800 hover:border-orange-500/40 hover:bg-orange-50/50 transition">
-  <span>Browse all 14 Studios</span>
-  <ArrowRight size={14} className="text-[#FF5722]" />
-</a>
-```
-
-#### 3. Studio Cards & Category Chips
-- Studio cards: `rounded-[28px] border border-slate-200/90 bg-white hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/10 transition-all`
-- Active Category Chips: `rounded-full bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] text-white font-black shadow-md shadow-orange-500/20`
-- Inactive Category Chips: `rounded-full bg-white text-slate-600 border border-slate-200 hover:border-orange-500/40 hover:text-slate-900`
-
-### C. Material Design 3 (M3) System Integration (https://m3.material.io/)
-
-Whenever designing or building UI components, layouts, containers, sheets, navigation, forms, and micro-interactions, **ALWAYS apply Google Material Design 3 (M3) specifications**:
-
-1. **M3 Shape System**:
-   - **Extra Large Containers & Cards**: `rounded-[28px]` (Studio cards, video preview containers, modal sheets, hero preview stages).
-   - **Medium Containers & Inputs**: `rounded-2xl` (Input fields, spec callout boxes, banners, action bars).
-   - **Small Elements & Action Anchors**: `rounded-full` (Filter chips, category badges, primary CTA buttons, floating icon buttons).
-
-2. **M3 Elevation & Surfaces**:
-   - **Tonal Layering**: Deep Obsidian Base (`#070B14`) -> Elevated Surface Container (`#0E1526`) -> High Surface Container (`#151E30`).
-   - **Structural Borders**: Subtle 1px tonal border (`border border-white/10` or `border border-slate-200/80`). Avoid harsh, thick borders.
-   - **Ambient Illumination**: On hover, apply a smooth Google Analytics Orange radial glow (`hover:border-[#FF6D00]/50 hover:shadow-2xl hover:shadow-[#FF6D00]/15`).
-
-3. **M3 Motion & Micro-interactions**:
-   - **Tactile State Layer**: Every interactive button and chip must implement active compression (`active:scale-95 transition-all duration-200`).
-   - **Elevation Lift**: Cards smoothly lift on hover (`hover:-translate-y-1.5 transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]`).
-   - **Kinetic Horizontal Snap Tracks**: For carousels, hub tracks, and horizontally overflowing toolbars, use `snap-x snap-mandatory overflow-x-auto scroll-smooth no-scrollbar`.
-   - **Marquee Motion**: Use `@keyframes m3Marquee` for ambient moving ticker elements with pause on hover (`hover:pause`).
-
-4. **Reference Source**:
-   - Official tokens, layouts, and component guidelines: [https://m3.material.io/](https://m3.material.io/).
-
-### D. Approved UI & Animation Component Inspirations
-
-When engineering UI components, micro-interactions, and animations across Itnavideo landing pages and dashboard studios, adopt patterns from these three modern component inspiration libraries:
-
-1. **Vengeance UI (`vengenceui.com`)**:
-   - **Focus**: High-converting SaaS landing pages, animated hero stages, moving gradient borders, and dynamic spring cards.
-   - **Stack**: Next.js + React + Tailwind CSS + Framer Motion.
-   - **Itnavideo Usage**: Glowing ambient border cards, hero video stage transitions, and spring card elevation lift.
-
-2. **Skipper UI / Skiper UI (`skiper-ui.com`)**:
-   - **Focus**: shadcn/ui-compatible unconventional layout blocks, tactile micro-interactions, distinct form inputs, and interactive tab/pill switchers.
-   - **Stack**: React + Tailwind CSS + shadcn/ui primitives.
-   - **Itnavideo Usage**: Video type filter chips with count badges, tactile click snap (`active:scale-95`), and clean dashboard form controls.
-
-3. **Animmaster Lib (`animmasterlib.dev`)**:
-   - **Focus**: Awwwards-style web animations, kinetic typography reveals, scroll triggers, and physics-based hover states.
-   - **Stack**: Pure Tailwind CSS + Framer Motion.
-   - **Itnavideo Usage**: Kinetic headline typography reveals, video card micro-progress indicators, and smooth cubic-bezier easing.
-
-### E. Impeccable Craft Floor & Anti-Pattern Floor Rules
-
-Keep these mandatory UI quality checks and anti-pattern bans in mind for all frontend code:
-
-1. **Hierarchy & Typography Execution**:
-   - Body copy measure target: 65–75 characters per line.
-   - Text contrast ratio: Body & placeholder text ≥ 4.5:1, large text ≥ 3:1.
-   - On dark surfaces (`#070B14`, `#0E1526`), use solid high-contrast white text (`text-white`) or GA Orange (`#FF8F00`) instead of clipped gradient-text masks (`[gradient-text]`). Weight, size, and GA Orange highlights drive visual emphasis.
-   - Custom browser surfaces: Caret, text selection (`selection:bg-[#FF6D00]/30 selection:text-white`), focus rings, and custom scrollbars must be explicitly themed to match Google Analytics Obsidian tones.
-
-2. **Card & Container Architecture**:
-   - Cards are complete clickable interactive surfaces with subtle border glows (`hover:border-[#FF6D00]/50 hover:shadow-2xl hover:shadow-[#FF6D00]/15`).
-   - Tonal surface layering: Deep Obsidian Base (`#070B14`) -> Elevated Surface (`#0E1526`) -> High Surface (`#121824` / `#131926`).
-   - Soft offset depth shadows (`shadow-2xl shadow-black/80`). Avoid hard block shadows (`box-shadow: 4px 4px 0`) or zero-blur halos.
-   - **BANNED**: Nested cards (cards inside cards) and repetitive text container boxes that duplicate specs already known to the user.
-
-3. **Motion & Interaction Floor**:
-   - Single authored motion moment per viewport using exponential ease-out (`ease-[cubic-bezier(0.2,0,0,1)]`).
-   - Every interactive element must support full states: default, hover, focus-visible, active (`active:scale-95`), loading, and error.
-
-4. **Copy & Action Clarity**:
-   - Buttons and controls explicitly name their action (e.g. "Start Creating Free", "Open Studio", "Download 1080p Full HD").
-   - Error banners describe the exact issue and provide a single-click recovery action.
-
-
-
-
+| **Frontend Framework** | Next.js (App Router), React, TypeScript | Next.js 16+, React 19, TypeScript 5.x | High-performance hybrid SSR/client web application |
+| **Styling & Animation** | Tailwind CSS, Framer Motion, Lucide React | Modern dark aesthetic (`zinc-900`/`zinc-950`) | Responsive UI, fluid layout transitions, vector icons |
+| **Video Engine** | Remotion, `@remotion/lambda`, `@remotion/player` | 30 FPS programmatic rendering | Composition timeline, kinetic subtitle sync, cloud renders |
+| **Authentication & DB** | Supabase (PostgreSQL, Supabase Auth) | `@supabase/ssr`, RLS policies enabled | User identity, persistent render jobs, credit quotas |
+| **Transcription API** | Groq Whisper Cloud API | `whisper-large-v3-turbo` | Millisecond-accurate word-level speech-to-text |
+| **AI Fallback & Logic** | Google Gemini API (Vertex AI) | Gemini 2.0 Flash (`asia-south1`) | Transcription fallback, scene direction, prompt planning |
+| **Cloud Hosting** | Google Cloud Run | Region: `us-central1`, containerized | Web server and API route handlers (`itnavideo-web`) |
+| **Cloud Rendering** | AWS Lambda | Region: `us-east-1` (`remotionlambda-useast1-2zq6twaok1`) | Distributed 30fps Chromium headless video rendering |
+| **Media Storage** | AWS S3 & Cloudinary | AWS S3 for render storage; Cloudinary for UI images | Presigned uploads, render downloads, marketing graphics |
+| **Payments** | Razorpay / Stripe | Secure server-side webhook validation | Subscription billing and credit package top-ups |
 
 ---
 
-## 10. Universal Phone QR Code Mobile Download
+## 4. High-Level System Architecture
 
-> [!IMPORTANT]
-> **Scan to Phone Direct Download**:
-> Every completed video render across all video types includes a high-contrast QR Code ("Scan to Phone") allowing users to directly scan and download the finalized 1080p MP4 straight to their mobile device (iOS / Android camera) without logging in on their phone.
-> - Available in: InteractiveRenderEngine, Recent Cloud Renders cards, and Generated Videos history tab.
-> - Modal component: `components/media/PhoneQrDownloadModal.tsx`.
+```mermaid
+flowchart TD
+    User["User Client Browser / Mobile Client"] -->|HTTPS / Next.js SSR| CloudRun["Google Cloud Run (itnavideo-web)<br/>us-central1"]
+    
+    subgraph CloudRunBackend ["Google Cloud Run Backend APIs"]
+        UploadAPI["/api/media/upload (Presigned S3 URL)"]
+        JobsAPI["/api/reels/jobs (Render Dispatcher)"]
+        StatusAPI["/api/reels/jobs/status (Status Poller)"]
+        Webhooks["/api/webhooks/render (Lambda Callback)"]
+    end
+    
+    User -->|Direct Binary Upload| S3Temp["AWS S3 Bucket (Uploads / Temp Media)"]
+    CloudRunBackend -->|Extract Mono Audio| GroqAPI["Groq Whisper API (Speech-to-Text)"]
+    GroqAPI -.->|Fallback on error| GeminiAPI["Google Gemini 2.0 Flash (asia-south1)"]
+    
+    CloudRunBackend -->|Trigger Cloud Render| AWSLambda["AWS Lambda Remotion Engine (us-east-1)"]
+    AWSLambda -->|Fetch Assets & Props| S3Temp
+    AWSLambda -->|Write Rendered MP4| S3Output["AWS S3 Output Bucket (48h Lifecycle)"]
+    
+    CloudRunBackend <-->|Auth & Metadata (RLS)| SupabaseDB[("Supabase PostgreSQL")]
+    User -->|Stream UI Graphics| CloudinaryCDN["Cloudinary CDN (itnavideo12345)"]
+```
 
 ---
 
-## 11. STRICT: Professional Multi-Track Layer Architecture (No Layer Limits — Industry Standard Rule)
+## 5. Repository Structure & Key Directories
+
+```
+itnavideo-project/
+├── app/                                # Next.js App Router (Pages, Layouts, API Routes)
+│   ├── (auth)/                         # Authentication flows (login, register, forgot-password)
+│   ├── (marketing)/                    # 15 Public SEO Landing Pages, Blog, Pricing, Features
+│   ├── api/                            # Serverless API Route Handlers
+│   │   ├── reels/jobs/                 # Render dispatching, status polling, and background tasks
+│   │   ├── media/                      # Secure presigned upload URL generators
+│   │   └── webhooks/                   # External payment and rendering callback receivers
+│   ├── dashboard/                      # Authenticated Creator Studio Shell
+│   ├── layout.tsx                      # Root HTML layout with providers and global styles
+│   └── globals.css                     # Tailwind CSS v4 design tokens and theme rules
+├── components/                         # Modular React Components
+│   ├── dashboard/                      # Studio pickers, audio uploaders, style selectors
+│   ├── landing/                        # Landing page hero, interactive studios, pricing cards
+│   ├── layout/                         # Global Navbar, Mobile Navigation Drawer, Footer
+│   └── ui/                             # Buttons, inputs, modals, toasts, progress bars
+├── docs/                               # Master Project Documentation
+│   ├── homepage.md                     # Dedicated Homepage Master Specification
+│   └── video-types/                    # Exactly 15 Dedicated Video Type Specifications
+│       ├── README.md                   # Video Types Master Registry
+│       ├── faceless-video.md           # 16:9 Faceless Video Generator
+│       ├── book-summary.md             # 16:9 Book Summary Video
+│       ├── image-to-video-ai.md        # 16:9 Image to Video AI
+│       ├── youtube-subtitles-generator.md # 16:9 YouTube Subtitles Generator
+│       ├── ai-video-generator.md       # 16:9 AI Video Generator
+│       ├── ai-video-polisher.md        # 16:9 AI YouTube Video Polisher
+│       ├── auto-caption-generator.md   # 9:16 Auto Caption Reel
+│       ├── faceless-shorts.md          # 9:16 Faceless Shorts
+│       ├── compare-explainer.md        # 9:16 Compare Explainer
+│       ├── whiteboard-video.md         # 9:16 Whiteboard Animation
+│       ├── long-video-clips.md         # 9:16 Long Video to Clips
+│       ├── long-video-promo.md         # 9:16 Long Video Promo
+│       ├── split-screen-explainer.md   # 9:16 Split Screen Explainer
+│       ├── ai-shorts-polisher.md       # 9:16 AI Shorts Polisher
+│       └── ai-audio-cleaner.md         # Audio Studio Utility
+├── lib/                                # Core Utilities & Service Integrations
+│   ├── remotion/                       # Lambda dispatching client and composition helpers
+│   ├── seo/                            # Canonical URL collector and JSON-LD structured schemas
+│   ├── supabase/                       # Supabase SSR client, server actions, and RLS helpers
+│   └── utils/                          # Audio extraction, duration calculators, text formatters
+├── public/                             # Static Assets
+│   ├── assets/                         # Render library (b-roll videos, sound effects, stickmen)
+│   ├── brand/                          # Official logos, favicons, and brand marks
+│   └── visuals/                        # High-resolution UI illustrations and graphic assets
+├── remotion/                           # Remotion Compositions & Video Templates
+│   ├── index.ts                        # Root Remotion registry (`registerRoot`)
+│   └── templates/                      # Compositions matching active video tools
+├── services/                           # Business Logic & Backend Services
+│   ├── ai/                             # Reel planner, scene direction, prompt engineering
+│   └── transcriber/                    # Groq Whisper integration and Gemini fallback logic
+├── AGENTS.md                           # Master Architecture & Agent Rules (This Document)
+├── package.json                        # Dependencies, scripts, and engine specifications
+└── tsconfig.json                       # Strict TypeScript compiler configuration
+```
+
+---
+
+## 6. Zero Local Heavy Compute Policy (4GB RAM Safeguards)
+
+> [!CAUTION]
+> **Developer Laptop Environment**: The development machine has **4GB RAM and a mechanical HDD**. Running local rendering jobs or unconstrained Node processes causes disk paging (thrashing) and completely freezes the system.
+
+### 6.1 Strictly Forbidden on Local Machine
+- ❌ **No Local Video Rendering**: Never run `npx remotion render`, `npm run reel:render`, or local Chromium headless rendering.
+- ❌ **No Local Heavy FFmpeg Media Jobs**: Never execute heavy local transcoding, complex multi-pass audio filters, or batch media conversions locally.
+- ❌ **No Local ML Models**: Never run local Whisper models, PyTorch, or local LLMs on this machine.
+- ❌ **No Unchecked Background Daemons**: Do not leave `remotion studio` or memory-heavy dev watchers running in the background.
+
+### 6.2 Mandatory Cloud-Only Execution
+- ☁️ **Web Hosting & API Execution**: Google Cloud Run (`itnavideo-web` in `us-central1`).
+- ☁️ **Video Rendering**: AWS Lambda Remotion Cloud (`remotionlambda-useast1-2zq6twaok1` in `us-east-1`).
+- ☁️ **Transcription**: Groq Whisper Cloud API (with Google Gemini 2.0 Flash fallback).
+- ☁️ **Media Asset Delivery**: Cloudinary CDN (`itnavideo12345`) and AWS S3 (`itnavideo-media-assets`).
+
+### 6.3 Permitted Local Operations
+- ✅ Code editing, static code analysis, and git version control.
+- ✅ Static type checking: `npx tsc --noEmit`
+- ✅ Memory-guarded script execution: `NODE_OPTIONS="--max-old-space-size=1024" node <script>`.
+- ✅ Direct deployment to Google Cloud Run via `gcloud run deploy` using the machine's local disk space.
+
+---
+
+## 7. Coding Standards, Type Safety & Zero-Error Policy
+
+- **Strict TypeScript**: Never use `any` when a typed interface can be defined. Ensure strict null checking.
+- **Zero-Error Mandate**: Every code modification must pass `npx tsc --noEmit` with zero errors and zero warnings before completion.
+- **Safe Prop Defaults**: All Remotion composition props must have robust defaults in `services/ai/reelPlanner.ts` and `app/api/reels/jobs/route.ts` to ensure backward compatibility with in-flight render jobs.
+- **Preserve Existing Comments**: Maintain existing code comments, docstrings, and architectural annotations.
+- **Zero Automatic Git Push**: Never run `git push` automatically. Git push is strictly executed only upon explicit command from the founder.
+
+### 7.1 API Key & Secret Security Policy
+
+> [!CAUTION]
+> **Never hardcode any API key, secret, or credential in source code.**
+
+- ❌ **Forbidden**: Do not hardcode API keys, API secrets, access tokens, or service credentials anywhere in source code — including as `const DEFAULT_KEY = '...'` fallbacks, inline `config({ api_key: '...' })` calls, or in any script file that is committed to git.
+- ✅ **Required**: All secrets must be stored exclusively in `.env.local` on the developer machine and in the Cloud Run service environment variables. Load them only via `process.env.VARIABLE_NAME`.
+- ✅ **On Missing Key**: If a required environment variable is not set, the service must throw a descriptive error (e.g., `throw new Error('Missing CLOUDINARY_API_KEY. Set it in .env.local.')`) or fail silently with a warning and return an empty result — never fall back to a hardcoded value.
+- ✅ **Template**: `.env.example` must list all required env vars with empty values (`CLOUDINARY_API_KEY=`) or placeholder text (`CLOUDINARY_API_KEY=YOUR_KEY_HERE`). Never put real values in `.env.example`.
+- ✅ **Scripts**: Deployment and admin scripts in `scripts/` must read keys from `process.env` (loaded via `dotenv`) and exit with an error if the key is missing. Do not paste real keys into scripts.
+
+### 7.2 Free-Tier Video Policy & Watermark Mandate
 
 > [!IMPORTANT]
-> **FOUNDER DIRECTIVE: ZERO LAYER CAPS & MANDATORY MULTI-TRACK SEPARATION**:
-> In professional video editing (Adobe Premiere Pro, DaVinci Resolve, After Effects), no project is ever built in a single flat layer. 
-> Every video type across Itnavideo MUST use a decoupled, multi-track layer architecture. There is **no fixed limit on layers** — use as many dedicated, specialized layers as needed to ensure zero collisions, independent volume control, and flawless visual hierarchy.
-> 
-> ### 1. Zero Monolithic Layering Anti-Pattern:
-> - ❌ **FORBIDDEN**: Never bundle voiceover, background music, and sound effects into a single audio tag or shared logic.
-> - ❌ **FORBIDDEN**: Never combine background canvas, drawings/b-roll, typography/text, and hands/overlays into a single monolithic JSX container.
-> - ❌ **FORBIDDEN**: Arbitrary layer limits. Add dedicated layers for every distinct visual or acoustic responsibility.
-> 
-> ### 2. Standard Visual Stacking Hierarchy (Video Tracks V1, V2, V3...):
-> - **Track V1: Canvas / Background Surface**: Spotless background, whiteboard board frames, canvas textures, or clean color fields.
-> - **Track V2: Primary Media / Vector Drawings / B-Roll**: Stickman vector sketches, stock video b-roll, product mockups, or user images.
-> - **Track V3: Visual Structure & Framing**: Layout cards, split-screen dividers, flow arrows, diagram nodes, and safe-zone containers.
-> - **Track V4: Typography & Text Layer**: **Strictly independent of drawings**. Headlines, bullet points, numbers, statistics callouts, and conclusion takeaways. Words must never be obstructed or clipped by illustrations.
-> - **Track V5: Focus & Highlight Overlays**: Spoken-word accent circles, marker underlines, and yellow highlighter strips.
-> - **Track V6: Foreground Actors & Physical Elements**: Realistic drawing hands, marker pens, interactive cursors, and watermarks.
-> - **Track V7: Scene Transitions & Camera Viewport**: Camera pan/zoom motions, dry-eraser wipes, and scene wipe transitions.
-> 
-> ### 3. Standard Audio Mixing Hierarchy (Audio Tracks A1, A2, A3...):
-> - **Track A1: Dialogue / Voiceover**: Primary spoken speech at 100% volume, normalized and pristine with start-trim offset.
-> - **Track A2: Foley & Tactile Sound Effects (SFX)**: Marker writing squeaks, eraser swipes, button clicks, pop hits, and whooshes (balanced at 25%–35% volume).
-> - **Track A3: Background Music Score (BGM)**: Looping mood soundtrack, ducked at 10%–12% volume so it never masks speech.
+> **Only two video types are free for all users. All other video types require a paid plan.**
+
+- **Free Video Types (5 free renders per day, no credits required)**:
+  - `autoCaption` — Auto Caption Reel Generator (`/dashboard/auto-caption`)
+  - `youtubeSubtitleGenerator` — YouTube Subtitles Generator (`/dashboard/youtube-subtitles`)
+
+- **All other 13 video types are paid-only** (`facelessShorts`, `facelessVideo`, `imageToVideoAi`, `bookSummary`, `whiteboardVideo`, `compare`, `longVideoClips`, `longVideoPromo`, `splitScreenExplainer`, `aiVideoPolisher`, `aiShortsPolisher`, `aiVideoGenerator`, `audioClean`). Free users who attempt to render these must be blocked server-side (402) and shown an upgrade screen client-side via `FeaturePaywall` (`components/dashboard/FeaturePaywall.tsx`).
+
+- **Watermark Mandate**: Every video rendered by a **free-tier or trial user** (`free-daily`, `free-signup-credit`, or any plan where `activePaidPlan: false`) **must carry the Itnavideo brand watermark**. The watermark is set server-side by the jobs route: `watermark: !isFounder && (!access?.activePaidPlan || Boolean(access?.watermark))`. Every Remotion template must accept a `watermark?: boolean` prop and render `<BrandWatermark watermark={watermark} />` before its closing `</AbsoluteFill>`. Templates missing this prop silently produce watermark-free exports for free users, which is a revenue leak. See `remotion/components/BrandWatermark.tsx` for the component implementation.
+
+### 7.3 Studio Step System — Flexible Multi-Step Architecture
+
+> [!IMPORTANT]
+> **Studio steps are flexible — any count is valid (2, 3, 4, 5, 6, 7, 8+). Never hardcode a step count.**
+
+- **Shared component**: All studios use `components/dashboard/shared/StudioStepper.tsx` which exports `StudioStepper`, `StudioStepperRow`, and `StudioBottomBar`.
+- **State type**: Always `useState<number>(1)` — never `useState<1 | 2 | 3 | 4>`.
+- **Step array**: Each studio exports a `STEPS` constant (e.g. `COMPARE_STEPS`, `CLIPS_STEPS`). The number of entries determines the total steps automatically.
+- **Final step check**: Always use `currentStep === STEPS.length` — never hardcode `currentStep === 4`.
+- **Next button**: Always reference `STEPS.find(s => s.step === currentStep + 1)?.title` — never index by `STEPS[currentStep]`.
+- **Adding steps**: To add or remove a step, simply add/remove an entry from the studio's STEPS array. No other code changes needed.
+- **Example**:
+  ```ts
+  export const COMPARE_STEPS = [
+    { step: 1, title: "Upload",    desc: "Voiceover Narration" },
+    { step: 2, title: "Subjects",  desc: "2 Comparison Images" },
+    { step: 3, title: "Music",     desc: "Soundtrack & Volume" },
+    { step: 4, title: "Character", desc: "Presenter & Theme"   },
+    { step: 5, title: "Preview",   desc: "9:16 Shorts Simulator" },
+  ] as const;
+  // State:
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  // Final step check:
+  {currentStep === COMPARE_STEPS.length && <PreviewStep />}
+  ```
+
+### 7.4 Studio UI Color System
+
+The dashboard studios use a **6-color semantic palette**. Using 7 or 8 colors is acceptable if a specific studio's UX genuinely requires it — but keep the total under control to maintain visual consistency.
+
+| Color | Hex | Tailwind | Use |
+| :--- | :--- | :--- | :--- |
+| **Orange** | `#EA580C` | `orange-600` | Primary CTAs, active states, upload zones, step indicators |
+| **Amber** | `#D97706` | `amber-600` | Secondary accents, pricing badges, 16:9 widescreen labels |
+| **Emerald** | `#059669` | `emerald-600` | Completed steps, success states, "Ready" badges, free-tier |
+| **Sky** | `#0284C7` | `sky-600` | Info links, secondary actions, preview play buttons |
+| **Slate** | `#334155` | `slate-700` | Body text, neutral borders, inactive steps, card surfaces |
+| **Violet** | `#7C3AED` | `violet-700` | AI-powered feature badges, smart features, watermark toggle |
+
+- **Violet is reserved for AI-specific features** only: `WatermarkRemoverToggle`, smart punch-in, AI scene director badges, etc.
+- **Sky is for informational/secondary actions**: transcript editing, preview controls, back buttons.
+- **Never use blue (`#3B82F6`) or purple (`#8B5CF6`) directly** — use Sky and Violet from the table above instead, to keep the palette coordinated.
+
+---
+
+## 8. Database Security, Supabase Data API & Mandatory RLS
+
+> [!CAUTION]
+> **Supabase Data API Protection**: Supabase automatically exposes all tables in the `public` schema over REST (`/rest/v1/`). Leaving any table without Row Level Security allows unauthorized public read, write, or deletion using the client `anon` key.
+
+### 8.1 Mandatory Row Level Security (RLS)
+Every table created in the `public` schema must immediately have RLS enabled:
+```sql
+ALTER TABLE public.<table_name> ENABLE ROW LEVEL SECURITY;
+```
+
+### 8.2 Strict Policy Rules
+- **User-Owned Data**: Tables storing user data (profiles, user credits, render jobs) must enforce user ownership:
+  ```sql
+  CREATE POLICY "Users can only access own data" ON public.<table_name>
+    FOR ALL USING (auth.uid() = user_id);
+  ```
+- **Internal / Backend Tables**: Tables storing internal audit logs, render metrics, or billing secrets must revoke all access from public and authenticated roles:
+  ```sql
+  REVOKE ALL ON TABLE public.<internal_table> FROM anon, authenticated;
+  ```
+- **Service Role Isolation**: The `SUPABASE_SERVICE_ROLE_KEY` bypasses RLS and must strictly remain on the server in Next.js Route Handlers. It must NEVER be prefixed with `NEXT_PUBLIC_` or bundled in client code.
+
+---
+
+## 9. Global UI/UX Brand Guidelines & Design Tokens
+
+### 9.1 Theme & Color Palette
+- **Background**: Deep Zinc Dark (`#09090b` / `zinc-950`), secondary surface (`#18181b` / `zinc-900`).
+- **Borders & Dividers**: Subtle frosted borders (`border-white/10` or `border-zinc-800`).
+- **Primary Accent**: Emerald / Mint (`#10b981` / `#34d399`) for actions, primary CTAs, and active status indicators.
+- **Secondary Accent**: Electric Indigo / Violet (`#6366f1` / `#8b5cf6`) for AI features, badges, and gradient highlights.
+- **Text Hierarchy**: Primary headings (`text-white`, font weight 700/800), body text (`text-zinc-300`), secondary labels (`text-zinc-500`).
+
+### 9.2 Zero Eyebrow Pill Badge Policy (Enterprise Standard)
+- **Forbidden**: Never place small rounded-pill eyebrow tags, kicker chips, or spark badges (e.g. `✨ THE NO-CODE VIDEO TRANSFORMATION`) above H1, H2, or section headlines.
+- **Brand Standard**: Follow the bold, clean, uncluttered visual aesthetic of modern enterprise platforms (Apple, Google, Stripe). Keep section titles confident and direct so the reader's focus is immediately on the core message.
+
+### 9.3 Clean Navigation Architecture
+- **No Non-Functional Header Switchers**: Never put a non-functional language toggle (EN/HI) in the navigation header.
+- **Dedicated Public Landing Links**: Links inside the 'Products' dropdown and mobile drawer must point directly to public marketing pages (e.g., `/faceless-video`, `/auto-caption-generator`), while 'Get Started' and 'Dashboard' buttons navigate directly to the authenticated studio.
+
+---
+
+## 10. Shared UI Components & Studio Workflows
+
+All 15 video studio workspaces inside `/dashboard` follow a unified 3-step creation flow:
+
+1. **Step 1: Input & Media Upload**
+   - Drag-and-drop zone with instant file validation.
+   - Real-time file duration preview and waveform calculation.
+   - Helpful notice: *"Videos and audio longer than 90 seconds are supported. Only the first 90 seconds will be used."* (for 9:16 short-form tools).
+2. **Step 2: Creative Customization**
+   - Subtitle animation style selector (Bionic, Bounce, Glow, Karaoke, Minimal).
+   - Visual background source toggle (AI Stock Library vs. Custom User Media).
+   - Audio soundtrack volume balance and optional sound effects toggle.
+3. **Step 3: Cloud Render & Real-Time Monitor**
+   - One-click render trigger displaying exact credit cost before confirmation.
+   - Resilient status polling with animated progress bar and step-by-step indicator.
+   - Durable job persistence via `localStorage` allowing users to switch tabs or minimize their browser without losing active renders.
+
+---
+
+## 11. End-to-End Video Generation Pipeline
+
+The rendering lifecycle coordinates frontend upload, server-side planning, cloud transcription, and serverless rendering:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Creator as User / Creator
+    participant Web as Next.js Web App (/dashboard)
+    participant API as /api/reels/jobs
+    participant S3 as AWS S3 Storage
+    participant Groq as Groq Whisper Cloud API
+    participant Lambda as AWS Lambda Remotion Cloud
+    
+    Creator->>Web: Select Video Type & Upload Media (Audio/Video)
+    Web->>API: Request Presigned Upload URL
+    API-->>Web: Return Secure Presigned S3 URL
+    Web->>S3: Direct Binary Upload
+    Web->>API: Dispatch Render Job (Upload URL, Studio Settings)
+    API->>API: Deduct User Credits & Create Supabase Job Record
+    API->>S3: Extract 16kHz Mono Audio Stream
+    API->>Groq: Send Audio Stream for Word-Level Transcription
+    Groq-->>API: Return Millisecond Timestamped Words
+    API->>API: Execute Template Reel Planner (Beats, Subtitles, B-Roll Cues)
+    API->>Lambda: Invoke Remotion Cloud Render (Props, Template ID)
+    Lambda-->>API: Acknowledge Render Job Started
+    loop Every 2 Seconds
+        Web->>API: Poll Job Status (/api/reels/jobs/status)
+        API->>Lambda: Check AWS Lambda Progress
+        Lambda-->>API: Progress Percentage & Frame Count
+        API-->>Web: Return Live Progress (e.g., 65%)
+    end
+    Lambda->>S3: Output Completed 1080p MP4
+    Lambda->>API: Webhook Callback (Render Complete)
+    API-->>Web: Return Secure S3 Download URL (48-Hour Expiry)
+    Creator->>Web: Preview Video & Download MP4
+```
+
+---
+
+## 12. AI Providers, Transcription & Fallback Policy
+
+### 12.1 Primary Speech-to-Text: Groq Whisper Cloud API
+- **Model**: `whisper-large-v3-turbo`.
+- **Performance**: Millisecond-accurate word timestamps with lightning-fast cloud response (~1–3 seconds for 90s audio).
+- **Audio Optimization**: Audio files are always converted to lightweight 16kHz mono streams before sending to the Groq API. Never pass raw multi-gigabyte video containers to transcription endpoints.
+
+### 12.2 Mandatory Fallback: Google Gemini 2.0 Flash
+- **Deployment**: Google Cloud asia-south1.
+- **Failover Trigger**: If Groq encounters rate limits (HTTP 429), temporary cloud downtime, or socket timeouts, the pipeline automatically routes transcription to Gemini 2.0 Flash without failing the user's render job.
+- **AI Scene Direction**: Gemini 2.0 Flash is also utilized for semantic B-roll keyword extraction and whiteboard visual script generation.
+
+### 12.3 OpenAI Deprecation
+- OpenAI has been completely removed from the project. No OpenAI libraries, endpoints, or keys are used anywhere in the codebase.
+
+---
+
+## 13. Remotion Cloud Rendering Engine (AWS Lambda)
+
+### 13.1 Cloud Configuration
+- **AWS Region**: `us-east-1`.
+- **Lambda Function**: Pre-deployed Chromium rendering cluster configured via `@remotion/lambda`.
+- **S3 Bucket**: `remotionlambda-useast1-2zq6twaok1`.
+- **Frame Rate**: Strictly 30 FPS across all compositions for optimal smoothness and fast render throughput.
+- **Resolution**:
+  - 16:9 Long-Form: 1920 × 1080 (Full HD Widescreen).
+  - 9:16 Short-Form: 1080 × 1920 (Full HD Vertical).
+
+### 13.2 Asset Lifecycle & Security
+Rendered MP4 video outputs are stored in S3 with a standard 48-hour lifecycle policy. After 48 hours, temporary render binaries are automatically pruned to prevent cloud storage bloat.
+
+---
+
+## 14. API Architecture & Backend Route Handlers
+
+All video operations are handled by secure serverless route handlers:
+
+- `POST /api/media/upload`: Generates secure presigned AWS S3 URLs for direct client uploads, eliminating payload size limits on Cloud Run.
+- `POST /api/reels/jobs`: Validates credit balances, extracts audio, invokes speech transcription, builds deterministic composition props, and triggers AWS Lambda.
+- `GET /api/reels/jobs/status?jobId=...`: Returns real-time render percentage, current stage, and output download URL when completed.
+- `POST /api/webhooks/render`: Internal webhook handler invoked by AWS Lambda upon render completion or failure.
+- `GET /api/user/credits`: Retrieves current user credit balance and daily free quota usage.
+
+---
+
+## 15. Cloud Infrastructure, Hosting & Deployments
+
+- **Production Domain**: `https://www.itnavideo.com`
+- **Web App Hosting**: **Google Cloud Run** (`itnavideo-web` in project `geometric-hull-501707-m2`, region `us-central1`). Deployed from the local machine via `npm run deploy:cloud`.
+- **Rendering Infrastructure**: **AWS Lambda** (`us-east-1`).
+- **Database & Auth**: **Supabase** (Managed PostgreSQL with SSR cookie handling).
+- **Static Assets & Demo Media**: **Cloudinary** (Folder: `itnavideo12345`, Cloud Name: `dhouh9idx`).
+
+---
+
+## 16. Master Video Duration, Aspect Ratio & Credit Pricing System
+
+> [!IMPORTANT]
+> **Strict Aspect Ratio & Duration Boundary**:
+> - **16:9 Widescreen Videos**: Up to 5 minutes (300 seconds). Credit rate: **1 minute = 1 credit** (1m=1, 2m=2, 3m=3, 4m=4, 5m=5 credits).
+> - **9:16 Vertical Shorts**: Up to 90 seconds (90s / 2700 frames @ 30fps). Credit rate: **1 credit flat** per video.
+> - **Automatic First-90s Trimming**: Users can upload longer files (e.g. 2 minutes or 5 minutes) to 9:16 tools without upload errors. The system automatically trims and uses the first 90 seconds.
+> - **Viral Clips (`longVideoClips`)**: Up to 2 hours of input media; outputs 30s–60s viral shorts at **1 credit per clip**.
+> - **Free Daily Quota**: YouTube Subtitles Generator and Auto Caption Reel include **5 Free Videos daily** (0 credits consumed).
+
+### Complete Master Studio Matrix (15 Active Tools)
+
+| Category | Studio Name | Slug | Ratio | Max Duration | Credit Cost | Output Format |
+| :--- | :--- | :--- | :---: | :---: | :---: | :--- |
+| **16:9 Long-Form** | **Faceless Video Generator** | `faceless-video` | 16:9 | 5 Minutes | 1 Min = 1 Credit | 1080p MP4 |
+| **16:9 Long-Form** | **Book Summary Video** | `book-summary` | 16:9 | 5 Minutes | 1 Min = 1 Credit | 1080p MP4 |
+| **16:9 Long-Form** | **Image to Video AI** | `image-to-video-ai` | 16:9 | 5 Minutes | 1 Min = 1 Credit | 1080p MP4 |
+| **16:9 Long-Form** | **YouTube Subtitles Generator** | `youtube-subtitles-generator` | 16:9 | 5 Minutes | **FREE • 5 Daily** | 1080p MP4 / SRT / VTT |
+| **16:9 Long-Form** | **AI Video Generator** | `ai-video-generator` | 16:9 | 5 Minutes | 1 Min = 1 Credit | 1080p MP4 |
+| **16:9 Long-Form** | **AI YouTube Video Polisher** | `ai-video-polisher` | 16:9 | 5 Minutes | 1 Min = 1 Credit | 1080p MP4 |
+| **9:16 Short-Form** | **Auto Caption Reel Generator** | `auto-caption-generator` | 9:16 | 90 Seconds | **FREE • 5 Daily** | 1080p Vertical MP4 |
+| **9:16 Short-Form** | **Faceless Shorts Generator** | `faceless-shorts` | 9:16 | 90 Seconds | 1 Credit Flat | 1080p Vertical MP4 |
+| **9:16 Short-Form** | **Compare Explainer Video** | `compare-explainer` | 9:16 | 90 Seconds | 1 Credit Flat | 1080p Vertical MP4 |
+| **9:16 Short-Form** | **Whiteboard Animation Generator** | `whiteboard-video` | 9:16 | 90 Seconds | 1 Credit Flat | 1080p Vertical MP4 |
+| **9:16 Short-Form** | **Long Video to Shorts Clips** | `long-video-clips` | 9:16 | Up to 2h input | 1 Credit / Clip | 1080p Vertical MP4 |
+| **9:16 Short-Form** | **Long Video Promo Generator** | `long-video-promo` | 9:16 | 90 Seconds | 1 Credit Flat | 1080p Vertical MP4 |
+| **9:16 Short-Form** | **Split Screen Explainer** | `split-screen-explainer` | 9:16 | 90 Seconds | 1 Credit Flat | 1080p Vertical MP4 |
+| **9:16 Short-Form** | **AI Shorts Polisher** | `ai-shorts-polisher` | 9:16 | 90 Seconds | 1 Credit Flat | 1080p Vertical MP4 |
+| **Audio Utility** | **AI Audio Cleaner & Enhancer** | `ai-audio-cleaner` | Audio | 5 Minutes | 1 Credit Flat | Enhanced WAV / MP3 |
+
+---
+
+## 17. Video Type Documentation Index (15 Active Studios)
+
+Detailed technical specifications, Remotion composition props, pipeline diagrams, and UI state references for each individual video type are maintained in their respective dedicated specifications:
+
+- **Master Registry**: [`docs/video-types/README.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/README.md)
+- **16:9 Long-Form Specifications**:
+  1. [`docs/video-types/faceless-video.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/faceless-video.md)
+  2. [`docs/video-types/book-summary.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/book-summary.md)
+  3. [`docs/video-types/image-to-video-ai.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/image-to-video-ai.md)
+  4. [`docs/video-types/youtube-subtitles-generator.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/youtube-subtitles-generator.md)
+  5. [`docs/video-types/ai-video-generator.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/ai-video-generator.md)
+  6. [`docs/video-types/ai-video-polisher.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/ai-video-polisher.md)
+- **9:16 Short-Form Specifications**:
+  7. [`docs/video-types/auto-caption-generator.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/auto-caption-generator.md)
+  8. [`docs/video-types/faceless-shorts.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/faceless-shorts.md)
+  9. [`docs/video-types/compare-explainer.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/compare-explainer.md)
+  10. [`docs/video-types/whiteboard-video.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/whiteboard-video.md)
+  11. [`docs/video-types/long-video-clips.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/long-video-clips.md)
+  12. [`docs/video-types/long-video-promo.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/long-video-promo.md)
+  13. [`docs/video-types/split-screen-explainer.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/split-screen-explainer.md)
+  14. [`docs/video-types/ai-shorts-polisher.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/ai-shorts-polisher.md)
+- **Audio Utility Specification**:
+  15. [`docs/video-types/ai-audio-cleaner.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/video-types/ai-audio-cleaner.md)
+
+---
+
+## 18. Homepage Documentation Reference
+
+The marketing homepage architecture, conversion funnel mechanics, interactive studio tabs, responsive grid layouts, and copy guidelines are documented in:
+- **Dedicated Homepage Specification**: [`docs/homepage.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/homepage.md)
+
+---
+
+## 19. Verification, Quality Assurance & Task Hygiene
+
+### 19.1 Verification Commands
+Before concluding any task or submitting changes:
+```powershell
+# 1. Static Type Checking (Must report 0 errors)
+npx tsc --noEmit
+
+# 2. Verify all 15 SEO Landing Pages (>1,000 words each, 15/15 PASS)
+node scripts/verify-all-15-landing-pages.mjs
+```
+
+### 19.2 Zero Hanging Tasks Rule
+Always inspect background processes using `manage_task` (action: `list`). Never leave lingering background commands, hanging child processes, or active dev watchers running on the development laptop.
+
+---
+
+## 20. Documentation Maintenance Guidelines
+
+Follow the **"Check First, Update After"** policy:
+1. **Check First**: Before modifying any video template or studio component, open and read its dedicated specification in `docs/video-types/`.
+2. **Implement**: Perform the visual, algorithmic, or pipeline update.
+3. **Update After**: Immediately update the corresponding specification file with any new props, parameters, or UI controls so that documentation never lags behind production code.
+4. **Maintain Simplicity**: All documentation must be written in simple, clear, professional English without colloquialisms or historical changelog noise.

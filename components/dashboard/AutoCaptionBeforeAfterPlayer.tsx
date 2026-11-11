@@ -353,229 +353,229 @@ export function AutoCaptionBeforeAfterPlayer({
   const fileSizeText = uploadedFile ? `${(uploadedFile.size / (1024 * 1024)).toFixed(1)} MB` : "";
 
   return (
-    <div className="relative overflow-hidden rounded-[24px] sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-4 sm:p-5 shadow-2xl text-white">
-      {/* Top Stage Player: Always Active */}
-      <div className="w-full">
-        {/* Main Video Display Stage */}
-        <div className="flex flex-col items-center">
-          <div
-            className={`relative overflow-hidden rounded-[20px] bg-[#070B14] border border-white/15 shadow-2xl transition-all ${
-              mode === "longForm"
-                ? "w-full max-w-[440px] aspect-video"
-                : "w-[220px] sm:w-[260px] aspect-[9/16]"
-            }`}
+    <div className="relative overflow-hidden rounded-2xl sm:rounded-[28px] border border-white/10 bg-[#0E1526] p-3 sm:p-5 shadow-2xl text-white">
+
+      {/* ── SECTION 1: VIDEO PLAYER (full-width on mobile, centered narrow on sm+) ── */}
+      <div className="w-full flex flex-col items-center">
+
+        {/* Video container:
+            Mobile  → full viewport-width feel, 9:16 aspect, max-w keeps it neat
+            sm+     → narrows back to 260px for desktop preview feel
+            longForm → always 16:9 widescreen                                     */}
+        <div
+          className={`relative overflow-hidden rounded-2xl bg-[#070B14] border border-white/15 shadow-2xl transition-all w-full ${
+            mode === "longForm"
+              ? "max-w-full sm:max-w-[440px] aspect-video"
+              : "max-w-[280px] xs:max-w-[300px] sm:max-w-[260px] aspect-[9/16]"
+          }`}
+        >
+          {/* Floating Mute/Unmute Control */}
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+            className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white hover:bg-black transition shadow-md border border-white/15 cursor-pointer"
           >
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} className="text-emerald-400" />}
+          </button>
 
+          {/* HTML5 Video Player */}
+          <div className="relative h-full w-full">
+            <video
+              ref={videoRef}
+              src={activeVideoUrl}
+              poster="https://res.cloudinary.com/dhouh9idx/image/upload/v1790376821/itnavideo-assets/homepage/autocaption.1.png"
+              autoPlay
+              playsInline
+              loop
+              muted={isUploadedAudio ? true : isMuted}
+              preload="auto"
+              onLoadedMetadata={(e) => {
+                const d = e.currentTarget.duration;
+                if (d && !isNaN(d) && isFinite(d) && d > 0) {
+                  if (!isUploadedAudio) setDuration(d);
+                }
+              }}
+              onCanPlay={(e) => {
+                const d = e.currentTarget.duration;
+                if (d && !isNaN(d) && isFinite(d) && d > 0) {
+                  if (!isUploadedAudio) setDuration(d);
+                }
+              }}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onClick={togglePlay}
+              className="h-full w-full object-cover cursor-pointer"
+            />
 
-            {/* Floating Mute/Unmute Control */}
-            <button
-              type="button"
-              onClick={toggleMute}
-              aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-              className="absolute top-3 right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/75 text-white hover:bg-black transition shadow-md border border-white/15 cursor-pointer"
-            >
-              {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} className="text-emerald-400" />}
-            </button>
-
-            {/* HTML5 Video Player with Talking Presenter Background */}
-            <div className="relative h-full w-full">
-              <video
-                ref={videoRef}
-                src={activeVideoUrl}
-                poster="/visuals/homepage/autocaption.1.png"
-                autoPlay
-                playsInline
-                loop
-                muted={isUploadedAudio ? true : isMuted}
-                preload="auto"
-                onLoadedMetadata={(e) => {
-                  const d = e.currentTarget.duration;
-                  if (d && !isNaN(d) && isFinite(d) && d > 0) {
-                    if (!isUploadedAudio) setDuration(d);
-                  }
-                }}
-                onCanPlay={(e) => {
-                  const d = e.currentTarget.duration;
-                  if (d && !isNaN(d) && isFinite(d) && d > 0) {
-                    if (!isUploadedAudio) setDuration(d);
-                  }
-                }}
-                onPlay={() => setIsPlaying(true)}
-                onPause={() => setIsPlaying(false)}
-                onClick={togglePlay}
-                className="h-full w-full object-cover cursor-pointer"
-              />
-
-              {/* If user uploaded audio, audio track plays in sync with talking video background */}
-              {isUploadedAudio && (
-                <>
-                  <audio
-                    ref={audioRef}
-                    src={uploadedMediaUrl!}
-                    loop
-                    muted={isMuted}
-                    preload="auto"
-                    onLoadedMetadata={(e) => {
-                      const d = e.currentTarget.duration;
-                      if (d && !isNaN(d) && isFinite(d) && d > 0) setDuration(d);
-                    }}
-                    onPlay={() => setIsPlaying(true)}
-                    onPause={() => setIsPlaying(false)}
-                  />
-                  <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
-                    <FileAudio size={12} className="text-[#3B82F6]" />
-                    <span className="truncate max-w-[120px]">{uploadedFile?.name}</span>
-                  </div>
-                </>
-              )}
-            </div>
-
-
-            {/* Use the saved transcript for each Cloudinary style preview. */}
-            {shouldShowCaptionOverlay && currentChunk && (
+            {/* Uploaded audio track plays in sync with talking video background */}
+            {isUploadedAudio && (
               <>
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
-                <div
-                  onPointerMove={(e) => {
-                    if (!e.buttons) return;
-                    const rect = e.currentTarget.parentElement?.getBoundingClientRect();
-                    if (!rect) return;
-                    const relativeY = (e.clientY - rect.top) / rect.height;
-                    if (relativeY < 0.35) {
-                      if (onPositionChange) onPositionChange("top");
-                    } else if (relativeY < 0.65) {
-                      if (onPositionChange) onPositionChange("center");
-                    } else {
-                      if (onPositionChange) onPositionChange("bottom");
-                    }
+                <audio
+                  ref={audioRef}
+                  src={uploadedMediaUrl!}
+                  loop
+                  muted={isMuted}
+                  preload="auto"
+                  onLoadedMetadata={(e) => {
+                    const d = e.currentTarget.duration;
+                    if (d && !isNaN(d) && isFinite(d) && d > 0) setDuration(d);
                   }}
-                  className={`absolute inset-x-2.5 ${
-                    captionPosition === "top"
-                      ? "top-[12%]"
-                      : captionPosition === "center"
-                      ? "top-[42%]"
-                      : "bottom-[20%]"
-                  } flex justify-center text-center z-10 cursor-ns-resize group/drag transition-all duration-150`}
-                  title="Drag Up/Down to Reposition Captions"
-                >
-                  {/* WhiteStair Interactive Caption Layer Bounding Box */}
-                  <div className="relative p-2 rounded-2xl border border-blue-400/80 bg-blue-500/10 hover:border-[#0066FF] hover:bg-[#0066FF]/10 transition-all duration-150 shadow-lg">
-                    {/* 4 Corner Anchor Handles (WhiteStair Signature) */}
-                    <div className="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
-                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
-                    <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
-                    <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
-
-                    {isKinetic ? (
-                      <KineticCaptionLiveRenderer
-                        styleName={selectedPresetKey}
-                        words={allWordItems.length > 0 ? allWordItems : KINETIC_DEMO_WORDS}
-                        playbackTime={playbackTime}
-                        isPlaying={isPlaying}
-                      />
-                    ) : activeWhiteStairTemplate && activeWhiteStairTemplate.words && activeWhiteStairTemplate.words.length > 0 && activePhrase ? (
-                      <WhiteStairCaptionRenderer
-                        template={activeWhiteStairTemplate}
-                        phrase={activePhrase}
-                        playbackTime={playbackTime}
-                        isPlaying={isPlaying}
-                      />
-                    ) : currentChunk ? (
-                      <CaptionPreviewText
-                        preset={presetOption}
-                        config={config}
-                        chunk={currentChunk}
-                        playbackTime={playbackTime}
-                        isPlaying={isPlaying}
-                        activeWord={currentActiveWord}
-                        currentWordObj={currentWordObj}
-                      />
-                    ) : null}
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/drag:opacity-100 transition-opacity bg-black/90 text-[9px] text-blue-300 font-black px-2.5 py-0.5 rounded-full whitespace-nowrap pointer-events-none border border-[#0066FF]/40 shadow-lg">
-                      ↕ Drag to Reposition (Top / Middle / Bottom)
-                    </div>
-                  </div>
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                />
+                <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
+                  <FileAudio size={12} className="text-[#3B82F6]" />
+                  <span className="truncate max-w-[120px]">{uploadedFile?.name}</span>
                 </div>
-                {/* 9:16 Vertical Safe Zone Lines (WhiteStair Style) */}
-                {safeZones && (
-                  <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-3 border-2 border-dashed border-blue-400/40 rounded-[20px]">
-                    <div className="h-[12%] border-b border-dashed border-blue-400/35 flex items-start justify-end pr-1">
-                      <span className="text-[8px] font-mono text-blue-300/90 bg-black/70 px-1.5 py-0.5 rounded">
-                        Top Header Safe Zone
-                      </span>
-                    </div>
-                    <div className="h-[20%] border-t border-dashed border-blue-400/35 flex items-end justify-end pr-1 pb-1">
-                      <span className="text-[8px] font-mono text-blue-300/90 bg-black/70 px-1.5 py-0.5 rounded">
-                        Bottom Scrubber Safe Zone
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {mode === "longForm" && (
-                  <div className="pointer-events-none absolute inset-x-0 bottom-[14%] border-b border-dashed border-red-500/30 z-10 flex justify-end pr-2">
-                    <span className="text-[9px] font-mono font-bold text-red-400/70 -translate-y-full">
-                      14% YouTube Scrubber Safe Line
-                    </span>
-                  </div>
-                )}
               </>
             )}
-
-            {/* Center Play/Pause button when paused */}
-            {!isPlaying ? (
-              <button
-                type="button"
-                onClick={togglePlay}
-                aria-label="Play video"
-                className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px] transition-all cursor-pointer group z-20"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0066FF] text-white shadow-2xl transition-transform group-hover:scale-110">
-                  <Play size={24} className="fill-current ml-1 text-white" />
-                </div>
-              </button>
-            ) : null}
-
-            {/* Bottom Scrub Progress Line */}
-            <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 z-20">
-              <div
-                className="h-full bg-gradient-to-r from-[#0066FF] to-[#3B82F6] transition-all duration-150"
-                style={{
-                  width: duration > 0 ? `${(playbackTime / duration) * 100}%` : "0%",
-                }}
-              />
-            </div>
           </div>
 
-          {/* Video Stage Controls Bar */}
-          <div className="mt-3 flex items-center justify-between w-full max-w-[340px] text-xs font-semibold text-slate-500 dark:text-slate-400">
+          {/* Caption overlay */}
+          {shouldShowCaptionOverlay && currentChunk && (
+            <>
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[48%] bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+              <div
+                onPointerMove={(e) => {
+                  if (!e.buttons) return;
+                  const rect = e.currentTarget.parentElement?.getBoundingClientRect();
+                  if (!rect) return;
+                  const relativeY = (e.clientY - rect.top) / rect.height;
+                  if (relativeY < 0.35) {
+                    if (onPositionChange) onPositionChange("top");
+                  } else if (relativeY < 0.65) {
+                    if (onPositionChange) onPositionChange("center");
+                  } else {
+                    if (onPositionChange) onPositionChange("bottom");
+                  }
+                }}
+                className={`absolute inset-x-2.5 ${
+                  captionPosition === "top"
+                    ? "top-[12%]"
+                    : captionPosition === "center"
+                    ? "top-[42%]"
+                    : "bottom-[20%]"
+                } flex justify-center text-center z-10 cursor-ns-resize group/drag transition-all duration-150`}
+                title="Drag Up/Down to Reposition Captions"
+              >
+                <div className="relative p-2 rounded-2xl border border-blue-400/80 bg-blue-500/10 hover:border-[#0066FF] hover:bg-[#0066FF]/10 transition-all duration-150 shadow-lg">
+                  <div className="absolute -top-1 -left-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
+                  <div className="absolute -bottom-1 -left-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
+                  <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 rounded-full bg-white border-2 border-indigo-500 shadow-sm pointer-events-none" />
+
+                  {isKinetic ? (
+                    <KineticCaptionLiveRenderer
+                      styleName={selectedPresetKey}
+                      words={allWordItems.length > 0 ? allWordItems : KINETIC_DEMO_WORDS}
+                      playbackTime={playbackTime}
+                      isPlaying={isPlaying}
+                    />
+                  ) : activeWhiteStairTemplate && activeWhiteStairTemplate.words && activeWhiteStairTemplate.words.length > 0 && activePhrase ? (
+                    <WhiteStairCaptionRenderer
+                      template={activeWhiteStairTemplate}
+                      phrase={activePhrase}
+                      playbackTime={playbackTime}
+                      isPlaying={isPlaying}
+                    />
+                  ) : currentChunk ? (
+                    <CaptionPreviewText
+                      preset={presetOption}
+                      config={config}
+                      chunk={currentChunk}
+                      playbackTime={playbackTime}
+                      isPlaying={isPlaying}
+                      activeWord={currentActiveWord}
+                      currentWordObj={currentWordObj}
+                    />
+                  ) : null}
+                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/drag:opacity-100 transition-opacity bg-black/90 text-[9px] text-blue-300 font-black px-2.5 py-0.5 rounded-full whitespace-nowrap pointer-events-none border border-[#0066FF]/40 shadow-lg">
+                    ↕ Drag to Reposition
+                  </div>
+                </div>
+              </div>
+
+              {/* Safe zone indicators */}
+              {safeZones && (
+                <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-between p-3 border-2 border-dashed border-blue-400/40 rounded-2xl">
+                  <div className="h-[12%] border-b border-dashed border-blue-400/35 flex items-start justify-end pr-1">
+                    <span className="text-[8px] font-mono text-blue-300/90 bg-black/70 px-1.5 py-0.5 rounded">
+                      Top Header Safe Zone
+                    </span>
+                  </div>
+                  <div className="h-[20%] border-t border-dashed border-blue-400/35 flex items-end justify-end pr-1 pb-1">
+                    <span className="text-[8px] font-mono text-blue-300/90 bg-black/70 px-1.5 py-0.5 rounded">
+                      Bottom Scrubber Safe Zone
+                    </span>
+                  </div>
+                </div>
+              )}
+              {mode === "longForm" && (
+                <div className="pointer-events-none absolute inset-x-0 bottom-[14%] border-b border-dashed border-red-500/30 z-10 flex justify-end pr-2">
+                  <span className="text-[9px] font-mono font-bold text-red-400/70 -translate-y-full">
+                    14% YouTube Scrubber Safe Line
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Play/Pause overlay when paused */}
+          {!isPlaying && (
             <button
               type="button"
               onClick={togglePlay}
-              className="inline-flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:text-[#0066FF] transition cursor-pointer font-bold"
+              aria-label="Play video"
+              className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px] transition-all cursor-pointer group z-20"
             >
-              {isPlaying ? <Pause size={14} className="text-[#0066FF]" /> : <Play size={14} className="fill-current text-[#0066FF]" />}
-              <span>{isPlaying ? "Pause" : "Play Preview"}</span>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0066FF] text-white shadow-2xl transition-transform group-hover:scale-110">
+                <Play size={24} className="fill-current ml-1 text-white" />
+              </div>
             </button>
+          )}
 
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
-              {Math.floor(playbackTime)}s / {Math.floor(duration || 8)}s
-            </span>
-
-            <button
-              type="button"
-              onClick={toggleMute}
-              className="inline-flex items-center gap-1 text-slate-700 dark:text-slate-200 hover:text-[#0066FF] transition cursor-pointer"
-            >
-              {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} className="text-emerald-500" />}
-              <span>{isMuted ? "Unmute" : "Muted"}</span>
-            </button>
+          {/* Progress scrub bar */}
+          <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 z-20">
+            <div
+              className="h-full bg-gradient-to-r from-[#0066FF] to-[#3B82F6] transition-all duration-150"
+              style={{ width: duration > 0 ? `${(playbackTime / duration) * 100}%` : "0%" }}
+            />
           </div>
+        </div>
+
+        {/* Compact controls — always full-width under video */}
+        <div className="mt-2 flex items-center justify-between w-full max-w-[280px] xs:max-w-[300px] sm:max-w-[260px] px-0.5 text-xs font-semibold text-slate-400">
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="inline-flex items-center gap-1.5 text-slate-200 hover:text-[#0066FF] transition cursor-pointer font-bold"
+          >
+            {isPlaying
+              ? <Pause size={13} className="text-[#0066FF]" />
+              : <Play size={13} className="fill-current text-[#0066FF]" />}
+            <span className="text-[11px]">{isPlaying ? "Pause" : "Play"}</span>
+          </button>
+
+          <span className="text-[10px] font-mono text-slate-500">
+            {Math.floor(playbackTime)}s / {Math.floor(duration || 8)}s
+          </span>
+
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="inline-flex items-center gap-1 text-slate-200 hover:text-[#0066FF] transition cursor-pointer"
+          >
+            {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} className="text-emerald-400" />}
+            <span className="text-[11px]">{isMuted ? "Unmute" : "Muted"}</span>
+          </button>
         </div>
       </div>
 
-      {/* Style Gallery Carousel: Conditionally rendered if not hidden */}
+      {/* ── SECTION 2: CAPTION STYLE PICKER — directly below, no gap ── */}
+      {/* Thin divider between video and style picker */}
       {!hideCarousel && (
-        <div className={uploadedMediaUrl ? "w-full mt-4 pt-4 border-t border-slate-100 dark:border-white/10" : "w-full"}>
+        <div className="mt-3 pt-3 border-t border-white/10">
           <AutoCaptionStyleCarousel
             selectedPresetKey={selectedPresetKey}
             onSelectPreset={handleSelectPreset}

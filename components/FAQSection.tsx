@@ -26,7 +26,7 @@ const FAQ_CATEGORIES = [
 const faqs: FAQItem[] = [
   {
     question: "What is Itnavideo AI Video Generator?",
-    answer: "Itnavideo is an all-in-one AI video generator with 14 specialized video studios. Each studio has its own dedicated pipeline, controls, and 1080p Full HD output format instead of forcing every project through a complicated timeline editor.",
+    answer: "Itnavideo is an all-in-one AI video generator with 15 specialized video studios. Each studio has its own dedicated pipeline, controls, and 1080p Full HD output format instead of forcing every project through a complicated timeline editor.",
     category: 'product',
     categoryLabel: 'Product & AI',
     action: { label: 'Explore All Studios', href: '#video-types' },
@@ -40,7 +40,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "Which AI video types are available?",
-    answer: "Our 14 video studios include Faceless Video, AI YouTube Video Polisher, Book Summary Video, Image to Video AI, YouTube Subtitles (16:9 Widescreen), Auto Caption Generator, AI Shorts Polisher, Split-Screen Explainer, Whiteboard Animation, Compare Explainer, Faceless Shorts, Long Video to Clips, Long Video Promo (9:16 Shorts), and AI Audio Cleaner.",
+    answer: "Our 15 video studios include AI Video Generator, Faceless Video, AI YouTube Video Polisher, Book Summary Video, Image to Video AI, YouTube Subtitles (16:9 Widescreen), Auto Caption Generator, AI Shorts Polisher, Split-Screen Explainer, Whiteboard Animation, Compare Explainer, Faceless Shorts, Long Video to Clips, Long Video Promo (9:16 Shorts), and AI Audio Cleaner.",
     category: 'workflows',
     categoryLabel: 'Video Workflows',
     action: { label: 'Explore All Dedicated Studio Pages & Specs', href: '/video-types' },
@@ -119,17 +119,15 @@ export default function FAQSection() {
                     setSelectedCategory(cat.id);
                     setOpenIndex(null);
                   }}
-                  className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full border px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold transition-all duration-200 cursor-pointer ${
-                    isActive
+                  className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full border px-3 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-bold transition-all duration-200 cursor-pointer ${isActive
                       ? 'bg-[#EA580C] text-white border-[#EA580C] shadow-sm font-bold'
                       : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50 shadow-xs'
-                  }`}
+                    }`}
                   type="button"
                 >
                   <span>{cat.label}</span>
-                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-mono ${
-                    isActive ? 'bg-white/20 text-white font-bold' : 'bg-zinc-100 text-zinc-600'
-                  }`}>
+                  <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-mono ${isActive ? 'bg-white/20 text-white font-bold' : 'bg-zinc-100 text-zinc-600'
+                    }`}>
                     {count}
                   </span>
                 </button>
@@ -147,11 +145,10 @@ export default function FAQSection() {
             return (
               <div
                 key={faq.question}
-                className={`group rounded-2xl border transition-all duration-200 overflow-hidden ${
-                  isOpen
+                className={`group rounded-2xl border transition-all duration-200 overflow-hidden ${isOpen
                     ? 'border-orange-500/40 bg-white shadow-xs ring-1 ring-orange-500/20'
                     : 'border-slate-200/90 bg-white shadow-xs hover:border-orange-500/30'
-                }`}
+                  }`}
               >
                 <button
                   className="flex items-center justify-between w-full p-4 sm:p-5 text-left focus:outline-none gap-3.5 cursor-pointer"
@@ -161,11 +158,10 @@ export default function FAQSection() {
                 >
                   <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                     {/* Index Badge */}
-                    <span className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold transition-colors ${
-                      isOpen
+                    <span className={`flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl text-xs font-mono font-bold transition-colors ${isOpen
                         ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold'
                         : 'border border-slate-200/80 bg-slate-50 text-slate-600 group-hover:border-orange-500/30 group-hover:text-orange-600'
-                    }`}>
+                      }`}>
                       {indexNumber}
                     </span>
 
@@ -175,15 +171,14 @@ export default function FAQSection() {
                   </div>
 
                   {/* Circular Chevron Indicator */}
-                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
-                    isOpen
+                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${isOpen
                       ? 'border-orange-500/40 bg-orange-500/10 text-orange-600 rotate-180'
                       : 'border-slate-200/80 bg-slate-50 text-slate-400 group-hover:border-orange-500/30 group-hover:text-slate-700'
-                  }`}>
+                    }`}>
                     <ChevronDown size={16} />
                   </div>
                 </button>
-                
+
                 <AnimatePresence initial={false}>
                   {isOpen && (
                     <motion.div
@@ -229,7 +224,7 @@ export default function FAQSection() {
           <div className="mt-4">
             <Link
               href="/contact"
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 transition hover:bg-slate-50 active:scale-95 shadow-xs"
+              className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50/60 hover:bg-orange-100/70 px-5 py-2.5 text-xs font-bold text-orange-700 transition active:scale-95 shadow-xs"
             >
               <span>Contact Support</span>
               <ArrowRight size={13} className="text-orange-600" />

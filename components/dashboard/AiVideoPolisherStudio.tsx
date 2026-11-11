@@ -1428,8 +1428,8 @@ export function AiVideoPolisherStudio({
             </div>
           )}
 
-          {/* STEP 4: Preview (16:9 Cinema Simulator) */}
-          {currentStep === 4 && (
+          {/* STEP 4 (final): Preview (16:9 Cinema Simulator) */}
+          {currentStep === POLISHER_STEPS.length && (
             <div className="space-y-6 animate-fadeIn">
               {/* Simulator Card */}
               <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6">

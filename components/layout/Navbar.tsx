@@ -30,7 +30,9 @@ import BrandLogo from '@/components/brand/BrandLogo';
 
 const SHORT_STUDIOS = [
   { label: 'Auto Caption Generator', desc: 'Kinetic animated captions for Reels & Shorts', href: '/auto-caption-generator', icon: Smartphone, emoji: '💬' },
+  { label: 'AI Shorts Polisher', desc: 'Auto zoom cuts, emojis & captions for viral reels', href: '/ai-shorts-polisher', icon: Zap, emoji: '⚡' },
   { label: 'Faceless Shorts', desc: 'Auto B-roll, voiceovers & captions', href: '/faceless-shorts', icon: Film, emoji: '🎬' },
+  { label: 'Split Screen Explainer', desc: 'Presenter webcam paired with screencasts & demos', href: '/split-screen-explainer', icon: Columns, emoji: '📱' },
   { label: 'Whiteboard Animation', desc: 'Stickman & sketch doodle explainers', href: '/whiteboard-video', icon: PenTool, emoji: '✏️' },
   { label: 'Compare Explainer', desc: 'Side-by-side comparison video generator', href: '/compare-explainer', icon: Columns, emoji: '⚖️' },
   { label: 'Long Video to Clips', desc: 'Cut viral shorts from long YouTube videos', href: '/long-video-clips', icon: Scissors, emoji: '✂️' },
@@ -38,10 +40,12 @@ const SHORT_STUDIOS = [
 ];
 
 const WIDESCREEN_STUDIOS = [
+  { label: 'AI Video Generator', desc: 'Turn voiceovers & scripts into 1080p videos', href: '/ai-video-generator', icon: Film, emoji: '✨' },
+  { label: 'AI Video Polisher', desc: 'Auto zoom cuts & b-roll for YouTube talking heads', href: '/ai-video-polisher', icon: Sparkles, emoji: '🌟' },
   { label: 'Faceless Long Video', desc: 'AI documentary & cinematic stories', href: '/faceless-video', icon: MonitorPlay, emoji: '🎥' },
   { label: 'Book Summary Video', desc: 'Turn book narration into cinematic lesson cards', href: '/book-summary', icon: BookOpen, emoji: '📚' },
   { label: 'Image to Video AI', desc: 'Animate photos into cinematic video beats', href: '/image-to-video-ai', icon: Film, emoji: '🎞️' },
-  { label: 'YouTube Subtitles', desc: '1080p Full HD burnt-in subtitles for podcasts', href: '/video-types/youtube-subtitle-generator', icon: Captions, emoji: '📝' },
+  { label: 'YouTube Subtitles', desc: '1080p Full HD burnt-in subtitles with safe zones', href: '/youtube-subtitles-generator', icon: Captions, emoji: '📝' },
   { label: 'AI Audio Cleaner', desc: 'Studio voice cleanup & mistake detection', href: '/ai-audio-cleaner', icon: Mic, emoji: '🎙️' },
 ];
 
@@ -116,10 +120,10 @@ export default function Navbar() {
       <header
         ref={navRef}
         className={`sticky top-0 z-50 w-full transition-all duration-300 px-4 py-3 md:px-8 border-b ${isLightPage
-            ? scrolled
-              ? 'border-zinc-200/80 bg-white/95 text-zinc-950 backdrop-blur-xl shadow-xs'
-              : 'border-zinc-200/60 bg-white/90 text-zinc-950 backdrop-blur-md'
-            : 'border-white/10 bg-black text-white'
+          ? scrolled
+            ? 'border-zinc-200/80 bg-white/95 text-zinc-950 backdrop-blur-xl shadow-xs'
+            : 'border-zinc-200/60 bg-white/90 text-zinc-950 backdrop-blur-md'
+          : 'border-white/10 bg-black text-white'
           }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
@@ -138,10 +142,10 @@ export default function Navbar() {
                     type="button"
                     onClick={() => toggleMenu('products')}
                     className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${activeMenu === 'products'
-                        ? 'text-orange-600 font-bold'
-                        : isLightPage
-                          ? 'text-slate-800 hover:text-orange-600'
-                          : 'text-zinc-300 hover:text-white'
+                      ? 'text-orange-600 font-bold'
+                      : isLightPage
+                        ? 'text-slate-800 hover:text-orange-600'
+                        : 'text-zinc-300 hover:text-white'
                       }`}
                   >
                     <span>Products</span>
@@ -242,10 +246,10 @@ export default function Navbar() {
                 <Link
                   href="/features"
                   className={`transition font-semibold ${isActive('/features')
-                      ? 'text-orange-600 font-bold'
-                      : isLightPage
-                        ? 'text-slate-800 hover:text-orange-600'
-                        : 'text-zinc-300 hover:text-white'
+                    ? 'text-orange-600 font-bold'
+                    : isLightPage
+                      ? 'text-slate-800 hover:text-orange-600'
+                      : 'text-zinc-300 hover:text-white'
                     }`}
                 >
                   Features
@@ -255,10 +259,10 @@ export default function Navbar() {
                 <Link
                   href="/pricing"
                   className={`transition font-semibold ${isActive('/pricing')
-                      ? 'text-orange-600 font-bold'
-                      : isLightPage
-                        ? 'text-slate-800 hover:text-orange-600'
-                        : 'text-zinc-300 hover:text-white'
+                    ? 'text-orange-600 font-bold'
+                    : isLightPage
+                      ? 'text-slate-800 hover:text-orange-600'
+                      : 'text-zinc-300 hover:text-white'
                     }`}
                 >
                   Pricing
@@ -268,10 +272,10 @@ export default function Navbar() {
                 <Link
                   href="/blog"
                   className={`transition font-semibold ${isActive('/blog')
-                      ? 'text-orange-600 font-bold'
-                      : isLightPage
-                        ? 'text-slate-800 hover:text-orange-600'
-                        : 'text-zinc-300 hover:text-white'
+                    ? 'text-orange-600 font-bold'
+                    : isLightPage
+                      ? 'text-slate-800 hover:text-orange-600'
+                      : 'text-zinc-300 hover:text-white'
                     }`}
                 >
                   Blog
@@ -283,10 +287,10 @@ export default function Navbar() {
                     type="button"
                     onClick={() => toggleMenu('resources')}
                     className={`flex items-center gap-1 transition cursor-pointer py-1 font-semibold ${activeMenu === 'resources'
-                        ? 'text-orange-600 font-bold'
-                        : isLightPage
-                          ? 'text-slate-800 hover:text-orange-600'
-                          : 'text-zinc-300 hover:text-white'
+                      ? 'text-orange-600 font-bold'
+                      : isLightPage
+                        ? 'text-slate-800 hover:text-orange-600'
+                        : 'text-zinc-300 hover:text-white'
                       }`}
                   >
                     <span>Resources</span>
@@ -340,8 +344,8 @@ export default function Navbar() {
                   type="button"
                   onClick={toggleUserMenu}
                   className={`flex items-center gap-2 rounded-full border px-3 py-1.5 transition text-left cursor-pointer shadow-2xs ${isLightPage
-                      ? 'border-slate-200/90 bg-white/90 hover:bg-white hover:border-orange-400/50'
-                      : 'border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-orange-500/50'
+                    ? 'border-slate-200/90 bg-white/90 hover:bg-white hover:border-orange-400/50'
+                    : 'border-white/15 bg-white/[0.04] hover:bg-white/[0.08] hover:border-orange-500/50'
                     }`}
                 >
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-black text-xs shadow-xs">
@@ -407,9 +411,9 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-1.5 rounded-full bg-zinc-950 hover:bg-zinc-800 px-5 sm:px-6 py-2.5 text-xs font-bold text-white shadow-sm border border-zinc-800 hover:scale-[1.02] active:scale-95 transition-all duration-200"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 px-5 sm:px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-500/25 border border-transparent hover:scale-[1.02] active:scale-95 transition-all duration-200"
                 >
-                  <Sparkles size={13} className="text-zinc-400" />
+                  <Sparkles size={13} className="text-white" />
                   <span>Get Started</span>
                 </Link>
               </div>
@@ -420,8 +424,8 @@ export default function Navbar() {
           <button
             type="button"
             className={`relative flex h-10 w-10 items-center justify-center rounded-2xl border shadow-xs active:scale-95 transition-all duration-300 hover:border-orange-500/50 lg:hidden cursor-pointer ${isLightPage
-                ? 'border-slate-200 bg-slate-50 text-slate-900'
-                : 'border-white/10 bg-[#0F1117] text-white'
+              ? 'border-slate-200 bg-slate-50 text-slate-900'
+              : 'border-white/10 bg-[#0F1117] text-white'
               }`}
             onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
@@ -620,9 +624,9 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={closeMobileMenu}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-zinc-800 py-3.5 text-sm font-bold text-white shadow-md active:scale-98 transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 py-3.5 text-sm font-bold text-white shadow-md shadow-orange-500/25 active:scale-98 transition-all"
                 >
-                  <Sparkles size={16} className="text-zinc-400" />
+                  <Sparkles size={16} className="text-white" />
                   <span>Open Dashboard</span>
                   <ArrowRight size={16} />
                 </Link>
@@ -639,9 +643,9 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={closeMobileMenu}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-950 hover:bg-zinc-800 py-3.5 text-sm font-bold text-white shadow-md active:scale-98 transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 py-3.5 text-sm font-bold text-white shadow-md shadow-orange-500/25 active:scale-98 transition-all"
                 >
-                  <Sparkles size={16} className="text-zinc-400" />
+                  <Sparkles size={16} className="text-white" />
                   <span>Get Started</span>
                   <ArrowRight size={16} />
                 </Link>

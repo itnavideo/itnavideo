@@ -69,6 +69,7 @@ import { ProductMockupFlowScene } from './scenes/ProductMockupFlowScene';
 import { BeforeAfterTransformationScene } from './scenes/BeforeAfterTransformationScene';
 import { CreatorCelebrationScene } from './scenes/CreatorCelebrationScene';
 import { FACELESS_DESIGN_TOKENS } from './facelessTokens';
+import { BrandWatermark } from '../../components/BrandWatermark';
 import { getFacelessFontAssetPath } from '../../../lib/fonts/facelessFontCatalog';
 import {
   AdaptiveCard,
@@ -94,6 +95,7 @@ const FACELESS_IMAGE_VISUALS_ENABLED = true;
 
 export interface FacelessLongVideoProps {
   creatorHandle?: string;
+  watermark?: boolean;
   mediaSrc?: string;
   audioSrc?: string;
   musicUrl?: string;
@@ -190,6 +192,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     sourceAudioVolume = 1.0,
     title = '',
     creatorHandle = '',
+    watermark = false,
     backgroundTheme = 'solid-white',
     customBgUrl = '',
     sfxEvents = [],
@@ -1755,12 +1758,13 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           mixBlendMode: 'overlay',
         }}
       >
-        <filter id="faceless-film-grain">
+        <filter id="faceless-longvideo-film-grain">
           <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
           <feColorMatrix type="saturate" values="0" />
         </filter>
-        <rect width="100%" height="100%" filter="url(#faceless-film-grain)" />
+        <rect width="100%" height="100%" filter="url(#faceless-longvideo-film-grain)" />
       </svg>
+      <BrandWatermark watermark={watermark} isLandscape />
       </AbsoluteFill>
     </VideoVisualThemeProvider>
   );

@@ -248,7 +248,7 @@ export function AiShortsPolisherStudio({
       const audioUrl = getBgmTrackAudioUrl(track);
       const audio = new window.Audio(audioUrl);
       audio.volume = Math.max(0.05, Math.min(1, (bgmVolume || 0.12) * 2));
-      audio.play().catch(() => {});
+      audio.play().catch(() => { });
       audio.onended = () => setAuditioningTrack(null);
       audioAuditionRef.current = audio;
       setAuditioningTrack(track.id);
@@ -346,28 +346,11 @@ export function AiShortsPolisherStudio({
 
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden text-slate-800">
-      {/* ── ROW 1: STUDIO HEADER & 4-STEP STEPPER BAR ── */}
-      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3.5 shrink-0 shadow-2xs">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          {/* Studio Title */}
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Smartphone size={18} className="text-orange-600" />
-                AI Shorts Polisher
-              </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 border border-orange-200 px-2.5 py-0.5 text-[11px] font-bold text-orange-700">
-                <Sparkles size={11} className="text-orange-600" />
-                9:16 Vertical Reel
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Transform raw smartphone takes into high-retention Shorts with silence cuts, punch-in zooms, and viral subtitles.
-            </p>
-          </div>
-
+      {/* ── ROW 1: 4-STEP GUIDED STEPPER BAR (Unified Studio Stepper) ── */}
+      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3 shrink-0 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex items-center justify-center">
           {/* Stepper Navigation Pills */}
-          <div className="flex items-center gap-1 sm:gap-1.5 self-center sm:self-auto overflow-x-auto no-scrollbar py-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5 bg-slate-50 border border-slate-200/90 rounded-2xl p-1.5 shadow-2xs">
             {SHORTS_POLISHER_STEPS.map((step) => {
               const isActive = currentStep === step.step;
               const isDone =
@@ -381,37 +364,29 @@ export function AiShortsPolisherStudio({
                   key={step.step}
                   type="button"
                   onClick={() => setCurrentStep(step.step)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? "bg-orange-600 text-white shadow-xs"
+                      ? "bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20"
                       : isDone
-                      ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
-                      : "bg-transparent text-slate-400 hover:text-slate-600"
+                        ? "text-slate-800 hover:text-slate-900 hover:bg-white/60"
+                        : "text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   <span
-                    className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${
+                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black ${
                       isActive
-                        ? "bg-white text-orange-600"
+                        ? "bg-orange-600 text-white"
                         : isDone
-                        ? "bg-emerald-500 text-white"
-                        : "bg-slate-200 text-slate-600"
+                          ? "bg-emerald-500 text-white"
+                          : "bg-slate-200 text-slate-600"
                     }`}
                   >
-                    {isDone && !isActive ? <Check size={10} strokeWidth={3} /> : step.step}
+                    {isDone && !isActive ? <Check size={11} strokeWidth={3} /> : step.step}
                   </span>
                   <span>{step.title}</span>
                 </button>
               );
             })}
-          </div>
-
-          {/* Pricing Allowance Badge */}
-          <div className="hidden lg:flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
-              <Zap size={13} className="text-orange-500 fill-orange-500" />
-              1 Credit / Video • Up to 90s
-            </span>
           </div>
         </div>
       </div>
@@ -435,7 +410,7 @@ export function AiShortsPolisherStudio({
                         1. Primary Smartphone Takes (Vertical 9:16)
                       </h3>
                       <p className="text-xs text-slate-500">
-                        Upload your raw vertical video takes. The AI will remove pauses and arrange sequence.
+                        Upload your raw vertical video takes. Videos and audio longer than 90 seconds are supported. Only the first 90 seconds will be used.
                       </p>
                     </div>
                   </div>
@@ -599,11 +574,10 @@ export function AiShortsPolisherStudio({
                                   overlayLayerList.map((l) => (l.id === layer.id ? { ...l, position: pos } : l))
                                 );
                               }}
-                              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition cursor-pointer ${
-                                (layer.position || "top-right") === pos
+                              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition cursor-pointer ${(layer.position || "top-right") === pos
                                   ? "bg-orange-600 text-white"
                                   : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
-                              }`}
+                                }`}
                             >
                               {pos.replace("-", " ")}
                             </button>
@@ -662,11 +636,10 @@ export function AiShortsPolisherStudio({
                     return (
                       <div
                         key={track.id}
-                        className={`rounded-xl border p-3.5 transition-all flex flex-col justify-between ${
-                          isSelected
+                        className={`rounded-xl border p-3.5 transition-all flex flex-col justify-between ${isSelected
                             ? "border-orange-500 bg-orange-50/30 ring-2 ring-orange-500/20"
                             : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/60"
-                        }`}
+                          }`}
                       >
                         <div>
                           <div className="flex items-center justify-between gap-1 mb-1">
@@ -688,11 +661,10 @@ export function AiShortsPolisherStudio({
                             <button
                               type="button"
                               onClick={() => toggleAudition(track)}
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                                isAuditioning
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${isAuditioning
                                   ? "bg-orange-600 text-white"
                                   : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
-                              }`}
+                                }`}
                             >
                               {isAuditioning ? <Pause size={12} /> : <Play size={12} />}
                               <span>{isAuditioning ? "Stop" : "Preview"}</span>
@@ -704,11 +676,10 @@ export function AiShortsPolisherStudio({
                           <button
                             type="button"
                             onClick={() => onBgmTrackIdChange(track.id)}
-                            className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                              isSelected
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${isSelected
                                 ? "bg-orange-600 text-white"
                                 : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
-                            }`}
+                              }`}
                           >
                             {isSelected ? "Active" : "Select"}
                           </button>
@@ -805,11 +776,10 @@ export function AiShortsPolisherStudio({
                           key={s}
                           type="button"
                           onClick={() => onSilenceSensitivityChange(s)}
-                          className={`py-1 text-center rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            silenceSensitivity === s
+                          className={`py-1 text-center rounded-lg text-[10px] font-bold transition cursor-pointer ${silenceSensitivity === s
                               ? "bg-orange-600 text-white"
                               : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
-                          }`}
+                            }`}
                         >
                           {s.toUpperCase()}
                         </button>
@@ -839,11 +809,10 @@ export function AiShortsPolisherStudio({
                           key={lvl}
                           type="button"
                           onClick={() => onPunchInIntensityChange(lvl)}
-                          className={`py-1 text-center rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                            punchInIntensity === lvl
+                          className={`py-1 text-center rounded-lg text-[10px] font-bold transition cursor-pointer ${punchInIntensity === lvl
                               ? "bg-orange-600 text-white"
                               : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
-                          }`}
+                            }`}
                         >
                           {lvl.toUpperCase()}
                         </button>
@@ -883,11 +852,10 @@ export function AiShortsPolisherStudio({
                       key={cat}
                       type="button"
                       onClick={() => setCaptionCategoryTab(cat)}
-                      className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${
-                        captionCategoryTab === cat
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${captionCategoryTab === cat
                           ? "bg-orange-500 text-white font-black shadow-xs"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -903,11 +871,10 @@ export function AiShortsPolisherStudio({
                         key={style.id}
                         type="button"
                         onClick={() => onCaptionStyleChange(style.name)}
-                        className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${
-                          isSelected
+                        className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${isSelected
                             ? "border-orange-500 bg-orange-50/30 ring-2 ring-orange-500/20"
                             : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between w-full">
                           <span className="text-[10px] font-bold text-slate-500 truncate max-w-[85%]">
@@ -950,8 +917,8 @@ export function AiShortsPolisherStudio({
             </div>
           )}
 
-          {/* ──────────────── STEP 4: LIVE SIMULATOR & RENDER ──────────────── */}
-          {currentStep === 4 && (
+          {/* ──────────────── STEP 4 (final): LIVE SIMULATOR & RENDER ──────────────── */}
+          {currentStep === SHORTS_POLISHER_STEPS.length && (
             <div className="space-y-6">
               <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
@@ -1009,17 +976,16 @@ export function AiShortsPolisherStudio({
                     {/* Floating PIP Overlay Preview */}
                     {overlayLayerList[0]?.previewUrl && (
                       <div
-                        className={`absolute z-10 w-24 h-24 rounded-xl overflow-hidden border border-white/20 shadow-lg ${
-                          overlayLayerList[0].position === "top-left"
+                        className={`absolute z-10 w-24 h-24 rounded-xl overflow-hidden border border-white/20 shadow-lg ${overlayLayerList[0].position === "top-left"
                             ? "top-8 left-4"
                             : overlayLayerList[0].position === "bottom-right"
-                            ? "bottom-20 right-4"
-                            : overlayLayerList[0].position === "bottom-left"
-                            ? "bottom-20 left-4"
-                            : overlayLayerList[0].position === "center"
-                            ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                            : "top-8 right-4"
-                        }`}
+                              ? "bottom-20 right-4"
+                              : overlayLayerList[0].position === "bottom-left"
+                                ? "bottom-20 left-4"
+                                : overlayLayerList[0].position === "center"
+                                  ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                                  : "top-8 right-4"
+                          }`}
                       >
                         <img
                           src={overlayLayerList[0].previewUrl}

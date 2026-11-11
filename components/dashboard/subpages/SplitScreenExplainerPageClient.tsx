@@ -30,6 +30,8 @@ import {
   Split,
 } from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 
 type BillingEntitlement = {
@@ -156,7 +158,7 @@ export default function SplitScreenExplainerPageClient() {
               message: data.stageMessage || "Composing dual 50/50 video on AWS Lambda...",
             }));
           }
-        } catch {}
+        } catch { }
       }, 3000);
     }
     return () => {
@@ -321,7 +323,7 @@ export default function SplitScreenExplainerPageClient() {
           method: "POST",
         });
       }
-    } catch {}
+    } catch { }
     setJobStatus({ state: "idle" });
     setIsCancelling(false);
     setShowCancelModal(false);
@@ -343,13 +345,15 @@ export default function SplitScreenExplainerPageClient() {
         studioName="Split Screen Explainer"
         aspectRatioLabel="9:16 Shorts"
         badgeLabel="Creator Split"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Studio Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("splitScreenExplainer", billingEntitlement) ? (
+          <FeaturePaywall featureName="Split Screen Explainer" description="Create 50/50 split-screen explainer videos with presenter + demo. Upgrade to access Split Screen Studio." />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="splitScreenExplainer"

@@ -12,6 +12,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { UniversalCaptionLayer, CaptionChunk } from '../../components/library/UniversalCaptionLayer';
+import { BrandWatermark } from '../../components/BrandWatermark';
 import { BookSummaryScene } from '../../../services/ai/bookSummaryPlanner';
 import { VideoVisualThemeProvider, useVideoVisualTheme } from '../../theme/VideoVisualTheme';
 import type { VideoVisualTheme } from '../../../services/design/visualDesignSystem';
@@ -19,6 +20,7 @@ import type { VideoVisualTheme } from '../../../services/design/visualDesignSyst
 export interface BookSummaryTemplateProps {
   audioSrc?: string;
   audioUrl?: string;
+  watermark?: boolean;
   bgmSrc?: string;
   bgmUrl?: string;
   bgmVolume?: number;
@@ -1142,7 +1144,7 @@ const BookSummaryTemplateInner: React.FC<BookSummaryTemplateProps> = ({
         <ConclusionSceneCard scene={activeScene} fps={fps} />
       )}
 
-      {/* 5. Animated Subtitles Layer Styled for Clean White Background */}
+      {/* Animated Subtitles Layer Styled for Clean White Background */}
       {showBottomCaptions && (
         <UniversalCaptionLayer
           captions={activeCaptions}
@@ -1158,6 +1160,7 @@ const BookSummaryTemplateInner: React.FC<BookSummaryTemplateProps> = ({
           }}
         />
       )}
+      <BrandWatermark watermark={props.watermark} isLandscape />
     </AbsoluteFill>
   );
 };

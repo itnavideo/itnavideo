@@ -19,6 +19,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import InteractiveRenderEngine from '@/components/render/InteractiveRenderEngine';
+import { isFeatureLockedForUser } from '@/lib/billing/freeTierAccess';
+import { FeaturePaywall } from '@/components/dashboard/FeaturePaywall';
 
 type BillingEntitlement = {
   active: boolean;
@@ -270,13 +272,15 @@ export default function AiVideoGeneratorPageClient() {
         studioName="AI Video Generator"
         aspectRatioLabel="16:9 Cinema"
         badgeLabel="Full Production"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Studio Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== 'idle' ? (
+        {billingEntitlement && isFeatureLockedForUser("aiVideoGenerator", billingEntitlement) ? (
+          <FeaturePaywall featureName="AI Video Generator" description="Generate full 16:9 cinematic videos from audio + images. Free accounts can use Auto Captions and YouTube Subtitles — upgrade to access AI Video Generator." />
+        ) : jobStatus.state !== 'idle' ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="aiVideoGenerator"

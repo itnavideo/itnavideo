@@ -50,10 +50,9 @@ import {
 } from "@/components/dashboard/ImageToVideoStudio";
 
 export const PROMO_STEPS = [
-  { step: 1, title: "Upload", desc: "Clip & 16:9 Thumbnail" },
-  { step: 2, title: "Music", desc: "Soundtrack & SFX" },
-  { step: 3, title: "Style", desc: "Captions & CTA Button" },
-  { step: 4, title: "Preview", desc: "9:16 Shorts Simulator" },
+  { step: 1, title: "Upload", desc: "Clip & Thumbnail" },
+  { step: 2, title: "Style", desc: "Captions & CTA" },
+  { step: 3, title: "Preview", desc: "9:16 Shorts Simulator" },
 ] as const;
 
 export function extractYoutubeId(url: string): string | null {
@@ -277,28 +276,11 @@ export function LongVideoPromoStudio({
 
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden text-slate-800">
-      {/* ── ROW 1: STUDIO HEADER & 4-STEP STEPPER BAR ── */}
-      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3.5 shrink-0 shadow-2xs">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          {/* Studio Title */}
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Tv size={18} className="text-orange-600" />
-                Long Video Promo Studio
-              </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 border border-orange-200 px-2.5 py-0.5 text-[11px] font-bold text-orange-700">
-                <Sparkles size={11} className="text-orange-600" />
-                9:16 Vertical Promo
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Convert any long YouTube video or podcast into a high-converting teaser reel driving clicks to the full video.
-            </p>
-          </div>
-
+      {/* ── ROW 1: 4-STEP GUIDED STEPPER BAR (Unified Studio Stepper) ── */}
+      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3 shrink-0 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex items-center justify-center">
           {/* Stepper Navigation Pills */}
-          <div className="flex items-center gap-1 sm:gap-1.5 self-center sm:self-auto overflow-x-auto no-scrollbar py-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5 bg-slate-50 border border-slate-200/90 rounded-2xl p-1.5 shadow-2xs">
             {PROMO_STEPS.map((step) => {
               const isActive = currentStep === step.step;
               const isDone =
@@ -312,35 +294,29 @@ export function LongVideoPromoStudio({
                   key={step.step}
                   type="button"
                   onClick={() => setCurrentStep(step.step)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isActive
-                      ? "bg-orange-600 text-white shadow-xs"
+                  className={`inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20"
                       : isDone
-                        ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
-                        : "bg-transparent text-slate-400 hover:text-slate-600"
-                    }`}
+                        ? "text-slate-800 hover:text-slate-900 hover:bg-white/60"
+                        : "text-slate-400 hover:text-slate-600"
+                  }`}
                 >
                   <span
-                    className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${isActive
-                        ? "bg-white text-orange-600"
+                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black ${
+                      isActive
+                        ? "bg-orange-600 text-white"
                         : isDone
                           ? "bg-emerald-500 text-white"
                           : "bg-slate-200 text-slate-600"
-                      }`}
+                    }`}
                   >
-                    {isDone && !isActive ? <Check size={10} strokeWidth={3} /> : step.step}
+                    {isDone && !isActive ? <Check size={11} strokeWidth={3} /> : step.step}
                   </span>
                   <span>{step.title}</span>
                 </button>
               );
             })}
-          </div>
-
-          {/* Pricing Allowance Badge */}
-          <div className="hidden lg:flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
-              <Zap size={13} className="text-orange-600 fill-orange-600" />
-              1 Credit / Video • Up to 90s
-            </span>
           </div>
         </div>
       </div>
@@ -375,8 +351,8 @@ export function LongVideoPromoStudio({
                       type="button"
                       onClick={() => setThumbMode("upload")}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${activeThumbMode === "upload"
-                          ? "bg-white text-slate-900 shadow-2xs border border-slate-200"
-                          : "text-slate-500 hover:text-slate-900"
+                        ? "bg-white text-slate-900 shadow-2xs border border-slate-200"
+                        : "text-slate-500 hover:text-slate-900"
                         }`}
                     >
                       Upload File
@@ -385,8 +361,8 @@ export function LongVideoPromoStudio({
                       type="button"
                       onClick={() => setThumbMode("youtube")}
                       className={`px-3 py-1 text-xs font-bold rounded-lg transition flex items-center gap-1 cursor-pointer ${activeThumbMode === "youtube"
-                          ? "bg-white text-red-600 shadow-2xs border border-slate-200"
-                          : "text-slate-500 hover:text-slate-900"
+                        ? "bg-white text-red-600 shadow-2xs border border-slate-200"
+                        : "text-slate-500 hover:text-slate-900"
                         }`}
                     >
                       <Youtube size={13} className="text-red-600" />
@@ -554,7 +530,7 @@ export function LongVideoPromoStudio({
                     <p className="text-xs font-bold text-slate-800">
                       Click to browse or drop your promo teaser video
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">MP4, MOV, or WEBM up to 90 seconds</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">MP4, MOV, or WEBM • Videos and audio longer than 90 seconds are supported. Only the first 90 seconds will be used.</p>
                     <input
                       type="file"
                       accept="video/*"
@@ -642,8 +618,8 @@ export function LongVideoPromoStudio({
                       <div
                         key={track.id}
                         className={`rounded-xl border p-3.5 transition-all flex flex-col justify-between ${isSelected
-                            ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/60"
+                          ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
+                          : "border-slate-200 bg-slate-50/50 hover:bg-slate-100/60"
                           }`}
                       >
                         <div>
@@ -667,8 +643,8 @@ export function LongVideoPromoStudio({
                               type="button"
                               onClick={() => toggleAudition(track)}
                               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${isAuditioning
-                                  ? "bg-orange-600 text-white"
-                                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                                ? "bg-orange-600 text-white"
+                                : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
                                 }`}
                             >
                               {isAuditioning ? <Pause size={12} /> : <Play size={12} />}
@@ -682,8 +658,8 @@ export function LongVideoPromoStudio({
                             type="button"
                             onClick={() => onBgmTrackIdChange?.(track.id)}
                             className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${isSelected
-                                ? "bg-orange-600 text-white"
-                                : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                              ? "bg-orange-600 text-white"
+                              : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
                               }`}
                           >
                             {isSelected ? "Active" : "Select"}
@@ -770,8 +746,8 @@ export function LongVideoPromoStudio({
                         type="button"
                         onClick={() => onPromoBackgroundModeChange?.(m.id as any)}
                         className={`rounded-xl border p-3.5 text-left transition cursor-pointer ${isBg
-                            ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
+                          ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
+                          : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
                           }`}
                       >
                         <p className="text-xs font-bold text-slate-900">{m.title}</p>
@@ -821,8 +797,8 @@ export function LongVideoPromoStudio({
                             type="button"
                             onClick={() => onPromoCtaStyleChange?.(s.id as any)}
                             className={`rounded-xl border p-2 text-center text-xs font-bold transition cursor-pointer ${isStyle
-                                ? "border-orange-500 ring-2 ring-orange-500/20 bg-orange-50"
-                                : "border-slate-200 bg-white hover:bg-slate-50"
+                              ? "border-orange-500 ring-2 ring-orange-500/20 bg-orange-50"
+                              : "border-slate-200 bg-white hover:bg-slate-50"
                               }`}
                           >
                             <span className={`inline-block px-2 py-0.5 rounded text-[10px] ${s.bg}`}>
@@ -867,8 +843,8 @@ export function LongVideoPromoStudio({
                       type="button"
                       onClick={() => setCaptionCategoryTab(cat)}
                       className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${captionCategoryTab === cat
-                          ? "bg-orange-500 text-white font-black shadow-xs"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        ? "bg-orange-500 text-white font-black shadow-xs"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                         }`}
                     >
                       {cat}
@@ -886,8 +862,8 @@ export function LongVideoPromoStudio({
                         type="button"
                         onClick={() => onCaptionStyleChange?.(style.name)}
                         className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${isSelected
-                            ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
+                          ? "border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20"
+                          : "border-slate-200 bg-slate-50/50 hover:bg-slate-100"
                           }`}
                       >
                         <div className="flex items-center justify-between w-full">
@@ -931,8 +907,8 @@ export function LongVideoPromoStudio({
             </div>
           )}
 
-          {/* ──────────────── STEP 4: LIVE 9:16 PREVIEW SIMULATOR & RENDER ──────────────── */}
-          {currentStep === 4 && (
+          {/* ──────────────── STEP 3: LIVE 9:16 PREVIEW SIMULATOR & RENDER ──────────────── */}
+          {currentStep === PROMO_STEPS.length && (
             <div className="space-y-6">
               <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
@@ -1021,12 +997,12 @@ export function LongVideoPromoStudio({
 
                       <div
                         className={`w-full py-2 px-3 rounded-xl shadow-lg flex items-center justify-between text-center ${promoCtaStyle === "emerald"
-                            ? "bg-emerald-600 text-white"
-                            : promoCtaStyle === "glass"
-                              ? "bg-white/10 backdrop-blur-md text-white border border-white/20"
-                              : promoCtaStyle === "tiktok-yellow"
-                                ? "bg-yellow-400 text-slate-950 font-black"
-                                : "bg-red-600 text-white"
+                          ? "bg-emerald-600 text-white"
+                          : promoCtaStyle === "glass"
+                            ? "bg-white/10 backdrop-blur-md text-white border border-white/20"
+                            : promoCtaStyle === "tiktok-yellow"
+                              ? "bg-yellow-400 text-slate-950 font-black"
+                              : "bg-red-600 text-white"
                           }`}
                       >
                         <div className="text-left">

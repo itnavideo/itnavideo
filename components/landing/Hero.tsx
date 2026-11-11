@@ -58,9 +58,9 @@ export default function Hero() {
         <div className="mt-8 sm:mt-9 flex items-center justify-center">
           <Link
             href="/dashboard"
-            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-zinc-950 hover:bg-zinc-900 px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold text-white shadow-[0_16px_36px_-8px_rgba(249,115,22,0.35),0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_44px_-8px_rgba(249,115,22,0.45)] hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:via-amber-500 hover:to-orange-600 px-8 sm:px-10 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold text-white shadow-[0_16px_36px_-8px_rgba(249,115,22,0.45),0_4px_16px_rgba(249,115,22,0.25)] hover:shadow-[0_20px_44px_-8px_rgba(249,115,22,0.6)] hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"
           >
-            <Sparkles size={18} className="text-amber-400 group-hover:rotate-12 transition-transform" />
+            <Sparkles size={18} className="text-white group-hover:rotate-12 transition-transform" />
             <span>Start Creating Free</span>
             <ArrowRight size={17} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
           </Link>

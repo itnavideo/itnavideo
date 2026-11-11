@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import ExploreMoreVideoTools from '@/components/landing/ExploreMoreVideoTools';
 import {
   Sparkles,
   ArrowRight,
@@ -92,6 +93,14 @@ export default function LongVideoClipsDetail() {
     {
       q: 'Do I get commercial rights for monetized channels and client projects?',
       a: 'Yes! All videos generated on Itnavideo include full commercial rights. You own the content 100% and can monetize it on YouTube, TikTok, Facebook, or deliver it to agency clients.',
+    },
+    {
+      q: 'How much editing time does AI clipping save compared to manual workflow?',
+      a: 'Manually logging timestamps across a 2-hour podcast, cutting highlights in Premiere Pro, reframing widescreen shots to 9:16 vertical, and keyframing subtitles takes 6 to 8 hours per episode. Itnavideo completes the entire hook identification, framing, and caption generation in under 3 minutes, allowing podcast teams to publish 5 to 10 viral clips each day with minimal effort.',
+    },
+    {
+      q: 'How does the clipper handle multi-speaker dialogues and remote guest interviews?',
+      a: 'Our smart speaker tracking engine identifies audio source changes between host and guest. When speaker turns shift, the vertical camera smoothly cuts or pans to the active speaker, ensuring reactions and counterpoints are captured naturally without disorienting cuts or awkward framing.',
     },
   ];
 
@@ -587,6 +596,9 @@ export default function LongVideoClipsDetail() {
           </Link>
         </div>
       </section>
+
+      {/* EXPLORE ALL 14 OTHER VIDEO TOOLS */}
+      <ExploreMoreVideoTools currentToolId="longVideoClips" />
     </div>
   );
 }

@@ -20,8 +20,12 @@ const getEnv = (k) => {
 };
 
 const cloudName = getEnv('CLOUDINARY_CLOUD_NAME') || 'dhouh9idx';
-const apiKey = getEnv('CLOUDINARY_API_KEY') || '972395946869552';
-const apiSecret = getEnv('CLOUDINARY_API_SECRET') || 'wSwqFlvlj0DhvMA5yEXyjlt8uMo';
+const apiKey = getEnv('CLOUDINARY_API_KEY') || '';
+const apiSecret = getEnv('CLOUDINARY_API_SECRET') || '';
+if (!apiKey || !apiSecret) {
+  console.error('❌ CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET must be set in .env.local');
+  process.exit(1);
+}
 
 console.log('🚀 Step 1/3: Bundling Remotion video composition...');
 await mkdir(outputDir, { recursive: true });

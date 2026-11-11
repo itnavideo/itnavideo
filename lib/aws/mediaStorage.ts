@@ -41,7 +41,7 @@ export async function createUploadUrl({
   userId: string;
 }) {
   const bucket = requiredBucket();
-  void ensureTemporaryMediaLifecycleApplied();
+  // AW3 Fix: lifecycle applied at deploy time via `npm run aws:s3:lifecycle`, not per-request.
   const safeFileName = sanitizeFileName(fileName);
   const key = `${TEMP_MEDIA_UPLOAD_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${mode}-${safeFileName}`;
   const command = new PutObjectCommand({
@@ -70,7 +70,7 @@ export async function uploadTemporaryMediaObject({
   purpose?: string;
 }) {
   const bucket = requiredBucket();
-  void ensureTemporaryMediaLifecycleApplied();
+  // AW3 Fix: lifecycle applied at deploy time, not on every request.
   const safeFileName = sanitizeFileName(fileName);
   const key = `${TEMP_MEDIA_UPLOAD_PREFIX}${sanitizeSegment(userId)}/${Date.now()}-${sanitizeSegment(purpose)}-${mode}-${safeFileName}`;
   await getS3Client().send(
@@ -90,7 +90,7 @@ export async function createReadUrl(key: string, expiresInSeconds = 48 * 60 * 60
     return key;
   }
   const bucket = requiredBucket();
-  void ensureTemporaryMediaLifecycleApplied();
+  // AW3 Fix: lifecycle applied at deploy time, not on every read URL call.
   const command = new GetObjectCommand({Bucket: bucket, Key: key});
   return getSignedUrl(getS3Client(), command, {expiresIn: expiresInSeconds});
 }
@@ -104,13 +104,18 @@ export async function ensureTemporaryMediaLifecycleApplied() {
     lifecycleApplied = true;
     console.log('[S3_STORAGE] 48-hour temporary media lifecycle rules confirmed active.');
   } catch (err) {
-    // Non-blocking: log warning if credentials lack PutBucketLifecycle permissions
-    console.warn('[S3_STORAGE] Lifecycle auto-apply skipped:', err instanceof Error ? err.message : err);
+    // AW7 Fix: Set lifecycleApplied=true even on failure to prevent repeated failed calls
+    // on every request. Run `npm run aws:s3:lifecycle` manually if this warning appears.
+    lifecycleApplied = true;
+    console.warn('[S3_STORAGE] Lifecycle auto-apply failed — run `npm run aws:s3:lifecycle` manually:', err instanceof Error ? err.message : err);
   }
 }
 
 export async function applyTemporaryMediaLifecycle() {
   const bucket = requiredBucket();
+  // AW9 Fix: Lifecycle prefix filters are `uploads/raw/` and `renders/final/` only.
+  // They do NOT touch `sites/itnavideo-render-30fps/` where the Lambda serve bundle lives.
+  // So the lifecycle is safe to apply even though user media and Lambda bundle share one bucket.
   void ensureTemporaryMediaLifecycleApplied();
   await getS3Client().send(
     new PutBucketLifecycleConfigurationCommand({

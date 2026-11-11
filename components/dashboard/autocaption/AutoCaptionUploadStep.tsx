@@ -234,7 +234,7 @@ export function AutoCaptionUploadStep({
                     Click or drag video here
                   </p>
                   <p className="text-xs text-slate-400 font-medium">
-                    MP4, MOV, Audio • Max 90s • 9:16 Vertical Recommended
+                    MP4, MOV, Audio • Videos and audio longer than 90 seconds are supported. Only the first 90 seconds will be used.
                   </p>
                 </div>
 

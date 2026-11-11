@@ -221,7 +221,7 @@ export default function TestimonialSection() {
 
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-zinc-950 hover:text-zinc-700 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-orange-600 hover:text-orange-500 transition-colors"
             >
               <span>Join them on Itnavideo</span>
               <ArrowRight size={14} strokeWidth={2.5} />

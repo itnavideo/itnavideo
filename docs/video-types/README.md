@@ -1,82 +1,94 @@
-# Itnavideo — Video Types Master Registry (14 Active Studios)
+# Itnavideo — Video Types Master Registry (15 Active Studios)
 
-This directory contains the dedicated requirement, architecture, and pipeline specifications for all **14 active video studios** in [Itnavideo](https://www.itnavideo.com).
+## Overview
 
-As per **Rule 8 of `AGENTS.md` (Video Type Independence)** and the **Founder Master Directive**, video types are strictly categorized into **5 Studios for 16:9 Cinema Long-Form**, **8 Studios for 9:16 Vertical Shorts & Viral Clips**, and **1 Studio for Audio Utility**.
+This directory contains the dedicated technical specifications, user workflows, design rules, and rendering pipelines for all **15 active creation studios** in [Itnavideo](https://www.itnavideo.com). 
 
----
-
-## 1. 🎬 16:9 Widescreen Long-Form Category (6 Studios — Strictly 16:9 Only — Up to 5 Minutes)
-
-| # | Video Type | Directory & Spec | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus | Remotion Composition ID |
-|---|---|---|:---:|:---:|:---:|---|---|
-| 0 | **AI Video Generator (Flagship)** | [`aivideogenerator.md`](./aivideogenerator.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Creative Launchpad (Prompt + Optional Assets) → AI Director → CapCut-Style Multitrack Timeline & Free Edit → 1080p Cloud Render | `AI_VIDEO_GENERATOR` |
-| 1 | **Faceless Video (Long-Form)** | [`01-faceless-video/`](./01-faceless-video/README.md) · [`facelessvideo.md`](./facelessvideo.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Script/Audio → transcript-grounded AI planning and animated SVG diagrams/charts with music | `FACELESS_VIDEO` |
-| 2 | **Book Summary Video** | [`booksummary.md`](./booksummary.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Book Quotes/Audio → Cinematic Chapter Visuals | `BOOK_SUMMARY_VIDEO` |
-| 3 | **Image to Video AI** | [`03-image-to-video-ai/`](./03-image-to-video-ai/README.md) · [`imagetovideoai.md`](./imagetovideoai.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Audio + Scene Images → Ken Burns Motion, 32 Caption Styles & Subtitle Sync | `IMAGE_TO_VIDEO_AI` |
-| 4 | **YouTube Subtitles Generator** | [`04-youtube-subtitles/`](./04-youtube-subtitles/README.md) · [`youtubesubtitles.md`](./youtubesubtitles.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Video/Audio → High-Contrast Spoken Captions | `AUTO_CAPTION_GENERATOR` |
-| 5 | **AI YouTube Video Polisher** | [`12-ai-video-polisher/`](./12-ai-video-polisher/README.md) · [`ai-video-polisher.md`](./ai-video-polisher.md) | **16:9 Only** | **Up to 5 Min (300s)** | **1 Min = 1 Credit** (1m=1, 5m=5) | Video/Multi-Take Shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay | `AI_VIDEO_POLISHER` |
+In accordance with the **Master Video Duration & Credit System (Rule 4.1)** and the **Video Type Independence Rule (Rule 8)**, all creation studios are strictly categorized into:
+- **6 Studios for 16:9 Cinema Long-Form** (Strictly 16:9 Widescreen • Up to 5 Minutes • 1 Min = 1 Credit)
+- **8 Studios for 9:16 Vertical Shorts & Reels** (Strictly 9:16 Vertical • Up to 90 Seconds • 1 Credit Flat)
+- **1 Studio for Audio Utility** (Up to 5 Minutes • 1 Credit Flat)
 
 ---
 
-## 2. 📱 9:16 Vertical Short-Form Category (8 Studios — Strictly 9:16 Only — Up to 90 Seconds / Clips)
+## Table of Contents
 
-| # | Video Type | Directory & Spec | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus | Remotion Composition ID |
-|---|---|---|:---:|:---:|:---:|---|---|
-| 1 | **Auto Caption Reel** | [`autocaption.md`](./autocaption.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Video/Audio → Kinetic Glowing Captions & Subtitles | `AUTO_CAPTION_GENERATOR` |
-| 2 | **Compare Explainer** | [`07-compare-explainer/`](./07-compare-explainer/README.md) · [`compare-explainer.md`](./compare-explainer.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Voiceover + 2 Images → VS Battle Arena & Product Comparison | `COMPARE_EXPLAINER` |
-| 3 | **Whiteboard Animation** | [`09-whiteboard-video/`](./09-whiteboard-video/README.md) · [`whiteboard-video.md`](./whiteboard-video.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Audio → AI Strategy Board Scenes & SVG Drawing | `WHITEBOARD_VIDEO` |
-| 4 | **Long Video Promo** | [`10-long-video-promo/`](./10-long-video-promo/README.md) · [`long-video-promo.md`](./long-video-promo.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Teaser Audio/Video → Kinetic Teaser Overlays | `LONG_VIDEO_PROMO` |
-| 5 | **Faceless Shorts (Vertical)** | [`faceless-shorts.md`](./faceless-shorts.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Voiceover → 16-Specialist Production Crew (500+ SVGs, 538 S3 Images, 32 Captions, Brand Kits, Voice Isolation) → 1080p Cloud Render (Separate from 16:9 Faceless Video) | `FACELESS_SHORTS` |
-| 6 | **AI Shorts Polisher** | [`13-ai-shorts-polisher/`](./13-ai-shorts-polisher/README.md) · [`ai-shorts-polisher.md`](./ai-shorts-polisher.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | Smartphone Video/Shoot → Silence Jump-Cuts, +12% Dynamic Punch-In & PIP Overlay | `AI-SHORTS-POLISHER` |
-| 7 | **Split-Screen Explainer** | [`split-screen-explainer.md`](./split-screen-explainer.md) | **9:16 Only** | **Up to 90 Seconds (90s)** | **1 Credit** | 50/50 Dual Zone (Top: cycling visual assets, Bottom: creator talking head) → Dynamic zoom pulses & glowing captions | `SPLIT-SCREEN-EXPLAINER` |
-| 8 | **Long Video to Shorts Clips** | [`05-long-video-to-shorts/`](./05-long-video-to-shorts/README.md) · [`longvideoclips.md`](./longvideoclips.md) | Input 16:9/9:16 -> Output 9:16 | **Input: Up to 2 Hours**<br/>**Output: 30s–60s Clips** | **1 Credit / Clip** | Long Video → Virality Hook Detection & 9:16 Reframe | `LONG_VIDEO_CLIPS` |
+1. [Overview](#overview)
+2. [16:9 Cinema Widescreen Studios (6 Tools)](#1-169-cinema-widescreen-studios-6-tools)
+3. [9:16 Vertical Shorts Studios (8 Tools)](#2-916-vertical-shorts-studios-8-tools)
+4. [Audio Utility Studio (1 Tool)](#3-audio-utility-studio-1-tool)
+5. [Cross-Studio Pipeline Standards](#4-cross-studio-pipeline-standards)
+6. [Master Failure Handling & Refund Architecture](#5-master-failure-handling--refund-architecture)
+7. [Developer Guidelines](#6-developer-guidelines)
 
 ---
 
-## 3. 🎙️ Utility Category (1 Studio)
+## 1. 16:9 Cinema Widescreen Studios (6 Tools)
 
-| # | Video Type | Directory & Spec | Aspect Ratio | Max Duration | Credit Policy | Primary Pipeline Focus |
-|---|---|---|:---:|:---:|:---:|---|
-| 1 | **AI Studio Audio Cleaner** | [`11-ai-audio-cleaner/`](./11-ai-audio-cleaner/README.md) · [`audiocleaner.md`](./audiocleaner.md) | **Audio Utility** | **Up to 5 Minutes (5m)** | **1 Credit** | Raw Audio → Denoise, De-reverb, Loudness & Retakes |
+All 16:9 studios export exclusively in **1920×1080 Full HD at 30 FPS MP4** for YouTube desktop, television viewing, and presentation video.
 
----
-
-## 4. Master Pipeline Error Handling & Fallback Architecture
-
-| Failure Scenario | Video Types Affected | Detection Mechanism | Automated Fix & Fallback | Financial / Credit Protection |
-| :--- | :--- | :--- | :--- | :--- |
-| **Upload Network Interruption** | All Types | S3 multipart upload chunk timeout | Client-side chunk retry + direct S3 presigned URL upload bypasses server body limits. | Zero credits deducted. |
-| **Media Duration Over Limit** | All Types | Browser metadata & server probe validation | Auto-clamps or rejects with clear feedback (Max 90s for Shorts, Max 5m for 16:9 Long-form). | Zero credits deducted. |
-| **Groq Whisper 429 / Downtime** | All Transcribed Types | Groq API error response status or timeout | **Automatic failover to Google Gemini 2.0 Flash (`asia-south1`)** to produce accurate word-level timestamps. | Render continues uninterrupted. |
-| **No Speech Detected / Silent Audio** | `autoCaption`, `facelessVideo`, `bookSummary` | Transcript payload empty array | Flags `NO_SPEECH_DETECTED`; prompts user to upload audio containing clear speech. | Full credit refunded via `releaseReservedRenderUsageFromServer`. |
-| **AI Scene Planning JSON Malformed** | `facelessVideo`, `whiteboardVideo`, `imageToVideoAi` | Gemini JSON parsing error or timeout | Faceless Video uses a validated deterministic SVG fallback. Other modes use their mode-specific scene-planning fallback. | Render completes successfully. |
-| **Asset / Visual Fetch Timeout** | Compare and Image to Video AI modes | CDN 404 or image load error | Faceless Video does not fetch scene media while its image pause is active. Other affected modes use their configured visual fallback. | Never crashes render. |
-| **Remotion Lambda Render Crash** | All Rendered Types | AWS Lambda timeout / exit code != 0 | Clamped frame ranges (`frameRange: [0, totalFrames - 1]`) prevent OOM; on fatal crash, `jobs/route.ts` invokes automatic refund. | **100% Credit Auto-Refunded**. User shown 1-click retry. |
-| **S3 Presigned URL Expired** | All Types | S3 SignatureExpired error (>48 hours) | `/api/reels/jobs/status` on-demand re-signs fresh download link. | User always receives valid download link. |
+| # | Video Creation Tool | Dedicated Documentation | Max Duration | Credit Pricing | Primary Focus & Output | Remotion Composition ID |
+|---|---|---|:---:|:---:|---|---|
+| **1** | **AI Video Generator** | [`ai-video-generator.md`](./ai-video-generator.md) | **5 Min (300s)** | **1 Min = 1 Credit** | Prompt-to-video creative launchpad, Gemini scene planning, CapCut multitrack timeline | `AI-VIDEO-GENERATOR` |
+| **2** | **AI YouTube Video Polisher** | [`ai-video-polisher.md`](./ai-video-polisher.md) | **5 Min (300s)** | **1 Min = 1 Credit** | Auto dead-air trimming, dynamic zoom punch-ins, topic B-roll, scrubber-safe subtitles | `AI_VIDEO_POLISHER` |
+| **3** | **Faceless Video Generator** | [`faceless-video.md`](./faceless-video.md) | **5 Min (300s)** | **1 Min = 1 Credit** | Voiceover to documentary video with procedural SVG diagrams, vignettes & subtitles | `FACELESS-VIDEO` |
+| **4** | **Book Summary Video** | [`book-summary.md`](./book-summary.md) | **5 Min (300s)** | **1 Min = 1 Credit** | Book notes & audio to 3D cover tilt reveals, animated chapter cards & focus music | `BOOK-SUMMARY` |
+| **5** | **Image to Video AI** | [`image-to-video-ai.md`](./image-to-video-ai.md) | **5 Min (300s)** | **1 Min = 1 Credit** | Photos & voiceover to Ken Burns camera motion, crossfade transitions & 2.5D frosted subtitles | `IMAGE-TO-VIDEO-AI` |
+| **6** | **YouTube Subtitles Generator** | [`youtube-subtitles-generator.md`](./youtube-subtitles-generator.md) | **5 Min (300s)** | **FREE • 5 Daily** | Burned-in 16:9 landscape subtitles with calibrated YouTube scrubber safe zones | `AUTO-CAPTION-GENERATOR-LANDSCAPE` |
 
 ---
 
-## Core Guidelines for All Video Types
-1. **1080p Full HD Quality Standard**:
-   - **All 9:16 Vertical Shorts**: Strictly **1080×1920 (1080p Full HD, 30 FPS MP4)**.
-   - **All 16:9 Widescreen Videos**: Strictly **1920×1080 (1080p Full HD, 30 FPS MP4)**.
-2. **Master Credit System**:
-   - **16:9 Long-Form Videos (Up to 5m)**: **1 Min = 1 Credit** (1m=1 Cr, 5m=5 Cr).
-   - **9:16 Short-Form Videos (Up to 90s)**: **1 Credit** per video.
-   - **Long Video to Clips (`longVideoClips`)**: **1 Credit / Clip**.
-   - **AI Audio Cleaner**: **1 Credit**.
-3. **Audio Extraction First & Transcriber Fallback**:
-   - Never send raw heavy video directly to Groq. Audio is extracted as 16kHz mono audio first.
-   - **Primary**: Groq Whisper Cloud API (fast transcription).
-   - **Mandatory Fallback**: Google Gemini 2.0 Flash (`asia-south1`) handles transcription if Groq fails or rate limits.
-4. **Compulsory Scene JSON Standard Across All Video Types**:
-   - Every active video type in Itnavideo enforces a structured `scenes` JSON array.
-   - Every beat of speech or timeline duration belongs to an explicit scene with exact start/end seconds, role/stage, layout elements, and narrative text.
-   - Eliminates video render crashes and guarantees predictable timeline rendering.
-5. **Dedicated Internal Components (No Generic Visual Reuse)**:
-   - Every video type must build its own dedicated Remotion visual `.tsx` components (cards, title banners, scene layouts, overlays) inside its own template folder (`remotion/templates/TEMPLATE_NAME/components/` or within its template file).
-   - Reusing a single generic visual component across different video types is strictly forbidden to prevent visual fatigue and keep videos fresh and distinct for creators.
-6. **Bhide Composition Inspector ("Ekmev Secretary" for Lambda Renders)**:
-   - Before dispatching any render to AWS Lambda, `lib/inspector/bhideCompositionInspector.ts` audits and auto-fixes the composition props.
-   - Guarantees: Track A1 Voiceover, Track A2 Sound Effects (tactile pops/whooshes), Track A3 Background Music (auto-ducked to 0.12), safe-zone margins, and high-retention default styles so no video renders blank or silent.
+## 2. 9:16 Vertical Shorts Studios (8 Tools)
+
+All 9:16 studios export exclusively in **1080×1920 Full HD at 30 FPS MP4** optimized for Instagram Reels, YouTube Shorts, and TikTok. Files longer than 90s are automatically accepted and first 90s used.
+
+| # | Video Creation Tool | Dedicated Documentation | Max Duration | Credit Pricing | Primary Focus & Output | Remotion Composition ID |
+|---|---|---|:---:|:---:|---|---|
+| **1** | **Auto Caption Generator** | [`auto-caption-generator.md`](./auto-caption-generator.md) | **90s Max** | **FREE • 5 Daily** | Word-synced animated karaoke subtitles with 32 presets & safe zones | `AUTO_CAPTION_GENERATOR` |
+| **2** | **AI Shorts Polisher** | [`ai-shorts-polisher.md`](./ai-shorts-polisher.md) | **90s Max** | **1 Credit** | Phone video polisher with auto zoom cuts, silence trimming, kinetic emojis & sound effects | `AI-SHORTS-POLISHER` |
+| **3** | **Faceless Shorts** | [`faceless-shorts.md`](./faceless-shorts.md) | **90s Max** | **1 Credit** | Voiceover to viral vertical clips with 16-layer modular crew, SVG art & kinetic text | `FACELESS-SHORTS` |
+| **4** | **Whiteboard Animation Maker** | [`whiteboard-video.md`](./whiteboard-video.md) | **90s Max** | **1 Credit** | Spoken audio to hand-drawn marker strokes, blueprint schematics & concept takeaways | `WHITEBOARD-VIDEO` |
+| **5** | **Compare Explainer Generator**| [`compare-explainer.md`](./compare-explainer.md) | **90s Max** | **1 Credit** | Side-by-side product comparisons with 16 animated sticker presenter characters & VS badge | `comparisonImages` |
+| **6** | **Long Video to Clips** | [`long-video-clips.md`](./long-video-clips.md) | **30s–60s Clips** | **1 Credit / Clip** | Up to 2 hours source ingestion → AI virality hook detector & 9:16 active speaker reframing | `LONG_VIDEO_CLIPS` |
+| **7** | **Long Video Promo** | [`long-video-promo.md`](./long-video-promo.md) | **90s Max** | **1 Credit** | Movie-trailer promo teaser reels with 3D thumbnail spotlight & YouTube click prompts | `LONG-VIDEO-PROMO` |
+| **8** | **Split Screen Explainer** | [`split-screen-explainer.md`](./split-screen-explainer.md) | **90s Max** | **1 Credit** | True 50/50 dual-zone layout pairing presenter webcam with live software screencasts | `SPLIT-SCREEN-EXPLAINER` |
+
+---
+
+## 3. Audio Utility Studio (1 Tool)
+
+| # | Tool Name | Dedicated Documentation | Max Duration | Credit Pricing | Primary Focus & Output |
+|---|---|---|:---:|:---:|---|
+| **1** | **AI Audio Cleaner & Enhancer** | [`ai-audio-cleaner.md`](./ai-audio-cleaner.md) | **5 Min (300s)** | **1 Credit** | Automated retake detection, silence trimming, noise removal & 320kbps MP3/WAV mastering |
+
+---
+
+## 4. Cross-Studio Pipeline Standards
+
+1. **Pure White Design System**: All studios render on a clean `#FFFFFF` canvas with fine slate borders (`#E2E8F0`), high-contrast slate typography (`#0F172A`), and Sunset Orange (`#FF5722` / `#F97316`) primary action accents.
+2. **Audio Extraction Rule**: Media files are stripped to 16kHz mono audio before sending to transcription APIs to minimize network payloads and ensure fast responses.
+3. **Primary & Fallback Speech AI**:
+   - **Primary**: Groq Whisper Cloud API (millisecond word-level timestamps).
+   - **Fallback**: Google Gemini 2.0 Flash (`asia-south1`) automatically takes over if Groq encounters rate limits or errors.
+4. **Bhide Composition Inspector**: Before any job is dispatched to AWS Lambda, `lib/inspector/bhideCompositionInspector.ts` validates and sanitizes all composition props (Tracks A1 voiceover, A2 SFX, A3 BGM ducked to 0.12, safe-zone margins).
+5. **No One-Size-Fits-All Pipeline**: Every studio maintains dedicated Remotion components and independent props schemas to prevent visual fatigue and repetitive video outputs.
+
+---
+
+## 5. Master Failure Handling & Refund Architecture
+
+| Failure Event | Affected Tools | Automatic Resolution | Credit Protection |
+| :--- | :--- | :--- | :--- |
+| **Network Interruption** | All Studios | S3 multipart upload chunk retry + direct presigned URL upload bypasses server limits. | Zero credits deducted. |
+| **Duration Exceeds Limit** | All Studios | Long files are accepted; system automatically trims strictly the first 90s (Shorts) or 5m (Cinema). | Zero credits wasted. |
+| **Speech API Downtime** | All Studios | Instant automatic failover to Google Gemini 2.0 Flash (`asia-south1`). | Render continues seamlessly. |
+| **Silent Audio / No Speech**| All Studios | Flags `NO_SPEECH_DETECTED`; prompts user for audible audio. | 100% Credit Auto-Refunded. |
+| **Lambda Render Timeout** | All Studios | Frame ranges clamped to composition limits; fatal crash triggers automatic credit restoration. | 100% Credit Auto-Refunded. |
+| **Presigned URL Expiry** | All Studios | On-demand status check re-signs fresh download URLs for up to 48 hours. | Download link always valid. |
+
+---
+
+## 6. Developer Guidelines
+
+- **Zero Local Rendering (Rule 0)**: Do not run local Remotion renders on developer machines; all rendering executes on AWS Lambda.
+- **Spec First, Code Second (Rule 1)**: Before modifying any studio, read its dedicated specification in this directory. After making changes, update the specification so documentation never goes out of date.

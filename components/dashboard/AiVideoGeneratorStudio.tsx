@@ -160,7 +160,7 @@ export default function AiVideoGeneratorStudio({
       const audioUrl = getBgmTrackAudioUrl(track.path);
       const audio = new window.Audio(audioUrl);
       audio.volume = 0.25;
-      audio.play().catch(() => {});
+      audio.play().catch(() => { });
       audio.onended = () => setAuditioningTrack(null);
       auditionAudioRef.current = audio;
       setAuditioningTrack(track.id);
@@ -215,7 +215,7 @@ export default function AiVideoGeneratorStudio({
     if (isPlaying) {
       const totalDur = plan?.durationSeconds || 60;
       if (bgmAudioRef.current && !isMuted) {
-        bgmAudioRef.current.play().catch(() => {});
+        bgmAudioRef.current.play().catch(() => { });
       }
       playbackTimerRef.current = setInterval(() => {
         setCurrentTime((prev) => {
@@ -501,28 +501,11 @@ export default function AiVideoGeneratorStudio({
 
   return (
     <div className="h-full flex flex-col bg-white overflow-hidden text-slate-800">
-      {/* ── ROW 1: STUDIO HEADER & 4-STEP STEPPER BAR ── */}
-      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3.5 shrink-0 shadow-2xs">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          {/* Studio Title */}
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <Sparkles size={18} className="text-orange-600" />
-                AI Video Generator
-              </h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 border border-orange-200 px-2.5 py-0.5 text-[11px] font-bold text-orange-700">
-                <Tv size={11} className="text-orange-600" />
-                16:9 Widescreen Only
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 font-medium">
-              Turn any concept or prompt into a multi-scene 16:9 broadcast video with AI visuals, narration, and kinetic typography.
-            </p>
-          </div>
-
+      {/* ── ROW 1: 4-STEP GUIDED STEPPER BAR (Unified Studio Stepper) ── */}
+      <div className="border-b border-slate-200/90 bg-white px-4 sm:px-8 py-3 shrink-0 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex items-center justify-center">
           {/* Stepper Navigation Pills */}
-          <div className="flex items-center gap-1 sm:gap-1.5 self-center sm:self-auto overflow-x-auto no-scrollbar py-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-0.5 bg-slate-50 border border-slate-200/90 rounded-2xl p-1.5 shadow-2xs">
             {AI_VIDEO_STEPS.map((step) => {
               const isActive = currentStep === step.step;
               const isDone =
@@ -537,37 +520,29 @@ export default function AiVideoGeneratorStudio({
                   key={step.step}
                   type="button"
                   onClick={() => setCurrentStep(step.step)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  className={`inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     isActive
-                      ? "bg-orange-600 text-white shadow-xs"
+                      ? "bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20"
                       : isDone
-                      ? "bg-slate-100 text-slate-700 hover:bg-slate-200/70"
-                      : "bg-transparent text-slate-400 hover:text-slate-600"
+                        ? "text-slate-800 hover:text-slate-900 hover:bg-white/60"
+                        : "text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   <span
-                    className={`flex h-4.5 w-4.5 items-center justify-center rounded-full text-[10px] font-black ${
+                    className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black ${
                       isActive
-                        ? "bg-white text-orange-600"
+                        ? "bg-orange-600 text-white"
                         : isDone
-                        ? "bg-emerald-500 text-white"
-                        : "bg-slate-200 text-slate-600"
+                          ? "bg-emerald-500 text-white"
+                          : "bg-slate-200 text-slate-600"
                     }`}
                   >
-                    {isDone && !isActive ? <Check size={10} strokeWidth={3} /> : step.step}
+                    {isDone && !isActive ? <Check size={11} strokeWidth={3} /> : step.step}
                   </span>
                   <span>{step.title}</span>
                 </button>
               );
             })}
-          </div>
-
-          {/* Pricing Allowance Badge */}
-          <div className="hidden lg:flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
-              <Zap size={13} className="text-orange-600 fill-orange-600" />
-              1 Min = 1 Credit • Up to 5 Mins
-            </span>
           </div>
         </div>
       </div>
@@ -683,11 +658,10 @@ export default function AiVideoGeneratorStudio({
                         key={d.sec}
                         type="button"
                         onClick={() => setSelectedDuration(d.sec)}
-                        className={`p-3 rounded-xl border text-left transition cursor-pointer ${
-                          selectedDuration === d.sec
+                        className={`p-3 rounded-xl border text-left transition cursor-pointer ${selectedDuration === d.sec
                             ? "border-orange-500 bg-orange-50/60 ring-2 ring-orange-500/20"
                             : "border-slate-200 bg-white hover:bg-slate-50"
-                        }`}
+                          }`}
                       >
                         <p className="text-xs font-bold text-slate-900">{d.label}</p>
                         <p className="text-[10px] text-slate-500">{d.desc}</p>
@@ -790,11 +764,10 @@ export default function AiVideoGeneratorStudio({
                     return (
                       <div
                         key={track.id}
-                        className={`rounded-xl border p-3.5 transition-all flex flex-col justify-between ${
-                          isSelected
+                        className={`rounded-xl border p-3.5 transition-all flex flex-col justify-between ${isSelected
                             ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
                             : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60'
-                        }`}
+                          }`}
                       >
                         <div>
                           <div className="flex items-center justify-between gap-1 mb-1">
@@ -816,11 +789,10 @@ export default function AiVideoGeneratorStudio({
                             <button
                               type="button"
                               onClick={() => toggleAudition(track)}
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                                isAuditioning
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${isAuditioning
                                   ? 'bg-orange-600 text-white'
                                   : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
-                              }`}
+                                }`}
                             >
                               {isAuditioning ? <Pause size={12} /> : <Play size={12} />}
                               <span>{isAuditioning ? 'Stop' : 'Preview'}</span>
@@ -832,11 +804,10 @@ export default function AiVideoGeneratorStudio({
                           <button
                             type="button"
                             onClick={() => setSelectedBgmId(track.id)}
-                            className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                              isSelected
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${isSelected
                                 ? 'bg-orange-600 text-white'
                                 : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
-                            }`}
+                              }`}
                           >
                             {isSelected ? 'Active' : 'Select'}
                           </button>
@@ -887,11 +858,10 @@ export default function AiVideoGeneratorStudio({
                       key={s.id}
                       type="button"
                       onClick={() => setSelectedStyle(s.id)}
-                      className={`p-3 rounded-xl border text-left transition cursor-pointer ${
-                        selectedStyle === s.id
+                      className={`p-3 rounded-xl border text-left transition cursor-pointer ${selectedStyle === s.id
                           ? 'border-orange-500 bg-orange-50/60 ring-2 ring-orange-500/20'
                           : 'border-slate-200 bg-white hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       <p className="text-xs font-bold text-slate-900">{s.label}</p>
                       <p className="text-[10px] text-slate-500">{s.desc}</p>
@@ -930,11 +900,10 @@ export default function AiVideoGeneratorStudio({
                       key={cat}
                       type="button"
                       onClick={() => setCaptionCategoryTab(cat)}
-                      className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${
-                        captionCategoryTab === cat
+                      className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${captionCategoryTab === cat
                           ? 'bg-orange-500 text-white font-black shadow-xs'
                           : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -950,11 +919,10 @@ export default function AiVideoGeneratorStudio({
                         key={style.id}
                         type="button"
                         onClick={() => setSelectedCaptionStyle(style.id)}
-                        className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${
-                          isSelected
+                        className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${isSelected
                             ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
                             : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between w-full">
                           <span className="text-[10px] font-bold text-slate-500 truncate max-w-[85%]">
@@ -1003,8 +971,8 @@ export default function AiVideoGeneratorStudio({
             </div>
           )}
 
-          {/* ──────────────── STEP 4: 16:9 CINEMA STUDIO & MULTITRACK TIMELINE ──────────────── */}
-          {currentStep === 4 && (
+          {/* ──────────────── STEP 4 (final): 16:9 CINEMA STUDIO & MULTITRACK TIMELINE ──────────────── */}
+          {currentStep === AI_VIDEO_STEPS.length && (
             <div className="space-y-6">
               {plan ? (
                 <div className="space-y-4">
@@ -1071,9 +1039,8 @@ export default function AiVideoGeneratorStudio({
                           <img
                             src={activeScene.mediaUrl}
                             alt={activeScene.title}
-                            className={`w-full h-full object-cover transition-transform duration-1000 ${
-                              isPlaying ? 'scale-110' : 'scale-100'
-                            }`}
+                            className={`w-full h-full object-cover transition-transform duration-1000 ${isPlaying ? 'scale-110' : 'scale-100'
+                              }`}
                           />
                         )}
 
@@ -1164,11 +1131,10 @@ export default function AiVideoGeneratorStudio({
                         <button
                           type="button"
                           onClick={() => setActiveInspectorTab('visuals')}
-                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                            activeInspectorTab === 'visuals'
+                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${activeInspectorTab === 'visuals'
                               ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
                               : 'text-slate-500 hover:text-slate-900'
-                          }`}
+                            }`}
                         >
                           <Film size={12} className={activeInspectorTab === 'visuals' ? 'text-orange-600' : ''} />
                           <span>Shot #{activeSceneIndex + 1}</span>
@@ -1176,11 +1142,10 @@ export default function AiVideoGeneratorStudio({
                         <button
                           type="button"
                           onClick={() => setActiveInspectorTab('script')}
-                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                            activeInspectorTab === 'script'
+                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${activeInspectorTab === 'script'
                               ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
                               : 'text-slate-500 hover:text-slate-900'
-                          }`}
+                            }`}
                         >
                           <FileText size={12} className={activeInspectorTab === 'script' ? 'text-orange-600' : ''} />
                           <span>Script Narration</span>
@@ -1188,11 +1153,10 @@ export default function AiVideoGeneratorStudio({
                         <button
                           type="button"
                           onClick={() => setActiveInspectorTab('audio')}
-                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                            activeInspectorTab === 'audio'
+                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${activeInspectorTab === 'audio'
                               ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
                               : 'text-slate-500 hover:text-slate-900'
-                          }`}
+                            }`}
                         >
                           <Music size={12} className={activeInspectorTab === 'audio' ? 'text-orange-600' : ''} />
                           <span>Soundtrack</span>
@@ -1281,11 +1245,10 @@ export default function AiVideoGeneratorStudio({
                                   key={t.id}
                                   type="button"
                                   onClick={() => setSelectedBgmId(t.id)}
-                                  className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition flex items-center justify-between cursor-pointer ${
-                                    selectedBgmId === t.id
+                                  className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition flex items-center justify-between cursor-pointer ${selectedBgmId === t.id
                                       ? 'border-orange-500 bg-orange-50 text-orange-950'
                                       : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                                  }`}
+                                    }`}
                                 >
                                   <span>{t.label}</span>
                                   {selectedBgmId === t.id && <Check size={14} className="text-orange-600" />}

@@ -108,6 +108,24 @@ export const VectorDrawingIcon: React.FC<VectorDrawingIconProps> = ({
   // Render SVG Master Catalog item
   if ('paths' in resolvedDef) {
     const item = resolvedDef as SvgConceptItem;
+    // S3-hosted designed SVG: render the hosted illustration file directly.
+    if (item.url) {
+      return (
+        <img
+          src={item.url}
+          alt={item.name}
+          className={className}
+          style={{
+            width: size,
+            height: size,
+            objectFit: 'contain',
+            display: 'inline-block',
+            opacity: progress,
+            ...style,
+          }}
+        />
+      );
+    }
     return (
       <svg
         viewBox={item.viewBox || '0 0 100 100'}

@@ -16,9 +16,9 @@
 | **Dashboard Route** | `/dashboard/faceless-video` |
 | **Aspect Ratio** | 16:9 Widescreen Full HD |
 | **Resolution & Quality** | **1080p Full HD (1920×1080 30 FPS MP4)** |
-| **Max Audio Duration** | **12 Minutes (720s)** |
+| **Max Audio Duration** | **5 Minutes (300s)** — matches all code and `docs/video-types/faceless-video.md` |
 | **Primary Category** | Social & YouTube |
-| **Credit Cost** | 2 Credits / Min |
+| **Credit Cost** | 1 Credit / Min (1m=1, 2m=2, 3m=3, 4m=4, 5m=5 max) |
 | **Transcription Engine**| Extracted 16kHz audio → Groq Whisper Cloud API (Fallback: Google Gemini 2.0 Flash `asia-south1`) |
 
 ---
@@ -31,15 +31,13 @@ The Faceless Video Studio implements a clean, icon-driven 5-step interface:
    - 🎙️ Upload audio narration track (MP3, WAV, M4A up to 12 minutes).
 2. **2. Image Source**:
   - Choose `Itnavideo Assets`, `User Uploaded Images`, or `Mix`.
-  - Choose `Realistic`, `3D`, or `2D` images when Itnavideo Assets or Mix is selected.
+  - All Itnavideo Assets are **Realistic** photography (2D/3D art styles are retired).
   - `User Uploaded Images` uses only uploads. `Mix` places uploads at selected beats and fills remaining scenes from Itnavideo Assets.
   - Pexels is searched only for scenes without a suitable local image, and is never used in uploaded-only mode.
   - 📝 `Video Topic — Optional` field for contextual AI storytelling direction.
 3. **3. Video Settings**:
    - **Visual Art Style**:
      - 📸 **Realistic Photo**: Real stock & photography
-     - 🧊 **3D Render**: 3D Isometric & depth renders
-     - 🎨 **2D Vector**: Clean vector illustrations & digital art
    - **Video Pacing Style**:
      - ✨ **Clean**: Minimal & modern
      - 🎬 **Cinematic**: Dramatic & editorial
@@ -58,8 +56,6 @@ The Faceless Video Studio implements a clean, icon-driven 5-step interface:
 
 | Asset Category | Local Path | Production Storage | Catalog Indexing |
 | :--- | :--- | :--- | :--- |
-| **2D Vector Images** | `public/assets/reusable/images/2d/` | AWS S3 / Cloudinary | Indexed via `npm run assets:index` |
-| **3D Render Images** | `public/assets/reusable/images/3d/` | AWS S3 / Cloudinary | Indexed via `npm run assets:index` |
 | **Realistic Photos** | `public/assets/reusable/images/realistic/` | AWS S3 / Cloudinary | Indexed via `npm run assets:index` |
 | **Sound Effects (SFX)** | `public/assets/reusable/sfx/` | AWS S3 / Cloudinary | Indexed via `npm run assets:index` |
 | **Studio Backgrounds** | `public/assets/reusable/backgrounds/` | AWS S3 / Cloudinary | Indexed via `npm run assets:index` |
@@ -91,7 +87,7 @@ export interface FacelessScene {
   durationInFrames: number;
   videoUrl?: string;
   imageUrl?: string;
-  visualArtStyle?: 'realistic' | '3d' | '2d';
+  visualArtStyle?: 'realistic';
   fallbackType?: 'typography' | 'gradient' | 'zoom-still';
   zoomMotion?: 'in' | 'out' | 'pan';
 }

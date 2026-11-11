@@ -145,7 +145,7 @@ function BeforePhone() {
       {/* Simulated video frame */}
       <div style={{ position: 'absolute', inset: 0 }}>
         <Image
-          src="/preview/Auto Caption Reel.png"
+          src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png"
           alt="Video without captions"
           fill
           className="object-cover object-center"
@@ -219,7 +219,7 @@ function AfterPhone() {
     <PhoneMockup accentColor="#22C55E">
       <div style={{ position: 'absolute', inset: 0 }}>
         <Image
-          src="/preview/Auto Caption Reel.png"
+          src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png"
           alt="Video with captions"
           fill
           className="object-cover object-center"

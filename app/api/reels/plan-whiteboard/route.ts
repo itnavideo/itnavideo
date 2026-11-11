@@ -1,47 +1,17 @@
 import { NextResponse } from 'next/server';
-import { planWhiteboardVideo, buildWhiteboardSegments } from '@/services/ai/whiteboardPlanner';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json().catch(() => ({}));
-    const transcript = String(body.transcript || '').trim();
-    const durationSeconds = Number(body.durationSeconds) || 30;
-    const topicTitle = body.topicTitle ? String(body.topicTitle) : undefined;
-    const words = Array.isArray(body.words) ? body.words : [];
-
-    if (!transcript) {
-      return NextResponse.json({ ok: false, error: 'Transcript is required to plan whiteboard scenes.' }, { status: 400 });
-    }
-
-    const wbWords = words.map((w: any) => ({
-      word: String(w.word || ''),
-      start: Number(w.start || 0),
-      end: Number(w.end || 0),
-    }));
-
-    const wbSegments = buildWhiteboardSegments(wbWords, durationSeconds);
-
-    const plan = await planWhiteboardVideo({
-      transcript,
-      segments: wbSegments.map((s) => ({ start: s.start, end: s.end, text: s.text })),
-      words: wbWords,
-      durationSeconds,
-      topicTitle,
-      boardStyle: 'classic_black_marker',
-      aspectRatio: '9:16',
-    });
-
-    return NextResponse.json({
-      ok: true,
-      success: true,
-      plan,
-      words: wbWords,
-    });
-  } catch (err: any) {
-    console.error('[PLAN_WHITEBOARD_ERROR]', err);
-    return NextResponse.json({ ok: false, error: err?.message || 'Failed to plan whiteboard storyboard.' }, { status: 500 });
-  }
+/**
+ * BE8 Fix: This route is DEAD CODE — no component or studio calls it.
+ * WhiteboardStudio.tsx uses /api/reels/transcribe directly, then renders via /api/reels/jobs.
+ * Disabled to remove unnecessary Lambda cold-start overhead.
+ * If whiteboard needs a dedicated plan step in future, rebuild and wire onTranscribeAndPlan.
+ */
+export async function POST() {
+  return NextResponse.json(
+    { ok: false, error: 'This planning endpoint is not in use. Whiteboard renders go through /api/reels/jobs directly.' },
+    { status: 410 }
+  );
 }

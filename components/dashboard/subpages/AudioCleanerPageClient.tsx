@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 import {
   AudioCleanStudio,
   type AudioCleanStudioAnalysis,
@@ -505,13 +507,12 @@ export default function AudioCleanerPageClient() {
         userRemainingCredits={billingEntitlement?.usage?.remaining}
         isWorking={isCleaning || isAnalyzingAudio}
       />
-          </div>
-        </div>
-      </header>
 
       {/* Main Studio Viewport */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {isError ? (
+        {billingEntitlement && isFeatureLockedForUser("audioClean", billingEntitlement) ? (
+          <FeaturePaywall featureName="AI Audio Cleaner" description="Remove silences, retakes and background noise from voice recordings. Upgrade to access Audio Cleaner." />
+        ) : isError ? (
           <div className="max-w-2xl mx-auto my-auto p-8 rounded-2xl border border-rose-200 bg-rose-50/60 text-center space-y-4 shadow-sm">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 border border-rose-200">
               <AlertCircle size={28} />

@@ -12,6 +12,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import { DEFAULT_FPS, secondsToFrames } from '../../constants';
+import { BrandWatermark } from '../../components/BrandWatermark';
 import { UniversalCaptionLayer, CaptionChunk } from '../../components/library/UniversalCaptionLayer';
 import { MultiLayerTextOverlay, type DynamicTextLayer } from '../../components/library/MultiLayerTextOverlay';
 import { MultiLayerImageOverlay, type DynamicImageLayer } from '../../components/library/MultiLayerImageOverlay';
@@ -31,6 +32,7 @@ import { VideoVisualThemeProvider, useVideoVisualTheme, type VideoVisualTheme } 
 export interface SplitScreenExplainerProps {
   mediaSrc?: string;
   creatorVideoUrl?: string;
+  watermark?: boolean;
   audioSrc?: string;
   audioUrl?: string;
   bgmUrl?: string;
@@ -167,6 +169,7 @@ export const SplitScreenExplainerTemplate: React.FC<SplitScreenExplainerProps> =
   gaugeLayers = [],
   audioVisualizerLayers = [],
   cameraConfig,
+  watermark = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
@@ -519,6 +522,7 @@ export const SplitScreenExplainerTemplate: React.FC<SplitScreenExplainerProps> =
             loop
           />
         )}
+        <BrandWatermark watermark={watermark} isLandscape={false} />
       </AbsoluteFill>
     </VideoVisualThemeProvider>
   );

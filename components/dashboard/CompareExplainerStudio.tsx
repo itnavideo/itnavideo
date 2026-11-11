@@ -43,6 +43,7 @@ import {
   User,
 } from "lucide-react";
 import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
+import { StudioStepperRow } from "@/components/dashboard/shared/StudioStepper";
 import {
   AWS_BGM_TRACKS,
   getBgmTrackAudioUrl,
@@ -52,10 +53,11 @@ import {
 } from "@/components/dashboard/ImageToVideoStudio";
 
 export const COMPARE_STEPS = [
-  { step: 1, title: "Upload", desc: "Voiceover & 2 Subjects" },
-  { step: 2, title: "Music", desc: "Soundtrack & Volume" },
-  { step: 3, title: "Style", desc: "Characters & Theme" },
-  { step: 4, title: "Preview", desc: "9:16 Shorts & Review" },
+  { step: 1, title: "Upload", desc: "Voiceover Narration" },
+  { step: 2, title: "Subjects", desc: "2 Comparison Images" },
+  { step: 3, title: "Music", desc: "Soundtrack & Volume" },
+  { step: 4, title: "Character", desc: "Presenter & Theme" },
+  { step: 5, title: "Preview", desc: "9:16 Shorts Simulator" },
 ] as const;
 
 // 32 Sound Wave visualizer bars
@@ -197,8 +199,8 @@ export function CompareExplainerStudio({
   removeAiWatermark = true,
   onRemoveAiWatermarkChange,
 }: CompareExplainerStudioProps) {
-  // ── 4-Step Guided Video Studio State ──
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+  // ── Flexible Step State (supports any number of steps) ──
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Audio duration & playback
   const [audioDurationSec, setAudioDurationSec] = useState<number>(30);
@@ -405,63 +407,12 @@ export function CompareExplainerStudio({
         onEnded={() => setPlayingTrackId(null)}
       />
 
-      {/* ── ROW 1: Studio Header & 4-Step Stepper (Consistent with Image to Video AI) ── */}
-      <div className="shrink-0 border-b border-slate-200/90 bg-white px-4 sm:px-8 lg:px-12 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 shrink-0">
-            <Swords size={20} className="stroke-[2.5]" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                Compare Explainer AI
-              </h1>
-              <span className="inline-flex items-center gap-1 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-orange-600">
-                9:16 Vertical Shorts
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 line-clamp-1">
-              Create high-retention head-to-head versus showdowns with presenter avatar reactions and dynamic score counters.
-            </p>
-          </div>
-        </div>
-
-        {/* 4-Step Interactive Stepper */}
-        <div className="flex items-center gap-1.5 sm:gap-2 self-start md:self-center bg-slate-50 border border-slate-200/90 rounded-2xl p-1.5 shadow-2xs">
-          {COMPARE_STEPS.map((s) => {
-            const isActive = currentStep === s.step;
-            const isCompleted = currentStep > s.step;
-
-            return (
-              <button
-                key={s.step}
-                type="button"
-                onClick={() => setCurrentStep(s.step as 1 | 2 | 3 | 4)}
-                className={`flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${isActive
-                    ? "bg-white text-orange-600 shadow-xs border border-orange-200/60 ring-1 ring-orange-500/20"
-                    : isCompleted
-                      ? "text-slate-800 hover:text-slate-900 hover:bg-white/60"
-                      : "text-slate-400 hover:text-slate-600"
-                  }`}
-              >
-                <div
-                  className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-black transition-colors ${isActive
-                      ? "bg-orange-500 text-white"
-                      : isCompleted
-                        ? "bg-emerald-500 text-white"
-                        : "bg-slate-200 text-slate-600"
-                    }`}
-                >
-                  {isCompleted ? <Check size={11} className="stroke-[3]" /> : s.step}
-                </div>
-                <div className="text-left hidden sm:block">
-                  <span className="block leading-none">{s.title}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      {/* ── ROW 1: Flexible Studio Stepper ── */}
+      <StudioStepperRow
+        steps={COMPARE_STEPS}
+        currentStep={currentStep}
+        onStepClick={(step) => setCurrentStep(step)}
+      />
 
       {/* ── ROW 2: Scrollable Studio Workspace ── */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-6">
@@ -538,7 +489,7 @@ export function CompareExplainerStudio({
                         Click to Upload Narration Audio
                       </p>
                       <p className="text-xs text-slate-400 mt-1">
-                        MP3, WAV, M4A, or MP4 • Flat 1 Credit Cost
+                        MP3, WAV, M4A, or MP4 • Videos and audio longer than 90 seconds are supported. Only the first 90 seconds will be used.
                       </p>
                     </div>
                   </button>
@@ -905,8 +856,8 @@ export function CompareExplainerStudio({
                           onBgmVolumeChange?.(p.val / 100);
                         }}
                         className={`text-xs font-bold px-3 py-1 rounded-lg border transition cursor-pointer ${activeBgmVolume === p.val
-                            ? "bg-orange-500 text-white border-orange-500"
-                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
                           }`}
                       >
                         {p.label}
@@ -984,8 +935,8 @@ export function CompareExplainerStudio({
                             onBgmTrackIdChange?.(track.id);
                           }}
                           className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center justify-between gap-3 ${isSelected
-                              ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-1 ring-orange-500"
-                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
+                            ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-1 ring-orange-500"
+                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
                             }`}
                         >
                           <div className="min-w-0 flex-1">
@@ -1056,8 +1007,8 @@ export function CompareExplainerStudio({
                         key={char.id}
                         onClick={() => onStickerStyleChange?.(char.id)}
                         className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${isSelected
-                            ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-1 ring-orange-500"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
+                          ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-1 ring-orange-500"
+                          : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
                           }`}
                       >
                         <div className="flex items-center justify-between w-full">
@@ -1092,8 +1043,8 @@ export function CompareExplainerStudio({
                           type="button"
                           onClick={() => onWinnerChange?.(w.id)}
                           className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${compareWinner === w.id
-                              ? "border-orange-500 bg-orange-50 text-orange-600"
-                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            ? "border-orange-500 bg-orange-50 text-orange-600"
+                            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
                             }`}
                         >
                           <div>{w.label}</div>
@@ -1118,8 +1069,8 @@ export function CompareExplainerStudio({
                           type="button"
                           onClick={() => onToneChange?.(t.id)}
                           className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${compareTone === t.id
-                              ? "border-orange-500 bg-orange-50 text-orange-600"
-                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            ? "border-orange-500 bg-orange-50 text-orange-600"
+                            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
                             }`}
                         >
                           <div>{t.label}</div>
@@ -1166,8 +1117,8 @@ export function CompareExplainerStudio({
                         type="button"
                         onClick={() => setSelectedCaptionStyle(theme.id)}
                         className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-3 ${isSelected
-                            ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
+                          ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
+                          : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
                           }`}
                       >
                         <div className="flex items-center justify-between w-full">
@@ -1196,7 +1147,7 @@ export function CompareExplainerStudio({
           {/* ══════════════════════════════════════════════════════════════
               STEP 4: PREVIEW (9:16 Vertical Live Monitor & Review)
               ══════════════════════════════════════════════════════════════ */}
-          {currentStep === 4 && (
+          {currentStep === COMPARE_STEPS.length && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -1249,8 +1200,8 @@ export function CompareExplainerStudio({
                     {/* Left Card */}
                     <div
                       className={`rounded-2xl border overflow-hidden transition-all duration-300 p-2 bg-white shadow-sm flex flex-col items-center relative ${activeSide === "left" || activeSide === "both"
-                          ? "ring-2 ring-orange-500 border-orange-400 scale-102"
-                          : "opacity-80 border-slate-200"
+                        ? "ring-2 ring-orange-500 border-orange-400 scale-102"
+                        : "opacity-80 border-slate-200"
                         }`}
                     >
                       {compareWinner === "left" && (
@@ -1271,8 +1222,8 @@ export function CompareExplainerStudio({
                     {/* Right Card */}
                     <div
                       className={`rounded-2xl border overflow-hidden transition-all duration-300 p-2 bg-white shadow-sm flex flex-col items-center relative ${activeSide === "right" || activeSide === "both"
-                          ? "ring-2 ring-orange-500 border-orange-400 scale-102"
-                          : "opacity-80 border-slate-200"
+                        ? "ring-2 ring-orange-500 border-orange-400 scale-102"
+                        : "opacity-80 border-slate-200"
                         }`}
                     >
                       {compareWinner === "right" && (
@@ -1354,20 +1305,20 @@ export function CompareExplainerStudio({
           {currentStep > 1 && (
             <button
               type="button"
-              onClick={() => setCurrentStep((currentStep - 1) as 1 | 2 | 3 | 4)}
+              onClick={() => setCurrentStep((currentStep - 1))}
               className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
             >
               Back
             </button>
           )}
 
-          {currentStep < 4 ? (
+          {currentStep < COMPARE_STEPS.length ? (
             <button
               type="button"
-              onClick={() => setCurrentStep((currentStep + 1) as 1 | 2 | 3 | 4)}
+              onClick={() => setCurrentStep((currentStep + 1))}
               className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black transition cursor-pointer shadow-sm shadow-orange-500/20 active:scale-95"
             >
-              <span>Next: {COMPARE_STEPS[currentStep].title}</span>
+              <span>Next: {COMPARE_STEPS.find(s => s.step === currentStep + 1)?.title ?? "Next"}</span>
               <ArrowRight size={14} />
             </button>
           ) : (

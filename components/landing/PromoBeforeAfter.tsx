@@ -123,7 +123,7 @@ function AfterPhone() {
         boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
       }}>
         <Image
-          src="/preview/Long Video Promo.png"
+          src="https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/longvideopromo_o0qheb.png"
           alt="Long Video Promo output"
           fill
           className="object-cover"

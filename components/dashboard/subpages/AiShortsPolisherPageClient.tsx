@@ -17,6 +17,8 @@ import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import { ArrowLeft, Zap, Loader2 } from "lucide-react";
 import StudioHeader from "@/components/dashboard/shared/StudioHeader";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 
 type BillingEntitlement = {
   active: boolean;
@@ -365,7 +367,9 @@ export default function AiShortsPolisherPageClient() {
 
       {/* Main Studio Viewport */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("aiShortsPolisher", billingEntitlement) ? (
+          <FeaturePaywall featureName="AI Shorts Polisher" description="Auto-edit your smartphone clips into viral 9:16 Shorts. Upgrade to access AI Shorts Polisher." />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="aiShortsPolisher"

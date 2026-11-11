@@ -834,7 +834,7 @@ export function ImageToVideoStudio({
 }: ImageToVideoStudioProps) {
   // Audition & Preview States
   // 4-Step Guided Flow Stepper State (Responsive 3-Row Shell)
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   const [playingBgmId, setPlayingBgmId] = useState<string | null>(null);
   const [activePreviewIndex, setActivePreviewIndex] = useState<number>(0);
@@ -1807,7 +1807,7 @@ export function ImageToVideoStudio({
             {currentStep > 1 && (
               <button
                 type="button"
-                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1) as 1 | 2 | 3 | 4))}
+                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1)))}
                 className="text-[11px] font-bold text-orange-600 hover:text-orange-700 cursor-pointer shrink-0 ml-2"
               >
                 ← Back
@@ -2741,7 +2741,7 @@ export function ImageToVideoStudio({
         {/* ======================================================================= */}
         {/* STEP 4: SMART SCENE & SUBTITLE EDITOR ("Edit & Render")                 */}
         {/* ======================================================================= */}
-        {currentStep === 4 && (!selectedAudio || imageFiles.length === 0) && (
+        {currentStep === STUDIO_STEPS.length && (!selectedAudio || imageFiles.length === 0) && (
           <div className="max-w-2xl mx-auto text-center py-16 px-6 sm:px-8 rounded-3xl border border-slate-200 bg-white shadow-sm space-y-6 animate-in fade-in duration-200 my-8">
             <div className="h-16 w-16 mx-auto rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-600 shadow-2xs">
               <UploadCloud size={32} />
@@ -2781,7 +2781,7 @@ export function ImageToVideoStudio({
           </div>
         )}
 
-        {currentStep === 4 && Boolean(selectedAudio && imageFiles.length > 0) && (
+        {currentStep === STUDIO_STEPS.length && Boolean(selectedAudio && imageFiles.length > 0) && (
           <div className="max-w-7xl mx-auto w-full space-y-4 sm:space-y-5 animate-in fade-in duration-200">
             {/* Top Studio Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
@@ -3729,7 +3729,7 @@ export function ImageToVideoStudio({
             {currentStep > 1 ? (
               <button
                 type="button"
-                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1) as 1 | 2 | 3 | 4))}
+                onClick={() => setCurrentStep((prev) => (Math.max(1, prev - 1)))}
                 className="inline-flex items-center gap-1.5 px-4 py-2 sm:py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-700 transition cursor-pointer shadow-xs active:scale-98 min-h-[42px]"
               >
                 <ChevronLeft size={16} />
@@ -3764,7 +3764,7 @@ export function ImageToVideoStudio({
                 Caption Style: <strong className="text-orange-600">{currentCaptionObj.name}</strong> · Motion: <strong className="text-slate-900">{cameraMotionPreset === 'ken-burns' ? 'Ken Burns' : 'Static'}</strong>
               </span>
             )}
-            {currentStep === 4 && (
+            {currentStep === STUDIO_STEPS.length && (
               <span className="text-xs font-medium text-slate-600">
                 Ready to Render: <strong className="text-orange-600 font-mono font-bold">{calculatedCredits} Credit{calculatedCredits > 1 ? 's' : ''}</strong> (1080p Full HD)
               </span>
@@ -3773,11 +3773,11 @@ export function ImageToVideoStudio({
 
           {/* Right: Next / Render Button */}
           <div className={`flex items-center gap-2 ${currentStep === 1 ? 'w-full sm:w-auto justify-end' : 'flex-1 sm:flex-initial justify-end'}`}>
-            {currentStep < 4 ? (
+            {currentStep < STUDIO_STEPS.length ? (
               <button
                 type="button"
                 onClick={() => {
-                  setCurrentStep((prev) => (Math.min(4, prev + 1) as 1 | 2 | 3 | 4));
+                  setCurrentStep((prev) => Math.min(STUDIO_STEPS.length, prev + 1));
                 }}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm transition-all shadow-md shadow-orange-500/25 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-500 hover:to-amber-500 text-white active:scale-98 cursor-pointer min-h-[42px]"
               >

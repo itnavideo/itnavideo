@@ -1,104 +1,116 @@
-# Whiteboard Animation (`WHITEBOARD_VIDEO`)
+# Whiteboard Animation Maker — Studio Specification
 
-## Master Specification
+## Overview
 
-| Field | Value |
-|---|---|
-| Video Type Name | Whiteboard Animation |
-| Internal ID | `WHITEBOARD_VIDEO` |
-| Composition ID | `WHITEBOARD-VIDEO` |
-| Dashboard Mode | `whiteboardVideo` |
-| Output Resolution | 1080×1920 (Strictly 9:16 Full HD MP4) |
-| Maximum Duration | Up to 90 seconds (Master Rule 4.1) |
-| Credit Cost | 1 Credit |
-| Pipeline Engine | Groq Whisper + Groq Qwen Director (Fallback: Gemini / Deterministic) |
+The **Whiteboard Animation Maker** (`whiteboardVideo`) transforms spoken voiceover or lesson recordings into engaging 9:16 vertical hand-drawn whiteboard animations (`1080×1920` @ 30 FPS MP4) up to 90 seconds long. As the voice speaks, realistic drawing hands and digital styluses draw bullet points, diagrams, and summary cards onto the screen in real time, perfectly synchronized to spoken speech tempo.
+
+- **Primary Purpose**: Transform educational lessons and explainers into engaging hand-drawn whiteboard videos.
+- **Target Audience**: Teachers, educators, online coaches, personal finance creators, and explainer channels.
+- **Expected Output**: 1080p Full HD (`1080×1920`) 30 FPS vertical MP4 video.
 
 ---
 
-## 1. System Pipeline Architecture
+## Table of Contents
 
-1. **Audio Extraction**: 16kHz mono MP3/WAV extracted from uploaded media.
-2. **Groq Whisper Transcription**: Generates exact word-level timestamps (`words` array with `start` and `end` times).
-3. **Sentence-Boundary Segmentation**: `buildWhiteboardSegments()` groups words at sentence boundaries (`. ! ?`) and natural pauses (`> 0.45s`).
-4. **Groq Qwen AI Director (`planWhiteboardVideo`)**:
-   - Takes script text, sentence segments, and word timestamps.
-   - Deeply understands educational/story content and plans sequential scenes (boards).
-   - Outputs points with punchy `text` (3–6 words max), `boardIndex`, `wordStartIndex`, `wordEndIndex`, `icon`, `drawingId`, and `focusType`.
-   - **ZERO timing fields output by LLM** — all timing computed in code from word timestamps (`computePointTiming`).
-5. **Deterministic Fallback (`planDeterministicWhiteboard`)**: Runs automatically if API call fails.
-
----
-
-## 2. Shared Layout Geometry (`lib/whiteboard/whiteboardConstants.ts`)
-
-Single source of truth shared across planner and Remotion renderer:
-
-```ts
-export const WB_CANVAS_WIDTH = 1080;
-export const WB_CANVAS_HEIGHT = 1920;
-
-// Safe Area (Clear of Reel UI)
-export const WB_SAFE_LEFT = 70;
-export const WB_SAFE_RIGHT = 70;
-export const WB_SAFE_TOP = 140;
-export const WB_SAFE_BOTTOM = 220;
-
-export const WB_USABLE_WIDTH = 940;   // 1080 - 70 - 70
-export const WB_USABLE_HEIGHT = 1560; // 1920 - 140 - 220
-
-// Typography Limits
-export const WB_TITLE_SIZE = 64;       // Fixed Title Size
-export const WB_CONCLUSION_SIZE = 48;  // Fixed Conclusion Size
-export const WB_POINT_SIZE_BY_COUNT = { 1: 54, 2: 50, 3: 46 }; // Point Size Table
-export const WB_POINT_SIZE_MIN = 42;   // Hard minimum
-
-// Per-Board Limits
-export const WB_MAX_POINTS_PER_BOARD = 3;
-export const WB_MAX_WORDS_PER_POINT = 7;
-export const WB_MAX_LINES_PER_POINT = 2;
-export const WB_MAX_CHARS_PER_LINE = 30;
-```
+1. [Overview](#overview)
+2. [Features and Capabilities](#features-and-capabilities)
+3. [User Workflow](#user-workflow)
+4. [UI/UX Design and Components](#uiux-design-and-components)
+5. [Colors, Typography and Design Tokens](#colors-typography-and-design-tokens)
+6. [Technical Implementation](#technical-implementation)
+7. [Business Logic, Duration and Credit Rules](#business-logic-duration-and-credit-rules)
+8. [Error Handling and Edge Cases](#error-handling-and-edge-cases)
+9. [Testing and Quality Assurance](#testing-and-quality-assurance)
+10. [Developer Notes and Guardrails](#developer-notes-and-guardrails)
 
 ---
 
-## 3. Zero-Shift Layout Engine (`remotion/templates/WHITEBOARD_VIDEO/template.tsx`)
+## 1. Features and Capabilities
 
-- **100% Stable DOM Layout**: Full text is rendered in place from frame 0 so line wrapping and container dimensions remain completely static throughout animation.
-- **Opacity + TranslateY Reveal**: Point text reveals smoothly over `WB_REVEAL_FADE_FRAMES` (8 frames) with 12px `translateY` offset starting at spoken speech timestamp (`startTime`).
-- **No Container Scaling**: Container width and height are fixed to `WB_USABLE_WIDTH` (920px) × `WB_USABLE_HEIGHT` (1520px) without `transform: scale()`.
-- **Vector Strokes & SFX**: Vector sketch drawings (`WhiteboardDynamicSketch`) and doodle icons draw progressively via `strokeDashoffset` synced with speech and marker sound effects.
-
-
----
-
-## 4. Visual Assets, Handwriting Fonts & Audio Ducking
-
-- **Real Human Hand PNG (AWS S3)**: Uses high-resolution photorealistic human hand holding a marker pen from AWS S3 (`https://itnavideo-media-assets.s3.ap-south-1.amazonaws.com/assets/real-hand-marker.png`). Strictly avoids vector/SVG hands.
-- **Default Handwriting Font**: **Balsamiq Sans** (`balsamiq`). Also provides 11 additional fonts (Permanent Marker, Gochi Hand, Comic Neue, Caveat, Kalam, Architects Daughter, Handlee, Shadows Into Light, Schoolbell, Indie Flower, Comic Relief).
-- **Pure White Background**: Canvas is styled with a crisp `#FFFFFF` / `#FAFAFA` whiteboard board.
-- **Background Music**: Curated AWS S3 catalog (13+ tracks) and custom MP3/WAV upload with default **12% volume ducking** (`bgmVolume: 0.12`).
-- **Marker SFX**: Realistic marker pen writing and board swipe sound effects.
-- **Marker Ink Color Palette**: Allows creators to choose ink color: Dynamic Colorful (auto), Classic Charcoal (`#0F172A`), Executive Royal Blue (`#2563EB`), Crimson Red (`#DC2626`), Emerald Green (`#059669`), or Sunset Amber (`#D97706`).
-- **Hand Drawing Styles & Pure Draw**: Supports Right-Handed (photorealistic AWS S3 hand), Left-Handed (mirrored), and **No Hand (Pure Draw)** for fast direct stroke animation.
-- **Audio Waveform Preview**: Interactive waveform player in the studio with live playback, duration tracking, and scrub bar.
-- **Optional Script Text**: Narration text is now optional; Groq Whisper auto-transcribes voiceover speech on the cloud, or creators can enter custom text to fix names.
-- **Enhanced 9:16 Simulator**: Live draft preview features SVG stickman sketches, handwriting font rendering, and animated marker sketching tips.
-- **Editorial Transcript**: Spoken script editor for fixing speech typos before scene planning.
-- **Compulsory Live Preview Gate**: Users must verify the whiteboard layout and font before cloud rendering.
+- **Realistic Hand-Drawing Motion**: Features natural human hands and digital styluses that realistically draw text, underlines, checkmarks, and icons synchronized to speech.
+- **AI Lesson Director**: Parses voiceover transcripts and automatically distills complex sentences into punchy 3-to-6 word takeaway points.
+- **Multiple Board Themes**: Supports Executive Classic Whiteboard (crisp white with marker ink), Dark Glass Studio (high-tech neon markers), and Blueprint Schematic (architectural grid).
+- **Zero Drawing Skills Required**: Fully automated drawing layout and stroke paths generated by cloud algorithms without manual tracing.
+- **Dynamic Concept Cards**: Generates thought bubbles, bracket lists, center thesis statements, and takeaway summary boxes.
+- **Mobile Safe Zones**: Content is strictly positioned within vertical 9:16 safe areas to clear social media UI overlays.
 
 ---
 
-## 5. Unified Visual Design System & 6 Master Themes Integration
+## 2. User Workflow
 
-The Whiteboard Video pipeline is fully integrated with the 12-System Unified Visual Design System (`services/design/visualDesignSystem.ts` and `remotion/theme/VideoVisualTheme.ts`):
+The studio follows a guided 4-step workflow:
 
-- **6 Master Themes**:
-  1. `educational` (Default / Recommended): Warm, engaging classroom feel with balanced contrast and vibrant markers.
-  2. `modern-saas`: Crisp, high-clarity tech aesthetic with sharp borders and vibrant blue markers.
-  3. `bold-kinetic`: High contrast punchy palette with intense accents and energetic tempo.
-  4. `premium-finance`: Sophisticated executive navy and emerald palette.
-  5. `editorial-minimal`: Understated, paper-like minimalism with slate and neutral tones.
-  6. `futuristic-tech`: Sleek dark-mode chalkboard/blueprint styling with neon cyan accents.
-- **Remotion Theme Provider**: Root template wraps entire composition in `<VideoVisualThemeProvider theme={visualTheme}>`.
-- **Dynamic Archetype Harmonization**: `DynamicWhiteboardSceneDirector` automatically adapts marker ink colors, accent lines, and canvas frame borders to the active theme palette when `markerColor === 'auto'`.
-- **Studio Theme Selector**: Step 3 (Style) features a dedicated 6 Master Themes grid with live color swatches and typography pairing badges.
+1. **Step 1: Upload (Voiceover Audio or Video Recording)**:
+   - Creator uploads narration audio (`.mp3`, `.wav`, `.m4a`) or video clip.
+   - Long recordings are accepted; the engine extracts and uses the first 90 seconds.
+   - Cloud transcribes speech and displays the live editorial transcript for verification.
+2. **Step 2: Music & Audio Design**:
+   - Creator selects background music from 14 curated AWS S3 tracks.
+   - Sets background music volume with auto-ducking to maintain vocal clarity.
+3. **Step 3: Board Style & Marker Color**:
+   - Chooses board theme (`Executive White`, `Dark Studio`, `Blueprint Grid`).
+   - Selects marker accent colors (`Executive Black`, `Sunset Orange`, `Royal Indigo`, `Emerald Green`).
+4. **Step 4: Live Phone Preview & Render**:
+   - Interactive 9:16 phone simulator previews the drawing hand and board layout in real time.
+   - Creator clicks **Render 1080p Whiteboard** to execute AWS Lambda cloud rendering.
+
+---
+
+## 3. UI/UX Design and Components
+
+- **Studio Route**: `/dashboard/whiteboard-video`
+- **Frontend Studio Component**: `components/dashboard/WhiteboardStudio.tsx`
+- **Public SEO Landing Page**: `/whiteboard-video` (`app/whiteboard-video/page.tsx`)
+- **Design Structure**: Pure White canvas (`#FFFFFF`) with fine borders (`#E2E8F0`) and responsive 3-row layout (`Stepper Header`, `Preview Work Area`, `Sticky Action Bar`).
+
+---
+
+## 4. Colors, Typography and Design Tokens
+
+- **Canvas Background**: Pure White (`#FFFFFF`) for studio chrome and executive whiteboard canvas (`#FAFAFA`).
+- **Primary Brand Accent**: Sunset Orange (`#FF5722` / `#F97316`) for active controls and primary CTA buttons.
+- **Marker Inks**: Charcoal Black (`#1E293B`), Studio Orange (`#EA580C`), and Blueprint Cyan (`#0284C7`).
+- **Typography**: Hand-drawn & Sans-serif typography (`font-sans`).
+
+---
+
+## 5. Technical Implementation
+
+- **Video Type ID**: `whiteboardVideo` / `WHITEBOARD_VIDEO`
+- **Remotion Composition ID**: `WHITEBOARD-VIDEO` (`1080×1920` @ 30 FPS)
+- **Remotion Template Directory**: `remotion/templates/WHITEBOARD_VIDEO/`
+- **AI Planning Engine**: Groq Qwen / Google Gemini 2.0 Flash (`asia-south1`) distills speech into structured whiteboard scenes.
+- **Speech Transcription**: Groq Whisper Cloud API.
+- **Render Engine**: AWS Lambda running Remotion cloud workers in `us-east-1`.
+
+---
+
+## 6. Business Logic, Duration and Credit Rules
+
+- **Aspect Ratio**: Strictly 9:16 Vertical Only (`1080×1920`).
+- **Maximum Output Duration**: Strictly **90 Seconds Max (90s / 2,700 frames @ 30 FPS)**.
+- **Credit Billing**: **Strictly 1 Credit** per video (Master Rule 4.1 for 9:16 Short-Form).
+- **Draft Preview**: 100% Free interactive browser preview before rendering.
+
+---
+
+## 7. Error Handling and Edge Cases
+
+- **No Speech Detected**: Flags `NO_SPEECH_DETECTED`; prompts user to upload audio with clear speech without deducting credits.
+- **AI Director Fallback**: Deterministic `planDeterministicWhiteboard` creates structured takeaway cards if AI director API fails.
+- **Render Interruption**: Credits are automatically refunded if cloud rendering encounters an AWS Lambda timeout.
+
+---
+
+## 8. Testing and Quality Assurance
+
+- **Typecheck Verification**: `npx tsc --noEmit` verifies all whiteboard props and drawing interfaces.
+- **Drawing Stroke Sync**: Confirm that hand-drawn stroke animation finishes at the exact word end timestamp.
+- **Usable Canvas Clamping**: Confirm that all drawn points fit strictly within `WB_USABLE_WIDTH` (940px) and `WB_USABLE_HEIGHT` (1560px).
+
+---
+
+## 9. Developer Notes and Guardrails
+
+- **Zero Local Rendering (Rule 0)**: Do not run local Remotion renders on developer machines; all rendering executes on AWS Lambda.
+- **Shared Geometry Constants**: Geometry limits are centralized in `lib/whiteboard/whiteboardConstants.ts`. Do not hardcode custom pixel bounds.

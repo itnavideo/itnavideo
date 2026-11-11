@@ -145,3 +145,11 @@ build_out.log
 *.log
 .system_cache/
 /scripts/scratch-tests/
+
+# --- LOCAL UTILITY SCRIPTS (not for repo) ---
+git-push.bat
+deploy-cloud.bat
+git-push-and-deploy.bat
+tsc_out.txt
+tsc_result.txt
+tsc_done.txt

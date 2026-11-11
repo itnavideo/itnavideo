@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 
 type BillingEntitlement = {
   active: boolean;
@@ -91,7 +93,6 @@ export default function FacelessShortsPageClient() {
   const [facelessBgmVolume, setFacelessBgmVolume] = useState(0.12);
   const [facelessPacingStyle, setFacelessPacingStyle] = useState<"clean" | "cinematic" | "documentary" | "dynamic">("cinematic");
   const [facelessEnableSfx, setFacelessEnableSfx] = useState<boolean>(true);
-  const [visualArtStyle, setVisualArtStyle] = useState<"realistic" | "3d" | "2d">("realistic");
   const [subtitleStyle, setSubtitleStyle] = useState<string>("glow-viral");
   const [creatorHandle, setCreatorHandle] = useState<string>("");
   const [denoiseVoice, setDenoiseVoice] = useState<boolean>(true);
@@ -326,7 +327,6 @@ export default function FacelessShortsPageClient() {
           visualTheme: activeStoryboard?.visualTheme || visualTheme || "modern-saas",
           backgroundTheme: activeStoryboard?.backgroundTheme || backgroundTheme || "solid-white",
           customBgUrl: "",
-          visualArtStyle: activeStoryboard?.visualArtStyle || visualArtStyle,
           sceneBlueprint: activeStoryboard?.sceneBlueprint,
           brollUrls: activeStoryboard?.brollUrls,
           approvedCaptions: activeStoryboard?.approvedCaptions,
@@ -399,13 +399,18 @@ export default function FacelessShortsPageClient() {
         studioName="Faceless Shorts AI"
         aspectRatioLabel="9:16 Shorts"
         badgeLabel="AI Faceless Shorts"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Studio Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("facelessShorts", billingEntitlement) ? (
+          <FeaturePaywall
+            featureName="Faceless Shorts"
+            description="Turn voiceover into viral 9:16 faceless shorts. Free accounts can use Auto Captions and the YouTube Subtitles Generator — upgrade to render faceless shorts in 1080p on the cloud."
+          />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="facelessShorts"
@@ -458,8 +463,6 @@ export default function FacelessShortsPageClient() {
             onPacingStyleChange={setFacelessPacingStyle}
             facelessEnableSfx={facelessEnableSfx}
             onEnableSfxChange={setFacelessEnableSfx}
-            visualArtStyle={visualArtStyle}
-            onVisualArtStyleChange={setVisualArtStyle}
             visualTheme={visualTheme}
             onVisualThemeChange={setVisualTheme}
             backgroundTheme={backgroundTheme}

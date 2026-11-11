@@ -10,6 +10,8 @@ import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine
 import { useAuth } from "@/components/auth/AuthContext";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 
 type BillingEntitlement = {
   active: boolean;
@@ -63,7 +65,6 @@ export default function FacelessVideoPageClient() {
   const [facelessBgmVolume, setFacelessBgmVolume] = useState(0.12);
   const [facelessPacingStyle, setFacelessPacingStyle] = useState<"clean" | "cinematic" | "documentary" | "dynamic">("cinematic");
   const [facelessEnableSfx, setFacelessEnableSfx] = useState<boolean>(true);
-  const [visualArtStyle, setVisualArtStyle] = useState<"realistic" | "3d" | "2d">("realistic");
   const [subtitleStyle, setSubtitleStyle] = useState<string>("glow-viral");
   const [captionAnimationStyle, setCaptionAnimationStyle] = useState<"mrbeast" | "handwriting" | "bouncy" | "smooth" | "capsule" | "decodingyt">("smooth");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
@@ -226,7 +227,6 @@ export default function FacelessVideoPageClient() {
           mediaKey,
           topicTitle,
           assetMode: assetSourceMode,
-          visualArtStyle,
           uploadedImageUrls,
           backgroundTheme,
           brandNamesHint,
@@ -342,7 +342,6 @@ export default function FacelessVideoPageClient() {
           visualTheme: activeStoryboard?.visualTheme || visualTheme || "modern-saas",
           backgroundTheme: "solid-white",
           customBgUrl: "",
-          visualArtStyle: activeStoryboard?.visualArtStyle || visualArtStyle,
           sceneBlueprint: activeStoryboard?.sceneBlueprint,
           brollUrls: activeStoryboard?.brollUrls,
           approvedCaptions: activeStoryboard?.approvedCaptions,
@@ -581,13 +580,18 @@ export default function FacelessVideoPageClient() {
         studioName="Faceless Video AI"
         aspectRatioLabel="16:9 Cinema"
         badgeLabel="YouTube Cinema"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Canvas - Full Screen Fluid Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("facelessVideo", billingEntitlement) ? (
+          <FeaturePaywall
+            featureName="Faceless Video"
+            description="Turn voiceover narration into 16:9 documentary-style faceless videos. Free accounts can use Auto Captions and the YouTube Subtitles Generator — upgrade to render faceless videos in 1080p on the cloud."
+          />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="facelessVideo"
@@ -643,8 +647,6 @@ export default function FacelessVideoPageClient() {
             onPacingStyleChange={setFacelessPacingStyle}
             facelessEnableSfx={facelessEnableSfx}
             onEnableSfxChange={setFacelessEnableSfx}
-            visualArtStyle={visualArtStyle}
-            onVisualArtStyleChange={setVisualArtStyle}
             visualTheme={visualTheme}
             onVisualThemeChange={setVisualTheme}
             backgroundTheme={backgroundTheme}

@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { CompareExplainerStudio } from "@/components/dashboard/CompareExplainerStudio";
 import InteractiveRenderEngine from "@/components/render/InteractiveRenderEngine";
+import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
+import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
 import { useAuth } from "@/components/auth/AuthContext";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
@@ -313,13 +315,15 @@ export default function CompareExplainerPage() {
         studioName="Compare Explainer"
         aspectRatioLabel="9:16 Shorts"
         badgeLabel="VS Breakdown"
-        userRemainingCredits={billingEntitlement?.usage?.remaining ?? userRemainingCredits}
-        isWorking={Boolean(isWorking || (typeof jobStatus !== 'undefined' && jobStatus.state !== 'idle'))}
+        userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
+        isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />
 
       {/* Main Canvas - Full Screen Fluid Workspace */}
       <main className="flex-1 w-full overflow-hidden flex flex-col">
-        {jobStatus.state !== "idle" ? (
+        {billingEntitlement && isFeatureLockedForUser("compare", billingEntitlement) ? (
+          <FeaturePaywall featureName="Compare Explainer" description="Create side-by-side versus comparison reels. Free accounts can use Auto Captions and YouTube Subtitles — upgrade to access Compare Explainer." />
+        ) : jobStatus.state !== "idle" ? (
           <div className="max-w-4xl mx-auto py-6 px-4 overflow-y-auto w-full">
             <InteractiveRenderEngine
               mode="compare"

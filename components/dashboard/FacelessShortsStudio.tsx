@@ -242,9 +242,6 @@ export interface FacelessShortsStudioProps {
   facelessEnableSfx?: boolean;
   onEnableSfxChange?: (enabled: boolean) => void;
 
-  visualArtStyle?: "realistic" | "3d" | "2d" | string;
-  onVisualArtStyleChange?: (style: any) => void;
-
   visualTheme?: string;
   onVisualThemeChange?: (themeId: string) => void;
 
@@ -296,8 +293,6 @@ export function FacelessShortsStudio({
   onBgmVolumeChange,
   facelessEnableSfx = true,
   onEnableSfxChange,
-  visualArtStyle = "realistic",
-  onVisualArtStyleChange,
   visualTheme = "modern-saas",
   onVisualThemeChange,
   backgroundTheme = "solid-white",
@@ -393,7 +388,7 @@ export function FacelessShortsStudio({
           }
         }
       }
-    } catch {}
+    } catch { }
   }, []);
 
   const applyBrandKit = (kit: FacelessBrandKit, userTriggered = true) => {
@@ -437,7 +432,7 @@ export function FacelessShortsStudio({
       const next = [newKit, ...updated.filter((k) => k.id !== newKit.id)];
       try {
         localStorage.setItem("itnavideo_faceless_brand_kits", JSON.stringify(next));
-      } catch {}
+      } catch { }
       return next;
     });
 
@@ -453,7 +448,7 @@ export function FacelessShortsStudio({
       const next = prev.filter((k) => k.id !== kitId);
       try {
         localStorage.setItem("itnavideo_faceless_brand_kits", JSON.stringify(next));
-      } catch {}
+      } catch { }
       return next;
     });
     if (selectedBrandKitId === kitId) setSelectedBrandKitId(null);
@@ -467,7 +462,7 @@ export function FacelessShortsStudio({
       }));
       try {
         localStorage.setItem("itnavideo_faceless_brand_kits", JSON.stringify(next));
-      } catch {}
+      } catch { }
       return next;
     });
     setBrandKitSaveMessage("Default brand kit updated!");
@@ -632,15 +627,9 @@ export function FacelessShortsStudio({
       setRawAudioDuration(dur);
       if (dur > 90) {
         setAudioDuration(90);
-        setAudioTrimEndSec(Math.min(90, Math.round(dur)));
-        if (dur <= 95) {
-          const needed = Number((dur / 89.0).toFixed(2));
-          setAudioWarning(`Audio is ${Math.round(dur)}s (slightly over the 90s Shorts limit). Auto-Speedup (${needed}x) is available below to fit your entire thought without cutting.`);
-          setAudioHealth({ status: 'exceeds90s', message: `Audio is ${Math.round(dur)}s (92-95s auto-speedup available)` });
-        } else {
-          setAudioWarning(`Audio duration is ${Math.round(dur)}s (exceeds the 90-second Shorts limit). Use the visual trimmer below or switch to 16:9 Faceless Video (up to 5 min).`);
-          setAudioHealth({ status: 'exceeds90s', message: `Audio is ${Math.round(dur)}s (Exceeds 90s limit)` });
-        }
+        setAudioTrimEndSec(90);
+        setAudioWarning(`Videos and audio longer than 90 seconds are supported. Only the first 90 seconds will be used.`);
+        setAudioHealth({ status: 'exceeds90s', message: `Audio is ${Math.round(dur)}s • First 90s will be used` });
       } else {
         setAudioDuration(Math.round(dur));
         setAudioHealth({ status: 'good', message: `Voiceover Ready (~${Math.round(dur)}s) • Healthy Duration` });
@@ -682,7 +671,7 @@ export function FacelessShortsStudio({
           };
           reader.readAsArrayBuffer(selectedFile.slice(0, 500000));
         }
-      } catch {}
+      } catch { }
     };
 
     tempAudio.src = url;
@@ -717,7 +706,7 @@ export function FacelessShortsStudio({
       const url = getBgmTrackAudioUrl(track);
       const audio = new Audio(url);
       audio.volume = Math.max(0.1, Math.min(1, (facelessBgmVolume || 0.12) * 2.5));
-      audio.play().catch(() => {});
+      audio.play().catch(() => { });
       audio.onended = () => setPlayingBgmId(null);
       audioAuditionRef.current = audio;
       setPlayingBgmId(track.id);
@@ -834,22 +823,20 @@ export function FacelessShortsStudio({
                 key={s.step}
                 type="button"
                 onClick={() => setCurrentStep(s.step)}
-                className={`flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all ${
-                  isActive
-                    ? "bg-orange-50/80 border-orange-200 text-orange-950 ring-1 ring-orange-400/40 shadow-xs"
-                    : isCompleted
+                className={`flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all ${isActive
+                  ? "bg-orange-50/80 border-orange-200 text-orange-950 ring-1 ring-orange-400/40 shadow-xs"
+                  : isCompleted
                     ? "bg-slate-50 border-slate-200/80 text-slate-700 hover:bg-slate-100/80 cursor-pointer"
                     : "bg-white/60 border-slate-200/60 text-slate-400 hover:text-slate-600 cursor-pointer"
-                }`}
+                  }`}
               >
                 <div
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-black transition-all ${
-                    isActive
-                      ? "bg-orange-600 text-white shadow-2xs"
-                      : isCompleted
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-black transition-all ${isActive
+                    ? "bg-orange-600 text-white shadow-2xs"
+                    : isCompleted
                       ? "bg-emerald-600 text-white"
                       : "bg-slate-100 text-slate-500 border border-slate-200"
-                  }`}
+                    }`}
                 >
                   {isCompleted ? <Check size={14} strokeWidth={3} /> : s.step}
                 </div>
@@ -909,13 +896,12 @@ export function FacelessShortsStudio({
                     </div>
                   </div>
                   {selectedFile && (
-                    <span className={`text-xs font-black px-2.5 py-1 rounded-full border ${
-                      audioError
-                        ? "bg-rose-50 text-rose-700 border-rose-200"
-                        : audioWarning
+                    <span className={`text-xs font-black px-2.5 py-1 rounded-full border ${audioError
+                      ? "bg-rose-50 text-rose-700 border-rose-200"
+                      : audioWarning
                         ? "bg-amber-50 text-amber-700 border-amber-200"
                         : "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    }`}>
+                      }`}>
                       {audioError ? "Error in Audio" : `~${audioDuration}s Loaded`}
                     </span>
                   )}
@@ -932,14 +918,25 @@ export function FacelessShortsStudio({
                   </div>
                 )}
 
-                {/* Audio Duration (>90s) / Volume Notice Banner */}
+                {/* Audio Duration Notice Banner */}
                 {!audioError && audioWarning && (
-                  <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-amber-900 animate-fadeIn">
-                    <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
-                    <div className="text-xs space-y-1.5 flex-1">
-                      <p className="font-black text-amber-950">Audio Optimization Notice</p>
-                      <p className="text-amber-800 leading-relaxed">{audioWarning}</p>
-                      {audioDurationSec > 90 && (
+                  <div className={`flex items-start gap-3 rounded-xl border p-4 text-xs animate-fadeIn ${audioWarning.includes("longer than")
+                      ? "border-blue-200 bg-blue-50/80 text-blue-900"
+                      : "border-amber-200 bg-amber-50/80 text-amber-900"
+                    }`}>
+                    {audioWarning.includes("longer than") ? (
+                      <Clock size={18} className="text-blue-600 shrink-0 mt-0.5" />
+                    ) : (
+                      <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                    )}
+                    <div className="space-y-1.5 flex-1">
+                      <p className={`font-black ${audioWarning.includes("longer than") ? "text-blue-950" : "text-amber-950"}`}>
+                        {audioWarning.includes("longer than") ? "Supported 9:16 Duration Policy" : "Audio Optimization Notice"}
+                      </p>
+                      <p className={`leading-relaxed ${audioWarning.includes("longer than") ? "text-blue-800" : "text-amber-800"}`}>
+                        {audioWarning}
+                      </p>
+                      {!audioWarning.includes("longer than") && audioDurationSec > 90 && (
                         <div className="pt-1">
                           <a
                             href="/dashboard/faceless-video"
@@ -958,9 +955,8 @@ export function FacelessShortsStudio({
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50/40 p-4">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-white shrink-0 ${
-                          audioError ? "bg-rose-600" : "bg-emerald-600"
-                        }`}>
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-white shrink-0 ${audioError ? "bg-rose-600" : "bg-emerald-600"
+                          }`}>
                           {audioError ? <AlertCircle size={20} /> : <Check size={20} />}
                         </div>
                         <div className="min-w-0">
@@ -1002,11 +998,10 @@ export function FacelessShortsStudio({
                             const rate = Number((rawAudioDuration / 89).toFixed(2));
                             setAudioPlaybackRate((prev) => (prev > 1.0 ? 1.0 : rate));
                           }}
-                          className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                            audioPlaybackRate > 1.0
-                              ? "bg-orange-600 text-white shadow-xs"
-                              : "bg-white border border-orange-300 text-orange-700 hover:bg-orange-100"
-                          }`}
+                          className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${audioPlaybackRate > 1.0
+                            ? "bg-orange-600 text-white shadow-xs"
+                            : "bg-white border border-orange-300 text-orange-700 hover:bg-orange-100"
+                            }`}
                         >
                           {audioPlaybackRate > 1.0 ? `Speedup Active (${audioPlaybackRate}x)` : `Enable ${(rawAudioDuration / 89).toFixed(2)}x`}
                         </button>
@@ -1115,14 +1110,12 @@ export function FacelessShortsStudio({
                   <button
                     type="button"
                     onClick={() => onDenoiseVoiceChange && onDenoiseVoiceChange(!denoiseVoice)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      denoiseVoice ? "bg-orange-600" : "bg-slate-200"
-                    }`}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${denoiseVoice ? "bg-orange-600" : "bg-slate-200"
+                      }`}
                   >
                     <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        denoiseVoice ? "translate-x-5" : "translate-x-0"
-                      }`}
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${denoiseVoice ? "translate-x-5" : "translate-x-0"
+                        }`}
                     />
                   </button>
                 </div>
@@ -1145,6 +1138,7 @@ export function FacelessShortsStudio({
                     </div>
                   </div>
 
+                  {assetSourceMode !== "library" && (
                   <div className="flex items-center gap-2">
                     <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer shadow-2xs">
                       <Plus size={14} />
@@ -1169,12 +1163,48 @@ export function FacelessShortsStudio({
                       />
                     </label>
                   </div>
+                  )}
+                </div>
+
+                {/* Visual Source Selector: Itnavideo Assets / My Uploads / Both (Mix) */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">
+                    Visual Source
+                  </span>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([
+                      { id: "library", label: "Itnavideo Assets", desc: "Curated library" },
+                      { id: "upload", label: "My Uploads", desc: "Your media only" },
+                      { id: "mix", label: "Both (Mix)", desc: "Uploads + library" },
+                    ] as const).map((opt) => {
+                      const active = assetSourceMode === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => onAssetSourceModeChange(opt.id)}
+                          className={`flex flex-col items-start gap-0.5 rounded-xl border p-2.5 text-left transition ${
+                            active
+                              ? "border-orange-500 bg-orange-50 text-slate-900 shadow-xs"
+                              : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          <span className="text-[11px] font-black">{opt.label}</span>
+                          <span className="text-[10px] text-slate-500">{opt.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {totalAssetsCount === 0 ? (
                   <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center">
                     <p className="text-xs font-semibold text-slate-500">
-                      No custom visuals added. The AI director will use rich animated vector illustrations, typographic hooks, and SVG diagrams automatically.
+                      {assetSourceMode === "library"
+                        ? "Itnavideo's curated realistic photo library will be auto-matched to your narration, alongside animated vector illustrations and SVG diagrams."
+                        : assetSourceMode === "mix"
+                        ? "Add your own images/clips to pin at selected beats; remaining scenes will be filled from the Itnavideo curated library."
+                        : "Add your own images and video clips above. The AI director will place them across scenes, with animated vector illustrations and SVG diagrams filling the rest."}
                     </p>
                   </div>
                 ) : (
@@ -1272,11 +1302,10 @@ export function FacelessShortsStudio({
                         key={cat}
                         type="button"
                         onClick={() => setMusicCategory(cat)}
-                        className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition cursor-pointer ${
-                          musicCategory === cat
-                            ? "bg-orange-600 text-white shadow-2xs"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
+                        className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition cursor-pointer ${musicCategory === cat
+                          ? "bg-orange-600 text-white shadow-2xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
                       >
                         {cat}
                       </button>
@@ -1293,11 +1322,10 @@ export function FacelessShortsStudio({
                       <div
                         key={track.id}
                         onClick={() => setSelectedBgmId(track.id)}
-                        className={`group relative flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/50 shadow-xs ring-1 ring-orange-400/40"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
-                        }`}
+                        className={`group relative flex items-center justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${isSelected
+                          ? "border-orange-500 bg-orange-50/50 shadow-xs ring-1 ring-orange-400/40"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                          }`}
                       >
                         <div className="min-w-0 flex-1 pr-2">
                           <div className="flex items-center gap-1.5">
@@ -1320,11 +1348,10 @@ export function FacelessShortsStudio({
                               e.stopPropagation();
                               handleToggleAudition(track);
                             }}
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition ${
-                              isAuditioning
-                                ? "bg-orange-600 border-orange-600 text-white"
-                                : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
-                            }`}
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition ${isAuditioning
+                              ? "bg-orange-600 border-orange-600 text-white"
+                              : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
+                              }`}
                             title={isAuditioning ? "Pause Preview" : "Play Preview"}
                           >
                             {isAuditioning ? <Pause size={13} /> : <Play size={13} className="ml-0.5" />}
@@ -1406,14 +1433,12 @@ export function FacelessShortsStudio({
                   <button
                     type="button"
                     onClick={() => onEnableSfxChange && onEnableSfxChange(!facelessEnableSfx)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      facelessEnableSfx ? "bg-orange-600" : "bg-slate-200"
-                    }`}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${facelessEnableSfx ? "bg-orange-600" : "bg-slate-200"
+                      }`}
                   >
                     <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        facelessEnableSfx ? "translate-x-5" : "translate-x-0"
-                      }`}
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${facelessEnableSfx ? "translate-x-5" : "translate-x-0"
+                        }`}
                     />
                   </button>
                 </div>
@@ -1567,11 +1592,10 @@ export function FacelessShortsStudio({
                         <div
                           key={kit.id}
                           onClick={() => applyBrandKit(kit)}
-                          className={`group relative flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                            isActive
-                              ? "border-orange-500 bg-orange-50/60 ring-1 ring-orange-400/40 shadow-xs"
-                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 hover:border-slate-300"
-                          }`}
+                          className={`group relative flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${isActive
+                            ? "border-orange-500 bg-orange-50/60 ring-1 ring-orange-400/40 shadow-xs"
+                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 hover:border-slate-300"
+                            }`}
                         >
                           <div className="min-w-0 flex-1 pr-2">
                             <div className="flex items-center gap-1.5">
@@ -1655,11 +1679,10 @@ export function FacelessShortsStudio({
                       key={cat}
                       type="button"
                       onClick={() => setCaptionCategoryTab(cat)}
-                      className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition cursor-pointer ${
-                        captionCategoryTab === cat
-                          ? "bg-orange-600 text-white shadow-2xs"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
+                      className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition cursor-pointer ${captionCategoryTab === cat
+                        ? "bg-orange-600 text-white shadow-2xs"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
                     >
                       {cat}
                     </button>
@@ -1675,11 +1698,10 @@ export function FacelessShortsStudio({
                         key={style.id}
                         type="button"
                         onClick={() => onSubtitleStyleChange && onSubtitleStyleChange(style.id)}
-                        className={`group relative flex flex-col items-center justify-between p-3 rounded-xl border text-center transition cursor-pointer min-h-[110px] ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/50 shadow-xs ring-1 ring-orange-400/40"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
-                        }`}
+                        className={`group relative flex flex-col items-center justify-between p-3 rounded-xl border text-center transition cursor-pointer min-h-[110px] ${isSelected
+                          ? "border-orange-500 bg-orange-50/50 shadow-xs ring-1 ring-orange-400/40"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                          }`}
                       >
                         <div className="w-full h-12 flex items-center justify-center rounded-lg bg-slate-950 p-2 overflow-hidden shadow-inner">
                           {renderPreviewCaptionWords(style.id)}
@@ -1716,11 +1738,10 @@ export function FacelessShortsStudio({
                           key={pos}
                           type="button"
                           onClick={() => onCaptionPositionChange && onCaptionPositionChange(pos)}
-                          className={`py-2 rounded-xl text-xs font-bold capitalize transition border ${
-                            captionPosition === pos
-                              ? "bg-orange-600 border-orange-600 text-white shadow-2xs"
-                              : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
-                          }`}
+                          className={`py-2 rounded-xl text-xs font-bold capitalize transition border ${captionPosition === pos
+                            ? "bg-orange-600 border-orange-600 text-white shadow-2xs"
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                            }`}
                         >
                           {pos}
                         </button>
@@ -1741,11 +1762,10 @@ export function FacelessShortsStudio({
                             onCaptionAnimationStyleChange &&
                             onCaptionAnimationStyleChange(flavor as any)
                           }
-                          className={`py-2 rounded-xl text-xs font-bold capitalize transition border ${
-                            captionAnimationStyle === flavor
-                              ? "bg-orange-600 border-orange-600 text-white shadow-2xs"
-                              : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
-                          }`}
+                          className={`py-2 rounded-xl text-xs font-bold capitalize transition border ${captionAnimationStyle === flavor
+                            ? "bg-orange-600 border-orange-600 text-white shadow-2xs"
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                            }`}
                         >
                           {flavor}
                         </button>
@@ -1783,11 +1803,10 @@ export function FacelessShortsStudio({
                           setActiveVisualTheme(theme.id);
                           onVisualThemeChange?.(theme.id);
                         }}
-                        className={`group relative flex flex-col p-4 rounded-xl border text-left transition cursor-pointer ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
-                        }`}
+                        className={`group relative flex flex-col p-4 rounded-xl border text-left transition cursor-pointer ${isSelected
+                          ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                          }`}
                       >
                         {/* Theme Header & Check */}
                         <div className="flex items-center justify-between w-full mb-2.5">
@@ -1873,11 +1892,10 @@ export function FacelessShortsStudio({
                         key={theme.id}
                         type="button"
                         onClick={() => onBackgroundThemeChange && onBackgroundThemeChange(theme.id)}
-                        className={`group relative flex flex-col p-3.5 rounded-xl border text-left transition cursor-pointer ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
-                        }`}
+                        className={`group relative flex flex-col p-3.5 rounded-xl border text-left transition cursor-pointer ${isSelected
+                          ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
+                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
+                          }`}
                       >
                         {/* Swatch Preview Box */}
                         <div
@@ -1999,8 +2017,8 @@ export function FacelessShortsStudio({
             </div>
           )}
 
-          {/* STEP 4: Preview (9:16 Shorts Simulator) */}
-          {currentStep === 4 && (
+          {/* STEP 4 (final): Preview (9:16 Shorts Simulator) */}
+          {currentStep === SHORTS_STEPS.length && (
             <div className="space-y-6 animate-fadeIn">
               <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6">
                 <div className="flex items-center justify-between">
@@ -2041,11 +2059,10 @@ export function FacelessShortsStudio({
                         key={plt}
                         type="button"
                         onClick={() => setOverlayPlatform(plt)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition cursor-pointer ${
-                          overlayPlatform === plt
-                            ? "bg-white text-slate-900 shadow-xs"
-                            : "text-slate-600 hover:text-slate-900"
-                        }`}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition cursor-pointer ${overlayPlatform === plt
+                          ? "bg-white text-slate-900 shadow-xs"
+                          : "text-slate-600 hover:text-slate-900"
+                          }`}
                       >
                         {plt === "youtube" ? "YouTube Shorts" : plt === "instagram" ? "Instagram Reels" : plt === "tiktok" ? "TikTok" : "Clean View"}
                       </button>

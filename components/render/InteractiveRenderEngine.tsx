@@ -83,7 +83,6 @@ interface StepDef {
 }
 
 // ── MODE-SPECIFIC PIPELINE DEFINITIONS (Rule 8: Video Type Independence) ──
-export const getRenderStepDefinitions = getModeSteps;
 function getModeSteps(mode: string): StepDef[] {
   switch (mode) {
     case 'aiVideoPolisher':
@@ -204,6 +203,8 @@ function getModeSteps(mode: string): StepDef[] {
       ];
   }
 }
+
+export const getRenderStepDefinitions = getModeSteps;
 
 const ENGINE_CREATOR_TIPS = [
   { kicker: "VIRAL RETENTION SECRET", tip: "Cutting to new B-roll every 3–4 seconds keeps viewer retention 2.4× higher than static scenes." },
