@@ -30,6 +30,8 @@ export function isFreeTierUser(ent?: FreeTierEntitlement | null): boolean {
   if (!ent) return true; // entitlement not loaded yet → treat conservatively as free
   if (!ent.active) return true; // no active plan at all
   if (ent.planId === 'free-signup-credit') return true; // free trial tier
+  if (ent.planId === 'founder-test') return false; // founder always has full access
+  if (ent.planId === 'dev-test') return false; // local dev always has full access
   return false; // active paid plan
 }
 
