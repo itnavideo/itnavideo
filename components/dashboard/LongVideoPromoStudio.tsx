@@ -52,7 +52,6 @@ import {
 export const PROMO_STEPS = [
   { step: 1, title: "Upload", desc: "Clip & Thumbnail" },
   { step: 2, title: "Style", desc: "Captions & CTA" },
-  { step: 3, title: "Preview", desc: "9:16 Shorts Simulator" },
 ] as const;
 
 export function extractYoutubeId(url: string): string | null {

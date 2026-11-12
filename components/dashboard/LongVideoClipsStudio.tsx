@@ -55,7 +55,6 @@ import {
 export const CLIPS_STEPS = [
   { step: 1, title: "Upload", desc: "Long Video Source" },
   { step: 2, title: "Settings", desc: "Clip Count & Duration" },
-  { step: 3, title: "Preview", desc: "Viral Clips & Hooks" },
 ] as const;
 
 // 32 Sound Wave visualizer bars

@@ -54,7 +54,6 @@ export const POLISHER_STEPS = [
   { step: 1, title: "Upload", desc: "Takes & PIP Callouts" },
   { step: 2, title: "Music", desc: "Soundtrack & Audio" },
   { step: 3, title: "Style", desc: "Zooms, Cuts & Captions" },
-  { step: 4, title: "Preview", desc: "16:9 Cinema Simulator" },
 ] as const;
 
 export interface UploadedMediaItem {

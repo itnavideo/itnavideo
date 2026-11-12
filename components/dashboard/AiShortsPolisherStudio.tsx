@@ -50,7 +50,6 @@ export const SHORTS_POLISHER_STEPS = [
   { step: 1, title: "Upload", desc: "Takes & Overlays" },
   { step: 2, title: "Music", desc: "Soundtrack & Audio" },
   { step: 3, title: "Style", desc: "Punch-Ins & Captions" },
-  { step: 4, title: "Preview", desc: "9:16 Shorts Simulator" },
 ] as const;
 
 export interface UploadedMediaItem {

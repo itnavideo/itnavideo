@@ -57,7 +57,6 @@ export const COMPARE_STEPS = [
   { step: 2, title: "Subjects", desc: "2 Comparison Images" },
   { step: 3, title: "Music", desc: "Soundtrack & Volume" },
   { step: 4, title: "Character", desc: "Presenter & Theme" },
-  { step: 5, title: "Preview", desc: "9:16 Shorts Simulator" },
 ] as const;
 
 // 32 Sound Wave visualizer bars

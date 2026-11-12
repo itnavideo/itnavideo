@@ -180,7 +180,6 @@ export const STUDIO_STEPS = [
   { step: 1, title: 'Upload', desc: 'Audio & Photos' },
   { step: 2, title: 'Music', desc: 'Soundtrack & Volume' },
   { step: 3, title: 'Style', desc: 'Captions & Motion' },
-  { step: 4, title: 'Preview', desc: 'Live Review & Render' },
 ] as const;
 
 export interface ImageToVideoStudioProps {

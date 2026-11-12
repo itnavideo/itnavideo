@@ -46,7 +46,6 @@ import {
 export const YOUTUBE_SUBTITLES_STEPS = [
   { step: 1, title: "Upload", desc: "16:9 Video or Audio" },
   { step: 2, title: "Style", desc: "Subtitles & Safe-Zone" },
-  { step: 3, title: "Preview", desc: "16:9 Cinema Review" },
 ] as const;
 
 // 32 Sound Wave visualizer bars

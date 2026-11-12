@@ -61,7 +61,6 @@ export const FACELESS_STEPS = [
   { step: 1, title: "Upload", desc: "Audio & Media" },
   { step: 2, title: "Music", desc: "Soundtrack & Volume" },
   { step: 3, title: "Style", desc: "Captions & Theme" },
-  { step: 4, title: "Preview", desc: "16:9 Cinema & Scenes" },
 ] as const;
 
 // 32 Sound Wave visualizer bars

@@ -77,7 +77,6 @@ export const SHORTS_STEPS = [
   { step: 1, title: "Upload", desc: "Voiceover & Visuals" },
   { step: 2, title: "Music", desc: "Soundtrack & Audio" },
   { step: 3, title: "Style", desc: "Captions & Pacing" },
-  { step: 4, title: "Preview", desc: "9:16 Shorts Simulator" },
 ] as const;
 
 // Legacy export aliases for backward compatibility

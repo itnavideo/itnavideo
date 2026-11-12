@@ -95,7 +95,6 @@ export const WHITEBOARD_STEPS = [
   { step: 1, title: "Upload", desc: "Audio & Script" },
   { step: 2, title: "Music", desc: "Soundtrack & SFX" },
   { step: 3, title: "Style", desc: "Hand, Marker & Fonts" },
-  { step: 4, title: "Preview", desc: "Studio Monitor & Scenes" },
 ] as const;
 
 // 32 Sound Wave visualizer bars
