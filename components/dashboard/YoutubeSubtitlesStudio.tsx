@@ -757,6 +757,24 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
                     })}
                   </div>
                 </div>
+
+                {/* ── Deliverables Clarification Card (Audit PDF 4) ── */}
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <CheckCircle2 size={16} />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900">Dual Export Deliverables Guaranteed</p>
+                      <p className="text-slate-600 text-[11px]">
+                        Render produces a 1080p MP4 with burned-in subtitles + standalone .SRT and .VTT files for native YouTube caption upload.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="font-mono font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-lg shrink-0 self-start sm:self-auto">
+                    FREE · 5 Videos/Day
+                  </span>
+                </div>
               </div>
             </div>
           )}
@@ -855,9 +873,9 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
                     </label>
                     <div className="space-y-1.5">
                       {[
-                        { id: "scrubber", label: "Scrubber Safe (Recommended)", desc: "Elevated above YouTube UI scrubber bar" },
-                        { id: "standard", label: "Standard Lower Third", desc: "Classic lower subtitle placement" },
-                        { id: "high", label: "Center-Low Pop", desc: "Higher placement for podcast heads" },
+                        { id: "scrubber", label: "YouTube Web Safe (84px)", desc: "Elevated above red scrubber progress bar" },
+                        { id: "high", label: "TV / Overscan Safe (120px)", desc: "Guaranteed safe on Smart TV YouTube apps" },
+                        { id: "standard", label: "Standard Lower Third (64px)", desc: "Classic documentary subtitle placement" },
                       ].map((zone) => (
                         <button
                           key={zone.id}
@@ -865,12 +883,12 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
                           onClick={() => onYoutubeSubtitleSafeZoneChange?.(zone.id as any)}
                           className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${
                             youtubeSubtitleSafeZone === zone.id
-                              ? "border-orange-500 bg-orange-50 text-orange-600"
+                              ? "border-orange-500 bg-orange-50 text-orange-700 ring-2 ring-orange-500/20"
                               : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
                           }`}
                         >
                           <div>{zone.label}</div>
-                          <div className="text-[10px] text-slate-400 font-normal">{zone.desc}</div>
+                          <div className="text-[10px] text-slate-500 font-normal">{zone.desc}</div>
                         </button>
                       ))}
                     </div>
@@ -926,6 +944,24 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
                       ))}
                     </div>
                   </div>
+                </div>
+
+                {/* ── Deliverables Clarification Card (Audit PDF 4) ── */}
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <CheckCircle2 size={16} />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900">Dual Export Deliverables Guaranteed</p>
+                      <p className="text-slate-600 text-[11px]">
+                        Render produces a 1080p MP4 with burned-in subtitles + standalone .SRT and .VTT files for native YouTube caption upload.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="font-mono font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-lg shrink-0 self-start sm:self-auto">
+                    FREE · 5 Videos/Day
+                  </span>
                 </div>
               </div>
             </div>

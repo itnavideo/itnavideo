@@ -23,7 +23,8 @@ import {
   Columns,
   BookOpen,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  Zap
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';

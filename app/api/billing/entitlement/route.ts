@@ -25,8 +25,10 @@ export async function GET(request: NextRequest) {
         ok: true,
         active: true,
         entitlement: {
+          active: true,
+          status: "active",
           userId: effectiveUserId,
-          email: email || "rohi@itnavideo.com",
+          email: email || "itnavideo@gmail.com",
           planId: founderAccess.planId,
           planName: founderAccess.planName,
           monthlyVideoLimit: founderAccess.limit,
@@ -34,7 +36,6 @@ export async function GET(request: NextRequest) {
           currency: "INR",
           paymentId: "internal-founder",
           orderId: "internal-founder",
-          status: "active",
           activatedAt: "2000-01-01T00:00:00.000Z",
           expiresAt: founderAccess.expiresAt,
         },
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         ok: true,
         active,
-        entitlement: { ...entitlement, creditRenewalAt: creditWindow.endAt },
+        entitlement: { ...entitlement, active: true, creditRenewalAt: creditWindow.endAt },
         usage,
         creditWindow,
       });

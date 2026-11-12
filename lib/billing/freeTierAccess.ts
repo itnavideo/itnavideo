@@ -13,6 +13,12 @@
 export type FreeTierEntitlement = {
   active?: boolean;
   planId?: string;
+  status?: string;
+  usage?: {
+    used?: number;
+    limit?: number;
+    remaining?: number;
+  };
 };
 
 /** Feature ids that remain accessible to free users. */
@@ -28,11 +34,33 @@ export const FREE_FEATURE_IDS = new Set<string>([
  */
 export function isFreeTierUser(ent?: FreeTierEntitlement | null): boolean {
   if (!ent) return true; // entitlement not loaded yet → treat conservatively as free
-  if (!ent.active) return true; // no active plan at all
-  if (ent.planId === 'free-signup-credit') return true; // free trial tier
-  if (ent.planId === 'founder-test') return false; // founder always has full access
-  if (ent.planId === 'dev-test') return false; // local dev always has full access
-  return false; // active paid plan
+
+  // 1. Founder and dev testers always have full access to all features
+  if (
+    ent.planId === 'founder-test' ||
+    ent.planId === 'dev-test' ||
+    ent.planId === 'dev-tester'
+  ) {
+    return false;
+  }
+
+  // 2. If user has active remaining credits on a paid/founder plan, unlock everything
+  if (
+    typeof ent.usage?.remaining === 'number' &&
+    ent.usage.remaining > 0 &&
+    ent.planId !== 'free-signup-credit'
+  ) {
+    return false;
+  }
+
+  // 3. Free trial signup credit is restricted to free features only
+  if (ent.planId === 'free-signup-credit') return true;
+
+  // 4. Inactive plan
+  if (!ent.active && ent.status !== 'active') return true;
+
+  // 5. Active paid plan
+  return false;
 }
 
 /** Whether a given feature id is available to free-tier users. */

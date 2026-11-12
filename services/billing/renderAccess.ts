@@ -29,7 +29,7 @@ export type RenderAccess = {
 };
 
 export const FOUNDER_USER_IDS = [
-  "a50a8342-f362-4f49-adfe-fc7a9a4e14db", // rohi@itnavideo.com
+  "itnavideo@gmail.com",
 ];
 
 type RenderAccessRequest = {
@@ -285,7 +285,7 @@ function isFounderTestEmail(email: string) {
 
 function getFounderTestEmails() {
   const envEmails = (process.env.FOUNDER_TEST_EMAILS || process.env.INTERNAL_TEST_EMAILS || "").split(/[\s,;]+/).map((item) => item.trim().toLowerCase()).filter(Boolean);
-  return Array.from(new Set([...envEmails, 'rohi@itnavideo.com', 'itnavideo@gmail.com']));
+  return Array.from(new Set([...envEmails, 'itnavideo@gmail.com']));
 }
 
 function requireUserId(value: string) {

@@ -16,8 +16,6 @@
  * Total: 500+ unique vector concepts ensuring ZERO visual repetition.
  */
 
-import { searchSvgs as searchS3Svgs } from '@/services/ai/svgLibrary';
-
 export interface SvgConceptItem {
   id: string;
   name: string;
@@ -486,25 +484,6 @@ export function resolveSvgFromMasterCatalog(sentenceText: string, avoidIds: stri
 
   const clean = sentenceText.toLowerCase();
   const avoidSet = new Set(avoidIds);
-
-  // 0. Prefer S3-hosted designed SVG illustrations when available.
-  // Falls through silently to the procedural catalog when the library is empty.
-  try {
-    const s3Matches = searchS3Svgs(sentenceText, { avoidIds, limit: 1 });
-    if (s3Matches.length > 0) {
-      const m = s3Matches[0];
-      return {
-        id: m.id,
-        name: m.title,
-        category: m.category,
-        keywords: m.keywords,
-        url: m.url,
-        paths: [],
-      };
-    }
-  } catch {
-    // S3 library unavailable — continue to procedural fallback.
-  }
 
   // 1. Direct Keyword Match (procedural catalog)
   let bestMatch: SvgConceptItem | null = null;

@@ -1,0 +1,56 @@
+steps:
+  # 1. Pull the previous latest image to use as build cache
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - 'docker pull gcr.io/$PROJECT_ID/itnavideo-web:latest || exit 0'
+
+  # 2. Build the new Docker image with fast cache
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/itnavideo-web:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/itnavideo-web:latest'
+      - '--cache-from'
+      - 'gcr.io/$PROJECT_ID/itnavideo-web:latest'
+      - '.'
+
+  # 3. Push the images to Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/itnavideo-web:$COMMIT_SHA'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/itnavideo-web:latest'
+
+  # 4. Deploy the new revision to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'itnavideo-web'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/itnavideo-web:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/itnavideo-web:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/itnavideo-web:latest'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '900s'
+

@@ -605,7 +605,7 @@ export function AudioCleanStudio({
                               }))
                             }
                             className={`rounded-xl border p-2.5 text-center transition cursor-pointer ${isFmt
-                              ? "border-orange-600 bg-orange-50 text-blue-900 font-bold"
+                              ? "border-orange-600 bg-orange-50 text-orange-950 font-bold ring-1 ring-orange-500/20"
                               : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                               }`}
                           >
@@ -619,12 +619,12 @@ export function AudioCleanStudio({
 
                   {/* Vocal Tone */}
                   <div>
-                    <label className="text-xs font-bold text-slate-800 block mb-2">Vocal Character</label>
+                    <label className="text-xs font-bold text-slate-800 block mb-2">Vocal Character &amp; Mastering</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { id: "natural", label: "Natural Original", desc: "100% Intact" },
-                        { id: "clarity", label: "Studio Clarity", desc: "+2dB Highs" },
-                        { id: "warmth", label: "Warmth Boost", desc: "Pro Podcast" },
+                        { id: "natural", label: "Natural Voice", desc: "-16 LUFS · Pure" },
+                        { id: "clarity", label: "Studio Clarity", desc: "+2dB Highs · Crisp" },
+                        { id: "warmth", label: "Podcast Warmth", desc: "Pro Vocal · Rich" },
                       ].map((v) => {
                         const isTone = (audioCleanOptions?.vocalTone || "natural") === v.id;
                         return (
@@ -638,7 +638,7 @@ export function AudioCleanStudio({
                               }))
                             }
                             className={`rounded-xl border p-2.5 text-center transition cursor-pointer ${isTone
-                              ? "border-orange-600 bg-orange-50 text-blue-900 font-bold"
+                              ? "border-orange-600 bg-orange-50 text-orange-950 font-bold ring-1 ring-orange-500/20"
                               : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                               }`}
                           >
@@ -681,7 +681,7 @@ export function AudioCleanStudio({
                 {/* Transcript Header Ribbon */}
                 <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 bg-slate-50">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-100/70 px-3 py-1 text-xs font-bold text-blue-800">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-100/70 px-3 py-1 text-xs font-bold text-orange-900">
                       <Edit3 size={13} className="text-orange-700" />
                       Review &amp; Edit Spoken Script
                     </span>
@@ -701,6 +701,10 @@ export function AudioCleanStudio({
                         {detectedPauses.length} Gaps Detected
                       </span>
                     )}
+                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
+                      <ShieldCheck size={12} className="text-emerald-600" />
+                      Non-Destructive Plan
+                    </span>
                   </div>
 
                   {/* Transcript Action Buttons */}
@@ -746,8 +750,9 @@ export function AudioCleanStudio({
                     />
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-500 gap-2">
-                    <span>
-                      💡 <strong>Voice Preservation Guarantee:</strong> Only dead air pauses are removed. Your tone, cadence, and vocal character remain 100% natural.
+                    <span className="flex items-center gap-1.5 text-slate-600">
+                      <ShieldCheck size={13} className="text-emerald-600 shrink-0" />
+                      <strong>Non-Destructive Guarantee:</strong> Text edits correct the transcript only. Original audio is never overwritten.
                     </span>
                     <span className="font-mono text-slate-400 shrink-0">{currentMarkdown.length} characters</span>
                   </div>

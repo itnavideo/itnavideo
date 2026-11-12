@@ -4856,7 +4856,7 @@ function slugify(value?: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64) || 'reel';
 }
 
-const FOUNDER_EMAILS = ['itnavideo@gmail.com', 'rohi@itnavideo.com'];
+const FOUNDER_EMAILS = ['itnavideo@gmail.com'];
 const FOUNDER_USER_IDS = [
   'a50a8342-f362-4f49-adfe-fc7a9a4e14db',
   ...(process.env.FOUNDER_TEST_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean)
@@ -4867,8 +4867,7 @@ function isFounderEmail(email: string) {
   const normalized = email.toLowerCase().trim();
   return (
     FOUNDER_EMAILS.includes(normalized) ||
-    normalized.includes('rohi') ||
-    normalized.includes('syed') ||
+    normalized === 'itnavideo@gmail.com' ||
     normalized.includes('itnavideo') ||
     process.env.NODE_ENV !== 'production'
   );
