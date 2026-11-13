@@ -61,6 +61,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png",
           href: "/dashboard/faceless-shorts",
           features: [
             "AI Scene Director & Pacing",
@@ -76,6 +77,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 5 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png",
           href: "/dashboard/faceless-video",
           features: [
             "1080p Horizontal Cinema Canvas",
@@ -116,6 +118,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           duration: "Up to 90 Seconds",
           pricing: "FREE · 5/Day",
           isFree: true,
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
           href: "/dashboard/auto-caption",
           features: [
             "32 TikTok & Reel Subtitle Presets",
@@ -132,6 +135,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           duration: "Up to 5 Minutes",
           pricing: "FREE · 5/Day",
           isFree: true,
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png",
           href: "/dashboard/youtube-subtitles",
           features: [
             "Widescreen YouTube Subtitle Placement",
@@ -171,6 +175,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737273/Enthusiastic_Creator_Explaining_Ideas_nvg1do.png",
           href: "/dashboard/ai-shorts-polisher",
           features: [
             "Face-Tracked Smart Punch-Ins (+12%)",
@@ -186,6 +191,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 5 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737269/Movies_Money_and_Big_Growth_ucpt53.png",
           href: "/dashboard/ai-video-polisher",
           features: [
             "Widescreen Jump-Cut Removal",
@@ -227,6 +233,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png",
           href: "/dashboard/whiteboard-video",
           features: [
             "Hand-drawn stickman sketch characters",
@@ -242,6 +249,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 5 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png",
           href: "/dashboard/whiteboard-video",
           features: [
             "16:9 Widescreen landscape chalkboard",
@@ -283,6 +291,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946197/file_0000000035a48208ab4068beb2a66a7d_kctvo9.png",
           href: "/dashboard/compare-explainer",
           features: [
             "Split comparison cards with VS center badge",
@@ -298,6 +307,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 5 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946197/file_0000000035a48208ab4068beb2a66a7d_kctvo9.png",
           href: "/dashboard/compare-explainer",
           features: [
             "Dual-column widescreen comparison layout",
@@ -339,6 +349,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945581/file_0000000039948211a5955d513e5d104a_wzrget.png",
           href: "/dashboard/split-screen-explainer",
           features: [
             "Creator facecam at bottom zone",
@@ -354,6 +365,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 5 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945581/file_0000000039948211a5955d513e5d104a_wzrget.png",
           href: "/dashboard/split-screen-explainer",
           features: [
             "Corner PIP creator webcam layout",
@@ -395,6 +407,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 60 Seconds / Clip",
           pricing: "1 Credit / Clip",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946357/viral_video_clips_rllgec.png",
           href: "/dashboard/long-video-clips",
           features: [
             "AI viral hook detection (>85 score)",
@@ -410,6 +423,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 3 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946357/viral_video_clips_rllgec.png",
           href: "/dashboard/long-video-clips",
           features: [
             "Original aspect ratio preservation",
@@ -451,6 +465,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/longvideopromo_o0qheb.png",
           href: "/dashboard/long-video-promo",
           features: [
             "High-converting mobile teaser layout",
@@ -466,6 +481,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 2 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/longvideopromo_o0qheb.png",
           href: "/dashboard/long-video-promo",
           features: [
             "Landscape upcoming release trailer",
@@ -507,6 +523,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg",
           href: "/dashboard/image-to-video",
           features: [
             "Vertical Ken Burns zoom & pan motion",
@@ -522,6 +539,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 5 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg",
           href: "/dashboard/image-to-video",
           features: [
             "1080p Widescreen 3D parallax motion",
@@ -563,6 +581,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/book_summary_video_zbs4em.png",
           href: "/dashboard/book-summary",
           features: [
             "Top 3 lessons rapid-fire format",
@@ -578,6 +597,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 5 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/book_summary_video_zbs4em.png",
           href: "/dashboard/book-summary",
           features: [
             "Full multi-chapter breakdown layout",
@@ -619,6 +639,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1080×1920 Full HD",
           duration: "Up to 90 Seconds",
           pricing: "1 Credit / Video",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png",
           href: "/dashboard/ai-video-generator",
           features: [
             "AI prompt-to-vertical script writer",
@@ -634,6 +655,7 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
           resolution: "1920×1080 Full HD",
           duration: "Up to 5 Minutes",
           pricing: "1 Credit / Min",
+          image: "https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png",
           href: "/dashboard/ai-video-generator",
           features: [
             "Multi-scene horizontal script planning",
