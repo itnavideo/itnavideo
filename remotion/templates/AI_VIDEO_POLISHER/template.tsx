@@ -17,6 +17,12 @@ import { BlackoutRetentionCard } from './components/BlackoutRetentionCard';
 import { CurvedArrowCallout } from './components/CurvedArrowCallout';
 import { EquationFormulaCard, type EquationStep } from './components/EquationFormulaCard';
 import { SideBySideComparisonBanner, type ComparisonSide } from './components/SideBySideComparisonBanner';
+import { KineticTypographyEngine } from '../../components/library/KineticTypographyEngine';
+import {
+  planAutonomousTypographyAndStyle,
+  detectScreenSyncMoments,
+  type PlannedTypographyItem,
+} from '../../../services/ai/aiPolisherDirector';
 
 export interface OverlayLayerItem {
   id: string;
@@ -99,6 +105,8 @@ export interface AiVideoPolisherProps {
   curvedArrows?: ArrowItem[];
   equationFormula?: EquationFormulaData;
   comparisonBanner?: ComparisonBannerData;
+  cinemaAdjustmentLayer?: boolean;
+  kineticSegments?: PlannedTypographyItem[];
 }
 
 /** Resolve asset path: absolute web URLs pass through, relative paths use staticFile */
@@ -137,6 +145,8 @@ export function AiVideoPolisher({
   curvedArrows = [],
   equationFormula,
   comparisonBanner,
+  cinemaAdjustmentLayer = true,
+  kineticSegments,
 }: AiVideoPolisherProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -160,14 +170,26 @@ export function AiVideoPolisher({
   const activeMediaSrc = mediaSrc || (mediaItems.length > 0 ? mediaItems[0].url : '');
 
   // 3. OVERLAY LAYER (Picture-in-Picture Callout or Full B-Roll Cutaway)
+  // Smart Screen Recording Sync: Auto-detects verbal triggers in speech ("as you can see", "look at my screen")
+  const screenCues = React.useMemo(() => {
+    return detectScreenSyncMoments(captions, layerItems as any);
+  }, [captions, layerItems]);
+
   const activeOverlay = layerItems.find((layer) => {
-    const start = layer.startSeconds ?? 4; // Defaults to 4s mark (like top creator cutaway)
-    const dur = layer.durationSeconds ?? 4.5;
+    const matchedCue = screenCues.find((c) => c.matchedAssetId === layer.id || c.title === layer.title);
+    const start = layer.startSeconds ?? (matchedCue?.timestampSeconds ?? 4);
+    const dur = layer.durationSeconds ?? (matchedCue?.recommendedDurationSeconds ?? 4.5);
     return currentSeconds >= start && currentSeconds <= start + dur;
   }) || (layerItems.length > 0 && currentSeconds >= 4 && currentSeconds <= 8 ? layerItems[0] : null);
 
-  // Check if this overlay acts as a full B-roll cutaway (e.g. between seconds 4 and 8)
-  const isFullCutaway = Boolean(activeOverlay && (activeOverlay.isCutaway || (currentSeconds >= 4 && currentSeconds <= 8.5)));
+  const matchedActiveCue = screenCues.find(
+    (c) => currentSeconds >= c.timestampSeconds && currentSeconds <= c.timestampSeconds + c.recommendedDurationSeconds
+  );
+
+  // Check if this overlay acts as a full B-roll cutaway (e.g. between seconds 4 and 8.5)
+  const isFullCutaway = Boolean(
+    activeOverlay && (activeOverlay.isCutaway || matchedActiveCue?.cutType === 'full-cutaway' || (currentSeconds >= 4 && currentSeconds <= 8.5))
+  );
 
   // Entrance spring for overlay PIP
   const pipSpring = spring({
@@ -178,19 +200,30 @@ export function AiVideoPolisher({
   const pipScale = interpolate(pipSpring, [0, 1], [0.85, 1.0]);
   const pipOpacity = interpolate(pipSpring, [0, 1], [0, 1]);
 
-  // 4. ACTIVE SPOKEN CAPTIONS
+  // 4. AUTONOMOUS KINETIC TYPOGRAPHY (25 Kinetic Animations with Dynamic Duration)
+  const allKineticSegments = React.useMemo(() => {
+    if (kineticSegments && kineticSegments.length > 0) return kineticSegments;
+    if (captions && captions.length > 0) return planAutonomousTypographyAndStyle(captions, fps);
+    return [];
+  }, [kineticSegments, captions, fps]);
+
+  const activeKinetic = allKineticSegments.find(
+    (seg) => currentSeconds >= seg.startSeconds && currentSeconds <= seg.startSeconds + seg.durationSeconds
+  );
+
+  // 5. ACTIVE SPOKEN CAPTIONS (Fallback)
   const activeCaption = captions.find(
     (c) => currentSeconds >= (c.start ?? 0) && currentSeconds <= (c.end ?? (c.start ?? 0) + 3)
   );
 
-  // 5. TOP CREATOR FEATURE #1: NEON PROOF STAT DETECTION
+  // 6. TOP CREATOR FEATURE #1: NEON PROOF STAT DETECTION
   // Automatically detects numbers, currencies ($293,071 / 290,000 / 81% / 10x) and triggers neon callout
   const statRegex = /(?:[\$₹€£]\s*)?\d+(?:[,\.]\d+)*(?:\s*(?:k|m|b|%|x|cr|lakh))?/i;
   const statMatch = activeCaption?.text ? activeCaption.text.match(statRegex) : null;
   const hasStat = Boolean(statMatch && statMatch[0].trim().length >= 2);
   const detectedStat = statMatch ? statMatch[0].trim() : '';
 
-  // 6. TOP CREATOR FEATURE #2: BLACKOUT RETENTION RESET
+  // 7. TOP CREATOR FEATURE #2: BLACKOUT RETENTION RESET
   const activeRetention = retentionWords.find(
     (r) => currentSeconds >= r.atSeconds && currentSeconds <= r.atSeconds + 1.2
   );
@@ -446,8 +479,38 @@ export function AiVideoPolisher({
         );
       })()}
 
-      {/* SMART LOWER-THIRD YOUTUBE PHRASE CAPTIONS */}
-      {activeCaption && !hasStat && !activeRetention && (
+      {/* CINEMA COLOR GRADE ADJUSTMENT LAYER (+15% Saturation, +20% Contrast, Lowered Shadows) */}
+      {cinemaAdjustmentLayer && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 38,
+            pointerEvents: 'none',
+            backdropFilter: 'saturate(1.15) contrast(1.20) brightness(0.96)',
+            WebkitBackdropFilter: 'saturate(1.15) contrast(1.20) brightness(0.96)',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: '#0A0F1D',
+              opacity: 0.06,
+              mixBlendMode: 'color-burn',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
+      )}
+
+      {/* AUTONOMOUS KINETIC TYPOGRAPHY (25 KINETIC ANIMATIONS WITH DYNAMIC DURATION) */}
+      {activeKinetic && !hasStat && !activeRetention ? (
+        <KineticTypographyEngine
+          segment={activeKinetic}
+          aspectRatio="16:9"
+        />
+      ) : activeCaption && !hasStat && !activeRetention ? (
         <div
           style={{
             position: 'absolute',
@@ -487,7 +550,7 @@ export function AiVideoPolisher({
             </span>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* JUMP CUT / POLISHER STATUS WATERMARK (OPTIONAL) */}
       {brandWatermark && <BrandWatermark />}

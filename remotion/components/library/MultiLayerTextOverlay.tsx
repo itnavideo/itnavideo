@@ -31,10 +31,15 @@ export type LayerKineticTextMode = 'standard' | 'per-word' | 'per-character';
 
 export type LayerPresetType =
   | 'hero-headline'
+  | 'subheading'
+  | 'description'
+  | 'key-point'
+  | 'stat-callout'
+  | 'stat-label'
   | 'kicker-pill'
   | 'editorial-callout'
   | 'kinetic-punch'
-  | 'stat-callout'
+  | 'highlighted-word'
   | 'quote-card'
   | 'comparison-vs'
   | 'code-mono'
@@ -133,6 +138,77 @@ export const PRACTICAL_LAYER_PRESETS: Record<LayerPresetType, Partial<DynamicTex
     anchor: 'center',
     kineticMode: 'per-word',
     staggerFrames: 3,
+  },
+  'subheading': {
+    presetType: 'subheading',
+    fontSize: 36,
+    fontWeight: 700,
+    color: '#E2E8F0',
+    letterSpacing: '0.04em',
+    inAnimation: 'slide-up',
+    outAnimation: 'fade-out',
+    x: 540,
+    y: 540,
+    anchor: 'center',
+    kineticMode: 'standard',
+  },
+  'description': {
+    presetType: 'description',
+    fontSize: 26,
+    fontWeight: 500,
+    color: '#94A3B8',
+    lineHeight: 1.45,
+    inAnimation: 'fade-in',
+    outAnimation: 'fade-out',
+    x: 540,
+    y: 630,
+    anchor: 'center',
+    kineticMode: 'standard',
+  },
+  'key-point': {
+    presetType: 'key-point',
+    fontSize: 30,
+    fontWeight: 800,
+    color: '#FFFFFF',
+    backgroundColor: 'rgba(15, 23, 42, 0.85)',
+    border: '1.5px solid rgba(255, 87, 34, 0.35)',
+    borderRadius: 14,
+    padding: '10px 24px',
+    inAnimation: 'spring-pop',
+    outAnimation: 'fade-out',
+    x: 540,
+    y: 720,
+    anchor: 'center',
+    kineticMode: 'standard',
+  },
+  'stat-label': {
+    presetType: 'stat-label',
+    fontSize: 20,
+    fontWeight: 800,
+    textTransform: 'uppercase',
+    color: '#94A3B8',
+    letterSpacing: '0.12em',
+    inAnimation: 'slide-up',
+    outAnimation: 'fade-out',
+    x: 540,
+    y: 890,
+    anchor: 'center',
+    kineticMode: 'standard',
+  },
+  'highlighted-word': {
+    presetType: 'highlighted-word',
+    fontSize: 68,
+    fontWeight: 900,
+    textTransform: 'uppercase',
+    color: '#FACC15',
+    textShadow: '0 4px 24px rgba(250, 204, 21, 0.6), 0 0 40px rgba(0, 0, 0, 0.9)',
+    inAnimation: 'spring-pop',
+    outAnimation: 'shrink',
+    x: 540,
+    y: 780,
+    anchor: 'center',
+    kineticMode: 'per-character',
+    staggerFrames: 2,
   },
   'kicker-pill': {
     presetType: 'kicker-pill',

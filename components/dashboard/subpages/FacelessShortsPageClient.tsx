@@ -396,9 +396,13 @@ export default function FacelessShortsPageClient() {
     <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
       {/* Top Header: Unified Full Bleed Canvas */}
       <StudioHeader
-        studioName="Faceless Shorts AI"
+        studioName="Faceless Video"
         aspectRatioLabel="9:16 Shorts"
-        badgeLabel="AI Faceless Shorts"
+        badgeLabel="Reels & Shorts"
+        alternateFormat={{
+          label: "Switch to 16:9 Cinema",
+          href: "/dashboard/faceless-video",
+        }}
         userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
         isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />

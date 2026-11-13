@@ -577,9 +577,13 @@ export default function FacelessVideoPageClient() {
     <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
       {/* Top Navigation Bar (Clean White Surface - Full Bleed, matching Image to Video AI) */}
       <StudioHeader
-        studioName="Faceless Video AI"
+        studioName="Faceless Video"
         aspectRatioLabel="16:9 Cinema"
         badgeLabel="YouTube Cinema"
+        alternateFormat={{
+          label: "Switch to 9:16 Shorts",
+          href: "/dashboard/faceless-shorts",
+        }}
         userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
         isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />

@@ -19,6 +19,12 @@ import { BlackoutRetentionCard } from './components/BlackoutRetentionCard';
 import { CurvedArrowCallout } from './components/CurvedArrowCallout';
 import { EquationFormulaCard, type EquationStep } from './components/EquationFormulaCard';
 import { SideBySideComparisonBanner, type ComparisonSide } from './components/SideBySideComparisonBanner';
+import { KineticTypographyEngine } from '../../components/library/KineticTypographyEngine';
+import {
+  planAutonomousTypographyAndStyle,
+  detectScreenSyncMoments,
+  type PlannedTypographyItem,
+} from '../../../services/ai/aiPolisherDirector';
 
 export interface ArrowItem {
   label?: string;
@@ -102,6 +108,8 @@ export interface AiShortsPolisherProps {
   curvedArrows?: ArrowItem[];
   equationFormula?: EquationFormulaData;
   comparisonBanner?: ComparisonBannerData;
+  cinemaAdjustmentLayer?: boolean;
+  kineticSegments?: PlannedTypographyItem[];
 }
 
 /** Resolve asset path: absolute web URLs pass through, relative paths use staticFile */
@@ -141,6 +149,8 @@ export function AiShortsPolisher({
   curvedArrows = [],
   equationFormula,
   comparisonBanner,
+  cinemaAdjustmentLayer = true,
+  kineticSegments,
 }: AiShortsPolisherProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -164,6 +174,10 @@ export function AiShortsPolisher({
   const activeMediaSrc = mediaSrc || (mediaItems.length > 0 ? mediaItems[0].url : '');
 
   // 3. OVERLAY LAYER (Picture-in-Picture Callout or Full B-Roll Cutaway)
+  const screenCues = React.useMemo(() => {
+    return detectScreenSyncMoments(captions, layerItems as any);
+  }, [captions, layerItems]);
+
   const activeOverlay = layerItems.find((layer) => {
     const start = layer.startSeconds ?? 4;
     const dur = layer.durationSeconds ?? 4;
@@ -560,6 +574,38 @@ export function AiShortsPolisher({
       })()}
 
       {/* BRAND WATERMARK (OPTIONAL) */}
+      {cinemaAdjustmentLayer && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 38,
+            pointerEvents: 'none',
+            backdropFilter: 'saturate(1.15) contrast(1.20) brightness(0.96)',
+            WebkitBackdropFilter: 'saturate(1.15) contrast(1.20) brightness(0.96)',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: '#0A0F1D',
+              opacity: 0.06,
+              mixBlendMode: 'color-burn',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
+      )}
+
+      {/* 4. AUTONOMOUS KINETIC TYPOGRAPHY */}
+      {activeKinetic && !hasStat && !activeRetention ? (
+        <KineticTypographyEngine
+          segment={activeKinetic}
+          aspectRatio="9:16"
+        />
+      ) : null}
+
       {brandWatermark && <BrandWatermark />}
     </AbsoluteFill>
   );

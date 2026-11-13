@@ -1,21 +1,21 @@
 @echo off
 setlocal
 echo ========================================================
-echo   Deploying Itnavideo Web to Google Cloud Run...
+echo   Fast Deploying Itnavideo Web to Google Cloud Run...
 echo   Project: geometric-hull-501707-m2
 echo   Region:  us-central1
 echo ========================================================
 echo.
-echo [1/3] Uploading source and building on Google Cloud...
-echo [2/3] All output is being automatically captured in deploy.log
-echo [3/3] Please wait 2-3 minutes, do not close this window...
+echo [1/3] Packaging lightweight changes (docs, test media & archives excluded)...
+echo [2/3] Uploading and building on Google Cloud Run...
+echo [3/3] Output captured in deploy.log (please wait)...
 echo.
 
 call gcloud run deploy itnavideo-web --region us-central1 --project geometric-hull-501707-m2 --source . --allow-unauthenticated > deploy.log 2>&1
 set EXIT_CODE=%ERRORLEVEL%
 
 echo.
-echo -------------------- CLOUD OUTPUT --------------------
+echo -------------------- DEPLOY STATUS --------------------
 type deploy.log
 echo ------------------------------------------------------
 echo.

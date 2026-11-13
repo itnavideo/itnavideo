@@ -56,23 +56,23 @@ type CreditTransaction = {
 // 16:9 Long-Form Studio items
 const CINEMA_169_ITEMS = [
   { id: "ai-video-generator", title: "AI Video Generator", href: "/dashboard/ai-video-generator", isNew: true },
-  { id: "image-to-video", title: "Image to Video AI", href: "/dashboard/image-to-video" },
   { id: "faceless-video", title: "Faceless Video (16:9)", href: "/dashboard/faceless-video" },
+  { id: "youtube-subtitles", title: "Auto Caption (16:9 YouTube)", href: "/dashboard/youtube-subtitles" },
+  { id: "ai-video-polisher", title: "AI Video Polisher (16:9)", href: "/dashboard/ai-video-polisher" },
+  { id: "image-to-video", title: "Image to Video AI", href: "/dashboard/image-to-video" },
   { id: "book-summary", title: "Book Summary Video", href: "/dashboard/book-summary" },
-  { id: "youtube-subtitles", title: "YouTube Subtitles", href: "/dashboard/youtube-subtitles" },
-  { id: "ai-video-polisher", title: "AI Video Polisher", href: "/dashboard/ai-video-polisher" },
 ];
 
 // 9:16 Vertical Shorts Studio items
 const SHORTS_916_ITEMS = [
-  { id: "auto-caption", title: "Auto Caption Reel", href: "/dashboard/auto-caption" },
+  { id: "faceless-shorts", title: "Faceless Video (9:16)", href: "/dashboard/faceless-shorts" },
+  { id: "auto-caption", title: "Auto Caption (9:16)", href: "/dashboard/auto-caption" },
+  { id: "ai-shorts-polisher", title: "AI Video Polisher (9:16)", href: "/dashboard/ai-shorts-polisher" },
   { id: "whiteboard-video", title: "Whiteboard Animation", href: "/dashboard/whiteboard-video" },
   { id: "compare-explainer", title: "Compare Explainer", href: "/dashboard/compare-explainer" },
   { id: "long-video-clips", title: "Viral Video Clips", href: "/dashboard/long-video-clips" },
-  { id: "faceless-shorts", title: "Faceless Shorts", href: "/dashboard/faceless-shorts" },
   { id: "long-video-promo", title: "Long Video Promo", href: "/dashboard/long-video-promo" },
   { id: "split-screen-explainer", title: "Split Screen Explainer", href: "/dashboard/split-screen-explainer" },
-  { id: "ai-shorts-polisher", title: "AI Shorts Polisher", href: "/dashboard/ai-shorts-polisher" },
 ];
 
 export default function DashboardSidebar({

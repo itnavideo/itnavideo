@@ -701,9 +701,13 @@ export default function AutoCaptionPage() {
     <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
       {/* Standardized Unified Studio Navigation Header */}
       <StudioHeader
-        studioName="Auto Caption AI"
+        studioName="Auto Caption Generator"
         aspectRatioLabel="9:16 Shorts"
-        badgeLabel="Kinetic Words"
+        badgeLabel="FREE · 5/Day"
+        alternateFormat={{
+          label: "Switch to 16:9 Cinema",
+          href: "/dashboard/youtube-subtitles",
+        }}
         userRemainingCredits={userRemainingCredits}
         isWorking={isWorking}
       />

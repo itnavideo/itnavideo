@@ -12,6 +12,13 @@ import DashboardSidebar, { DashboardTab } from "@/components/dashboard/Dashboard
 import GeneratedVideosTab from "@/components/dashboard/GeneratedVideosTab";
 import PhoneQrDownloadModal from "@/components/media/PhoneQrDownloadModal";
 import AnnouncementsTab from "@/components/dashboard/AnnouncementsTab";
+import FormatSelectorModal, {
+  type UnifiedToolModalData,
+} from "@/components/dashboard/shared/FormatSelectorModal";
+import {
+  UNIFIED_STUDIO_TOOLS,
+  type UnifiedToolItem,
+} from "@/lib/studios/unifiedTools";
 import {
   Captions,
   Smartphone,
@@ -90,8 +97,21 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png",
   },
   {
+    id: "faceless-video",
+    title: "Faceless Video (16:9)",
+    slug: "/dashboard/faceless-video",
+    category: "long",
+    aspectRatio: "16:9",
+    icon: UserX,
+    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
+    iconColorClass: "text-purple-600",
+    description: "Turn voiceovers & scripts into 16:9 YouTube explainers with AI B-roll & visuals.",
+    badge: "Most In-Demand",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png",
+  },
+  {
     id: "youtube-subtitles",
-    title: "YouTube Subtitles Generator",
+    title: "Auto Caption (16:9 YouTube)",
     slug: "/dashboard/youtube-subtitles",
     category: "long",
     aspectRatio: "16:9",
@@ -103,30 +123,17 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946360/youtube_subtitles_generator_who62l.png",
   },
   {
-    id: "book-summary",
-    title: "Book Summary Video",
-    slug: "/dashboard/book-summary",
+    id: "ai-video-polisher",
+    title: "AI Video Polisher (16:9)",
+    slug: "/dashboard/ai-video-polisher",
     category: "long",
     aspectRatio: "16:9",
-    icon: BookOpen,
-    iconBgClass: "bg-rose-500/15 border border-rose-500/30",
-    iconColorClass: "text-rose-600",
-    description: "Turn any book narration audio into a captivating 16:9 cinematic summary video.",
-    badge: "Cinema Chapters",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/book_summary_video_zbs4em.png",
-  },
-  {
-    id: "faceless-video",
-    title: "Faceless Video",
-    slug: "/dashboard/faceless-video",
-    category: "long",
-    aspectRatio: "16:9",
-    icon: UserX,
-    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
-    iconColorClass: "text-purple-600",
-    description: "Turn voiceovers & scripts into 16:9 YouTube explainers with AI B-roll & visuals.",
-    badge: "Most In-Demand",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945592/file_000000004290821180a71f25ad75480e_nztpwe.png",
+    icon: Sparkles,
+    iconBgClass: "bg-amber-500/15 border border-amber-500/30",
+    iconColorClass: "text-amber-600",
+    description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
+    badge: "Auto YouTube Editor",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737269/Movies_Money_and_Big_Growth_ucpt53.png",
   },
   {
     id: "image-to-video",
@@ -142,24 +149,37 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946349/imagetovideoai_w3hyci.jpg",
   },
   {
-    id: "ai-video-polisher",
-    title: "AI YouTube Video Polisher",
-    slug: "/dashboard/ai-video-polisher",
+    id: "book-summary",
+    title: "Book Summary Video",
+    slug: "/dashboard/book-summary",
     category: "long",
     aspectRatio: "16:9",
-    icon: Sparkles,
-    iconBgClass: "bg-amber-500/15 border border-amber-500/30",
-    iconColorClass: "text-amber-600",
-    description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
-    badge: "Auto YouTube Editor",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737269/Movies_Money_and_Big_Growth_ucpt53.png",
+    icon: BookOpen,
+    iconBgClass: "bg-rose-500/15 border border-rose-500/30",
+    iconColorClass: "text-rose-600",
+    description: "Turn any book narration audio into a captivating 16:9 cinematic summary video.",
+    badge: "Cinema Chapters",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946358/book_summary_video_zbs4em.png",
   },
 ];
 
 export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
   {
+    id: "faceless-shorts",
+    title: "Faceless Video (9:16 Shorts)",
+    slug: "/dashboard/faceless-shorts",
+    category: "social",
+    aspectRatio: "9:16",
+    icon: UserX,
+    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
+    iconColorClass: "text-purple-600",
+    description: "Generate automated faceless 9:16 shorts up to 90 seconds with AI B-roll and kinetic captions.",
+    badge: "Highly Monetizable",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png",
+  },
+  {
     id: "auto-caption",
-    title: "Auto Caption Generator",
+    title: "Auto Caption (9:16 Shorts)",
     slug: "/dashboard/auto-caption",
     category: "social",
     aspectRatio: "9:16",
@@ -169,6 +189,19 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     description: "Add viral animated captions with word-by-word highlights and emoji accents.",
     badge: "FREE · 5/Day",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png",
+  },
+  {
+    id: "ai-shorts-polisher",
+    title: "AI Video Polisher (9:16 Shorts)",
+    slug: "/dashboard/ai-shorts-polisher",
+    category: "social",
+    aspectRatio: "9:16",
+    icon: Smartphone,
+    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
+    iconColorClass: "text-orange-600",
+    description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
+    badge: "Reels & Shorts Co-Pilot",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737273/Enthusiastic_Creator_Explaining_Ideas_nvg1do.png",
   },
   {
     id: "whiteboard-video",
@@ -182,19 +215,6 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     description: "Hand-drawn animated whiteboard stickman explainer videos.",
     badge: "Doodle Explainer",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792950977/file_00000000a8388211b1207dad39960dc7_ahvk9g.png",
-  },
-  {
-    id: "faceless-shorts",
-    title: "Faceless Shorts",
-    slug: "/dashboard/faceless-shorts",
-    category: "social",
-    aspectRatio: "9:16",
-    icon: UserX,
-    iconBgClass: "bg-purple-500/15 border border-purple-500/30",
-    iconColorClass: "text-purple-600",
-    description: "Generate automated faceless 9:16 shorts up to 90 seconds with AI B-roll and kinetic captions.",
-    badge: "Highly Monetizable",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945593/file_00000000806482119547c1b937b7e386_zsrmkb.png",
   },
   {
     id: "compare-explainer",
@@ -247,19 +267,6 @@ export const DASHBOARD_916_TOOLS: VideoToolCard[] = [
     description: "Creator facecam at bottom with kinetic explainer graphics & chapter tracker at top.",
     badge: "Creator Split",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945581/file_0000000039948211a5955d513e5d104a_wzrget.png",
-  },
-  {
-    id: "ai-shorts-polisher",
-    title: "AI Shorts Polisher",
-    slug: "/dashboard/ai-shorts-polisher",
-    category: "social",
-    aspectRatio: "9:16",
-    icon: Smartphone,
-    iconBgClass: "bg-orange-500/15 border border-orange-500/30",
-    iconColorClass: "text-orange-600",
-    description: "Auto silence jump-cuts, dynamic camera zoom punch-ins (+12%) & PIP overlay layers.",
-    badge: "Reels & Shorts Co-Pilot",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1793737273/Enthusiastic_Creator_Explaining_Ideas_nvg1do.png",
   },
 ];
 
@@ -362,6 +369,7 @@ export default function DashboardClient() {
   const [recentRenders, setRecentRenders] = useState<RecentRender[]>([]);
   const [qrModalVideo, setQrModalVideo] = useState<{ url: string; title: string } | null>(null);
   const [selectedDemoTool, setSelectedDemoTool] = useState<VideoToolCard | null>(null);
+  const [formatModalTool, setFormatModalTool] = useState<UnifiedToolModalData | null>(null);
   const router = useRouter();
 
   // Fetch billing entitlement & credits with real-time refresh listeners
@@ -430,9 +438,19 @@ export default function DashboardClient() {
   const filtered916 = useMemo(() => filterBySearch(DASHBOARD_916_TOOLS), [searchQuery]);
   const filtered169 = useMemo(() => filterBySearch(DASHBOARD_169_TOOLS), [searchQuery]);
   const filteredUtility = useMemo(() => filterBySearch(DASHBOARD_UTILITY_TOOLS), [searchQuery]);
+  const filteredUnified = useMemo(() => {
+    if (!searchQuery.trim()) return UNIFIED_STUDIO_TOOLS;
+    const q = searchQuery.trim().toLowerCase();
+    return UNIFIED_STUDIO_TOOLS.filter(
+      (t) =>
+        t.title.toLowerCase().includes(q) ||
+        t.description.toLowerCase().includes(q)
+    );
+  }, [searchQuery]);
 
-  const show916Section = (activeCategory === "all" || activeCategory === "social") && filtered916.length > 0;
-  const show169Section = (activeCategory === "all" || activeCategory === "long") && filtered169.length > 0;
+  const showUnifiedSection = activeCategory === "all" && filteredUnified.length > 0;
+  const show916Section = activeCategory === "social" && filtered916.length > 0;
+  const show169Section = activeCategory === "long" && filtered169.length > 0;
   const showUtilitySection = (activeCategory === "all" || activeCategory === "utility") && filteredUtility.length > 0;
 
   const isFounder = Boolean(
@@ -466,11 +484,18 @@ export default function DashboardClient() {
         tool={selectedDemoTool as any}
       />
 
+      {/* Format Selector Modal (Aspect Ratio Picker: 9:16 Shorts vs 16:9 Cinema) */}
+      <FormatSelectorModal
+        isOpen={Boolean(formatModalTool)}
+        onClose={() => setFormatModalTool(null)}
+        tool={formatModalTool}
+      />
+
       {/* Sidebar Navigation */}
       <DashboardSidebar
         activeTab={dashboardTab}
         onSelectTab={(tab) => setDashboardTab(tab)}
-        remainingCredits={remainingCredits ?? (isFounder ? 908 : 1)}
+        remainingCredits={remainingCredits ?? (isFounder ? 999 : 1)}
         renderedVideosCount={recentRenders.length}
         userEmail={user?.email ?? undefined}
         userId={user?.id}
@@ -518,7 +543,7 @@ export default function DashboardClient() {
               >
                 <Zap className="w-3.5 h-3.5 text-orange-500 fill-orange-500 animate-pulse group-hover:scale-110 transition-transform" />
                 <span className="text-orange-300 font-black">
-                  {remainingCredits !== null ? `${remainingCredits} Credits` : (isFounder ? "908 Credits" : "...")}
+                  {remainingCredits !== null ? `${remainingCredits} Credits` : (isFounder ? "999 Credits" : "...")}
                 </span>
                 {isFounder ? (
                   <span className="inline-block rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
@@ -586,7 +611,7 @@ export default function DashboardClient() {
                         : "text-zinc-400 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                     All Studios ({ALL_TOOLS.length})
+                     All Studios ({UNIFIED_STUDIO_TOOLS.length})
                   </button>
                   <button
                     onClick={() => setActiveCategory("social")}
@@ -945,6 +970,153 @@ export default function DashboardClient() {
                 </div>
               )}
 
+              {/* SECTION: UNIFIED VIDEO CREATION STUDIOS (ALL STUDIOS VIEW) */}
+              {showUnifiedSection && (
+                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
+                  {/* Clean Spacious Header Banner */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
+                    <div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
+                        <Sparkles size={13} className="text-orange-400" />
+                        <span>Unified Video Studios</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
+                        AI Video Creation Hub
+                      </h2>
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
+                        Select a video type to start creating. Dual-format studios allow choosing between 9:16 vertical shorts and 16:9 widescreen cinema.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 self-start sm:self-center text-xs font-mono font-bold">
+                      <Link
+                        href="/video-types"
+                        className="inline-flex items-center gap-1 font-sans text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors mr-1"
+                      >
+                        <BookOpen size={13} />
+                        <span>Specs &amp; Guides</span>
+                        <ChevronRight size={13} />
+                      </Link>
+                      <span className="px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400">
+                        9:16 &amp; 16:9 Full HD
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Unified Studio Cards Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+                    {filteredUnified
+                      .filter((item) => item.id !== "audio-cleaner" && item.id !== "ai-video-generator")
+                      .map((item) => {
+                        const Icon = item.icon;
+                        const isDual = item.hasDualFormat;
+
+                        const innerCard = (
+                          <>
+                            {/* Visual Image Preview Stage */}
+                            <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#0B0B0E] mb-3.5 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-orange-500/40 transition-colors">
+                              <img
+                                src={optimizeCloudinary(item.imageCard, 600)}
+                                alt={item.title}
+                                loading="lazy"
+                                decoding="async"
+                                className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                              {/* Aspect Ratio Badge (Top Left) */}
+                              <div className="absolute top-2.5 left-2.5 z-10">
+                                <span
+                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm border ${
+                                    isDual
+                                      ? "bg-orange-500/25 border-orange-500/50 text-orange-300"
+                                      : "bg-black/80 border-white/20 text-zinc-300"
+                                  }`}
+                                >
+                                  {isDual ? "9:16 · 16:9" : item.aspectRatio}
+                                </span>
+                              </div>
+
+                              {/* Badge Tag (Top Right) */}
+                              {item.badge && (
+                                <div className="absolute top-2.5 right-2.5 z-10">
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
+                                    {item.badge}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Center Hover Play Icon */}
+                              <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
+                                  <Play size={18} className="fill-current text-white ml-0.5" />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Card Content Info */}
+                            <div className="flex flex-col flex-1 justify-between">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
+                                    <Icon size={14} />
+                                  </div>
+                                  <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-orange-400 transition-colors line-clamp-1">
+                                    {item.title}
+                                  </h3>
+                                </div>
+
+                                <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed mb-3">
+                                  {item.description}
+                                </p>
+                              </div>
+
+                              {/* Card Footer CTA */}
+                              <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
+                                <span className={`text-[10px] font-mono font-bold ${
+                                  item.id === "auto-caption"
+                                    ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"
+                                    : isDual
+                                    ? "text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-md border border-orange-500/20"
+                                    : "text-zinc-400"
+                                }`}>
+                                  {item.id === "auto-caption" ? "FREE • 5/Day" : isDual ? "Dual Format" : item.singlePricing}
+                                </span>
+                                <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
+                                  <span>{isDual ? "Select Format" : "Create"}</span>
+                                  <ChevronRight size={13} />
+                                </span>
+                              </div>
+                            </div>
+                          </>
+                        );
+
+                        if (isDual) {
+                          return (
+                            <div
+                              key={item.id}
+                              onClick={() => setFormatModalTool(item.modalData!)}
+                              className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/50 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                            >
+                              {innerCard}
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <Link
+                            key={item.id}
+                            href={item.singleHref!}
+                            className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/50 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                          >
+                            {innerCard}
+                          </Link>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
               {show169Section && (
                 <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
                   
@@ -1183,7 +1355,7 @@ export default function DashboardClient() {
               {/*  */}
               
               {/* Empty Search Result */}
-              {!show916Section && !show169Section && !showUtilitySection && (
+              {!showUnifiedSection && !show916Section && !show169Section && !showUtilitySection && (
                 <div className="text-center py-16 border border-dashed border-white/15 rounded-[32px] bg-[#0E1526]/50 backdrop-blur-2xl">
                   <Search className="w-10 h-10 text-zinc-500 mx-auto mb-3" />
                   <p className="text-sm text-zinc-300 font-bold">

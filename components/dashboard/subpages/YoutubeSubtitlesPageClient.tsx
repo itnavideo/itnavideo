@@ -374,9 +374,13 @@ export default function YoutubeSubtitlesPageClient() {
     <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
       {/* Top Navigation Bar (Clean White Surface - Full Bleed, matching Image to Video AI) */}
       <StudioHeader
-        studioName="YouTube Subtitles AI"
+        studioName="Auto Caption Generator"
         aspectRatioLabel="16:9 Cinema"
-        badgeLabel="Burned Strips"
+        badgeLabel="FREE · 5/Day"
+        alternateFormat={{
+          label: "Switch to 9:16 Shorts",
+          href: "/dashboard/auto-caption",
+        }}
         userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
         isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />

@@ -40,8 +40,13 @@ import {
   CheckCheck,
   Tag,
   Tv,
+  Type,
+  Palette,
+  Sparkle,
+  Film as FilmIcon,
 } from "lucide-react";
 import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
+import { KINETIC_ANIMATION_CATALOG } from "@/services/ai/aiPolisherDirector";
 import {
   AWS_BGM_TRACKS,
   getBgmTrackAudioUrl,
@@ -51,9 +56,10 @@ import {
 } from "@/components/dashboard/ImageToVideoStudio";
 
 export const POLISHER_STEPS = [
-  { step: 1, title: "Upload", desc: "Takes & PIP Callouts" },
+  { step: 1, title: "Upload", desc: "Talking Head & Screen Assets" },
   { step: 2, title: "Music", desc: "Soundtrack & Audio" },
-  { step: 3, title: "Style", desc: "Zooms, Cuts & Captions" },
+  { step: 3, title: "AI Director", desc: "Kinetic Style & Cinema Grade" },
+  { step: 4, title: "Preview", desc: "16:9 Cinema Simulator" },
 ] as const;
 
 export interface UploadedMediaItem {
@@ -507,10 +513,10 @@ export function AiVideoPolisherStudio({
                     </div>
                     <div>
                       <h3 className="text-sm font-black text-slate-900">
-                        Primary 16:9 Widescreen Takes
+                        Primary A-Roll (Talking Head Footage)
                       </h3>
                       <p className="text-xs text-slate-500">
-                        Upload raw talking-head footage or shoot takes (MP4/MOV/WebM)
+                        Upload raw talking-head webcam/camera footage or shoot takes (MP4/MOV/WebM)
                       </p>
                     </div>
                   </div>
@@ -631,10 +637,10 @@ export function AiVideoPolisherStudio({
                     </div>
                     <div>
                       <h3 className="text-sm font-black text-slate-900">
-                        Picture-in-Picture (PIP) Overlays
+                        Additional Assets (Screen Recordings, Walkthroughs & B-Roll)
                       </h3>
                       <p className="text-xs text-slate-500">
-                        Add floating screenshot callouts, product demos, or reaction clips
+                        Add screen recordings, terminal walkthroughs, software demos, slides, or B-roll photos
                       </p>
                     </div>
                   </div>

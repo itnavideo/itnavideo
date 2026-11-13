@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -215,6 +215,102 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [activeBgmVolume, setActiveBgmVolume] = useState<number>(Math.round(facelessBgmVolume * 100) || 12);
   const [selectedBgmTrack, setSelectedBgmTrack] = useState<string>(AWS_BGM_TRACKS[0]?.id || "parasail");
   const [activeVisualTheme, setActiveVisualTheme] = useState<string>(visualTheme || "modern-saas");
+
+  // Storyboard Scene Editing & Swapping State (Audit Recommendation 1)
+  const [swapModalSceneIndex, setSwapModalSceneIndex] = useState<number | null>(null);
+  const [editSceneIndex, setEditSceneIndex] = useState<number | null>(null);
+  const [editHeadlineInput, setEditHeadlineInput] = useState<string>("");
+  const [editTakeawayInput, setEditTakeawayInput] = useState<string>("");
+  const [editNarrationInput, setEditNarrationInput] = useState<string>("");
+  const [showPreRenderModal, setShowPreRenderModal] = useState<boolean>(false);
+
+  // Curated stock library for 16:9 widescreen scenes
+  const CURATED_16_9_STOCKS = [
+    {
+      title: "Modern Tech Office & Cloud Strategy",
+      url: "/assets/reusable/images/realistic/businesswoman_analyzing_cloud_services_workflow_office.png",
+      tag: "Tech & Corporate",
+    },
+    {
+      title: "Financial Growth & Analytics Chart",
+      url: "/assets/reusable/images/realistic/businessman_presenting_financial_growth_chart_modern_of.png",
+      tag: "Finance & Data",
+    },
+    {
+      title: "Executive Penthouse & Global Reach",
+      url: "/assets/reusable/images/realistic/professional_man_luxury_penthouse_dubai_skyline.png",
+      tag: "Leadership",
+    },
+    {
+      title: "Creator Studio & AI Prompt Engineering",
+      url: "/assets/reusable/images/realistic/young_man_explaining_ai_prompts_youtube_studio.png",
+      tag: "Media & AI",
+    },
+    {
+      title: "Deep Focus & Financial Budgeting Desk",
+      url: "/assets/reusable/images/realistic/overhead_desk_budgeting_financial_planning_tools.png",
+      tag: "Strategy",
+    },
+    {
+      title: "Confident Professional European Walk",
+      url: "/assets/reusable/images/realistic/confident_woman_walking_european_cobblestone_street.png",
+      tag: "Mindset",
+    },
+    {
+      title: "Data Visualization & Curved Displays",
+      url: "/assets/reusable/images/realistic/woman_analyzing_complex_data_on_curved_monitor_in_moder.png",
+      tag: "Analytics",
+    },
+    {
+      title: "Clean Home Office Dialogue & Explaining",
+      url: "/assets/reusable/images/realistic/young_woman_talking_gesturing_home_setting.png",
+      tag: "Communication",
+    },
+  ];
+
+  const handleOpenSwapModal = (sceneIdx: number) => {
+    setSwapModalSceneIndex(sceneIdx);
+  };
+
+  const handleSelectAssetForScene = (assetUrl: string) => {
+    if (swapModalSceneIndex === null) return;
+    const sceneNum = swapModalSceneIndex + 1;
+    setBrollUrls((prev) => ({
+      ...prev,
+      [sceneNum]: assetUrl,
+    }));
+    setSceneBlueprint((prev) =>
+      prev.map((sc, i) => (i === swapModalSceneIndex ? { ...sc, brollUrl: assetUrl } : sc))
+    );
+    setSwapModalSceneIndex(null);
+  };
+
+  const handleOpenEditModal = (sceneIdx: number) => {
+    const sc = sceneBlueprint[sceneIdx];
+    if (!sc) return;
+    setEditSceneIndex(sceneIdx);
+    setEditHeadlineInput(sc.title || sc.headline || "");
+    setEditTakeawayInput(sc.keyTakeaway || "");
+    setEditNarrationInput(sc.narrationExcerpt || sc.description || "");
+  };
+
+  const handleSaveSceneEdits = () => {
+    if (editSceneIndex === null) return;
+    setSceneBlueprint((prev) =>
+      prev.map((sc, i) =>
+        i === editSceneIndex
+          ? {
+              ...sc,
+              title: editHeadlineInput,
+              headline: editHeadlineInput,
+              keyTakeaway: editTakeawayInput,
+              narrationExcerpt: editNarrationInput,
+            }
+          : sc
+      )
+    );
+    setEditSceneIndex(null);
+  };
 
   useEffect(() => {
     if (visualTheme) {
@@ -1504,25 +1600,25 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   checked={removeAiWatermark}
                   onChange={(val) => onRemoveAiWatermarkChange?.(val)}
                   label="Remove AI Watermark"
-                  description="Export a completely clean, unbranded 1080p MP4 ready for YouTube monetized publishing."
+                  description="Export a completely clean, unbranded 1080p Full HD MP4 video."
                 />
               </div>
 
-              {/* ── Commercial License & Preflight Verification (Audit PDF 3) ── */}
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              {/* ── Studio-Grade 1080p Cinema Master Quality Guarantee ── */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <ShieldCheck size={16} />
+                  <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <Tv size={16} />
                   </div>
                   <div>
-                    <p className="font-black text-slate-900">Commercial License Preflight Verified</p>
+                    <p className="font-black text-slate-900">Studio-Grade 1080p Cinema Master</p>
                     <p className="text-slate-600 text-[11px]">
-                      All stock footage, vector primitives, and audio tracks are licensed for YouTube monetization with zero copyright strikes.
+                      Composed in 1080p Full HD (1920×1080) at 30 FPS with kinetic typography, high-contrast visual styling, and dynamic audio ducking.
                     </p>
                   </div>
                 </div>
-                <span className="font-mono font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-lg shrink-0 self-start sm:self-auto">
-                  100% Monetization Safe
+                <span className="font-mono font-bold text-slate-800 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 self-start sm:self-auto">
+                  1080p Full HD • 30 FPS
                 </span>
               </div>
 
@@ -1578,12 +1674,326 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       </div>
                     ))}
                   </div>
+
+                  {/* Multi-Track Timeline Architecture Badge & Inspector */}
+                  <div className="pt-3 border-t border-slate-200/80">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                          Multi-Track Timeline Architecture (Unlimited Layers Active)
+                        </h4>
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        NLE Professional Stack
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-[11px]">
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                        <div className="flex items-center justify-between text-slate-700 font-bold">
+                          <span>Text Tracks</span>
+                          <span className="text-orange-600 font-black">10 Layers</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 line-clamp-2">
+                          Headlines, subheads, descriptions, key points, stat callouts &amp; badges.
+                        </p>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                        <div className="flex items-center justify-between text-slate-700 font-bold">
+                          <span>Backgrounds</span>
+                          <span className="text-amber-600 font-black">4 Layers</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 line-clamp-2">
+                          Deep gradient base, halftone grid, ambient mesh &amp; vignette.
+                        </p>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                        <div className="flex items-center justify-between text-slate-700 font-bold">
+                          <span>Audio Tracks</span>
+                          <span className="text-emerald-600 font-black">5 Tracks</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 line-clamp-2">
+                          Voiceover, ducked BGM, ambient bed, whoosh transitions &amp; hit SFX.
+                        </p>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                        <div className="flex items-center justify-between text-slate-700 font-bold">
+                          <span>SVG &amp; Vector</span>
+                          <span className="text-sky-600 font-black">Multi-Layer</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 line-clamp-2">
+                          Concept drawings, curved arrows, badges, icons &amp; metric charts.
+                        </p>
+                      </div>
+
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                        <div className="flex items-center justify-between text-slate-700 font-bold">
+                          <span>Media Tracks</span>
+                          <span className="text-violet-600 font-black">Dual-Asset</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 line-clamp-2">
+                          Primary cinema B-roll with floating PIP callout cards &amp; video clips.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
           )}
         </div>
       </div>
+
+      {/* ── MODAL: Visual Asset Swapper (Audit Recommendation 1) ── */}
+      {swapModalSceneIndex !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <ArrowLeftRight size={18} className="text-orange-500" />
+                  <span>Swap Visual for Scene {swapModalSceneIndex + 1}</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Select a curated 16:9 cinema visual or your uploaded custom media for this scene.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSwapModalSceneIndex(null)}
+                className="p-1.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 transition"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto space-y-4 pr-1 scrollbar-thin">
+              {/* User Uploads Option */}
+              {userMediaClips.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">
+                    Your Uploaded Media ({userMediaClips.length})
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {userMediaClips.map((clip, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSelectAssetForScene(clip.url)}
+                        className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 hover:border-orange-500 transition text-left cursor-pointer"
+                      >
+                        {clip.type === "video" ? (
+                          <div className="w-full h-full bg-slate-900 flex items-center justify-center text-white">
+                            <Video size={20} />
+                          </div>
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={clip.url} alt="User media" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                        )}
+                        <span className="absolute bottom-1 left-1 text-[9px] font-bold text-white bg-slate-900/80 px-1.5 py-0.5 rounded">
+                          User Asset
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Curated Studio Stock Images */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">
+                  Curated 16:9 Realistic Visuals
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {CURATED_16_9_STOCKS.map((stk, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSelectAssetForScene(stk.url)}
+                      className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 hover:border-orange-500 transition text-left cursor-pointer shadow-xs"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={stk.url} alt={stk.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-1.5">
+                        <span className="text-[9px] font-black text-white leading-tight line-clamp-1">
+                          {stk.title}
+                        </span>
+                        <span className="text-[8px] font-bold text-orange-300 uppercase tracking-wider">
+                          {stk.tag}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setSwapModalSceneIndex(null)}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: Scene Text Editor (Audit Recommendation 1) ── */}
+      {editSceneIndex !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <Edit3 size={16} className="text-orange-500" />
+                <span>Edit Scene {editSceneIndex + 1} Content</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditSceneIndex(null)}
+                className="p-1.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 transition"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-black uppercase tracking-wider text-slate-700 block mb-1">
+                  Scene Headline / Badge
+                </label>
+                <input
+                  type="text"
+                  value={editHeadlineInput}
+                  onChange={(e) => setEditHeadlineInput(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-900 focus:border-orange-500 focus:outline-none"
+                  placeholder="e.g. Core Principle"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-black uppercase tracking-wider text-slate-700 block mb-1">
+                  Key Takeaway Statement
+                </label>
+                <textarea
+                  rows={2}
+                  value={editTakeawayInput}
+                  onChange={(e) => setEditTakeawayInput(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-900 focus:border-orange-500 focus:outline-none"
+                  placeholder="The primary point highlighted on screen"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-black uppercase tracking-wider text-slate-700 block mb-1">
+                  Narration Excerpt
+                </label>
+                <textarea
+                  rows={2}
+                  value={editNarrationInput}
+                  onChange={(e) => setEditNarrationInput(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-900 focus:border-orange-500 focus:outline-none"
+                  placeholder="Spoken words corresponding to this scene"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEditSceneIndex(null)}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveSceneEdits}
+                className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black shadow-xs cursor-pointer"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL: Pre-Render Confirmation (Audit Recommendation 6) ── */}
+      {showPreRenderModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-9 rounded-xl bg-orange-100 border border-orange-200 text-orange-600 flex items-center justify-center">
+                  <Sparkles size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">Confirm Cloud Render</h3>
+                  <p className="text-xs text-slate-500">1080p Cinema Widescreen (16:9)</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPreRenderModal(false)}
+                className="p-1.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 transition"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-3 text-xs">
+              <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+                <span className="font-bold text-slate-500">Topic:</span>
+                <span className="font-black text-slate-900 max-w-[200px] truncate">
+                  {topicTitle || "Faceless Video"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+                <span className="font-bold text-slate-500">Duration:</span>
+                <span className="font-mono font-black text-slate-900">
+                  {formatSec(audioDurationSec)} ({Math.max(1, sceneBlueprint.length)} Scenes)
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+                <span className="font-bold text-slate-500">Mastering:</span>
+                <span className="font-bold text-slate-700">1080p Full HD • -16 LUFS Audio</span>
+              </div>
+              <div className="flex items-center justify-between py-1 pt-2 text-sm">
+                <span className="font-black text-slate-900">Credits Required:</span>
+                <span className="font-mono font-black text-orange-600 bg-orange-100/80 px-2.5 py-0.5 rounded-lg border border-orange-200">
+                  {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowPreRenderModal(false)}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700"
+              >
+                Back to Storyboard
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPreRenderModal(false);
+                  handleTriggerGenerate();
+                }}
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black shadow-md shadow-orange-500/25 active:scale-95 cursor-pointer"
+              >
+                Confirm &amp; Render ({calculatedCredits} Cr)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── ROW 3: Sticky Bottom Action Bar ── */}
       <div className="shrink-0 border-t border-slate-200/90 bg-white/95 backdrop-blur-xl px-4 sm:px-8 lg:px-12 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-lg">
@@ -1624,7 +2034,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           ) : (
             <button
               type="button"
-              onClick={handleTriggerGenerate}
+              onClick={() => setShowPreRenderModal(true)}
               disabled={isGenerating || !selectedFile}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black transition cursor-pointer shadow-md shadow-orange-500/25 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
             >
@@ -1637,3 +2047,4 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     </div>
   );
 };
+

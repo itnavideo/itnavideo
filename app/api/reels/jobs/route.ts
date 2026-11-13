@@ -2678,6 +2678,12 @@ export async function POST(request: Request) {
             aspectRatio: targetAspectRatio,
             visualTheme,
             mediaType: 'audio' as const,
+            textLayers: Array.isArray(body.textLayers) ? body.textLayers : undefined,
+            backgroundLayers: Array.isArray(body.backgroundLayers) ? body.backgroundLayers : undefined,
+            audioLayers: Array.isArray(body.audioLayers) ? body.audioLayers : undefined,
+            svgLayers: Array.isArray(body.svgLayers) ? body.svgLayers : undefined,
+            mediaLayers: Array.isArray(body.mediaLayers) ? body.mediaLayers : (Array.isArray(body.imageLayers) ? body.imageLayers : undefined),
+            imageLayers: Array.isArray(body.imageLayers) ? body.imageLayers : undefined,
           };
         })()
         : {}),

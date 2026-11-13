@@ -29,7 +29,10 @@ export type RenderAccess = {
 };
 
 export const FOUNDER_USER_IDS = [
+  "349a5053-941d-4238-9924-4575d5755a24",
+  "a50a8342-f362-4f49-adfe-fc7a9a4e14db",
   "itnavideo@gmail.com",
+  "rohi@itnavideo.com",
 ];
 
 type RenderAccessRequest = {
@@ -143,8 +146,8 @@ export async function getFounderTestAccessForUser(
   }
 
   const cleanEmail = sanitizeString(email).toLowerCase();
-  const isDirectFounderId = FOUNDER_USER_IDS.includes(cleanUserId);
-  const isDirectFounderEmail = isFounderTestEmail(cleanEmail) || (cleanUserId.includes("@") && isFounderTestEmail(cleanUserId));
+  const isDirectFounderId = FOUNDER_USER_IDS.includes(cleanUserId) || cleanUserId === "349a5053-941d-4238-9924-4575d5755a24" || cleanUserId.toLowerCase() === "itnavideo@gmail.com";
+  const isDirectFounderEmail = isFounderTestEmail(cleanEmail) || cleanEmail === "itnavideo@gmail.com" || cleanEmail.includes("itnavideo") || (cleanUserId.includes("@") && isFounderTestEmail(cleanUserId));
 
   let founderEmail = cleanEmail || (cleanUserId.includes("@") ? cleanUserId.toLowerCase() : "");
   if (!founderEmail && !isDirectFounderId) {
@@ -280,12 +283,13 @@ async function getUserEmailFromServer(userId: string) {
 
 function isFounderTestEmail(email: string) {
   const normalizedEmail = sanitizeString(email).toLowerCase();
+  if (normalizedEmail === "itnavideo@gmail.com" || normalizedEmail === "rohi@itnavideo.com" || normalizedEmail.includes("itnavideo")) return true;
   return Boolean(normalizedEmail && getFounderTestEmails().includes(normalizedEmail));
 }
 
 function getFounderTestEmails() {
   const envEmails = (process.env.FOUNDER_TEST_EMAILS || process.env.INTERNAL_TEST_EMAILS || "").split(/[\s,;]+/).map((item) => item.trim().toLowerCase()).filter(Boolean);
-  return Array.from(new Set([...envEmails, 'itnavideo@gmail.com']));
+  return Array.from(new Set([...envEmails, "itnavideo@gmail.com", "rohi@itnavideo.com"]));
 }
 
 function requireUserId(value: string) {

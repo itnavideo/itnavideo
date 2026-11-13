@@ -2,13 +2,17 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, Zap, Clock } from "lucide-react";
+import { ArrowLeft, Zap, Clock, ArrowUpRight } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 
 export interface StudioHeaderProps {
   studioName: string;
   badgeLabel?: string;
   aspectRatioLabel?: string;
+  alternateFormat?: {
+    label: string;
+    href: string;
+  };
   userRemainingCredits?: number;
   isWorking?: boolean;
   elapsedSeconds?: number;
@@ -30,6 +34,7 @@ export default function StudioHeader({
   studioName,
   badgeLabel,
   aspectRatioLabel,
+  alternateFormat,
   userRemainingCredits,
   isWorking = false,
   elapsedSeconds = 0,
@@ -83,6 +88,16 @@ export default function StudioHeader({
               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200/60">
                 {badgeLabel}
               </span>
+            )}
+            {alternateFormat && (
+              <Link
+                href={alternateFormat.href}
+                className="ml-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/90 transition-colors shadow-2xs group"
+                title={alternateFormat.label}
+              >
+                <span>{alternateFormat.label}</span>
+                <ArrowUpRight size={12} className="text-orange-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </Link>
             )}
           </div>
         </div>

@@ -358,9 +358,13 @@ export default function AiShortsPolisherPageClient() {
     <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
       {/* Standardized Unified Studio Navigation Header */}
       <StudioHeader
-        studioName="AI Shorts Polisher"
+        studioName="AI Video Polisher"
         aspectRatioLabel="9:16 Shorts"
         badgeLabel="Auto Editor"
+        alternateFormat={{
+          label: "Switch to 16:9 Cinema",
+          href: "/dashboard/ai-video-polisher",
+        }}
         userRemainingCredits={billingEntitlement?.usage?.remaining}
         isWorking={jobStatus.state !== "idle"}
       />

@@ -87,7 +87,7 @@ Across all 4 audited video and audio engines, the audits converged on **5 fundam
 - [x] **Mandatory Storyboard Review & Edit Stage**:
   - Expanded workflow to 4 distinct guided steps: Upload → Music → Style → Storyboard.
   - Storyboard Breakdown cards for all scenes with visual type tags (Stock B-Roll, SVG, Vignette).
-  - Commercial license preflight verification badge: *"100% Monetization Safe"*.
+  - Studio-Grade 1080p Cinema Output Guarantee: 1080p Full HD @ 30 FPS, Pure White Canvas, -16 LUFS audio mastering.
 - [ ] **Deterministic AI Planning Contract (Zod Schema)**:
   - Gemini prompt must output structured JSON validated against a versioned Zod schema.
   - Time continuity validation: zero time gaps or overlaps between scenes.

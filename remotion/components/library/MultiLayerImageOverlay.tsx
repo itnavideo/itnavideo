@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
-import { interpolate, spring, useCurrentFrame, useVideoConfig, Img, Sequence } from 'remotion';
-import { safeResolveMediaSrc } from '../../utils/safeMedia';
+import { interpolate, spring, useCurrentFrame, useVideoConfig, Img, OffthreadVideo, Sequence } from 'remotion';
+import { safeResolveMediaSrc, isVideoMedia as isVideoFile } from '../../utils/safeMedia';
 import { ShapeClippingContainer, type ShapeClippingMode, type ShapeClippingRevealAnimation } from './ShapeClippingContainer';
 
 // =========================================================================
-// 1. REUSABLE IMAGE LAYER DATA SCHEMA (Pure JSON Timeline Data)
+// 1. REUSABLE IMAGE & VIDEO MEDIA LAYER DATA SCHEMA (Unlimited Layers)
 // =========================================================================
 
 export type ImageLayerMode =
@@ -39,6 +39,9 @@ export interface ImageKeyframe {
 export interface DynamicImageLayer {
   id: string;
   src: string;
+  mediaType?: 'image' | 'video';
+  volume?: number;
+  trimStartSeconds?: number;
   startSeconds: number;
   durationSeconds: number;
   mode?: ImageLayerMode;
@@ -459,6 +462,31 @@ const SingleImageLayerView = memo(({ layer }: { layer: DynamicImageLayer }) => {
   const resolvedSrc = safeResolveMediaSrc(layer.src);
   if (!resolvedSrc) return null;
 
+  const isVideo = layer.mediaType === 'video' || isVideoFile(layer.src);
+  const trimStartFrames = Math.round((layer.trimStartSeconds ?? 0) * fps);
+
+  const mediaElement = isVideo ? (
+    <OffthreadVideo
+      src={resolvedSrc}
+      startFrom={trimStartFrames}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: layer.objectFit ?? 'cover',
+      }}
+      volume={layer.volume ?? 0}
+    />
+  ) : (
+    <Img
+      src={resolvedSrc}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: layer.objectFit ?? 'cover',
+      }}
+    />
+  );
+
   return (
     <div
       style={{
@@ -492,24 +520,10 @@ const SingleImageLayerView = memo(({ layer }: { layer: DynamicImageLayer }) => {
           customSvgPath={layer.clipping.customSvgPath}
           cornerRadiusPx={layer.borderRadius}
         >
-          <Img
-            src={resolvedSrc}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: layer.objectFit ?? 'cover',
-            }}
-          />
+          {mediaElement}
         </ShapeClippingContainer>
       ) : (
-        <Img
-          src={resolvedSrc}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: layer.objectFit ?? 'cover',
-          }}
-        />
+        mediaElement
       )}
     </div>
   );
@@ -561,4 +575,9 @@ export const MultiLayerImageOverlay: React.FC<MultiLayerImageOverlayProps> = ({ 
     </div>
   );
 };
+
+// Aliases for unified Media layer usage (supporting both Image and Video clips)
+export type DynamicMediaLayer = DynamicImageLayer;
+export const MultiLayerMediaOverlay = MultiLayerImageOverlay;
+
 

@@ -353,9 +353,13 @@ export default function AiVideoPolisherPageClient() {
     <div className="h-dvh bg-white text-slate-900 flex flex-col selection:bg-orange-500/20 selection:text-orange-600 overflow-hidden font-sans">
       {/* Top Header: Unified Full Bleed Canvas */}
       <StudioHeader
-        studioName="AI YouTube Video Polisher"
+        studioName="AI Video Polisher"
         aspectRatioLabel="16:9 Cinema"
         badgeLabel="Auto Editor"
+        alternateFormat={{
+          label: "Switch to 9:16 Shorts",
+          href: "/dashboard/ai-shorts-polisher",
+        }}
         userRemainingCredits={billingEntitlement?.usage?.remaining ?? 0}
         isWorking={Boolean(jobStatus.state !== 'idle' && jobStatus.state !== 'ready')}
       />

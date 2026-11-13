@@ -1,26 +1,67 @@
+# Version control & workspace configs
 .git/
-.gcloudignore
-node_modules/
-.next/
-*.log
-.system_generated/
-brain/
-tmp/
-*.mp4
-*.mov
-*.webm
-*.zip
+.gitignore
+.gitattributes
+.vscode/
+.idea/
 .agents/
 .kiro/
 .codex/
 .specify/
-.vscode/
+.system_generated/
+brain/
 scratch/
 semantic-review/
+
+# Dependencies & Build Artefacts (Rebuilt in Cloud container)
+node_modules/
+.next/
+*.tsbuildinfo
+tmp/
+*.log
+deploy.log
+build_details.log
+build_list.log
+cloud_build_log.txt
+
+# Local Archives & Binary Installers
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+*.exe
+*.msi
+
+# Documentation & Specifications (Not needed in production runner)
+docs/
+*.pdf
+Faceless Video Generator md.pdf
+# YouTube Subtitles Generator md.pdf
+AI Audio Cleaner & Enhancer md.pdf
+autocaption-md improve.pdf
+
+# Large Media & Renders (Served via Cloudinary/S3)
 public/assets/reusable/
 public/assets/direct/
 public/assets/stickman/
 public/assets/autocaptionvideos/
-deploy.log
-build_details.log
-build_list.log
+public/renders/
+public/visuals/typography_video/
+public/visuals/homepage/*.mp4
+public/brand/gemini-logo*.png
+*.mp4
+*.mov
+*.webm
+*.avi
+*.mkv
+*.wav
+*.flac
+
+# Local screenshots in project root
+*.png
+!public/brand/itnavideo-logo-full.png
+!public/brand/favicon.ico
+!public/og-image.png
+!public/favicon.ico
+!public/brand/itnavideo-logo.png

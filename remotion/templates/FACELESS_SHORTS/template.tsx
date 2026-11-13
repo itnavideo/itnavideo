@@ -29,6 +29,9 @@ import { MultiLayerCalloutOverlay, type DynamicCalloutLayer } from '../../compon
 import { IsometricPerspectiveOverlay, type DynamicIsometricLayer } from '../../components/library/IsometricPerspectiveOverlay';
 import { MultiLayerGaugeOverlay, type DynamicGaugeLayer } from '../../components/library/MultiLayerGaugeOverlay';
 import { MultiLayerAudioVisualizerOverlay, type DynamicAudioVisualizerLayer } from '../../components/library/MultiLayerAudioVisualizerOverlay';
+import { MultiLayerBackgroundOverlay, type DynamicBackgroundLayer } from '../../components/library/MultiLayerBackgroundOverlay';
+import { MultiLayerAudioOverlay, type DynamicAudioLayer } from '../../components/library/MultiLayerAudioOverlay';
+import { composeMultiLayerVideoBlueprint } from '../../../services/ai/facelessMultiLayerEngine';
 import { VirtualCameraLayer, type VirtualCameraConfig } from '../../components/library/VirtualCameraLayer';
 import { VideoVisualThemeProvider, type VideoVisualTheme } from '../../theme/VideoVisualTheme';
 import { CanvasGraphicsLayer } from '../../layers/CanvasGraphicsLayer';
@@ -128,7 +131,10 @@ export interface FacelessShortsProps {
   emojiEvents?: KineticEmojiEvent[];
   textLayers?: DynamicTextLayer[];
   imageLayers?: DynamicImageLayer[];
+  mediaLayers?: DynamicImageLayer[];
   svgLayers?: DynamicSvgLayer[];
+  backgroundLayers?: DynamicBackgroundLayer[];
+  audioLayers?: DynamicAudioLayer[];
   effectsLayers?: DynamicEffectLayer[];
   adjustmentLayers?: DynamicAdjustmentLayer[];
   transitionEvents?: DynamicTransitionEvent[];
@@ -196,7 +202,10 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
     emojiEvents = [],
     textLayers = [],
     imageLayers = [],
+    mediaLayers = [],
     svgLayers = [],
+    backgroundLayers = [],
+    audioLayers = [],
     effectsLayers = [],
     adjustmentLayers = [],
     transitionEvents = [],
@@ -430,6 +439,50 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
     if (typeof brollUrls === 'object') return Object.values(brollUrls).filter(Boolean);
     return [];
   }, [brollUrls]);
+
+  // Automated Master Multi-Layer Timeline Composition (Unlimited Tracks for 9:16 Shorts)
+  const autoComposedBlueprint = React.useMemo(() => {
+    return composeMultiLayerVideoBlueprint(
+      sceneBlueprint,
+      '9:16',
+      allBrollList,
+      resolvedMusicSrc,
+      props.bgmVolume ?? props.musicVolume ?? 0.12
+    );
+  }, [sceneBlueprint, allBrollList, resolvedMusicSrc, props.bgmVolume, props.musicVolume]);
+
+  const resolvedTextLayers = textLayers && textLayers.length > 0
+    ? textLayers
+    : autoComposedBlueprint.allTextLayers;
+
+  const resolvedBackgroundLayers = backgroundLayers && backgroundLayers.length > 0
+    ? backgroundLayers
+    : autoComposedBlueprint.allBackgroundLayers;
+
+  const resolvedAudioLayers = audioLayers && audioLayers.length > 0
+    ? audioLayers
+    : autoComposedBlueprint.allAudioLayers;
+
+  const resolvedSvgLayers = svgLayers && svgLayers.length > 0
+    ? svgLayers
+    : autoComposedBlueprint.allSvgLayers;
+
+  const resolvedMediaLayers = (mediaLayers && mediaLayers.length > 0
+    ? mediaLayers
+    : (imageLayers && imageLayers.length > 0 ? imageLayers : autoComposedBlueprint.allMediaLayers));
+
+  const speechActiveIntervals = React.useMemo(() => {
+    if (activeCaptions && activeCaptions.length > 0) {
+      return activeCaptions.map((c) => ({
+        start: Number(c.start ?? (c as any).startSeconds ?? 0),
+        end: Number(c.end ?? (c as any).endSeconds ?? 0),
+      }));
+    }
+    return sceneBlueprint.map((sc) => ({
+      start: Number(sc.narrationSegment?.startSeconds ?? 0),
+      end: Number(sc.narrationSegment?.endSeconds ?? (Number(sc.narrationSegment?.startSeconds ?? 0) + (sc.duration || 5))),
+    }));
+  }, [activeCaptions, sceneBlueprint]);
   // Image visuals are temporarily paused for faceless videos; keep legacy asset props for compatibility.
   const currentSceneIdx = Math.max(0, (currentScene?.sceneNumber || 1) - 1);
 
@@ -1311,7 +1364,11 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
           <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(2, 6, 23, 0.55)', backdropFilter: 'blur(3px)' }} />
         </div>
       ) : (
-        <Background theme={activeBackgroundTheme} customBgUrl={customBgUrl} aspectRatio={props.aspectRatio} />
+        <MultiLayerBackgroundOverlay
+          layers={resolvedBackgroundLayers}
+          fallbackTheme={activeBackgroundTheme}
+          aspectRatio={props.aspectRatio || '9:16'}
+        />
       )}
 
       {/* ── LAYER 2: Deep Ambient Media Underlay (For Dark/Atmospheric Card & Split Scenes) ── */}
@@ -1428,14 +1485,14 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
         <MultiLayerPatternOverlay patterns={patternLayers} />
       ) : null}
 
-      {/* ── LAYER 3.2: Reusable Dynamic Multi-Layer Image Engine (Unlimited Layers & 8 Presets) ── */}
-      {imageLayers && imageLayers.length > 0 ? (
-        <MultiLayerImageOverlay layers={imageLayers} />
+      {/* ── LAYER 3.2: Reusable Dynamic Multi-Layer Media Engine (Unlimited Image & Video Clips) ── */}
+      {resolvedMediaLayers && resolvedMediaLayers.length > 0 ? (
+        <MultiLayerImageOverlay layers={resolvedMediaLayers} />
       ) : null}
 
-      {/* ── LAYER 3.3: Reusable Dynamic Multi-Layer SVG Engine (10 Vector Archetypes) ── */}
-      {svgLayers && svgLayers.length > 0 ? (
-        <MultiLayerSvgOverlay layers={svgLayers} />
+      {/* ── LAYER 3.3: Reusable Dynamic Multi-Layer SVG Engine (Unlimited Vector Archetypes) ── */}
+      {resolvedSvgLayers && resolvedSvgLayers.length > 0 ? (
+        <MultiLayerSvgOverlay layers={resolvedSvgLayers} />
       ) : null}
 
       {/* ── LAYER 3.3B: Reusable 2.5D Isometric Engine (Cubes, Platforms, 3D Mockups) ── */}
@@ -1499,16 +1556,44 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
         </div>
       )}
 
-      {/* Dynamic Background Music Track */}
-      {resolvedMusicSrc && (
-        <Audio
-          src={resolvedMusicSrc}
-          volume={dynamicMusicVolume}
+      {/* ── Multi-Track Audio Engine (Multiple Music Tracks & SFX Layers Coexisting) ── */}
+      {resolvedAudioLayers && resolvedAudioLayers.length > 0 ? (
+        <MultiLayerAudioOverlay
+          layers={resolvedAudioLayers}
+          speechActiveIntervals={speechActiveIntervals}
         />
+      ) : (
+        <>
+          {resolvedMusicSrc && (
+            <Audio
+              src={resolvedMusicSrc}
+              volume={dynamicMusicVolume}
+            />
+          )}
+          {resolvedAudioSrc && (
+            <Audio
+              src={resolvedAudioSrc}
+              startFrom={Math.round(mediaTrimStartSeconds * fps)}
+              volume={sourceAudioVolume}
+              playbackRate={playbackRate}
+            />
+          )}
+          {resolvedSfxEvents
+            .filter((sfx) => Boolean(sfx?.sfxUrl) && sfx.startFrame >= 0 && sfx.startFrame < durationInFrames)
+            .map((sfx) => (
+              <Sequence
+                key={sfx.id}
+                from={sfx.startFrame}
+                durationInFrames={Math.min(Math.round(2.5 * fps), Math.max(1, durationInFrames - sfx.startFrame))}
+              >
+                <Audio src={safeResolveMediaSrc(sfx.sfxUrl)} volume={sfx.volume} />
+              </Sequence>
+            ))}
+        </>
       )}
 
-      {/* Voiceover Audio Stream */}
-      {resolvedAudioSrc && (
+      {/* Voiceover Audio Stream (Always active when not handled by audioLayers) */}
+      {resolvedAudioSrc && (!resolvedAudioLayers || resolvedAudioLayers.length === 0) && (
         <Audio
           src={resolvedAudioSrc}
           startFrom={Math.round(mediaTrimStartSeconds * fps)}
@@ -1516,19 +1601,6 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
           playbackRate={playbackRate}
         />
       )}
-
-      {/* Timed Sound Effects (Pops, Swooshes, Risers, Cash Registers) */}
-      {resolvedSfxEvents
-        .filter((sfx) => Boolean(sfx?.sfxUrl) && sfx.startFrame >= 0 && sfx.startFrame < durationInFrames)
-        .map((sfx) => (
-          <Sequence
-            key={sfx.id}
-            from={sfx.startFrame}
-            durationInFrames={Math.min(Math.round(2.5 * fps), Math.max(1, durationInFrames - sfx.startFrame))}
-          >
-            <Audio src={safeResolveMediaSrc(sfx.sfxUrl)} volume={sfx.volume} />
-          </Sequence>
-        ))}
 
       {/* ── Dynamic Kinetic Emoji / Sticker Engine (MrBeast & Hormozi Contextual Pops) ── */}
       {enableKineticEmojis && (
@@ -1546,8 +1618,8 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
       ) : null}
 
       {/* ── LAYER 4.5: Reusable Dynamic Multi-Layer Text Engine (Unlimited Independent Text Layers) ── */}
-      {textLayers && textLayers.length > 0 ? (
-        <MultiLayerTextOverlay layers={textLayers} defaultHeadingFont={headingFont} />
+      {resolvedTextLayers && resolvedTextLayers.length > 0 ? (
+        <MultiLayerTextOverlay layers={resolvedTextLayers} defaultHeadingFont={headingFont} />
       ) : null}
 
       {/* ── LAYER 4.6: Reusable Dynamic Callout & Label Engine (Speech Bubbles, Infocards, Pointers) ── */}
