@@ -14,7 +14,6 @@ import {
   type AccentTone,
   useVideoDesignSystem,
 } from '../designSystem';
-import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
 
 export interface SceneCanvasProps {
   children: React.ReactNode;
@@ -280,15 +279,22 @@ export function SceneHeader({
         {highlightIndex !== -1 ? (
           <>
             {cleanHeading.slice(0, highlightIndex)}
-            <HandwritingHighlight
-              color="#FFE600"
-              textColor="#0F172A"
-              delayFrames={8}
-              durationFrames={14}
-              type="highlighter"
+            <span
+              style={{
+                position: 'relative',
+                display: 'inline-block',
+                margin: '0 6px',
+                padding: '2px 12px',
+                borderRadius: '6px',
+                backgroundColor: '#FFE600',
+                color: '#0F172A',
+                boxShadow: '0 4px 16px rgba(255, 230, 0, 0.45)',
+                transform: 'rotate(-1deg)',
+                verticalAlign: 'baseline',
+              }}
             >
               {cleanHeading.slice(highlightIndex, highlightIndex + highlightWord.length)}
-            </HandwritingHighlight>
+            </span>
             {cleanHeading.slice(highlightIndex + highlightWord.length)}
           </>
         ) : (

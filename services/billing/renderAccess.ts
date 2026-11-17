@@ -1,4 +1,5 @@
 import { CREDIT_UNITS_PER_CREDIT, type BillableRenderMode, normalizeCreditUnits } from "@/lib/billing/creditPricing";
+import { PLATFORM_MODE_CONFIG } from "@/lib/config/platformMode";
 import { getBillingEntitlementFromServer, getEntitlementCreditWindow, isEntitlementActive } from "@/services/supabase/billingStore";
 import { createSupabaseServerClient, isSupabaseServerConfigured } from "@/lib/supabase/server";
 import { countRenderHistoryInWindowFromServer, getAppSettingFromServer, setAppSettingFromServer } from "@/services/supabase/siteStore";
@@ -53,6 +54,22 @@ export async function getRenderAccessForUser(userId: string, request: RenderAcce
   // Local development / testing fallback: if Supabase server credentials are not configured, allow local testing
   if (process.env.NODE_ENV !== "production" && !isSupabaseServerConfigured()) {
     return accessForWindow(cleanUserId, "dev-test", "Local Dev Test", true, FOUNDER_TEST_START_AT, FOUNDER_TEST_EXPIRES_AT, FOUNDER_TEST_LIMIT, requiredCreditUnits);
+  }
+
+  // ── TEMPORARY FREE ACCESS STRATEGY ──
+  // When active, allow all authenticated registered users to generate and preview any video type.
+  // The daily allowance of 2 videos is enforced on actual download via /api/downloads/claim.
+  if (PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS) {
+    return {
+      allowed: true,
+      planId: "free-access",
+      planName: "Free Access Creator",
+      activePaidPlan: false,
+      used: 0,
+      limit: PLATFORM_MODE_CONFIG.DAILY_FREE_DOWNLOAD_LIMIT,
+      remaining: PLATFORM_MODE_CONFIG.DAILY_FREE_DOWNLOAD_LIMIT,
+      watermark: false,
+    };
   }
 
   let entitlement = null;

@@ -15,6 +15,8 @@ import AnnouncementsTab from "@/components/dashboard/AnnouncementsTab";
 import FormatSelectorModal, {
   type UnifiedToolModalData,
 } from "@/components/dashboard/shared/FormatSelectorModal";
+import { PLATFORM_MODE_CONFIG } from "@/lib/config/platformMode";
+import { DailyDownloadBadge } from "@/components/dashboard/DailyDownloadBadge";
 import {
   UNIFIED_STUDIO_TOOLS,
   type UnifiedToolItem,
@@ -94,7 +96,7 @@ export const DASHBOARD_169_TOOLS: VideoToolCard[] = [
     iconColorClass: "text-orange-500",
     description: "Prompt-to-production studio: AI Creative Director, multitrack timeline editor & 1080p cloud render.",
     badge: "Coming Soon",
-    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png",
+    imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1794750594/AI_Video_Generator_Studio_j1fbid.png",
   },
   {
     id: "faceless-video",
@@ -535,35 +537,41 @@ export default function DashboardClient() {
               </div>
             </div>
 
-            {/* Quick Actions & Credits Pill */}
+            {/* Quick Actions & Free Allowance / Credits Pill */}
             <div className="flex items-center gap-2 sm:gap-3">
-              <Link
-                href="/pricing"
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/15 to-orange-500/10 border border-orange-500/40 hover:border-orange-500/70 transition-all text-xs font-bold text-orange-200 shadow-xs group cursor-pointer"
-              >
-                <Zap className="w-3.5 h-3.5 text-orange-500 fill-orange-500 animate-pulse group-hover:scale-110 transition-transform" />
-                <span className="text-orange-300 font-black">
-                  {remainingCredits !== null ? `${remainingCredits} Credits` : (isFounder ? "999 Credits" : "...")}
-                </span>
-                {isFounder ? (
-                  <span className="inline-block rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
-                    Founder
-                  </span>
-                ) : (
-                  <span className="hidden sm:inline-block rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
-                    +Add
-                  </span>
-                )}
-              </Link>
+              {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? (
+                <DailyDownloadBadge />
+              ) : (
+                <>
+                  <Link
+                    href="/pricing"
+                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/15 to-orange-500/10 border border-orange-500/40 hover:border-orange-500/70 transition-all text-xs font-bold text-orange-200 shadow-xs group cursor-pointer"
+                  >
+                    <Zap className="w-3.5 h-3.5 text-orange-500 fill-orange-500 animate-pulse group-hover:scale-110 transition-transform" />
+                    <span className="text-orange-300 font-black">
+                      {remainingCredits !== null ? `${remainingCredits} Credits` : (isFounder ? "999 Credits" : "...")}
+                    </span>
+                    {isFounder ? (
+                      <span className="inline-block rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
+                        Founder
+                      </span>
+                    ) : (
+                      <span className="hidden sm:inline-block rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white px-2 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm">
+                        +Add
+                      </span>
+                    )}
+                  </Link>
 
-              {user && !isFounder && (
-                <Link
-                  href="/pricing"
-                  className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-zinc-300 hover:text-white px-3.5 py-1.5 rounded-xl border border-white/10 bg-[#181820] hover:bg-[#20202A] transition shadow-xs"
-                >
-                  <span>Upgrade Plan</span>
-                  <ArrowUpRight size={13} className="text-orange-400" />
-                </Link>
+                  {user && !isFounder && (
+                    <Link
+                      href="/pricing"
+                      className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-zinc-300 hover:text-white px-3.5 py-1.5 rounded-xl border border-white/10 bg-[#181820] hover:bg-[#20202A] transition shadow-xs"
+                    >
+                      <span>Upgrade Plan</span>
+                      <ArrowUpRight size={13} className="text-orange-400" />
+                    </Link>
+                  )}
+                </>
               )}
               {!user && (
                 <Link
@@ -787,7 +795,7 @@ export default function DashboardClient() {
                     {/* Left: 16:9 Studio Preview Image */}
                     <div className="relative aspect-[16/9] w-full lg:w-96 shrink-0 rounded-2xl bg-[#0B0B0E] border border-white/10 overflow-hidden shadow-inner group-hover:border-orange-500/50 transition-colors">
                       <img
-                        src={optimizeCloudinary("https://res.cloudinary.com/dhouh9idx/image/upload/v1794147192/AI_Video_Generator_Marketing_Banner_yf2djz.png", 640)}
+                        src={optimizeCloudinary("https://res.cloudinary.com/dhouh9idx/image/upload/v1794750594/AI_Video_Generator_Studio_j1fbid.png", 640)}
                         alt="AI Video Generator"
                         loading="lazy"
                         decoding="async"
@@ -848,7 +856,7 @@ export default function DashboardClient() {
                     {/* Right / Bottom: Price & Open CTA Button */}
                     <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10 shrink-0">
                       <span className="text-[11px] font-mono font-bold text-orange-400 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                        1 Min = 1 Credit
+                        {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Min = 1 Credit"}
                       </span>
                       <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
                         <span>Preview Studio (Coming Soon)</span>
@@ -879,7 +887,7 @@ export default function DashboardClient() {
                     </div>
 
                     <span className="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-mono font-bold self-start sm:self-center">
-                      1 Credit • Studio Clean
+                      {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Credit • Studio Clean"}
                     </span>
                   </div>
 
@@ -956,7 +964,7 @@ export default function DashboardClient() {
                           {/* Right / Bottom: Price & Open CTA Button */}
                           <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10 shrink-0">
                             <span className="text-[11px] font-mono font-bold text-teal-400 px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/20">
-                              1 Credit / Video
+                              {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Credit / Video"}
                             </span>
                             <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
                               <span>Open Audio Studio</span>
@@ -1148,7 +1156,7 @@ export default function DashboardClient() {
                         1920×1080 Full HD
                       </span>
                       <span className="px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/30 text-orange-400">
-                        1 Credit / Min • Max 5 min
+                        {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Credit / Min • Max 5 min"}
                       </span>
                     </div>
                   </div>
@@ -1211,7 +1219,7 @@ export default function DashboardClient() {
                             {/* Card Footer CTA */}
                             <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
                               <span className={`text-[10px] font-mono font-bold ${item.id === "youtube-subtitles" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
-                                {item.id === "youtube-subtitles" ? "FREE • 5/Day" : "1 Credit / Min"}
+                                {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : (item.id === "youtube-subtitles" ? "FREE • 5/Day" : "1 Credit / Min")}
                               </span>
                               <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
                                 <span>Create</span>
@@ -1261,7 +1269,7 @@ export default function DashboardClient() {
                         1080×1920 Full HD
                       </span>
                       <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                        1 Credit / Video • Max 90s
+                        {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Credit / Video • Max 90s"}
                       </span>
                     </div>
                   </div>
@@ -1334,7 +1342,7 @@ export default function DashboardClient() {
                             {/* Card Footer CTA */}
                             <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
                               <span className={`text-[10px] font-mono font-bold ${item.id === "auto-caption" ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20" : "text-zinc-400"}`}>
-                                {item.id === "auto-caption" ? "FREE • 5/Day" : (isClips ? "1 Credit / Clip" : "1 Credit / Video")}
+                                {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : (item.id === "auto-caption" ? "FREE • 5/Day" : (isClips ? "1 Credit / Clip" : "1 Credit / Video"))}
                               </span>
                               <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
                                 <span>Create</span>

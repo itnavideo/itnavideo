@@ -470,6 +470,73 @@ Object.values(SVG_MASTER_CATALOG).forEach((item) => {
   item.paths = primitive.map((p, i) => ({ d: p.d, strokeWidth: i === 0 ? 2.8 : 2.4, colorKey: p.colorKey }));
 });
 
+// ── 4.5. RESTAURANT, DELIVERY & ON-DEMAND LOGISTICS (High-Priority Domain Concepts) ──
+SVG_MASTER_CATALOG['biz_delivery_fleet'] = {
+  id: 'biz_delivery_fleet',
+  name: 'ON-DEMAND DELIVERY FLEET',
+  category: 'Logistics & Delivery',
+  keywords: ['delivery', 'driver', 'drivers', 'fleet', 'dispatch', 'courier', 'doordash', 'shipping', 'transport', 'vehicle', 'vehicles'],
+  paths: [
+    { d: 'M 18 68 L 32 68 M 68 68 L 82 68', strokeWidth: 3.2, colorKey: 'primary' },
+    { d: 'M 25 72 A 8 8 0 1 0 25 56 A 8 8 0 1 0 25 72 Z', strokeWidth: 2.8, colorKey: 'accent' },
+    { d: 'M 75 72 A 8 8 0 1 0 75 56 A 8 8 0 1 0 75 72 Z', strokeWidth: 2.8, colorKey: 'accent' },
+    { d: 'M 33 64 L 45 42 L 65 42 L 72 64 Z', strokeWidth: 2.6, colorKey: 'primary' },
+    { d: 'M 45 42 L 52 28 L 68 28', strokeWidth: 2.4, colorKey: 'highlight' },
+  ],
+};
+
+SVG_MASTER_CATALOG['biz_restaurant_kitchen'] = {
+  id: 'biz_restaurant_kitchen',
+  name: 'RESTAURANT & KITCHEN EXCELLENCE',
+  category: 'Restaurant & Hospitality',
+  keywords: ['restaurant', 'restaurants', 'food', 'great food', 'kitchen', 'cooking', 'chef', 'dining', 'orders', 'meal'],
+  paths: [
+    { d: 'M 20 62 C 20 78, 80 78, 80 62 Z', strokeWidth: 2.8, colorKey: 'primary' },
+    { d: 'M 24 58 L 76 58', strokeWidth: 3.0, colorKey: 'primary' },
+    { d: 'M 35 48 Q 40 38 35 28', strokeWidth: 2.2, colorKey: 'highlight' },
+    { d: 'M 50 48 Q 55 38 50 28', strokeWidth: 2.2, colorKey: 'highlight' },
+    { d: 'M 65 48 Q 70 38 65 28', strokeWidth: 2.2, colorKey: 'highlight' },
+  ],
+};
+
+SVG_MASTER_CATALOG['biz_direct_channels'] = {
+  id: 'biz_direct_channels',
+  name: 'DIRECT ORDER INTEGRATION',
+  category: 'Digital Channels & SaaS',
+  keywords: ['website', 'websites', 'app', 'apps', 'channels', 'online order', 'direct order', 'own websites'],
+  paths: [
+    { d: 'M 20 25 L 80 25 L 80 75 L 20 75 Z', strokeWidth: 2.8, colorKey: 'primary' },
+    { d: 'M 20 38 L 80 38', strokeWidth: 2.4, colorKey: 'accent' },
+    { d: 'M 28 31 A 2 2 0 1 0 28 31.1 M 36 31 A 2 2 0 1 0 36 31.1 M 44 31 A 2 2 0 1 0 44 31.1', strokeWidth: 2.4, colorKey: 'highlight' },
+    { d: 'M 38 55 L 48 65 L 68 45', strokeWidth: 3.0, colorKey: 'highlight' },
+  ],
+};
+
+SVG_MASTER_CATALOG['biz_cost_reduction'] = {
+  id: 'biz_cost_reduction',
+  name: 'OVERHEAD & COST SAVINGS',
+  category: 'Finance & Margins',
+  keywords: ['save money', 'lower overhead', 'fewer staffing', 'staffing expenses', 'cut costs', 'operational overhead', 'save on the costs', 'expenses', 'salaries'],
+  paths: [
+    { d: 'M 20 75 L 80 75', strokeWidth: 2.8, colorKey: 'primary' },
+    { d: 'M 28 75 L 28 55 M 48 75 L 48 40 M 68 75 L 68 25', strokeWidth: 6.0, colorKey: 'accent' },
+    { d: 'M 24 35 L 50 50 L 76 60', strokeWidth: 2.6, colorKey: 'highlight' },
+    { d: 'M 76 60 L 66 58 M 76 60 L 74 50', strokeWidth: 2.6, colorKey: 'highlight' },
+  ],
+};
+
+SVG_MASTER_CATALOG['biz_order_request'] = {
+  id: 'biz_order_request',
+  name: 'INSTANT ON-DEMAND DISPATCH',
+  category: 'Logistics & Delivery',
+  keywords: ['request a delivery', 'receive an order', 'request delivery', 'on demand', 'instant dispatch', 'whenever they receive'],
+  paths: [
+    { d: 'M 50 15 A 35 35 0 1 0 50 85 A 35 35 0 1 0 50 15 Z', strokeWidth: 2.8, colorKey: 'primary' },
+    { d: 'M 50 28 L 50 52 L 68 52', strokeWidth: 2.8, colorKey: 'highlight' },
+    { d: 'M 32 40 L 40 40 M 60 62 L 68 62', strokeWidth: 2.4, colorKey: 'accent' },
+  ],
+};
+
 export const ALL_SVG_CONCEPT_IDS = Object.keys(SVG_MASTER_CATALOG);
 
 /**

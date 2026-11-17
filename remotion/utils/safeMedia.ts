@@ -35,7 +35,21 @@ export function safeResolveMediaSrc(src?: string | null): string {
   if (/^(https?:\/\/|data:|blob:)/i.test(trimmed)) {
     return trimmed;
   }
-  const clean = trimmed.replace(/^\/+/, '');
+  let clean = trimmed.replace(/^\/+/, '');
+
+  // Bulletproof fallback normalization for legacy/hallucinated SFX & BGM paths
+  if (clean.includes('whoosh-swoosh') || clean.includes('whoosh_swoosh')) {
+    clean = 'assets/reusable/sfx/whoosh.wav';
+  } else if (clean.includes('pop-clean') || clean.includes('bubble-pop-clean')) {
+    clean = 'assets/reusable/sfx/pop.mp3';
+  } else if (clean.includes('cash-register-ding') || clean.includes('cash_ding')) {
+    clean = 'assets/reusable/sfx/ding.mp3';
+  } else if (clean.includes('documentary-ambient') || clean.includes('cinematic-hype') || clean.includes('upbeat-corporate')) {
+    clean = 'assets/reusable/music/parasail-silent-partner.mp3';
+  } else if (clean.includes('lofi-chill-beat')) {
+    clean = 'assets/reusable/music/crimson-fly-huma-huma.mp3';
+  }
+
   if (clean.startsWith('assets/')) {
     const encoded = clean
       .split('/')

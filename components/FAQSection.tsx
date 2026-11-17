@@ -32,11 +32,11 @@ const faqs: FAQItem[] = [
     action: { label: 'Explore All Studios', href: '#video-types' },
   },
   {
-    question: "How do credit plans work?",
-    answer: "Plans start at just $19.99/mo (or get 2 months free with annual billing). Starter includes 100 credits/mo, Growth includes 250 credits/mo, and Pro includes 600 credits/mo. Credits are instantly added to your studio balance with no watermarks.",
+    question: "Do I own full commercial rights to my videos?",
+    answer: "Yes, 100%. Every video exported on any paid plan includes full commercial and client usage rights with zero watermark. You can freely monetize your videos on YouTube, run them as paid advertisements on Instagram, TikTok, and Meta, or deliver them directly to paying agency clients.",
     category: 'pricing',
     categoryLabel: 'Credits & Pricing',
-    action: { label: 'View Pricing & Credit Plans', href: '/pricing' },
+    action: { label: 'View Subscription Plans', href: '/pricing' },
   },
   {
     question: "Which AI video types are available?",
@@ -73,8 +73,8 @@ const faqs: FAQItem[] = [
   {
     question: "How long does video generation take?",
     answer: "Most short videos and auto-captions render in under 60 seconds on our cloud rendering engine. Your dashboard displays live progress stages in real time.",
-    category: 'pricing',
-    categoryLabel: 'Credits & Pricing',
+    category: 'product',
+    categoryLabel: 'Product & AI',
   },
 ];
 

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import PhoneQrDownloadModal from "@/components/media/PhoneQrDownloadModal";
 import Link from "next/link";
+import { useAuth } from "@/components/auth/AuthContext";
+import { PLATFORM_MODE_CONFIG } from "@/lib/config/platformMode";
 import {
   Video,
   Download,
@@ -16,6 +18,8 @@ import {
   ExternalLink,
   Flame,
   Smartphone,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 
 interface RenderRecord {
@@ -42,8 +46,76 @@ export default function GeneratedVideosTab({
   onOpenStudio,
 }: GeneratedVideosTabProps) {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const { user } = useAuth();
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [qrModalData, setQrModalData] = useState<{ url: string; title: string } | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [limitExceededInfo, setLimitExceededInfo] = useState<{ resetsIn: string } | null>(null);
+
+  const downloadDirectly = async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, "_blank");
+    }
+  };
+
+  const handleClaimDownload = async (render: RenderRecord) => {
+    const url = render.downloadUrl || render.videoUrl;
+    if (!url) return;
+    const filename = `${(render.templateName || render.title || "itnavideo-render").toLowerCase().replace(/[^a-z0-9]/g, "-")}-1080p.mp4`;
+
+    if (!PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS) {
+      await downloadDirectly(url, filename);
+      return;
+    }
+
+    if (!user) {
+      alert("Please log in to download your video.");
+      return;
+    }
+
+    try {
+      setDownloadingId(render.id);
+      const res = await fetch("/api/downloads/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id || user.uid,
+          videoId: render.id || url,
+          videoType: render.templateId || "generic",
+          outputUrl: url,
+          fileName: filename,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        if (data.reason === "DAILY_LIMIT_EXCEEDED") {
+          setLimitExceededInfo({ resetsIn: data.resetsInFormatted || "12:00 AM IST" });
+          return;
+        }
+        throw new Error(data.error || "Failed to claim download.");
+      }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("download-claimed", { detail: data }));
+      }
+      await downloadDirectly(url, filename);
+    } catch (e: any) {
+      console.error("Download claim error:", e);
+      await downloadDirectly(url, filename);
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   const handleCopyLink = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
@@ -145,16 +217,19 @@ export default function GeneratedVideosTab({
 
                 {/* Actions */}
                 <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/10">
-                  <a
-                    href={downloadLink}
-                    download
-                    target="_blank"
-                    rel="noreferrer"
-                    className="py-2.5 px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 hover:brightness-110 transition cursor-pointer"
+                  <button
+                    type="button"
+                    onClick={() => handleClaimDownload(render)}
+                    disabled={downloadingId === render.id}
+                    className="py-2.5 px-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 hover:brightness-110 transition cursor-pointer disabled:opacity-50"
                   >
-                    <Download size={13} />
-                    <span>Download</span>
-                  </a>
+                    {downloadingId === render.id ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <Download size={13} />
+                    )}
+                    <span>{downloadingId === render.id ? "Saving..." : "Download"}</span>
+                  </button>
 
                   <button
                     type="button"
@@ -248,6 +323,45 @@ export default function GeneratedVideosTab({
                 Close Preview
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🛑 DAILY FREE DOWNLOAD LIMIT REACHED MODAL */}
+      {limitExceededInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md rounded-2xl bg-zinc-900 border border-amber-500/30 p-6 text-white shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                <AlertCircle size={24} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Daily Free Limit Reached (0/2)</h3>
+                <p className="text-xs text-zinc-400">All 2 free video downloads used for today</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-zinc-950/70 border border-white/5 space-y-2 text-xs text-zinc-300">
+              <p>
+                To maintain GPU rendering stability and collect community feedback, each account receives <span className="text-amber-400 font-semibold">2 free downloads per day</span>.
+              </p>
+              <div className="flex items-center justify-between pt-1 border-t border-white/5 font-mono text-[11px]">
+                <span className="text-zinc-400">Next Reset:</span>
+                <span className="text-emerald-400 font-bold">{limitExceededInfo.resetsIn} (12:00 AM IST)</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-400">
+              ✨ <strong className="text-zinc-200">Unlimited Studio Previews:</strong> You can continue generating, editing, and previewing videos in any studio without consuming your daily allowance.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setLimitExceededInfo(null)}
+              className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold text-xs hover:brightness-110 transition-all cursor-pointer"
+            >
+              Got It
+            </button>
           </div>
         </div>
       )}

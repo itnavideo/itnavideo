@@ -4,6 +4,7 @@ import { ContactSheetGrid } from './components/ContactSheetGrid';
 //   1. 'AUTO-CAPTION-GENERATOR'          — 9:16 Vertical Reel (autoCaption mode)
 //   2. 'AUTO-CAPTION-GENERATOR-LANDSCAPE' — 16:9 YouTube Subtitles (youtubeSubtitleGenerator mode)
 import { AutoCaptionGeneratorComposition } from './templates/AUTO_CAPTION_GENERATOR/template';
+import { LayoutGallery } from './templates/FACELESS_LONG_VIDEO/LayoutGallery';
 import { CompareExplainerComposition } from './templates/COMPARE_EXPLAINER/template';
 import { LongVideoPromoComposition } from './templates/LONG_VIDEO_PROMO/template';
 import { WhiteboardVideoComposition } from './templates/WHITEBOARD_VIDEO/template';
@@ -73,6 +74,14 @@ const RemotionRoot = () => (
       id="CONTACT-SHEET"
       component={ContactSheetGrid}
       durationInFrames={1}
+      fps={30}
+      width={1920}
+      height={1080}
+    />
+    <Composition
+      id="LAYOUT-GALLERY"
+      component={LayoutGallery}
+      durationInFrames={900}
       fps={30}
       width={1920}
       height={1080}

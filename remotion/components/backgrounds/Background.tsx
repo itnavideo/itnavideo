@@ -137,17 +137,76 @@ export function Background({
 
   // ── 2. MINIMAL BACKGROUNDS (Includes 12 Creator Video Colors) ──
   const renderMinimal = () => {
-    // 1. Crisp Studio White
+    // 1. Crisp Studio White with 4-Layer Depth Stack (2026 Engine)
     if (activeId === 'studio-white' || activeId === 'solid-white') {
+      const driftX1 = Math.sin(frame * 0.02) * 35;
+      const driftY1 = Math.cos(frame * 0.015) * 25;
+      const driftX2 = Math.cos(frame * 0.018) * 30;
+      const driftY2 = Math.sin(frame * 0.022) * 28;
+
       return (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundColor: '#FAFAFA',
-            backgroundImage: `radial-gradient(circle at 50% 35%, #FFFFFF 0%, #F1F5F9 80%, #E2E8F0 100%)`,
-          }}
-        />
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', backgroundColor: '#FAFAFD' }}>
+          {/* Base Plate with subtle studio gradient */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: 'radial-gradient(circle at 50% 35%, #FFFFFF 0%, #F8FAFC 75%, #F1F5F9 100%)',
+            }}
+          />
+
+          {/* Ambient Blob 1: Soft warm amber accent glow */}
+          <div
+            style={{
+              position: 'absolute',
+              left: `${25 + driftX1 * 0.1}%`,
+              top: `${20 + driftY1 * 0.1}%`,
+              width: '720px',
+              height: '720px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(249, 115, 22, 0.07) 0%, rgba(249, 115, 22, 0.02) 50%, transparent 70%)',
+              filter: 'blur(60px)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Ambient Blob 2: Soft modern sky blue accent glow */}
+          <div
+            style={{
+              position: 'absolute',
+              right: `${20 + driftX2 * 0.1}%`,
+              bottom: `${15 + driftY2 * 0.1}%`,
+              width: '800px',
+              height: '800px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(29, 112, 245, 0.06) 0%, rgba(99, 102, 241, 0.02) 50%, transparent 70%)',
+              filter: 'blur(70px)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Subtle Studio Dot Grid Texture */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: 'radial-gradient(rgba(100, 116, 139, 0.08) 1px, transparent 1px)',
+              backgroundSize: '36px 36px',
+              opacity: 0.6,
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Light Cinematic Edge Vignette */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              boxShadow: 'inset 0 0 140px rgba(15, 23, 42, 0.05)',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
       );
     }
 
@@ -326,7 +385,7 @@ export function Background({
     }
 
     // 14. Dynamic Custom Hex Code (e.g., #FF0055, hex-ff0055)
-    if (activeId.startsWith('#') || activeId.startsWith('hex-') || /^[0-9a-f]{6}$/i.test(activeId)) {
+    if (typeof activeId === 'string' && (activeId.startsWith('#') || activeId.startsWith('hex-') || /^[0-9a-f]{6}$/i.test(activeId))) {
       const hex = activeId.startsWith('#') ? activeId : '#' + activeId.replace(/^hex-/, '');
       return (
         <div

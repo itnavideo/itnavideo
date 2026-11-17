@@ -18,7 +18,7 @@ export interface UniversalStickerLayerProps {
 const S3_REMOTION_BASE_URL = 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com';
 
 function resolveStickerSrc(rawSrc?: string): string {
-  if (!rawSrc) return '';
+  if (!rawSrc || typeof rawSrc !== 'string') return '';
   if (/^(https?:|data:|blob:)/i.test(rawSrc)) return rawSrc;
   const clean = rawSrc.replace(/^\/+/, '');
   if (clean.startsWith('assets/')) {

@@ -27,77 +27,79 @@ export interface InspectorLayerChecklist {
 }
 
 // Studio Default BGM and SFX assets hosted on high-availability S3 CDN
+const S3_BASE = 'https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com';
+
 const DEFAULT_BGM_MAP: Record<string, string> = {
   // Whiteboard / Stickman
-  WHITEBOARD_VIDEO: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/upbeat-corporate.mp3',
-  'WHITEBOARD-VIDEO': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/upbeat-corporate.mp3',
-  whiteboardVideo: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/upbeat-corporate.mp3',
-  stickmanExplainer: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/upbeat-corporate.mp3',
+  WHITEBOARD_VIDEO: `${S3_BASE}/assets/reusable/music/19th-floor-bobby-richards.mp3`,
+  'WHITEBOARD-VIDEO': `${S3_BASE}/assets/reusable/music/19th-floor-bobby-richards.mp3`,
+  whiteboardVideo: `${S3_BASE}/assets/reusable/music/19th-floor-bobby-richards.mp3`,
+  stickmanExplainer: `${S3_BASE}/assets/reusable/music/19th-floor-bobby-richards.mp3`,
 
   // Auto Captions
-  AUTO_CAPTION_GENERATOR: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  'AUTO-CAPTION-GENERATOR': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  autoCaption: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
+  AUTO_CAPTION_GENERATOR: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  'AUTO-CAPTION-GENERATOR': `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  autoCaption: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
 
   // YouTube Subtitles
-  YOUTUBE_SUBTITLE_GENERATOR: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  'AUTO-CAPTION-GENERATOR-LANDSCAPE': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  youtubeSubtitles: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
+  YOUTUBE_SUBTITLE_GENERATOR: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  'AUTO-CAPTION-GENERATOR-LANDSCAPE': `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  youtubeSubtitles: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
 
   // Compare Explainer
-  COMPARE_EXPLAINER: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/upbeat-corporate.mp3',
-  comparisonImages: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/upbeat-corporate.mp3',
-  compare: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/upbeat-corporate.mp3',
+  COMPARE_EXPLAINER: `${S3_BASE}/assets/reusable/music/19th-floor-bobby-richards.mp3`,
+  comparisonImages: `${S3_BASE}/assets/reusable/music/19th-floor-bobby-richards.mp3`,
+  compare: `${S3_BASE}/assets/reusable/music/19th-floor-bobby-richards.mp3`,
 
   // Faceless Video & Shorts
-  FACELESS_VIDEO: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  'FACELESS-VIDEO': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  facelessVideo: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  FACELESS_LONG_VIDEO: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  FACELESS_SHORTS: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  'FACELESS-SHORTS': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  facelessShorts: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
+  FACELESS_VIDEO: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  'FACELESS-VIDEO': `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  facelessVideo: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  FACELESS_LONG_VIDEO: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  FACELESS_SHORTS: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  'FACELESS-SHORTS': `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  facelessShorts: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
 
   // Image to Video AI
-  IMAGE_TO_VIDEO_AI: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/parasail-silent-partner.mp3',
-  'IMAGE-TO-VIDEO-AI': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/parasail-silent-partner.mp3',
-  imageToVideoAi: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/parasail-silent-partner.mp3',
+  IMAGE_TO_VIDEO_AI: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  'IMAGE-TO-VIDEO-AI': `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  imageToVideoAi: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
 
   // Book Summary
-  BOOK_SUMMARY: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  'BOOK-SUMMARY': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  bookSummary: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
+  BOOK_SUMMARY: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  'BOOK-SUMMARY': `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  bookSummary: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
 
   // Long Video Clips & Promo
-  LONG_VIDEO_CLIPS: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  'LONG-VIDEO-CLIPS': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  longVideoClips: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  LONG_VIDEO_PROMO: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/cinematic-hype.mp3',
-  'LONG-VIDEO-PROMO': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/cinematic-hype.mp3',
-  longVideoPromo: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/cinematic-hype.mp3',
+  LONG_VIDEO_CLIPS: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  'LONG-VIDEO-CLIPS': `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  longVideoClips: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  LONG_VIDEO_PROMO: `${S3_BASE}/assets/reusable/music/not-for-nothing-otis-mcdonald.mp3`,
+  'LONG-VIDEO-PROMO': `${S3_BASE}/assets/reusable/music/not-for-nothing-otis-mcdonald.mp3`,
+  longVideoPromo: `${S3_BASE}/assets/reusable/music/not-for-nothing-otis-mcdonald.mp3`,
 
   // Polishers
-  AI_SHORTS_POLISHER: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  'AI-SHORTS-POLISHER': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  aiShortsPolisher: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  AI_VIDEO_POLISHER: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  'AI-VIDEO-POLISHER': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
-  aiVideoPolisher: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/documentary-ambient.mp3',
+  AI_SHORTS_POLISHER: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  'AI-SHORTS-POLISHER': `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  aiShortsPolisher: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  AI_VIDEO_POLISHER: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  'AI-VIDEO-POLISHER': `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
+  aiVideoPolisher: `${S3_BASE}/assets/reusable/music/parasail-silent-partner.mp3`,
 
   // Split Screen
-  SPLIT_SCREEN_EXPLAINER: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  'SPLIT-SCREEN-EXPLAINER': 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
-  splitScreen: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/music/lofi-chill-beat.mp3',
+  SPLIT_SCREEN_EXPLAINER: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  'SPLIT-SCREEN-EXPLAINER': `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
+  splitScreen: `${S3_BASE}/assets/reusable/music/crimson-fly-huma-huma.mp3`,
 };
 
 const DEFAULT_SFX_MAP: Record<string, string> = {
-  swipe: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/sfx/whoosh.wav',
-  whoosh: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/sfx/whoosh.wav',
-  pop: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/sfx/pop.mp3',
-  chime: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/sfx/chime.mp3',
-  ding: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/sfx/ding.mp3',
-  click: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/sfx/click.wav',
-  boom: 'https://remotionlambda-useast1-2zq6twaok1.s3.amazonaws.com/assets/reusable/sfx/boom.wav',
+  swipe: `${S3_BASE}/assets/reusable/sfx/whoosh.wav`,
+  whoosh: `${S3_BASE}/assets/reusable/sfx/whoosh.wav`,
+  pop: `${S3_BASE}/assets/reusable/sfx/pop.mp3`,
+  chime: `${S3_BASE}/assets/reusable/sfx/chime.mp3`,
+  ding: `${S3_BASE}/assets/reusable/sfx/ding.mp3`,
+  click: `${S3_BASE}/assets/reusable/sfx/click.wav`,
+  boom: `${S3_BASE}/assets/reusable/sfx/boom.wav`,
 };
 
 /**

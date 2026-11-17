@@ -43,6 +43,8 @@ import { safeResolveMediaSrc, isValidMediaUrl, isVideoMedia as isVideoFile } fro
 import { Background } from './components/Background';
 import { getBackgroundPalette, type BackgroundColorPalette } from '../../components/backgrounds/BackgroundCatalog';
 import { HookScene } from './scenes/HookScene';
+import { HookTypographyScene } from './scenes/HookTypographyScene';
+import { OutroScene } from './scenes/OutroScene';
 import { TypographyScene } from './scenes/TypographyScene';
 import { SplitScreenLayout } from './components/SplitScreenLayout';
 import { StatScene } from './scenes/StatScene';
@@ -132,7 +134,6 @@ export interface FacelessLongVideoProps {
   sourceDurationSeconds?: number;
   chapterEvents?: ChapterCardEvent[];
   stickerEvents?: StickerEvent[];
-  creatorHandle?: string;
   enableKineticEmojis?: boolean;
   emojiEvents?: KineticEmojiEvent[];
   textLayers?: DynamicTextLayer[];
@@ -435,23 +436,23 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
   const resolvedTextLayers = textLayers && textLayers.length > 0
     ? textLayers
-    : autoComposedBlueprint.allTextLayers;
+    : [];
 
   const resolvedBackgroundLayers = backgroundLayers && backgroundLayers.length > 0
     ? backgroundLayers
-    : autoComposedBlueprint.allBackgroundLayers;
+    : [];
 
   const resolvedAudioLayers = audioLayers && audioLayers.length > 0
     ? audioLayers
-    : autoComposedBlueprint.allAudioLayers;
+    : [];
 
   const resolvedSvgLayers = svgLayers && svgLayers.length > 0
     ? svgLayers
-    : autoComposedBlueprint.allSvgLayers;
+    : [];
 
   const resolvedMediaLayers = (mediaLayers && mediaLayers.length > 0
     ? mediaLayers
-    : (imageLayers && imageLayers.length > 0 ? imageLayers : autoComposedBlueprint.allMediaLayers));
+    : (imageLayers && imageLayers.length > 0 ? imageLayers : []));
 
   const speechActiveIntervals = React.useMemo(() => {
     if (activeCaptions && activeCaptions.length > 0) {
@@ -532,7 +533,27 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
   // Render Vox/Johnny Harris Style Modular Scene Layout
   const renderModularScene = (scene: SceneBlueprintItem) => {
-    const layout: string = scene.layoutType || 'big_typography';
+    const rawLayout: string = scene.layoutType || 'card_concept';
+    const norm = rawLayout.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    // Canonical Layout Normalizer (2026 Engine - maps PascalCase & snake_case)
+    let layout = rawLayout;
+    if (norm.includes('statscene') || norm === 'stat' || norm === 'statcard' || norm === 'metricpill') layout = 'stat_card';
+    else if (norm.includes('comparisonscene') || norm === 'comparison' || norm === 'vsbattle' || norm === 'battlecard') layout = 'comparison';
+    else if (norm.includes('horizontalprocess') || norm.includes('processsteps') || norm === '5stepprocess') layout = 'horizontal_process';
+    else if (norm.includes('workflowscene') || norm === 'workflow' || norm === 'pipeline' || norm === 'automation') layout = 'workflow';
+    else if (norm.includes('roadmapscene') || norm === 'roadmap' || norm === 'timeline') layout = 'roadmap';
+    else if (norm.includes('cardconceptscene') || norm === 'cardconcept' || norm === 'splitimage' || norm === 'splitscreen') layout = 'card_concept';
+    else if (norm.includes('listscene') || norm === 'checklist' || norm === 'iconlist') layout = 'checklist';
+    else if (norm.includes('chartscene') || norm === 'datavisualization' || norm === 'chart') layout = 'data_visualization';
+    else if (norm.includes('hooktypographyscene') || norm === 'hookscene' || norm === 'hook') layout = 'hook';
+    else if (norm.includes('quotescene')) layout = 'quote';
+    else if (norm.includes('chaptertitlescene')) layout = 'chapter_title';
+    else if (norm.includes('drawingstoryscene')) layout = 'drawing_story';
+    else if (norm.includes('typographyscene')) layout = 'big_typography';
+    else if (norm.includes('beforeafter')) layout = 'before_after_transformation';
+    else if (norm.includes('creatorcelebration') || norm === 'outro') layout = 'creator_celebration';
+
     const stype = scene.sceneType || 'main_point';
     const resolvedAssetUrl = matchedBrollUrl ? safeResolveMediaSrc(matchedBrollUrl) : undefined;
     const sceneKey = `scene-${scene.sceneNumber || 0}`;
@@ -541,7 +562,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'story_character_desk' || layout === 'creator_desk' || layout === 'character_desk') {
       return (
         <StoryCharacterDeskScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -554,7 +574,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'horizontal_process' || layout === 'process_steps' || layout === '5_step_process') {
       return (
         <HorizontalProcessStepsScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -567,7 +586,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'product_mockup_flow' || layout === 'interface_mockup' || layout === 'workflow_flow') {
       return (
         <ProductMockupFlowScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -580,7 +598,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'before_after_transformation' || layout === 'transformation' || layout === 'before_after') {
       return (
         <BeforeAfterTransformationScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -590,25 +607,23 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
 
-    if (layout === 'creator_celebration' || layout === 'celebration' || layout === 'conclusion_celebration') {
+    if (layout === 'outro' || layout === 'conclusion_celebration' || layout === 'creator_celebration') {
       return (
-        <CreatorCelebrationScene
-          key={sceneKey}
+        <OutroScene
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
           sceneFrame={framesSinceSceneStart}
           palette={palette}
+          creatorHandle={creatorHandle}
         />
       );
     }
 
     if ((layout === 'hook' || stype === 'hook') && scene.sceneNumber <= 1) {
       return (
-        <HookScene
-          key={sceneKey}
+        <HookTypographyScene
           scene={scene}
-          mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
           bodyFont={typographyFont}
           sceneFrame={framesSinceSceneStart}
@@ -619,7 +634,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'chapter_title' || (layout as string) === 'chapterTitle' || (stype === 'hook' && scene.sceneNumber > 1)) {
       return (
         <ChapterTitleScene
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -640,7 +654,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     ) {
       return (
         <DrawingStoryScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -658,7 +671,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     ) {
       return (
         <FacelessGraphicScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -672,7 +684,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'card_concept') {
       return (
         <CardConceptScene
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -687,7 +698,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       const leftTitle = scene.comparisonItems?.left || scene.heading || 'Traditional Method';
       const rightTitle = scene.comparisonItems?.right || scene.supportingText || 'AI Advantage';
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '50px 80px', zIndex: 12, gap: '36px' }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '50px 80px', zIndex: 12, gap: '36px' }}>
           {scene.heading && (
             <div style={{ textAlign: 'center', maxWidth: '1400px' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
@@ -726,7 +737,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       const val = scene.statValue || (scene.chartValuePercent ? `+${scene.chartValuePercent}%` : '+340%');
       const lbl = scene.statLabel || scene.heading || 'Key Performance Growth';
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
           <MetricGrowthPill
             value={val}
             label={lbl}
@@ -740,7 +751,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
     if (layout === 'notification' || layout === 'iphone_alert' || layout === 'ios_notification') {
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
           <IPhoneNotificationCard
             title={scene.heading || 'Important Alert'}
             message={scene.supportingText || scene.narrationSegment?.text || ''}
@@ -755,7 +766,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
     if (layout === 'newspaper_headline' || layout === 'breaking_news') {
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
           <NewspaperHeadlineCard
             headline={scene.heading || 'BREAKING INDUSTRY REPORT'}
             highlightWords={scene.highlightedWords || []}
@@ -768,7 +779,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
     if (layout === 'stamp_badge' || layout === 'verified_badge') {
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
           <div style={{ fontFamily: headingFont, fontSize: '52px', fontWeight: 900, color: palette?.isDark ? '#FFFFFF' : '#0F172A', marginBottom: '32px', textAlign: 'center', maxWidth: '1000px', lineHeight: 1.2 }}>
             {scene.heading}
           </div>
@@ -779,9 +790,9 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
     if (layout === 'supporting_note' || layout === 'note_card' || layout === 'editorial_note') {
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
           <SupportingNoteCard
-            tag="KEY TAKEAWAY"
+            tag={scene.categoryPill || 'CORE CONCEPT'}
             title={scene.heading}
             content={scene.supportingText || scene.narrationSegment?.text || ''}
             bullets={scene.listItems}
@@ -796,7 +807,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'data_visualization') {
       if (scene.chartItems && scene.chartItems.length >= 2 && scene.chartItems.every(c => c.value > 0)) {
         return (
-          <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '50px 80px', zIndex: 12, gap: '32px' }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '50px 80px', zIndex: 12, gap: '32px' }}>
             {scene.heading && (
               <div style={{ textAlign: 'center', maxWidth: '1400px' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
@@ -829,7 +840,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       // Context-preserving fallback: Preserve text & concept via SplitScreenLayout (never full-screen stock footage)
       return (
         <SplitScreenLayout
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -843,7 +853,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'donut_breakdown') {
       if (scene.donutSlices && scene.donutSlices.length >= 2 && scene.donutSlices.every(s => s.value > 0)) {
         return (
-          <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
             <AdaptiveCard theme={palette?.isDark ? 'dark' : 'light'} style={{ width: 580 }}>
               <DonutBreakdown
                 slices={scene.donutSlices}
@@ -858,7 +868,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       // Context-preserving fallback: Preserve text & concept via SplitScreenLayout (never full-screen stock footage)
       return (
         <SplitScreenLayout
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -874,7 +883,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       if (!noteText.trim()) {
         return (
           <SplitScreenLayout
-            key={sceneKey}
             scene={scene}
             mediaUrl={resolvedAssetUrl}
             headingFont={headingFont}
@@ -885,7 +893,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         );
       }
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
           <StickyNoteCard
             title={scene.heading}
             text={noteText}
@@ -900,7 +908,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       if (scene.listItems && scene.listItems.length >= 2) {
         const stepItems = scene.listItems.map((item) => ({ title: item, description: undefined }));
         return (
-          <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 120px', zIndex: 12 }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 120px', zIndex: 12 }}>
             <AdaptiveCard theme={palette?.isDark ? 'dark' : 'light'} style={{ width: 680 }}>
               <NumberedStepsCard
                 title={scene.heading}
@@ -914,7 +922,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       // Fallback: If no distinct sequential steps exist, render standard ListScene or SplitScreenLayout
       return (
         <SplitScreenLayout
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -930,7 +937,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       if (!postContent.trim()) {
         return (
           <SplitScreenLayout
-            key={sceneKey}
             scene={scene}
             mediaUrl={resolvedAssetUrl}
             headingFont={headingFont}
@@ -941,7 +947,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         );
       }
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
           <SocialPostMockup
             postText={postContent}
             authorName={scene.quoteAuthor}
@@ -955,7 +961,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'chat_dialogue') {
       if (scene.chatMessages && scene.chatMessages.length >= 2) {
         return (
-          <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
             <ChatConversation
               messages={scene.chatMessages}
               theme={palette?.isDark ? 'dark' : 'light'}
@@ -967,7 +973,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       // Fallback: Single message bubble or SplitScreenLayout (never fabricated dialogue)
       return (
         <ScriptBubbleScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -979,7 +984,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'vector_concept') {
       return (
         <DrawingStoryScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -992,7 +996,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'search_discovery') {
       const query = scene.searchQuery || scene.heading;
       return (
-        <div key={sceneKey} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 100px', zIndex: 12 }}>
           <TypingSearchBar
             title={query}
             theme={palette?.isDark ? 'dark' : 'light'}
@@ -1004,7 +1008,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'card_concept' || (layout as string) === 'cardIconKeyword') {
       return (
         <CardConceptScene
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -1017,7 +1020,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'split_screen' || (layout as string) === 'side_by_side' || (layout as string) === 'splitImageText') {
       return (
         <SplitScreenLayout
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -1030,7 +1032,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'image_text') {
       return (
         <FullBleedVisualScene
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -1043,7 +1044,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'stat_card' || (layout as string) === 'stat' || stype === 'example_stat') {
       return (
         <StatScene
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -1054,12 +1054,11 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
     if (layout === 'data_visualization' || (layout as string) === 'chart' || (layout as string) === 'diagram') {
-      return <ChartScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
+      return <ChartScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     if (layout === 'screenshot_highlight' || (layout as string) === 'web_mockup') {
       return (
         <FullBleedVisualScene
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -1070,12 +1069,11 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
     if (layout === 'comparison') {
-      return <ComparisonScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
+      return <ComparisonScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     if (layout === 'quote') {
       return (
         <QuoteScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1085,7 +1083,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
     if (layout === 'ecosystem' || layout === 'framework' || (layout === 'checklist' && scene.sceneNumber % 3 === 0 && (scene.listItems?.length || 0) >= 3)) {
-      return <EcosystemScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
+      return <EcosystemScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isProcessStepsContext =
       layout === 'horizontal_process' ||
@@ -1099,7 +1097,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (isProcessStepsContext) {
       return (
         <HorizontalProcessStepsScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1116,7 +1113,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
       );
     if (isRoadmapContext) {
-      return <RoadmapScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
+      return <RoadmapScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isWorkflowContext =
       layout === 'workflow' ||
@@ -1124,7 +1121,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
       );
     if (isWorkflowContext) {
-      return <WorkflowScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
+      return <WorkflowScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isGoalTargetContext =
       layout === 'goal_target' ||
@@ -1132,7 +1129,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         `${scene.heading || ''} ${scene.supportingText || ''} ${scene.narrationSegment?.text || ''}`
       );
     if (isGoalTargetContext) {
-      return <GoalTargetScene key={sceneKey} scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
+      return <GoalTargetScene scene={scene} headingFont={headingFont} bodyFont={typographyFont} sceneFrame={framesSinceSceneStart} palette={palette} />;
     }
     const isCalendarContext =
       layout === 'calendar_grid' ||
@@ -1144,7 +1141,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (isCalendarContext) {
       return (
         <CalendarGridScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1162,7 +1158,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (isPromptContext) {
       return (
         <PromptWindowScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1179,7 +1174,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (isMilestoneLadderContext) {
       return (
         <MilestoneLadderScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1195,7 +1189,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (isScriptBubbleContext) {
       return (
         <ScriptBubbleScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1206,7 +1199,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'checklist' || (layout as string) === 'iconList' || scene.typographyTreatment === 'list' || (scene.listItems && scene.listItems.length >= 2)) {
       return (
         <ListScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1218,7 +1210,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (stype === 'next_point') {
       return (
         <ConclusionScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1231,7 +1222,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'big_typography' || layout === 'bold_headline' || layout === 'headline' || layout === 'fullscreen_statement') {
       return (
         <TypographyScene
-          key={sceneKey}
           scene={scene}
           headingFont={headingFont}
           bodyFont={typographyFont}
@@ -1244,7 +1234,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (resolvedAssetUrl) {
       return (
         <FullBleedVisualScene
-          key={sceneKey}
           scene={scene}
           mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
@@ -1255,16 +1244,28 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       );
     }
 
-    // Default 90%+ Explanatory Visual Fallback (when no stock image is assigned):
-    // Explain content through large animated vector illustration + kinetic typography!
+    // Default Flagship 16:9 Explanatory Visual Fallback (2026 Engine):
+    // Prioritize high-end CardConceptScene or ListScene (never default to stickman drawing!)
+    if (scene.listItems && scene.listItems.length >= 2) {
+      return (
+        <ListScene
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
+        />
+      );
+    }
+
     return (
-      <DrawingStoryScene
-        key={sceneKey}
+      <CardConceptScene
         scene={scene}
+        mediaUrl={resolvedAssetUrl}
         headingFont={headingFont}
         bodyFont={typographyFont}
+        backgroundTheme={backgroundTheme}
         sceneFrame={framesSinceSceneStart}
-        palette={palette}
       />
     );
   };
@@ -1405,6 +1406,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       {isModularCardScene &&
         resolvedSceneBroll &&
         palette.isDark &&
+        typeof activeBackgroundTheme === 'string' &&
         !activeBackgroundTheme.startsWith('solid-') &&
         activeBackgroundTheme !== 'studio-white' &&
         activeBackgroundTheme !== 'solid-cream' &&
@@ -1460,8 +1462,8 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             startFrame: 0,
             endFrame: durationInFrames,
             config: {
-              count: palette.isDark ? 28 : 14,
-              color: palette.isDark ? 'rgba(255, 160, 0, 0.40)' : 'rgba(255, 87, 34, 0.22)',
+              count: palette.isDark ? 28 : 0,
+              color: palette.isDark ? 'rgba(255, 160, 0, 0.40)' : 'transparent',
               speed: 0.35,
               maxRadius: 2.5,
             },
@@ -1660,7 +1662,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       />
 
       {/* Floating Topic Kicker Badge */}
-      {title && (
+      {title && !/generated[-_]?audio|audio[-_]?rec|recording|voice[-_]?memo|\.mp[34]|\.wav|\.m4a|\b(nov|dec|jan|feb|mar|apr|may|jun|jul|aug|sep|oct)\b|\b\d{1,2}[-_]\d{1,2}(?:am|pm)\b|^faceless\s+video$/i.test(title.trim()) && (
         <div
           style={{
             position: 'absolute',
@@ -1736,7 +1738,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
               letterSpacing: '0.04em',
             }}
           >
-            {creatorHandle.startsWith('@') ? creatorHandle : `@${creatorHandle}`}
+            {typeof creatorHandle === 'string' && creatorHandle.startsWith('@') ? creatorHandle : `@${creatorHandle || ''}`}
           </span>
         </div>
       )}

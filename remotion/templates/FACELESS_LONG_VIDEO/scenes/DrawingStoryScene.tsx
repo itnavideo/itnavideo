@@ -98,7 +98,8 @@ export function DrawingStoryScene({
   }
 
   const headline = String(scene.heading || 'A PIVOTAL MOMENT').trim();
-  const categoryBadge = String(scene.categoryPill || 'INSIGHT BEAT').trim().toUpperCase();
+  const rawPill = scene.categoryPill ? String(scene.categoryPill).trim().toUpperCase() : '';
+  const categoryBadge = rawPill === 'INSIGHT BEAT' || rawPill === 'KEY TAKEAWAY' ? '' : rawPill;
   const rawHighlight =
     scene.highlightedWords && typeof scene.highlightedWords[0] === 'string'
       ? scene.highlightedWords[0].trim()
@@ -176,14 +177,16 @@ export function DrawingStoryScene({
             transform: `translateY(${interpolate(ds.motion.headerSpring, [0, 1], [22, 0])}px)`,
           }}
         >
-          <div style={{ marginBottom: '18px' }}>
-            <EyebrowPill
-              label={categoryBadge}
-              tone="coral"
-              palette={palette}
-              progress={ds.motion.eyebrowSpring}
-            />
-          </div>
+          {categoryBadge ? (
+            <div style={{ marginBottom: '18px' }}>
+              <EyebrowPill
+                label={categoryBadge}
+                tone="coral"
+                palette={palette}
+                progress={ds.motion.eyebrowSpring}
+              />
+            </div>
+          ) : null}
 
           <h2
             style={{

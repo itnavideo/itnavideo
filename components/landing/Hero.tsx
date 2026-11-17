@@ -7,6 +7,7 @@ import {
   ArrowRight,
   CheckCircle2,
 } from 'lucide-react';
+import { PLATFORM_MODE_CONFIG } from '@/lib/config/platformMode';
 
 export default function Hero() {
   return (
@@ -70,24 +71,43 @@ export default function Hero() {
         {/* STREAMLINED SOCIAL PROOF & TRUST STRIP                        */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="mt-6 sm:mt-7 flex items-center justify-center">
-          <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3.5 rounded-full border border-zinc-200/80 bg-white/90 px-4 sm:px-5 py-2 text-xs font-medium text-zinc-600 shadow-xs backdrop-blur-sm">
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3.5 rounded-full bg-zinc-100 px-4 sm:px-5 py-2 text-xs font-medium text-zinc-600">
             <div className="flex items-center gap-1 shrink-0">
-              <span className="text-amber-400 font-bold tracking-widest text-xs">★★★★★</span>
+              <span className="text-amber-500 font-bold tracking-widest text-xs">★★★★★</span>
               <span className="font-extrabold text-zinc-950 ml-0.5">4.9 / 5.0</span>
             </div>
             <span className="text-zinc-300">•</span>
-            <span className="text-zinc-900 font-semibold shrink-0">
-              Free Trial on Signup
-            </span>
-            <span className="text-zinc-300">•</span>
-            <span className="text-zinc-600 shrink-0">
-              No Credit Card Required
-            </span>
-            <span className="text-zinc-300 hidden md:inline">•</span>
-            <span className="hidden md:inline-flex items-center gap-1 text-emerald-700 font-semibold shrink-0">
-              <CheckCircle2 size={13} className="text-emerald-600" />
-              No Watermark on Paid Plans
-            </span>
+            {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? (
+              <>
+                <span className="text-zinc-950 font-bold shrink-0 text-orange-600">
+                  2 Free Video Downloads Every Day
+                </span>
+                <span className="text-zinc-300">•</span>
+                <span className="text-zinc-600 shrink-0">
+                  No Credit Card Required
+                </span>
+                <span className="text-zinc-300 hidden md:inline">•</span>
+                <span className="hidden md:inline-flex items-center gap-1 text-emerald-700 font-semibold shrink-0">
+                  <CheckCircle2 size={13} className="text-emerald-600" />
+                  Help Us Build Better AI Videos
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-zinc-900 font-semibold shrink-0">
+                  Free Trial on Signup
+                </span>
+                <span className="text-zinc-300">•</span>
+                <span className="text-zinc-600 shrink-0">
+                  No Credit Card Required
+                </span>
+                <span className="text-zinc-300 hidden md:inline">•</span>
+                <span className="hidden md:inline-flex items-center gap-1 text-emerald-700 font-semibold shrink-0">
+                  <CheckCircle2 size={13} className="text-emerald-600" />
+                  No Watermark on Paid Plans
+                </span>
+              </>
+            )}
           </div>
         </div>
 

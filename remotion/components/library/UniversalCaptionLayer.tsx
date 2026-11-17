@@ -45,7 +45,8 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
   backgroundTheme,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width = 1920, height = 1080 } = useVideoConfig();
+  const isLandscape = width > height;
   const currentTime = frame / fps;
 
   const activeChunks = chunks || captions || [];
@@ -60,22 +61,26 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
   const theme = getCaptionThemePreset(activeThemeId);
   const { styles } = theme;
 
+  const isArabic = Boolean(activeChunk.text && /[\u0600-\u06FF]/.test(activeChunk.text));
+
   const enterSpring = spring({
     frame: Math.max(0, frame - Math.floor(activeChunk.start * fps)),
     fps,
-    config: { damping: 12, stiffness: 200 },
+    config: { damping: 14, stiffness: 220 },
   });
 
-  const scale = interpolate(enterSpring, [0, 1], [0.85, 1]);
+  const scale = interpolate(enterSpring, [0, 1], [0.92, 1]);
   const opacity = interpolate(enterSpring, [0, 1], [0, 1]);
 
-  // Position calculation (Shorts Safe Zone: bottom set to 360px to clear YouTube Shorts & Reels UI overlays)
+  // Position calculation:
+  // 16:9 Widescreen: bottom set to 100px so captions sit neatly in lower third without blocking main cards
+  // 9:16 Vertical Shorts: bottom set to 360px to clear YouTube Shorts / Reels bottom UI overlay
   const positionStyles: React.CSSProperties =
     position === 'top'
-      ? { top: 75, bottom: 'auto' }
+      ? { top: isLandscape ? 40 : 75, bottom: 'auto' }
       : position === 'center'
       ? { top: '46%', bottom: 'auto', transform: 'translateY(-50%)' }
-      : { bottom: 360, top: 'auto' };
+      : { bottom: isLandscape ? 100 : 360, top: 'auto' };
 
   // Ensure word-level timings are always available for dynamic karaoke highlighting (pure computation, no conditional hooks)
   const wordsList =
@@ -122,15 +127,19 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
       }}
     >
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Bangers&family=Black+Ops+One&family=Caveat:wght@700;900&family=Cinzel:wght@700;900&family=Kalam:wght@700&family=Kaushan+Script&family=Londrina+Solid:wght@400;900&family=Montserrat:wght@700;900&family=Outfit:wght@700;900&family=Titan+One&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Amiri:wght@400;700&family=Anton&family=Bangers&family=Black+Ops+One&family=Cairo:wght@700;900&family=Caveat:wght@700;900&family=Cinzel:wght@700;900&family=Kalam:wght@700&family=Kaushan+Script&family=Londrina+Solid:wght@400;900&family=Montserrat:wght@700;900&family=Noto+Naskh+Arabic:wght@700&family=Outfit:wght@700;900&family=Titan+One&display=swap');
       `}</style>
       <div
+        dir={isArabic ? 'rtl' : 'ltr'}
         style={{
           transform: `scale(${scale})`,
           opacity,
-          fontSize: animationStyle === 'handwriting' ? (styles.fontSize || 54) : (styles.fontSize || 46),
+          direction: isArabic ? 'rtl' : 'ltr',
+          fontSize: isArabic ? 48 : animationStyle === 'handwriting' ? (styles.fontSize || 54) : (styles.fontSize || 46),
           fontFamily:
-            animationStyle === 'handwriting'
+            isArabic
+              ? "'Amiri', 'Noto Naskh Arabic', 'Cairo', serif"
+              : animationStyle === 'handwriting'
               ? "'Caveat', 'Kalam', cursive, sans-serif"
               : styles.fontFamily || 'Montserrat, Outfit, system-ui, -apple-system, sans-serif',
           fontWeight: 900,
@@ -286,9 +295,10 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
                 textDecoration: wordUnderline,
                 textUnderlineOffset: '6px',
                 display: 'inline-block',
+                margin: '0 4px',
               }}
             >
-              {w.word}
+              {rawWordStr}
             </span>
           );
         })}

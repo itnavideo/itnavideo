@@ -1,129 +1,152 @@
 'use client';
 
-import React from 'react';
-import { getOptimizedAvatarUrl } from '@/lib/utils';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Sparkles, Star, CheckCircle2, ArrowRight } from 'lucide-react';
+import { getOptimizedAvatarUrl } from '@/lib/utils';
+import {
+  Star,
+  CheckCircle2,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+  Cpu,
+  Clock,
+  Sparkles,
+  Quote,
+} from 'lucide-react';
 
-interface CreatorReview {
+interface CreatorStory {
   id: string;
   name: string;
   handle: string;
   channelType: string;
+  subscribers: string;
   avatarUrl: string;
-  avatarInitials: string;
-  avatarBg: string;
   quote: string;
-  highlightTag: string;
+  keyMetric: string;
+  studioName: string;
+  studioHref: string;
+  aspectRatio: string;
+  tagColor: string;
 }
 
-const CREATOR_REVIEWS: CreatorReview[] = [
+const CREATOR_STORIES: CreatorStory[] = [
   {
-    id: '1',
+    id: 'alex',
     name: 'Alex Miller',
     handle: '@alexmiller',
-    channelType: 'YouTube Explainer • 180k subs, USA',
+    channelType: 'YouTube Explainer Channel',
+    subscribers: '180K Subs · USA',
     avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018755/USA_Male_YouTube_Creator_axj5rd.jpg',
-    avatarInitials: 'AM',
-    avatarBg: 'bg-gradient-to-br from-zinc-800 to-zinc-950',
     quote:
       'I record a 3-minute voiceover on my phone, upload it, and get a complete 16:9 YouTube explainer with relevant B-roll and kinetic subtitles. My production time dropped from 6 hours to 4 minutes.',
-    highlightTag: '16:9 Faceless Video',
+    keyMetric: '6 Hours → 4 Minutes Production Time',
+    studioName: '16:9 Faceless Video Studio',
+    studioHref: '/dashboard/faceless-video',
+    aspectRatio: '16:9 Widescreen',
+    tagColor: 'text-orange-700 bg-orange-50 border-orange-200/80',
   },
   {
-    id: '2',
+    id: 'sarah',
     name: 'Sarah Jenkins',
     handle: '@sarahclips',
-    channelType: 'Short-Form Video Agency Lead, UK',
+    channelType: 'Short-Form Video Agency Lead',
+    subscribers: '30+ Client Channels · UK',
     avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018755/UK_Female_Video_Agency_Owner_adhqor.jpg',
-    avatarInitials: 'SJ',
-    avatarBg: 'bg-gradient-to-br from-purple-500 to-indigo-600',
     quote:
       'The cloud render speed is unbelievable. Zero laptop freezing, no overheating fans. We process 30+ client reels every single day entirely on AWS Lambda without a single hiccup.',
-    highlightTag: 'Zero Laptop Lag',
+    keyMetric: '30+ Client Reels / Day on Lambda',
+    studioName: 'Face Head Video Studio',
+    studioHref: '/dashboard/ai-shorts-polisher',
+    aspectRatio: '9:16 Vertical',
+    tagColor: 'text-purple-700 bg-purple-50 border-purple-200/80',
   },
   {
-    id: '3',
+    id: 'layla',
     name: 'Layla Al-Mansoor',
     handle: '@laylacreates',
-    channelType: 'Lifestyle & Tech Creator, Riyadh',
+    channelType: 'Lifestyle & Tech Creator',
+    subscribers: '240K Followers · Riyadh',
     avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018756/Saudi_Arabia_Female_Content_Creator_wycpcd.jpg',
-    avatarInitials: 'LA',
-    avatarBg: 'bg-gradient-to-br from-emerald-500 to-teal-600',
     quote:
       'The subtitle transcription accuracy is phenomenal. It handles spoken expressions, slang, and bilingual speech effortlessly without awkward translations or manual fixes.',
-    highlightTag: 'Global Dialects & Accents',
+    keyMetric: '±10ms Accurate Karaoke Subtitles',
+    studioName: 'Auto Caption & Subtitle Studio',
+    studioHref: '/dashboard/auto-caption',
+    aspectRatio: '9:16 & 16:9 Dual',
+    tagColor: 'text-emerald-700 bg-emerald-50 border-emerald-200/80',
   },
   {
-    id: '4',
-    name: 'Tariq Al-Hashimi',
-    handle: '@tariqdigital',
-    channelType: 'Digital Entrepreneur & Podcaster, Dubai',
-    avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018756/Dubai_Male_Digital_Entrepreneur_zqsgit.jpg',
-    avatarInitials: 'TA',
-    avatarBg: 'bg-gradient-to-br from-rose-500 to-pink-600',
-    quote:
-      'The AI Studio Audio Cleaner is pure magic. It stripped out all the echo from my office and normalized the loudness in seconds. Sounds like a $2,000 studio booth.',
-    highlightTag: 'Studio Audio Cleaner',
-  },
-  {
-    id: '5',
+    id: 'emily',
     name: 'Dr. Emily Watson',
     handle: '@emilywatson',
-    channelType: 'Tech Educator & Shorts Creator, USA',
+    channelType: 'Tech Educator & Researcher',
+    subscribers: '95K Subs · USA',
     avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018756/USA_Female_Technology_Educator_rxlo0i.jpg',
-    avatarInitials: 'EW',
-    avatarBg: 'bg-gradient-to-br from-orange-600 to-amber-600',
     quote:
       'The Long Video to Shorts tool extracted 5 high-hook vertical clips from our 45-minute workshop. One clip already crossed 350k views on Instagram Reels.',
-    highlightTag: 'Viral Hook Clips',
+    keyMetric: '350K+ Views on Viral Shorts Clip',
+    studioName: 'Viral Video Clips Studio',
+    studioHref: '/dashboard/long-video-clips',
+    aspectRatio: '9:16 & 16:9 Dual',
+    tagColor: 'text-amber-700 bg-amber-50 border-amber-200/80',
   },
   {
-    id: '6',
-    name: 'Lukas Weber',
-    handle: '@lukasfinance',
-    channelType: 'Finance & Investing Creator, Germany',
-    avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018756/Germany_Male_Finance_Creator_ey7wnb.jpg',
-    avatarInitials: 'LW',
-    avatarBg: 'bg-gradient-to-br from-amber-500 to-yellow-600',
+    id: 'tariq',
+    name: 'Tariq Al-Hashimi',
+    handle: '@tariqdigital',
+    channelType: 'Digital Entrepreneur & Podcaster',
+    subscribers: 'Top 10 Tech Podcast · Dubai',
+    avatarUrl: 'https://res.cloudinary.com/dhouh9idx/image/upload/v1793018756/Dubai_Male_Digital_Entrepreneur_zqsgit.jpg',
     quote:
-      'The credit model is completely honest. 1 minute equals 1 credit. No hidden fees, no complicated compute math. It is refreshing to use an AI tool with zero tricks.',
-    highlightTag: 'Transparent Pricing',
+      'The AI Studio Audio Cleaner is pure magic. It stripped out all the echo from my office and normalized the loudness in seconds. Sounds like a $2,000 studio booth.',
+    keyMetric: '$2,000 Studio Sound from Mobile Audio',
+    studioName: 'AI Audio Cleaner Studio',
+    studioHref: '/dashboard/audio-cleaner',
+    aspectRatio: 'Broadcast Audio',
+    tagColor: 'text-teal-700 bg-teal-50 border-teal-200/80',
   },
 ];
 
 export default function TestimonialSection() {
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+
+  const activeStory = CREATOR_STORIES[activeIndex];
+
+  const handleNext = useCallback(() => {
+    setActiveIndex((prev) => (prev + 1) % CREATOR_STORIES.length);
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    setActiveIndex((prev) => (prev - 1 + CREATOR_STORIES.length) % CREATOR_STORIES.length);
+  }, []);
+
+  // Auto-advance every 6 seconds unless paused
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(handleNext, 6000);
+    return () => clearInterval(interval);
+  }, [isPaused, handleNext]);
+
   return (
-    <section className="relative overflow-hidden bg-white pt-14 pb-12 sm:pt-16 sm:pb-16 px-4 sm:px-6 lg:px-8 border-t border-slate-100">
-      {/* ───────────────────────────────────────────────────────────── */}
-      {/* SOFT AMBIENT MESH AURA (LIINKS-STYLE LIVING HALO)             */}
-      {/* ───────────────────────────────────────────────────────────── */}
+    <section className="relative overflow-hidden bg-white py-16 sm:py-24 border-t border-slate-100">
+      
+      {/* Soft Ambient Radial Halo */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[550px] w-[950px] max-w-full opacity-60 blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[1000px] max-w-full opacity-50 blur-3xl"
         style={{
           background:
-            'radial-gradient(ellipse 75% 65% at 50% 50%, rgba(0, 102, 255, 0.10) 0%, rgba(59, 130, 246, 0.05) 45%, rgba(168, 85, 247, 0.04) 70%, transparent 85%)',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-20 top-1/3 h-[420px] w-[500px] rounded-full opacity-45 blur-3xl"
-        style={{
-          background: 'radial-gradient(circle, rgba(0, 102, 255, 0.08) 0%, transparent 70%)',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-20 bottom-1/4 h-[420px] w-[500px] rounded-full opacity-45 blur-3xl"
-        style={{
-          background: 'radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, transparent 70%)',
+            'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(249, 115, 22, 0.08) 0%, rgba(245, 158, 11, 0.04) 50%, transparent 80%)',
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
+        
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
           <h2 className="text-3xl sm:text-5xl font-black text-zinc-950 tracking-tight leading-[1.15] font-sans">
             Created in minutes,{' '}
             <br className="hidden sm:inline" />
@@ -132,82 +155,234 @@ export default function TestimonialSection() {
             </span>
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-zinc-600 leading-relaxed font-sans font-medium">
+          <p className="text-sm sm:text-base text-zinc-600 leading-relaxed max-w-2xl mx-auto font-medium">
             Real video creators, podcasters, and YouTube channels scaling their content effortlessly without timeline fatigue or hardware freezes.
           </p>
         </div>
 
-        {/* 6-Card Review Grid (Liinks-style floating cards on light halo) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {CREATOR_REVIEWS.map((review) => (
-            <div
-              key={review.id}
-              className="group relative flex flex-col justify-between rounded-2xl border border-stone-200/90 bg-white p-6 sm:p-7 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:border-orange-500/40 hover:shadow-[0_20px_35px_-10px_rgba(249,115,22,0.12)] hover:-translate-y-1.5 transition-all duration-300 select-none"
-            >
-              <div>
-                {/* 5 Glowing Gold Stars & Feature Tag */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={15} className="fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
+        {/* ───────────────────────────────────────────────────────────── */}
+        {/* INTERACTIVE CREATOR SELECTOR TABS                             */}
+        {/* ───────────────────────────────────────────────────────────── */}
+        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-2 pt-1 px-1 no-scrollbar">
+          {CREATOR_STORIES.map((story, idx) => {
+            const isActive = activeIndex === idx;
+            return (
+              <button
+                key={story.id}
+                type="button"
+                onClick={() => setActiveIndex(idx)}
+                className={`group flex items-center gap-2.5 px-3.5 py-2 rounded-full border transition-all duration-200 cursor-pointer shrink-0 ${
+                  isActive
+                    ? 'bg-zinc-950 text-white border-zinc-900 shadow-sm scale-102'
+                    : 'bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200/80 hover:border-zinc-300'
+                }`}
+              >
+                <div className="relative h-6 w-6 rounded-full overflow-hidden border border-white/30 shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={getOptimizedAvatarUrl(story.avatarUrl, 48)}
+                    alt={story.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <span className="text-xs font-bold whitespace-nowrap">
+                  {story.name}
+                </span>
+                {isActive && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shrink-0 animate-pulse" />
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-orange-800 bg-orange-50 border border-orange-200/80 px-2 py-0.5 rounded-full">
-                    {review.highlightTag}
-                  </span>
+        {/* ───────────────────────────────────────────────────────────── */}
+        {/* HERO CREATOR SPOTLIGHT CARD (INTERACTIVE & RICH)              */}
+        {/* ───────────────────────────────────────────────────────────── */}
+        <div
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          className="relative overflow-hidden rounded-3xl border border-zinc-200/90 bg-gradient-to-br from-white via-zinc-50/40 to-orange-50/20 p-6 sm:p-10 shadow-[0_12px_40px_-15px_rgba(0,0,0,0.06)]"
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            {/* Left: Pull Quote & Creator Details (8 cols) */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* Stars & Metric Badge */}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
+                  ))}
                 </div>
 
-                {/* Punchy Review Quote */}
-                <p className="text-sm sm:text-[15px] font-medium leading-relaxed text-slate-700 group-hover:text-slate-900 transition-colors">
-                  &ldquo;{review.quote}&rdquo;
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${activeStory.tagColor}`}>
+                  <Zap size={12} className="shrink-0" />
+                  <span>{activeStory.keyMetric}</span>
+                </span>
+              </div>
+
+              {/* Big High-Impact Quote */}
+              <div className="relative">
+                <Quote size={40} className="text-orange-500/15 absolute -top-4 -left-3 pointer-events-none" />
+                <p className="text-lg sm:text-2xl font-bold leading-relaxed text-zinc-950 font-sans tracking-tight">
+                  &ldquo;{activeStory.quote}&rdquo;
                 </p>
               </div>
 
-              {/* Creator Attribution with Real Avatar Image */}
-              <div className="mt-6 pt-4 border-t border-stone-100 flex items-center gap-3">
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-orange-300/60 shadow-xs ring-2 ring-white">
+              {/* Creator Attribution */}
+              <div className="flex items-center gap-4 pt-2">
+                <div className="relative h-13 w-13 rounded-full overflow-hidden border-2 border-orange-500/40 shadow-sm shrink-0 ring-4 ring-orange-500/10">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={getOptimizedAvatarUrl(review.avatarUrl, 96)}
-                    alt={review.name}
-                    className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                    decoding="async"
-                    width={44}
-                    height={44}
+                    src={getOptimizedAvatarUrl(activeStory.avatarUrl, 100)}
+                    alt={activeStory.name}
+                    className="h-full w-full object-cover"
                   />
                 </div>
 
-                <div className="min-w-0 flex-1">
+                <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-bold text-slate-900 truncate">{review.name}</p>
-                    <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                    <h3 className="text-base sm:text-lg font-black text-zinc-950 tracking-tight">
+                      {activeStory.name}
+                    </h3>
+                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
                   </div>
-                  <p className="text-xs text-slate-500 truncate mt-0.5">{review.channelType}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-zinc-600">
+                    {activeStory.channelType}
+                  </p>
+                  <p className="text-xs text-zinc-400 font-mono">
+                    {activeStory.subscribers}
+                  </p>
                 </div>
               </div>
+
             </div>
-          ))}
+
+            {/* Right: Studio Action Box (4 cols) */}
+            <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-zinc-200/90 bg-white p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="space-y-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-400">
+                  Studio Workflow
+                </span>
+                <h4 className="text-base font-extrabold text-zinc-950">
+                  {activeStory.studioName}
+                </h4>
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-700 text-[10px] font-mono font-bold">
+                    {activeStory.aspectRatio}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold">
+                    Cloud 30 FPS
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-zinc-100">
+                <Link
+                  href={activeStory.studioHref}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-xs font-bold shadow-sm transition-all active:scale-95 text-center cursor-pointer"
+                >
+                  <span>Open This Studio</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+
+              {/* Slider Navigation Controls */}
+              <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center gap-1.5">
+                  {CREATOR_STORIES.map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setActiveIndex(i)}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        activeIndex === i ? 'w-6 bg-orange-600' : 'w-1.5 bg-zinc-200 hover:bg-zinc-300'
+                      }`}
+                      aria-label={`Go to story ${i + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    aria-label="Previous story"
+                    className="h-7 w-7 rounded-full border border-zinc-200 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    aria-label="Next story"
+                    className="h-7 w-7 rounded-full border border-zinc-200 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        {/* ───────────────────────────────────────────────────────────── */}
+        {/* 3 DISTINCT VALUE PROOF PILLARS (ZERO DUPLICATION)             */}
+        {/* ───────────────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          
+          <div className="rounded-2xl border border-zinc-200/90 bg-white p-6 shadow-xs space-y-2.5 text-left">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 border border-orange-500/20">
+              <Clock size={18} />
+            </div>
+            <h3 className="text-base font-bold text-zinc-950">Under 2 Minutes</h3>
+            <p className="text-xs text-zinc-600 leading-relaxed font-normal">
+              Distributed AWS Lambda 30fps headless cloud rendering. No laptop fan noise, zero disk paging, and zero timeline lag.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200/90 bg-white p-6 shadow-xs space-y-2.5 text-left">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+              <Sparkles size={18} />
+            </div>
+            <h3 className="text-base font-bold text-zinc-950">±10ms Accurate Subtitles</h3>
+            <p className="text-xs text-zinc-600 leading-relaxed font-normal">
+              Groq Whisper word-level precision with 32 viral subtitle presets, automatic emoji accents, and dual language support.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200/90 bg-white p-6 shadow-xs space-y-2.5 text-left">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 border border-blue-500/20">
+              <Cpu size={18} />
+            </div>
+            <h3 className="text-base font-bold text-zinc-950">1 Minute = 1 Credit</h3>
+            <p className="text-xs text-zinc-600 leading-relaxed font-normal">
+              Transparent economics with zero hidden fees. Includes 5 free renders every single day with no credit card required.
+            </p>
+          </div>
+
         </div>
 
         {/* Trust Summary & Bottom CTA */}
-        <div className="mt-10 sm:mt-14 text-center">
-          <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 rounded-2xl bg-stone-50 border border-stone-200/80 px-6 py-4 shadow-2xs">
+        <div className="text-center pt-2">
+          <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 rounded-2xl bg-stone-50 border border-stone-200/80 px-6 py-3.5 shadow-2xs">
             <div className="flex items-center gap-2">
               <div className="flex -space-x-2 overflow-hidden">
-                {CREATOR_REVIEWS.slice(0, 4).map((review) => (
+                {CREATOR_STORIES.slice(0, 4).map((story) => (
                   <div
-                    key={review.id}
+                    key={story.id}
                     className="relative inline-block h-8 w-8 rounded-full ring-2 ring-white overflow-hidden shadow-2xs"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={review.avatarUrl}
-                      alt={review.name}
+                      src={story.avatarUrl}
+                      alt={story.name}
                       className="h-full w-full object-cover"
                       loading="lazy"
-                      decoding="async"
                     />
                   </div>
                 ))}
@@ -228,6 +403,7 @@ export default function TestimonialSection() {
             </Link>
           </div>
         </div>
+
       </div>
     </section>
   );

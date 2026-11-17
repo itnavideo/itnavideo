@@ -320,113 +320,19 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
           })}
         </div>
 
-        {/* Simple Credit Usage Table (Responsive for Desktop & Mobile) */}
-        <div className="mt-14 max-w-4xl mx-auto">
-          <div className="text-center mb-6">
-            <h3 className="text-xl sm:text-2xl font-black text-zinc-950 tracking-tight">
-              Simple Credit Usage Policy
-            </h3>
-            <p className="text-xs sm:text-sm text-zinc-600 mt-1">
-              Transparent, honest pricing with zero hidden calculations. 1 credit covers 1 minute.
-            </p>
+        {/* Trust Guarantees */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-y-2 gap-x-6 text-xs text-zinc-600 font-medium">
+          <div className="flex items-center gap-1.5">
+            <ShieldCheck size={15} className="text-orange-600 shrink-0" />
+            <span>100% Secure Checkout via Razorpay</span>
           </div>
-
-          <div className="overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-xs">
-            {/* Table Header (Desktop) */}
-            <div className="hidden sm:grid grid-cols-12 bg-zinc-50 border-b border-zinc-200/80 px-5 py-3 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-              <div className="col-span-5">Video Studio / Format</div>
-              <div className="col-span-4">Aspect Ratio &amp; Duration</div>
-              <div className="col-span-3 text-right">Credit Cost</div>
-            </div>
-
-            {/* Table Rows */}
-            <div className="divide-y divide-zinc-100 text-xs sm:text-sm">
-              {/* Row 1: 16:9 Long-Form */}
-              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 hover:bg-orange-50/30 transition-colors gap-1 sm:gap-0">
-                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
-                  <span>16:9 YouTube Long-Form</span>
-                </div>
-                <div className="sm:col-span-4 text-zinc-600 text-xs">
-                  16:9 Widescreen • Up to 5 Minutes
-                </div>
-                <div className="sm:col-span-3 sm:text-right font-black text-orange-600 text-sm">
-                  1 Min = 1 Credit
-                </div>
-              </div>
-
-              {/* Row 2: 9:16 Shorts */}
-              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 hover:bg-orange-50/30 transition-colors gap-1 sm:gap-0">
-                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
-                  <span>9:16 Vertical Shorts &amp; Reels</span>
-                </div>
-                <div className="sm:col-span-4 text-zinc-600 text-xs">
-                  9:16 Vertical • Up to 90 Seconds
-                </div>
-                <div className="sm:col-span-3 sm:text-right font-black text-orange-600 text-sm">
-                  1 Credit / Video
-                </div>
-              </div>
-
-              {/* Row 3: Viral Video Clips */}
-              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 hover:bg-orange-50/30 transition-colors gap-1 sm:gap-0">
-                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
-                  <span>Long Video to Viral Clips</span>
-                </div>
-                <div className="sm:col-span-4 text-zinc-600 text-xs">
-                  Input up to 2h • 30s–60s Shorts
-                </div>
-                <div className="sm:col-span-3 sm:text-right font-black text-orange-600 text-sm">
-                  1 Credit / Clip
-                </div>
-              </div>
-
-              {/* Row 4: AI Audio Cleaner */}
-              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 hover:bg-orange-50/30 transition-colors gap-1 sm:gap-0">
-                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-orange-500 shrink-0" />
-                  <span>AI Studio Audio Cleaner</span>
-                </div>
-                <div className="sm:col-span-4 text-zinc-600 text-xs">
-                  Retake Detection • Up to 5 Minutes
-                </div>
-                <div className="sm:col-span-3 sm:text-right font-black text-orange-600 text-sm">
-                  1 Credit / Audio
-                </div>
-              </div>
-
-              {/* Row 5: Free Auto Captions */}
-              <div className="flex flex-col sm:grid sm:grid-cols-12 items-start sm:items-center px-4 sm:px-5 py-3.5 bg-emerald-50/50 hover:bg-emerald-50 transition-colors gap-1 sm:gap-0">
-                <div className="sm:col-span-5 font-bold text-zinc-950 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                  <span>Auto Caption &amp; YouTube Subtitles</span>
-                </div>
-                <div className="sm:col-span-4 text-emerald-800 text-xs font-medium">
-                  Word-Synced Captions • Daily Free Tier
-                </div>
-                <div className="sm:col-span-3 sm:text-right font-black text-emerald-600 text-sm">
-                  FREE (5 Daily)
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+            <span>Instant Credit Delivery</span>
           </div>
-
-          {/* Trust Guarantees */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-y-2 gap-x-6 text-xs text-zinc-600 font-medium">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck size={15} className="text-orange-600 shrink-0" />
-              <span>100% Secure Checkout via Razorpay</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
-              <span>Instant Credit Delivery</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              <span>Credits Never Expire</span>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span>Credits Never Expire</span>
           </div>
         </div>
       </div>

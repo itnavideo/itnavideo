@@ -18,6 +18,14 @@ The pipeline provides:
 - Dynamic background music auto-ducking and synchronized sound effects.
 - High-contrast kinetic subtitles.
 
+### 📚 Modular Architecture & Specification Files
+This directory houses the 5 authoritative engineering specifications for the 2026 Faceless Video engine:
+1. **[`00_INDEX_AND_DECISIONS.md`](./00_INDEX_AND_DECISIONS.md)** — Master index, locked values, resolution, safe areas (120/80), 85% vector dominance, and diagnosis of why previous output felt basic.
+2. **[`01_LAYOUT_CATALOG.md`](./01_LAYOUT_CATALOG.md)** — Complete recipe catalog of all 17 layouts (`HookTypographyScene` to `OutroScene`), slot definitions, and choreography rules.
+3. **[`02_AI_PLANNER_AND_ROUTER.md`](./02_AI_PLANNER_AND_ROUTER.md)** — 2-pass AI planning architecture, prompt templates, slot validators, repair loop, and the anti-stickman fallback ladder.
+4. **[`03_DESIGN_SYSTEM_AND_POLISH.md`](./03_DESIGN_SYSTEM_AND_POLISH.md)** — Design tokens, typography hierarchy (2× hero size rule), light/dark canvas polarity, kinetic captions, background depth stack, and procedural illustrations.
+5. **[`04_IMPLEMENTATION_GUIDE.md`](./04_IMPLEMENTATION_GUIDE.md)** — Developer guide with Remotion code primitives (`core/Animated.tsx`, `core/SceneRenderer.tsx`), time conversion, audio ducking, and SFX troubleshooting checklist.
+
 ---
 
 ## 2. Key Specifications & Limits

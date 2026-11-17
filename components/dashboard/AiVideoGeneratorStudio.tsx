@@ -60,7 +60,6 @@ export const AI_VIDEO_STEPS = [
   { step: 1, id: 'concept', title: 'Concept', desc: 'Prompt & Media' },
   { step: 2, id: 'music', title: 'Music', desc: 'Soundtrack & Volume' },
   { step: 3, id: 'style', title: 'Style', desc: 'Captions & Theme' },
-  { step: 4, id: 'studio', title: 'Studio', desc: '16:9 Cinema & Timeline' },
 ] as const;
 
 interface AiVideoGeneratorStudioProps {
@@ -817,8 +816,8 @@ export default function AiVideoGeneratorStudio({
                   })}
                 </div>
 
-                {/* Navigation */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                {/* Step 2 Navigation */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                   <button
                     type="button"
                     onClick={() => setCurrentStep(1)}
@@ -826,7 +825,6 @@ export default function AiVideoGeneratorStudio({
                   >
                     ← Back to Concept
                   </button>
-
                   <button
                     type="button"
                     onClick={() => setCurrentStep(3)}
@@ -840,89 +838,30 @@ export default function AiVideoGeneratorStudio({
             </div>
           )}
 
-          {/* ──────────────── STEP 3: STYLE & KINETIC CAPTIONS ──────────────── */}
+          {/* ──────────────── STEP 3: STYLE & CAPTIONS ──────────────── */}
           {currentStep === 3 && (
             <div className="space-y-6">
-              {/* Visual Aesthetic Selector */}
-              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
-                <h3 className="text-base font-bold text-slate-900">Visual Aesthetic Preset</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                  {[
-                    { id: 'Cinematic Modern', label: 'Cinematic Modern', desc: 'Moody lighting' },
-                    { id: 'Documentary', label: 'Documentary Realism', desc: 'Photojournalism' },
-                    { id: 'Modern Flat', label: 'Clean Flat Vector', desc: 'Tech graphics' },
-                    { id: 'Vibrant Pop', label: 'Vibrant Pop', desc: 'High saturation' },
-                    { id: 'Minimalist', label: 'Minimalist Elegant', desc: 'Editorial look' },
-                  ].map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => setSelectedStyle(s.id)}
-                      className={`p-3 rounded-xl border text-left transition cursor-pointer ${selectedStyle === s.id
-                          ? 'border-orange-500 bg-orange-50/60 ring-2 ring-orange-500/20'
-                          : 'border-slate-200 bg-white hover:bg-slate-50'
-                        }`}
-                    >
-                      <p className="text-xs font-bold text-slate-900">{s.label}</p>
-                      <p className="text-[10px] text-slate-500">{s.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 32 Caption Styles Selector */}
-              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">32 Animated Kinetic Caption Styles</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Subtitles will animate synced to narration speech across scenes
-                    </p>
-                  </div>
-
-                  {/* Search Filter */}
-                  <div className="relative w-full sm:w-48">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      value={captionSearch}
-                      onChange={(e) => setCaptionSearch(e.target.value)}
-                      placeholder="Search style..."
-                      className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none"
-                    />
-                  </div>
+              <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs space-y-5">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Select Kinetic Caption Typography</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    32 studio-grade kinetic subtitle animations synced to spoken audio.
+                  </p>
                 </div>
 
-                {/* Category Pills */}
-                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-                  {['All', 'Hormozi', 'Minimal', 'Neon & Glow', 'Dynamic', 'Cinematic', 'Comic & Pop'].map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setCaptionCategoryTab(cat)}
-                      className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer shrink-0 ${captionCategoryTab === cat
-                          ? 'bg-orange-500 text-white font-black shadow-xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-
-                {/* 32 Styles Grid with Live Word Previews */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto pr-1 no-scrollbar">
-                  {filteredCaptionStyles.map((style) => {
-                    const isSelected = (selectedCaptionStyle || 'pop-word') === style.id;
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2.5">
+                  {THIRTY_TWO_CAPTION_STYLES.map((style) => {
+                    const isSelected = selectedCaptionStyleId === style.id;
                     return (
                       <button
                         key={style.id}
                         type="button"
-                        onClick={() => setSelectedCaptionStyle(style.id)}
-                        className={`rounded-xl border p-3 text-left transition-all cursor-pointer flex flex-col justify-between h-28 ${isSelected
-                            ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20'
-                            : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100'
-                          }`}
+                        onClick={() => setSelectedCaptionStyleId(style.id)}
+                        className={`flex flex-col p-2.5 rounded-xl border text-left transition-all h-24 justify-between cursor-pointer ${
+                          isSelected
+                            ? 'border-orange-500 bg-orange-50/60 ring-2 ring-orange-500/20 shadow-xs'
+                            : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100 hover:border-slate-300'
+                        }`}
                       >
                         <div className="flex items-center justify-between w-full">
                           <span className="text-[10px] font-bold text-slate-500 truncate max-w-[85%]">
@@ -933,7 +872,7 @@ export default function AiVideoGeneratorStudio({
 
                         {/* Animated Sample Word Preview */}
                         <div className="my-auto py-1 flex items-center justify-center">
-                          {renderPreviewCaptionWords(style)}
+                          {renderPreviewCaptionWords(style.id)}
                         </div>
 
                         <span className="text-[9px] text-slate-400 truncate">{style.category}</span>
@@ -943,8 +882,8 @@ export default function AiVideoGeneratorStudio({
                 </div>
               </div>
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between">
+              {/* Cloud Render Action Bar */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
@@ -953,336 +892,34 @@ export default function AiVideoGeneratorStudio({
                   ← Back to Music
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!plan) {
-                      handleGenerateDraft();
-                    } else {
-                      setCurrentStep(4);
-                    }
-                  }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-orange-700 transition cursor-pointer"
-                >
-                  <span>{plan ? 'Next: Open Studio Timeline' : 'Generate Draft & Open Studio'}</span>
-                  <ArrowRight size={14} />
-                </button>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <WatermarkRemoverToggle
+                    enabled={removeAiWatermark}
+                    onChange={setRemoveAiWatermark}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={handleTriggerCloudRender}
+                    disabled={isRendering}
+                    className="px-6 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-md shadow-orange-600/20 transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    {isRendering ? (
+                      <>
+                        <RefreshCw size={14} className="animate-spin" />
+                        <span>Rendering 1080p...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={14} />
+                        <span>Render 1080p Video ({Math.ceil((plan?.durationSeconds || 60) / 60)} Credit)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           )}
-
-          {/* ──────────────── STEP 4 (final): 16:9 CINEMA STUDIO & MULTITRACK TIMELINE ──────────────── */}
-          {currentStep === AI_VIDEO_STEPS.length && (
-            <div className="space-y-6">
-              {plan ? (
-                <div className="space-y-4">
-                  {/* Hidden BGM Audio Playback Engine */}
-                  {currentBgmObj.path !== 'none' && (
-                    <audio
-                      ref={bgmAudioRef}
-                      src={getBgmTrackAudioUrl(currentBgmObj.path)}
-                      loop
-                      preload="auto"
-                    />
-                  )}
-
-                  {/* Project Top Action Header */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 sm:px-5 py-3">
-                    <div>
-                      <h2 className="text-sm font-black text-slate-900 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                        {plan?.title || 'AI Video Project'}
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
-                          16:9 Widescreen
-                        </span>
-                      </h2>
-                      <p className="text-xs text-slate-500">
-                        {plan?.scenes.length || 0} Scenes · {formatTime(plan?.durationSeconds || 0)} Total Duration · Free Draft Editing
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <WatermarkRemoverToggle
-                        removeAiWatermark={removeAiWatermark}
-                        onRemoveAiWatermarkChange={setRemoveAiWatermark}
-                        variant="inline"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={handleTriggerCloudRender}
-                        disabled={isRendering}
-                        className="px-6 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-md shadow-orange-600/20 transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                      >
-                        {isRendering ? (
-                          <>
-                            <RefreshCw size={14} className="animate-spin" />
-                            <span>Rendering 1080p...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles size={14} />
-                            <span>Render 1080p Video ({Math.ceil((plan?.durationSeconds || 60) / 60)} Credit)</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Main Studio Grid: Left 16:9 Cinema Monitor | Right Inspector Drawer */}
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                    {/* LEFT 7 COLS: 16:9 CINEMA LIVE MONITOR */}
-                    <div className="lg:col-span-7 flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-4 shadow-xs space-y-3">
-                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-black border border-slate-800 flex items-center justify-center group shadow-md">
-                        {/* Visual Media with Ken Burns Motion */}
-                        {activeScene?.mediaUrl && (
-                          <img
-                            src={activeScene.mediaUrl}
-                            alt={activeScene.title}
-                            className={`w-full h-full object-cover transition-transform duration-1000 ${isPlaying ? 'scale-110' : 'scale-100'
-                              }`}
-                          />
-                        )}
-
-                        {/* Top Scene Tag */}
-                        <div className="absolute top-3 left-3 flex items-center gap-2">
-                          <span className="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-white/20 text-white text-[11px] font-bold font-mono">
-                            Scene #{activeSceneIndex + 1} of {plan?.scenes.length}
-                          </span>
-                          <span className="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-white/20 text-orange-400 text-[11px] font-bold">
-                            {activeScene?.duration.toFixed(1)}s
-                          </span>
-                        </div>
-
-                        {/* Kinetic Caption Overlay */}
-                        {activeCaption && (
-                          <div className="absolute bottom-6 left-4 right-4 text-center z-10 pointer-events-none">
-                            <div className="inline-block max-w-lg px-4 py-2 rounded-xl text-sm sm:text-base font-black tracking-wide shadow-2xl backdrop-blur-xs bg-black/80 text-yellow-300 border border-white/10">
-                              {activeCaption}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Monitor Player Controls Bar */}
-                      <div className="flex items-center justify-between gap-3 pt-1">
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => handleSeek(currentTime - 5)}
-                            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition cursor-pointer"
-                            title="Rewind 5s"
-                          >
-                            <SkipBack size={14} />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={togglePlay}
-                            className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-md shadow-orange-600/25 transition cursor-pointer"
-                            title={isPlaying ? 'Pause' : 'Play'}
-                          >
-                            {isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" className="ml-0.5" />}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => handleSeek(currentTime + 5)}
-                            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition cursor-pointer"
-                            title="Forward 5s"
-                          >
-                            <SkipForward size={14} />
-                          </button>
-                        </div>
-
-                        {/* Scrubber Slider */}
-                        <div className="flex-1 flex items-center gap-2">
-                          <input
-                            type="range"
-                            min={0}
-                            max={plan?.durationSeconds || 60}
-                            step={0.1}
-                            value={currentTime}
-                            onChange={(e) => handleSeek(parseFloat(e.target.value))}
-                            className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
-                          />
-                          <span className="text-[11px] font-mono font-bold text-slate-600 shrink-0">
-                            {formatTime(currentTime)} / {formatTime(plan?.durationSeconds || 0)}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => setIsMuted(!isMuted)}
-                            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition cursor-pointer"
-                            title={isMuted ? 'Unmute' : 'Mute'}
-                          >
-                            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* RIGHT 5 COLS: PROPERTIES INSPECTOR DRAWER */}
-                    <div className="lg:col-span-5 flex flex-col justify-between rounded-3xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
-                      {/* Tabs */}
-                      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl border border-slate-200 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => setActiveInspectorTab('visuals')}
-                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${activeInspectorTab === 'visuals'
-                              ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
-                              : 'text-slate-500 hover:text-slate-900'
-                            }`}
-                        >
-                          <Film size={12} className={activeInspectorTab === 'visuals' ? 'text-orange-600' : ''} />
-                          <span>Shot #{activeSceneIndex + 1}</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveInspectorTab('script')}
-                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${activeInspectorTab === 'script'
-                              ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
-                              : 'text-slate-500 hover:text-slate-900'
-                            }`}
-                        >
-                          <FileText size={12} className={activeInspectorTab === 'script' ? 'text-orange-600' : ''} />
-                          <span>Script Narration</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveInspectorTab('audio')}
-                          className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${activeInspectorTab === 'audio'
-                              ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
-                              : 'text-slate-500 hover:text-slate-900'
-                            }`}
-                        >
-                          <Music size={12} className={activeInspectorTab === 'audio' ? 'text-orange-600' : ''} />
-                          <span>Soundtrack</span>
-                        </button>
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 overflow-y-auto max-h-[380px] pr-1 space-y-4">
-                        {activeInspectorTab === 'visuals' && activeScene && (
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-bold text-slate-800">
-                                Scene #{activeSceneIndex + 1} Visual Controls
-                              </h4>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200">
-                                {activeScene.duration.toFixed(1)}s Duration
-                              </span>
-                            </div>
-
-                            <div className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 bg-slate-100 group shadow-2xs">
-                              <img src={activeScene.mediaUrl} alt="" className="w-full h-full object-cover" />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => handleReplaceScenePhoto(activeSceneIndex)}
-                                  className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs flex items-center gap-1 cursor-pointer shadow-md"
-                                >
-                                  <RefreshCw size={12} />
-                                  <span>Swap Shot</span>
-                                </button>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handleRegenerateScene(activeSceneIndex)}
-                                disabled={isRegeneratingScene}
-                                className="py-2 px-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800 transition cursor-pointer flex flex-col items-center gap-1 shadow-2xs disabled:opacity-40"
-                              >
-                                <RefreshCw size={13} className={`text-orange-600 ${isRegeneratingScene ? 'animate-spin' : ''}`} />
-                                <span>Regenerate</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDuplicateScene(activeSceneIndex)}
-                                className="py-2 px-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-800 transition cursor-pointer flex flex-col items-center gap-1 shadow-2xs"
-                              >
-                                <Copy size={13} className="text-slate-600" />
-                                <span>Duplicate</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteScene(activeSceneIndex)}
-                                disabled={plan.scenes.length <= 1}
-                                className="py-2 px-2 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 text-xs font-bold text-rose-600 transition cursor-pointer flex flex-col items-center gap-1 shadow-2xs disabled:opacity-30"
-                              >
-                                <Trash2 size={13} />
-                                <span>Delete</span>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {activeInspectorTab === 'script' && activeScene && (
-                          <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-slate-800">Edit Narration Script</h4>
-                            <textarea
-                              value={activeScene.narration}
-                              onChange={(e) => handleUpdateNarration(activeSceneIndex, e.target.value)}
-                              rows={5}
-                              className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none leading-relaxed"
-                            />
-                            <p className="text-[10px] text-slate-400">
-                              Editing text immediately synchronizes with kinetic captions on the timeline.
-                            </p>
-                          </div>
-                        )}
-
-                        {activeInspectorTab === 'audio' && (
-                          <div className="space-y-3">
-                            <h4 className="text-xs font-bold text-slate-800">Soundtrack Track</h4>
-                            <div className="space-y-2">
-                              {AWS_BGM_TRACKS.slice(0, 6).map((t) => (
-                                <button
-                                  key={t.id}
-                                  type="button"
-                                  onClick={() => setSelectedBgmId(t.id)}
-                                  className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition flex items-center justify-between cursor-pointer ${selectedBgmId === t.id
-                                      ? 'border-orange-500 bg-orange-50 text-orange-950'
-                                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                                    }`}
-                                >
-                                  <span>{t.label}</span>
-                                  {selectedBgmId === t.id && <Check size={14} className="text-orange-600" />}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-12 text-center space-y-3">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 shadow-2xs">
-                    <Film size={26} />
-                  </div>
-                  <h3 className="text-base font-bold text-slate-800">No Video Draft Generated Yet</h3>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Type your creative idea in Step 1 (Concept) and click &quot;Generate Video Draft&quot; to unlock the 16:9 cinema monitor and timeline.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentStep(1)}
-                    className="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-2 text-xs font-bold text-white hover:bg-orange-700 transition cursor-pointer"
-                  >
-                    <span>Go to Step 1: Concept</span>
-                    <ArrowRight size={14} />
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
         </div>
       </div>
     </div>

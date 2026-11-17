@@ -100,7 +100,7 @@ const WAVE_BARS = [
   60, 85, 50, 95, 70, 40, 65, 80, 55, 90, 45, 70, 85, 35, 60, 40
 ];
 
-function generateSrt(words: Array<{ text: string; start: number; end: number }>): string {
+function generateSrt(words: Array<{ word?: string; text?: string; start: number; end: number }>): string {
   if (!words || words.length === 0) return '';
   const chunks: Array<{ start: number; end: number; text: string }> = [];
   const CHUNK_SIZE = 4;
@@ -109,7 +109,7 @@ function generateSrt(words: Array<{ text: string; start: number; end: number }>)
     chunks.push({
       start: slice[0].start,
       end: slice[slice.length - 1].end,
-      text: slice.map(w => w.text).join(' '),
+      text: slice.map(w => w.text || w.word || '').join(' '),
     });
   }
 
@@ -126,7 +126,7 @@ function generateSrt(words: Array<{ text: string; start: number; end: number }>)
   }).join('\n');
 }
 
-function generateVtt(words: Array<{ text: string; start: number; end: number }>): string {
+function generateVtt(words: Array<{ word?: string; text?: string; start: number; end: number }>): string {
   if (!words || words.length === 0) return 'WEBVTT\n\n';
   const srt = generateSrt(words);
   return 'WEBVTT\n\n' + srt.replace(/,/g, '.');
@@ -239,6 +239,8 @@ export function AutoCaptionDualTabStudio({
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const audioInputRef = useRef<HTMLInputElement | null>(null);
   const videoPlayerRef = useRef<HTMLVideoElement | null>(null);
+  const step3VideoPlayerRef = useRef<HTMLVideoElement | null>(null);
+  const step3MobileVideoPlayerRef = useRef<HTMLVideoElement | null>(null);
 
   const [localCanvasBg, setLocalCanvasBg] = useState<string>(canvasBackgroundColor || "#070B14");
   const canvasBg = canvasBackgroundColor || localCanvasBg;
@@ -333,13 +335,16 @@ export function AutoCaptionDualTabStudio({
 
   // Sync Video Element with Playback Time
   useEffect(() => {
-    if (videoPlayerRef.current && isPlaying) {
-      if (videoPlayerRef.current.paused) {
-        videoPlayerRef.current.play().catch(() => { });
+    const vids = [videoPlayerRef.current, step3VideoPlayerRef.current, step3MobileVideoPlayerRef.current].filter(Boolean) as HTMLVideoElement[];
+    vids.forEach((v) => {
+      if (isPlaying) {
+        if (v.paused) {
+          v.play().catch(() => { });
+        }
+      } else if (!isPlaying) {
+        v.pause();
       }
-    } else if (videoPlayerRef.current && !isPlaying) {
-      videoPlayerRef.current.pause();
-    }
+    });
   }, [isPlaying]);
 
   // Background Music Audition Player
@@ -1361,325 +1366,591 @@ export function AutoCaptionDualTabStudio({
         )}
 
         {/* ======================================================================= */}
-        {/* STEP 3: STYLE (32 MASTER ANIMATED CAPTIONS & KINETICS)                  */}
+        {/* STEP 3: STYLE (32 MASTER ANIMATED CAPTIONS & LIVE PREVIEW)             */}
         {/* ======================================================================= */}
         {currentStep === 3 && (
           <div className="max-w-7xl mx-auto w-full space-y-6 animate-in fade-in duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
-                  3. Select Kinetic Caption Style
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  32 viral animated typography presets. Cards animate live with unique phrasing!
-                </p>
-              </div>
+            {/* ── MOBILE VIDEO-FIRST PREVIEW CONTAINER (Sticky / Top-Pinned for Mobile) ── */}
+            <div className="block lg:hidden sticky top-2 z-30 mb-4">
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-2xl backdrop-blur-md">
+                {/* Top Info & Playback Controls Bar */}
+                <div className="flex items-center justify-between gap-2 mb-2 text-xs">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="font-black text-white text-[11px] truncate uppercase tracking-wider">
+                      Preview: <span className="text-orange-400">{captionStyle}</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+                      title={isPlaying ? "Pause Video" : "Play Video"}
+                    >
+                      {isPlaying ? <Pause size={12} className="text-orange-400" /> : <Play size={12} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsMuted(!isMuted)}
+                      className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+                      title={isMuted ? "Unmute" : "Mute"}
+                    >
+                      {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                    </button>
+                    <span className="font-mono text-[10px] text-slate-300 font-bold ml-1">
+                      {formatTime(playbackTime)}
+                    </span>
+                  </div>
+                </div>
 
-              {/* Quick Filter Search */}
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:border-[#FF5722] transition w-full sm:w-64">
-                <Search size={14} className="text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search 32 styles..."
-                  value={captionSearch}
-                  onChange={(e) => setCaptionSearch(e.target.value)}
-                  className="bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none w-full font-medium"
-                />
-              </div>
-            </div>
-
-            {/* Category Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2">
-              {[
-                "All",
-                "Kinetic",
-                "Viral",
-                "Modern",
-                "Karaoke",
-                "Editorial",
-                "Cinema",
-                "Podcast",
-                "Creative",
-                "Clean",
-              ].map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCaptionCategory(cat)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer active:scale-95 ${captionCategory === cat
-                    ? "bg-orange-600 text-white shadow-xs shadow-orange-500/25"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
+                {/* 9:16 Video Stage (Compact height for mobile viewports) */}
+                <div
+                  className="relative aspect-[9/16] h-[230px] sm:h-[270px] mx-auto rounded-xl overflow-hidden border border-white/15 shadow-inner flex items-center justify-center bg-black"
+                  style={{ backgroundColor: canvasBg }}
                 >
-                  {cat}
-                </button>
-              ))}
+                  {/* Actual Video or Audio Waveform */}
+                  {!isAudioFile ? (
+                    <>
+                      <video
+                        ref={step3MobileVideoPlayerRef}
+                        src={filePreviewUrl}
+                        playsInline
+                        muted={isMuted}
+                        loop
+                        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none" />
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-3">
+                      <div className="flex items-end justify-center gap-0.5 h-10 w-full">
+                        {WAVE_BARS.map((height, i) => (
+                          <span
+                            key={i}
+                            className="w-1 rounded-full bg-gradient-to-t from-orange-500 to-amber-300 transition-all duration-150"
+                            style={{
+                              height: isPlaying ? `${Math.max(15, (height * (1 + Math.sin(playbackTime * 4 + i))) % 100)}%` : `${height * 0.4}%`,
+                              opacity: 0.85,
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[9px] font-mono text-slate-400">Audio Waveform</span>
+                    </div>
+                  )}
+
+                  {/* Safe-Zone Overlays */}
+                  {safeZonePlatform !== "none" && (
+                    <div className="absolute inset-0 pointer-events-none z-25 flex flex-col justify-between p-2">
+                      <div className="text-[8px] text-white/70 font-bold uppercase bg-black/50 px-1.5 py-0.5 rounded self-start">
+                        {safeZonePlatform} SAFE
+                      </div>
+                      <div className="border-t border-dashed border-amber-400/60 bg-amber-500/10 h-8 flex items-center justify-center">
+                        <span className="text-[7px] font-mono text-amber-200 bg-black/60 px-1 rounded">Safe Margin</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Live Reactive Subtitle Overlay */}
+                  <div
+                    className={`absolute left-0 right-0 z-20 px-2 text-center pointer-events-none ${
+                      captionPosition === "top"
+                        ? "top-6"
+                        : captionPosition === "center"
+                        ? "top-1/2 -translate-y-1/2"
+                        : "bottom-7"
+                    }`}
+                  >
+                    <UniversalCaptionLiveRenderer
+                      styleName={captionStyle}
+                      words={demoWords}
+                      playbackTime={playbackTime}
+                      isPlaying={isPlaying}
+                      accentColor={accentColor}
+                    />
+                  </div>
+
+                  {/* Badge */}
+                  <div className="absolute bottom-1 right-1 bg-black/60 backdrop-blur-xs text-[8px] font-bold text-white/80 px-1.5 py-0.5 rounded pointer-events-none">
+                    9:16 Live Preview
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* 32 Master Caption Styles Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-              {filteredCaptionStyles.map((style) => {
-                const isSelected =
-                  captionStyle.toLowerCase().trim() === style.name.toLowerCase().trim() ||
-                  captionStyle.toLowerCase().trim() === style.id.toLowerCase().trim();
-                const isHovered = hoveredStyleId === style.id;
-                const previewWords = STYLE_PREVIEW_WORDS[style.id] || ["VIRAL", "KINETIC", "CAPTIONS"];
+            {/* ── RESPONSIVE DESKTOP & MOBILE WRAPPER ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Column (Desktop Only): Sticky 9:16 Vertical Phone Monitor (5 cols) */}
+              <div className="hidden lg:flex lg:col-span-5 sticky top-6 flex-col items-center rounded-3xl border border-slate-200 bg-white p-5 shadow-sm space-y-4">
+                {/* Monitor Header */}
+                <div className="w-full flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="font-black text-slate-900 uppercase tracking-wider text-[11px]">
+                      Live Style Audition Monitor
+                    </span>
+                  </div>
+                  <span className="font-mono text-slate-500 text-xs font-bold">
+                    {formatTime(playbackTime)} / {formatTime(totalDuration)}
+                  </span>
+                </div>
 
-                return (
+                {/* Safe Zone Quick Selector Bar */}
+                <div className="w-full flex items-center justify-between gap-1 px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px]">
+                  <span className="font-bold text-slate-500 text-[10px] uppercase tracking-wider">Safe Zone:</span>
+                  <div className="flex items-center gap-1">
+                    {([
+                      { id: "none" as const, label: "Off" },
+                      { id: "tiktok" as const, label: "TikTok" },
+                      { id: "instagram" as const, label: "Reels" },
+                      { id: "youtube" as const, label: "Shorts" },
+                    ]).map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setSafeZonePlatform(p.id)}
+                        className={`px-2 py-0.5 rounded-md font-bold transition text-[10px] cursor-pointer ${
+                          safeZonePlatform === p.id
+                            ? "bg-orange-600 text-white shadow-xs"
+                            : "text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 9:16 Phone Frame Stage */}
+                <div
+                  className="relative aspect-[9/16] w-full max-w-[280px] rounded-[32px] overflow-hidden border-[6px] border-slate-900 shadow-2xl flex items-center justify-center bg-black"
+                  style={{ backgroundColor: canvasBg }}
+                >
+                  {/* Phone Notch */}
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-4 bg-slate-900 rounded-full z-30 pointer-events-none" />
+
+                  {/* Safe Zone Visual Overlay */}
+                  {safeZonePlatform !== "none" && (
+                    <div className="absolute inset-0 pointer-events-none z-25 flex flex-col justify-between p-3">
+                      <div className="flex items-center justify-between text-[9px] text-white/70 font-bold px-2 pt-4">
+                        <span>{safeZonePlatform === "tiktok" ? "Following | For You" : safeZonePlatform === "instagram" ? "Reels" : "Shorts"}</span>
+                        <span className="px-1.5 py-0.5 rounded bg-black/40 text-[8px] uppercase">{safeZonePlatform} SAFE</span>
+                      </div>
+                      <div className="self-end flex flex-col items-center gap-3 pr-1 pb-16">
+                        <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center text-[10px] text-white">❤️</div>
+                        <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center text-[10px] text-white">💬</div>
+                        <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-xs flex items-center justify-center text-[10px] text-white">↗️</div>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 h-16 border-t border-dashed border-amber-400/60 bg-amber-500/10 flex items-center justify-center">
+                        <span className="text-[8px] font-mono text-amber-200 bg-black/60 px-1.5 py-0.5 rounded">
+                          Bottom Safe Margin (100px)
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Video / Audio Content */}
+                  {!isAudioFile ? (
+                    <>
+                      <video
+                        ref={step3VideoPlayerRef}
+                        src={filePreviewUrl}
+                        playsInline
+                        muted={isMuted}
+                        loop
+                        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 pointer-events-none" />
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-4">
+                      <div className="flex items-end justify-center gap-1 h-16 w-full">
+                        {WAVE_BARS.map((height, i) => (
+                          <span
+                            key={i}
+                            className="w-1.5 rounded-full bg-gradient-to-t from-orange-500 to-amber-300 transition-all duration-150"
+                            style={{
+                              height: isPlaying ? `${Math.max(15, (height * (1 + Math.sin(playbackTime * 4 + i))) % 100)}%` : `${height * 0.4}%`,
+                              opacity: 0.85,
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400">Audio Waveform Synced</span>
+                    </div>
+                  )}
+
+                  {/* Live Caption Overlay with selected captionStyle */}
                   <div
-                    key={style.id}
-                    onClick={() => onCaptionStyleChange(style.name)}
-                    onMouseEnter={() => setHoveredStyleId(style.id)}
-                    onMouseLeave={() => setHoveredStyleId(null)}
-                    className="group cursor-pointer select-none text-left"
+                    className={`absolute left-0 right-0 z-20 px-3 text-center pointer-events-none ${
+                      captionPosition === "top"
+                        ? "top-16"
+                        : captionPosition === "center"
+                        ? "top-1/2 -translate-y-1/2"
+                        : "bottom-14"
+                    }`}
                   >
-                    {/* Live Preview Card */}
-                    <div
-                      style={{
-                        background: "radial-gradient(circle at 50% 50%, #172033 0%, #070B14 85%)",
-                        borderColor: isSelected ? "#EA580C" : undefined,
-                        borderWidth: isSelected ? 2 : 1,
-                      }}
-                      className={`aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden relative border transition-all duration-200 flex items-center justify-center p-3 ${isSelected
-                        ? "shadow-lg shadow-orange-500/15 ring-2 ring-orange-500/30 scale-[1.02]"
-                        : "border-slate-200 hover:border-slate-400 hover:shadow-xs"
+                    <UniversalCaptionLiveRenderer
+                      styleName={captionStyle}
+                      words={demoWords}
+                      playbackTime={playbackTime}
+                      isPlaying={isPlaying}
+                      accentColor={accentColor}
+                    />
+                  </div>
+                </div>
+
+                {/* Desktop Monitor Bottom Controls */}
+                <div className="w-full flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                      title={isPlaying ? "Pause Video" : "Play Video"}
+                    >
+                      {isPlaying ? <Pause size={14} className="text-orange-600" /> : <Play size={14} />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsMuted(!isMuted)}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                      title={isMuted ? "Unmute" : "Mute"}
+                    >
+                      {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 text-right">
+                    <span className="text-[11px] font-black text-slate-900 bg-orange-50 text-orange-700 px-2.5 py-1 rounded-lg border border-orange-200">
+                      Active: {captionStyle}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column (Styles Selection & Customization - 7 cols on Desktop, 12 on Mobile) */}
+              <div className="lg:col-span-7 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-sans">
+                      3. Select Kinetic Caption Style
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                      Tap any style to immediately see how it looks on your video above!
+                    </p>
+                  </div>
+
+                  {/* Quick Filter Search */}
+                  <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus-within:border-[#FF5722] transition w-full sm:w-64">
+                    <Search size={14} className="text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search 32 styles..."
+                      value={captionSearch}
+                      onChange={(e) => setCaptionSearch(e.target.value)}
+                      className="bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none w-full font-medium"
+                    />
+                  </div>
+                </div>
+
+                {/* Category Filter Pills */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {[
+                    "All",
+                    "Kinetic",
+                    "Viral",
+                    "Modern",
+                    "Karaoke",
+                    "Editorial",
+                    "Cinema",
+                    "Podcast",
+                    "Creative",
+                    "Clean",
+                  ].map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => setCaptionCategory(cat)}
+                      className={`rounded-full px-4 py-1.5 text-xs font-bold transition cursor-pointer active:scale-95 ${captionCategory === cat
+                        ? "bg-orange-600 text-white shadow-xs shadow-orange-500/25"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                         }`}
                     >
-                      {/* Active Selected Badge */}
-                      {isSelected && (
-                        <div className="absolute top-2 left-2 bg-orange-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-xs z-20 pointer-events-none">
-                          ✓ Selected
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+
+                {/* 32 Master Caption Styles Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3.5">
+                  {filteredCaptionStyles.map((style) => {
+                    const isSelected =
+                      captionStyle.toLowerCase().trim() === style.name.toLowerCase().trim() ||
+                      captionStyle.toLowerCase().trim() === style.id.toLowerCase().trim();
+                    const previewWords = STYLE_PREVIEW_WORDS[style.id] || ["VIRAL", "KINETIC", "CAPTIONS"];
+
+                    return (
+                      <div
+                        key={style.id}
+                        onClick={() => onCaptionStyleChange(style.name)}
+                        onMouseEnter={() => setHoveredStyleId(style.id)}
+                        onMouseLeave={() => setHoveredStyleId(null)}
+                        className={`group cursor-pointer select-none text-left rounded-2xl p-2.5 border transition-all duration-200 ${
+                          isSelected
+                            ? "bg-orange-50/70 border-orange-500 shadow-md ring-2 ring-orange-500/30 scale-[1.02]"
+                            : "bg-white border-slate-200 hover:border-slate-400 hover:shadow-xs"
+                        }`}
+                      >
+                        {/* Live Preview Card */}
+                        <div
+                          style={{
+                            background: "radial-gradient(circle at 50% 50%, #172033 0%, #070B14 85%)",
+                            borderColor: isSelected ? "#EA580C" : undefined,
+                            borderWidth: isSelected ? 2 : 1,
+                          }}
+                          className={`aspect-[16/10] rounded-xl overflow-hidden relative border transition-all duration-200 flex items-center justify-center p-2.5 ${
+                            isSelected
+                              ? "shadow-sm shadow-orange-500/20"
+                              : "border-slate-800"
+                          }`}
+                        >
+                          {/* Active Selected Badge */}
+                          {isSelected && (
+                            <div className="absolute top-1.5 left-1.5 bg-orange-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-xs z-20 pointer-events-none">
+                              ✓ Selected
+                            </div>
+                          )}
+
+                          {/* Top Category Badge */}
+                          <div className="absolute top-1.5 right-1.5 bg-white/10 backdrop-blur-xs text-white text-[7px] font-bold px-1.5 py-0.5 rounded-full pointer-events-none uppercase tracking-wider">
+                            {style.category}
+                          </div>
+
+                          {/* Live Animated Word Simulation */}
+                          <div className="relative z-10 w-full text-center pointer-events-none">
+                            {renderPreviewCaptionWords(
+                              style.id,
+                              style.color,
+                              style.fontFamily,
+                              previewWordStep
+                            )}
+                          </div>
                         </div>
-                      )}
 
-                      {/* Top Category Badge */}
-                      <div className="absolute top-2 right-2 bg-white/10 backdrop-blur-xs text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full pointer-events-none uppercase tracking-wider">
-                        {style.category}
+                        {/* Card Title & Description */}
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs font-black text-slate-900 truncate">{style.name}</p>
+                            {style.badge && (
+                              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                                {style.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">
+                            {style.desc}
+                          </p>
+                        </div>
                       </div>
+                    );
+                  })}
+                </div>
 
-                      {/* Live Animated Word Simulation */}
-                      <div className="relative z-10 w-full text-center pointer-events-none">
-                        {renderPreviewCaptionWords(
-                          style.id,
-                          style.color,
-                          style.fontFamily,
-                          previewWords,
-                          previewWordStep
-                        )}
+                {/* Custom Styling Controls (Placement, Accent Color, Watermark) */}
+                <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                    Placement &amp; Color Fine-Tuning
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Placement */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700">Caption Placement</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {(["top", "center", "bottom"] as const).map((pos) => (
+                          <button
+                            key={pos}
+                            type="button"
+                            onClick={() => setCaptionPosition(pos)}
+                            className={`py-2 px-3 rounded-xl text-xs font-bold uppercase transition cursor-pointer ${captionPosition === pos
+                              ? "bg-orange-600 text-white shadow-xs shadow-orange-500/20"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                              }`}
+                          >
+                            {pos}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Card Title & Description */}
-                    <div className="mt-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs font-black text-slate-900 truncate">{style.name}</p>
-                        {style.badge && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                            {style.badge}
-                          </span>
-                        )}
+                    {/* Accent Color */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700">Word Accent Color</label>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {[
+                          { label: "Yellow", color: "#FFE14D" },
+                          { label: "Emerald", color: "#22C55E" },
+                          { label: "Cyan", color: "#00F5FF" },
+                          { label: "Pink", color: "#FF007F" },
+                          { label: "White", color: "#FFFFFF" },
+                        ].map((c) => (
+                          <button
+                            key={c.color}
+                            type="button"
+                            onClick={() => setAccentColor(c.color)}
+                            className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-bold transition cursor-pointer ${accentColor === c.color
+                              ? "border-orange-600 ring-2 ring-orange-500/30"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                              }`}
+                          >
+                            <span
+                              className="w-3 h-3 rounded-full border border-black/20"
+                              style={{ backgroundColor: c.color }}
+                            />
+                            <span>{c.label}</span>
+                          </button>
+                        ))}
                       </div>
-                      <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">
-                        {style.desc}
+                    </div>
+
+                    {/* Watermark Remover */}
+                    {onRemoveAiWatermarkChange && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-700">Branding Output</label>
+                        <WatermarkRemoverToggle
+                          enabled={removeAiWatermark}
+                          onChange={onRemoveAiWatermarkChange}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ── Caption Grouping & Highlight Cadence ── */}
+                <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                    Caption Grouping &amp; Highlight Cadence
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Words Per Group */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700">Words Per Caption Group</label>
+                      <div className="flex items-center gap-2">
+                        {[1, 2, 3, 4, 5, 6].map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            onClick={() => setWordsPerGroup(n)}
+                            className={`h-9 w-9 rounded-xl text-xs font-black transition cursor-pointer ${
+                              wordsPerGroup === n
+                                ? "bg-orange-600 text-white shadow-xs shadow-orange-500/20"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-medium">
+                        3 words/group recommended for 9:16 vertical. Max 18–24 chars per line.
+                      </p>
+                    </div>
+
+                    {/* Highlight Cadence */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700">Highlight Cadence</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {([
+                          { id: "word" as const, label: "Word" },
+                          { id: "phrase" as const, label: "Phrase" },
+                          { id: "progressive" as const, label: "Progressive" },
+                        ]).map((mode) => (
+                          <button
+                            key={mode.id}
+                            type="button"
+                            onClick={() => setHighlightCadence(mode.id)}
+                            className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
+                              highlightCadence === mode.id
+                                ? "bg-orange-600 text-white shadow-xs shadow-orange-500/20"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            }`}
+                          >
+                            {mode.label}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-medium">
+                        Word = karaoke word-by-word. Phrase = group highlight. Progressive = reveal left-to-right.
                       </p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Custom Styling Controls (Placement, Accent Color, Watermark) */}
-            <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                Placement &amp; Color Fine-Tuning
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Placement */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Caption Placement</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(["top", "center", "bottom"] as const).map((pos) => (
-                      <button
-                        key={pos}
-                        type="button"
-                        onClick={() => setCaptionPosition(pos)}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold uppercase transition cursor-pointer ${captionPosition === pos
-                          ? "bg-orange-600 text-white shadow-xs shadow-orange-500/20"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                      >
-                        {pos}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
-                {/* Accent Color */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Word Accent Color</label>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {[
-                      { label: "Yellow", color: "#FFE14D" },
-                      { label: "Emerald", color: "#22C55E" },
-                      { label: "Cyan", color: "#00F5FF" },
-                      { label: "Pink", color: "#FF007F" },
-                      { label: "White", color: "#FFFFFF" },
-                    ].map((c) => (
-                      <button
-                        key={c.color}
-                        type="button"
-                        onClick={() => setAccentColor(c.color)}
-                        className={`flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-bold transition cursor-pointer ${accentColor === c.color
-                          ? "border-orange-600 ring-2 ring-orange-500/30"
-                          : "border-slate-200 bg-white hover:border-slate-300"
-                          }`}
-                      >
-                        <span
-                          className="w-3 h-3 rounded-full border border-black/20"
-                          style={{ backgroundColor: c.color }}
-                        />
-                        <span>{c.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Watermark Remover */}
-                {onRemoveAiWatermarkChange && (
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700">Branding Output</label>
-                    <WatermarkRemoverToggle
-                      enabled={removeAiWatermark}
-                      onChange={onRemoveAiWatermarkChange}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* ── P0 Audit: Caption Grouping & Highlight Cadence ── */}
-            <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                Caption Grouping &amp; Highlight Cadence
-              </h3>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Words Per Group */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Words Per Caption Group</label>
-                  <div className="flex items-center gap-2">
-                    {[1, 2, 3, 4, 5, 6].map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setWordsPerGroup(n)}
-                        className={`h-9 w-9 rounded-xl text-xs font-black transition cursor-pointer ${
-                          wordsPerGroup === n
-                            ? "bg-orange-600 text-white shadow-xs shadow-orange-500/20"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-slate-400 font-medium">
-                    3 words/group recommended for 9:16 vertical. Max 18–24 chars per line.
+                {/* ── Safe-Zone Platform Selector ── */}
+                <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                    Platform Safe-Zone Preview
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Toggle platform overlays to verify captions won&apos;t collide with UI buttons, sound discs, or navigation.
                   </p>
-                </div>
-
-                {/* Highlight Cadence */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-700">Highlight Cadence</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {([
-                      { id: "word" as const, label: "Word" },
-                      { id: "phrase" as const, label: "Phrase" },
-                      { id: "progressive" as const, label: "Progressive" },
-                    ]).map((mode) => (
+                      { id: "none" as const, label: "Off", icon: "🚫" },
+                      { id: "tiktok" as const, label: "TikTok", icon: "🎵" },
+                      { id: "instagram" as const, label: "Instagram Reels", icon: "📸" },
+                      { id: "youtube" as const, label: "YouTube Shorts", icon: "▶️" },
+                    ]).map((platform) => (
                       <button
-                        key={mode.id}
+                        key={platform.id}
                         type="button"
-                        onClick={() => setHighlightCadence(mode.id)}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
-                          highlightCadence === mode.id
-                            ? "bg-orange-600 text-white shadow-xs shadow-orange-500/20"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        onClick={() => setSafeZonePlatform(platform.id)}
+                        className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition cursor-pointer ${
+                          safeZonePlatform === platform.id
+                            ? "border-orange-600 bg-orange-50 text-orange-700 ring-2 ring-orange-500/20"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                         }`}
                       >
-                        {mode.label}
+                        <span>{platform.icon}</span>
+                        <span>{platform.label}</span>
                       </button>
                     ))}
                   </div>
-                  <p className="text-[10px] text-slate-400 font-medium">
-                    Word = karaoke word-by-word. Phrase = group highlight. Progressive = reveal left-to-right.
-                  </p>
+                  {safeZonePlatform !== "none" && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
+                      <ShieldCheck size={14} className="shrink-0" />
+                      <span>
+                        {safeZonePlatform === "tiktok" && "TikTok safe zone: 100px bottom, 80px right for sound disc, like/comment buttons."}
+                        {safeZonePlatform === "instagram" && "Instagram Reels safe zone: 100px bottom, 80px right for audio tag, action buttons."}
+                        {safeZonePlatform === "youtube" && "YouTube Shorts safe zone: 80px bottom for subscribe button, 64px right for like/share."}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
 
-            {/* ── P0 Audit: Platform Safe-Zone Overlay Toggle ── */}
-            <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
-                Platform Safe-Zone Preview
-              </h3>
-              <p className="text-xs text-slate-500">
-                Toggle platform overlays to verify captions won&apos;t collide with UI buttons, sound discs, or navigation.
-              </p>
-              <div className="flex flex-wrap items-center gap-2">
-                {([
-                  { id: "none" as const, label: "Off", icon: "🚫" },
-                  { id: "tiktok" as const, label: "TikTok", icon: "🎵" },
-                  { id: "instagram" as const, label: "Instagram Reels", icon: "📸" },
-                  { id: "youtube" as const, label: "YouTube Shorts", icon: "▶️" },
-                ]).map((platform) => (
+                {/* Navigation Action Buttons */}
+                <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200">
                   <button
-                    key={platform.id}
                     type="button"
-                    onClick={() => setSafeZonePlatform(platform.id)}
-                    className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-bold transition cursor-pointer ${
-                      safeZonePlatform === platform.id
-                        ? "border-orange-600 bg-orange-50 text-orange-700 ring-2 ring-orange-500/20"
-                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                    }`}
+                    onClick={() => setCurrentStep(2)}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 px-5 py-3 transition cursor-pointer"
                   >
-                    <span>{platform.icon}</span>
-                    <span>{platform.label}</span>
+                    <ArrowLeft size={14} />
+                    <span>Back to Step 2: Music &amp; Audio</span>
                   </button>
-                ))}
-              </div>
-              {safeZonePlatform !== "none" && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
-                  <ShieldCheck size={14} className="shrink-0" />
-                  <span>
-                    {safeZonePlatform === "tiktok" && "TikTok safe zone: 100px bottom, 80px right for sound disc, like/comment buttons."}
-                    {safeZonePlatform === "instagram" && "Instagram Reels safe zone: 100px bottom, 80px right for audio tag, action buttons."}
-                    {safeZonePlatform === "youtube" && "YouTube Shorts safe zone: 80px bottom for subscribe button, 64px right for like/share."}
-                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(4)}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 hover:brightness-105 active:scale-98 text-white font-black text-xs px-8 py-3.5 shadow-md shadow-orange-500/20 transition cursor-pointer"
+                  >
+                    <span>Continue to Step 4: Live Studio Monitor</span>
+                    <ChevronRight size={16} />
+                  </button>
                 </div>
-              )}
-            </div>
-
-            {/* Navigation Action Buttons */}
-            <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-200">
-              <button
-                type="button"
-                onClick={() => setCurrentStep(2)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 px-5 py-3 transition cursor-pointer"
-              >
-                <ArrowLeft size={14} />
-                <span>Back to Step 2: Music &amp; Audio</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setCurrentStep(4)}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 hover:brightness-105 active:scale-98 text-white font-black text-xs px-8 py-3.5 shadow-md shadow-orange-500/20 transition cursor-pointer"
-              >
-                <span>Continue to Step 4: Live Studio Monitor</span>
-                <ChevronRight size={16} />
-              </button>
+              </div>
             </div>
           </div>
         )}

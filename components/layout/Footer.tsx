@@ -16,19 +16,24 @@ import {
 } from 'lucide-react';
 import BrandLogo from '@/components/brand/BrandLogo';
 import { HOMEPAGE_WORKFLOW_COUNT, HOMEPAGE_WORKFLOWS } from '@/constants/homepageWorkflows';
+import { PLATFORM_MODE_CONFIG } from '@/lib/config/platformMode';
+
+const rawProductLinks = [
+  { label: 'Platform Features', href: '/features' },
+  { label: 'Video Workflows', href: '/video-types' },
+  { label: 'Pricing & Credits', href: '/pricing' },
+  { label: 'AI Studio Dashboard', href: '/dashboard' },
+  { label: 'AI Audio Cleaner', href: '/ai-audio-cleaner' },
+  { label: 'Image to Video AI', href: '/image-to-video-ai' },
+  { label: 'Audio to MP3 Tool', href: '/wav-to-mp3' },
+];
 
 const footerGroups = [
   {
     title: 'Product',
-    links: [
-      { label: 'Platform Features', href: '/features' },
-      { label: 'Video Workflows', href: '/video-types' },
-      { label: 'Pricing & Credits', href: '/pricing' },
-      { label: 'AI Studio Dashboard', href: '/dashboard' },
-      { label: 'AI Audio Cleaner', href: '/ai-audio-cleaner' },
-      { label: 'Image to Video AI', href: '/image-to-video-ai' },
-      { label: 'Audio to MP3 Tool', href: '/wav-to-mp3' },
-    ],
+    links: PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS
+      ? rawProductLinks.filter((l) => l.href !== '/pricing')
+      : rawProductLinks,
   },
   {
     title: 'Video Types',

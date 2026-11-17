@@ -1375,6 +1375,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
       {isModularCardScene &&
         resolvedSceneBroll &&
         palette.isDark &&
+        typeof activeBackgroundTheme === 'string' &&
         !activeBackgroundTheme.startsWith('solid-') &&
         activeBackgroundTheme !== 'studio-white' &&
         activeBackgroundTheme !== 'solid-cream' &&
@@ -1720,7 +1721,7 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
               letterSpacing: '0.04em',
             }}
           >
-            {creatorHandle.startsWith('@') ? creatorHandle : `@${creatorHandle}`}
+            {typeof creatorHandle === 'string' && creatorHandle.startsWith('@') ? creatorHandle : `@${creatorHandle || ''}`}
           </span>
         </div>
       )}

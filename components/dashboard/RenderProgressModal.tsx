@@ -28,7 +28,7 @@ export function RenderProgressModal({
   status,
   title = 'ItnaVideo Export',
   fileName,
-  autoDownload = true,
+  autoDownload = false,
   onRetry,
   onReset,
   onCancel,

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useRef, useEffect } from "react";
 import {
@@ -27,8 +27,7 @@ import {
   Layers,
   Zap,
   Film,
-  Eye,
-  Video,
+    Video,
   Image as ImageIcon,
   CheckCheck,
   Edit3,
@@ -40,6 +39,7 @@ import {
   Mic,
   Type,
   ArrowRight,
+  ArrowLeftRight,
   Plus,
   Search,
   Headphones,
@@ -61,7 +61,36 @@ export const FACELESS_STEPS = [
   { step: 1, title: "Upload", desc: "Audio & Media" },
   { step: 2, title: "Music", desc: "Soundtrack & Volume" },
   { step: 3, title: "Style", desc: "Captions & Theme" },
-  { step: 4, title: "Storyboard", desc: "Scene Review & Render" },
+] as const;
+
+// ── Font Selection (Dual Font Architecture: Font 1 & Font 2) ──
+export const POPULAR_HEADING_FONTS = [
+  { id: "Montserrat", name: "Montserrat", desc: "Bold Modern YouTube Impact" },
+  { id: "Cinzel", name: "Cinzel", desc: "Cinematic Documentary Authority" },
+  { id: "Bebas Neue", name: "Bebas Neue", desc: "Tall Punchy Headline Sans" },
+  { id: "Anton", name: "Anton", desc: "Ultra-Bold Hook Title" },
+  { id: "Archivo Black", name: "Archivo Black", desc: "Heavy Industrial Punch" },
+  { id: "Outfit", name: "Outfit", desc: "Clean Geometric Tech" },
+  { id: "Playfair Display", name: "Playfair Display", desc: "Luxury Editorial Serif" },
+  { id: "Plus Jakarta Sans", name: "Plus Jakarta Sans", desc: "Modern Global Tech Sans" },
+] as const;
+
+export const POPULAR_BODY_FONTS = [
+  { id: "Plus Jakarta Sans", name: "Plus Jakarta Sans", desc: "Crisp High-Retention Reading" },
+  { id: "Inter", name: "Inter", desc: "Neutral Modern Legibility" },
+  { id: "DM Sans", name: "DM Sans", desc: "Friendly Geometric Subtitles" },
+  { id: "Poppins", name: "Poppins", desc: "Rounded Clean Contemporary" },
+  { id: "Nunito", name: "Nunito", desc: "Warm Balanced Narrative" },
+  { id: "Lora", name: "Lora", desc: "Refined Storytelling Serif" },
+] as const;
+
+// ── Background Palette Selection ──
+export const BACKGROUND_PALETTES = [
+  { id: "deep-dark", name: "Deep Dark", color: "#09090b", text: "#FFFFFF", desc: "Dark Luxury YouTube Documentary" },
+  { id: "solid-white", name: "Studio White", color: "#FFFFFF", text: "#09090b", desc: "Clean Educational & SaaS" },
+  { id: "warm-editorial", name: "Warm Editorial", color: "#FCFBF7", text: "#1C1917", desc: "Substack & Vox Paper Aesthetic" },
+  { id: "modern-slate", name: "Modern Slate", color: "#0F172A", text: "#FFFFFF", desc: "Engineering & Tech Dark Slate" },
+  { id: "midnight-blue", name: "Midnight Navy", color: "#0B0F19", text: "#FFFFFF", desc: "Deep Cinematic Midnight" },
 ] as const;
 
 // 32 Sound Wave visualizer bars
@@ -103,6 +132,14 @@ export interface FacelessVideoStudioProps {
 
   visualTheme?: string;
   onVisualThemeChange?: (themeId: string) => void;
+
+  headingFont?: string;
+  onHeadingFontChange?: (font: string) => void;
+  bodyFont?: string;
+  onBodyFontChange?: (font: string) => void;
+
+  bgmEnabled?: boolean;
+  onBgmEnabledChange?: (enabled: boolean) => void;
 
   backgroundTheme?: string;
   onBackgroundThemeChange?: (theme: string) => void;
@@ -163,6 +200,12 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   onEnableSfxChange,
   visualTheme = "modern-saas",
   onVisualThemeChange,
+  headingFont = "Montserrat",
+  onHeadingFontChange,
+  bodyFont = "Plus Jakarta Sans",
+  onBodyFontChange,
+  bgmEnabled = true,
+  onBgmEnabledChange,
   backgroundTheme = "solid-white",
   onBackgroundThemeChange,
   customBgUrl,
@@ -215,6 +258,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [activeBgmVolume, setActiveBgmVolume] = useState<number>(Math.round(facelessBgmVolume * 100) || 12);
   const [selectedBgmTrack, setSelectedBgmTrack] = useState<string>(AWS_BGM_TRACKS[0]?.id || "parasail");
   const [activeVisualTheme, setActiveVisualTheme] = useState<string>(visualTheme || "modern-saas");
+  const [activeHeadingFont, setActiveHeadingFont] = useState<string>(headingFont || "Montserrat");
+  const [activeBodyFont, setActiveBodyFont] = useState<string>(bodyFont || "Plus Jakarta Sans");
+  const [isBgmActive, setIsBgmActive] = useState<boolean>(bgmEnabled ?? true);
 
   // Storyboard Scene Editing & Swapping State (Audit Recommendation 1)
   const [swapModalSceneIndex, setSwapModalSceneIndex] = useState<number | null>(null);
@@ -539,6 +585,42 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
   // Final Generate Video Action
   const handleTriggerGenerate = () => {
+    const finalBgmUrl = isBgmActive
+      ? (customBgmUrl || (selectedBgmTrack === "none" ? "" : getBgmTrackAudioUrl(AWS_BGM_TRACKS.find((t) => t.id === selectedBgmTrack) || AWS_BGM_TRACKS[0])))
+      : "";
+
+    const payload = {
+      sceneBlueprint,
+      brollUrls,
+      transcript: editableTranscript || transcriptText,
+      segments: transcriptSegments,
+      durationSeconds: audioDurationSec || 60,
+      topicTitle: topicTitle.trim() || "",
+      backgroundTheme: backgroundTheme || "solid-white",
+      headingFont: activeHeadingFont,
+      bodyFont: activeBodyFont,
+      bgmEnabled: isBgmActive,
+      visualTheme: activeVisualTheme,
+      subtitleStyle,
+      captionAnimationStyle,
+      captionPosition,
+      facelessBgmMood,
+      facelessBgmVolume: (isBgmActive && finalBgmUrl) ? activeBgmVolume / 100 : 0,
+      facelessEnableSfx,
+      facelessPacingStyle,
+      assetSourceMode,
+      aspectRatio: "16:9",
+      bgmUrl: finalBgmUrl,
+      bgmTrackId: isBgmActive ? selectedBgmTrack : "none",
+      userMediaClips,
+      removeAiWatermark,
+    };
+
+    onGenerate(payload);
+    return;
+  };
+
+  const _legacyTriggerGenerate = () => {
     const finalBgmUrl = customBgmUrl || (selectedBgmTrack === "none" ? "" : getBgmTrackAudioUrl(AWS_BGM_TRACKS.find((t) => t.id === selectedBgmTrack) || AWS_BGM_TRACKS[0]));
 
     const payload = {
@@ -547,7 +629,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       transcript: editableTranscript || transcriptText,
       segments: transcriptSegments,
       durationSeconds: audioDurationSec || 60,
-      topicTitle: topicTitle.trim() || (selectedFile ? selectedFile.name.replace(/\.[^/.]+$/, "") : "Faceless Video"),
+      topicTitle: topicTitle.trim() || "",
       backgroundTheme: "solid-white",
       visualTheme: activeVisualTheme,
       subtitleStyle,
@@ -639,6 +721,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       {/* ── ROW 2: Scrollable Studio Workspace ── */}
       <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-6">
         <div className="max-w-6xl mx-auto space-y-6">
+
 
           {/* ══════════════════════════════════════════════════════════════
               STEP 1: UPLOAD (Voiceover, Details, Waveform & Media Clips)
@@ -821,32 +904,6 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 </div>
               )}
 
-              {/* Video Topic Title & Details */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Film size={18} className="text-orange-500" />
-                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                      Project Name / Video Title
-                    </h3>
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    Optional
-                  </span>
-                </div>
-
-                <input
-                  type="text"
-                  value={topicTitle}
-                  onChange={(e) => onTopicTitleChange?.(e.target.value)}
-                  placeholder="e.g. The Science of Deep Focus (auto-detected if left blank)"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none transition"
-                />
-                <p className="text-[11px] text-slate-500 font-medium">
-                  Used for your export file and intro badge. If left blank, it automatically uses your uploaded audio file name.
-                </p>
-              </div>
-
               {/* Editable Spoken Transcript Editor */}
               {transcriptText && (
                 <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
@@ -989,6 +1046,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
             </div>
           )}
 
+
           {/* ══════════════════════════════════════════════════════════════
               STEP 2: MUSIC (14 AWS Tracks, Custom Upload & Volume)
               ══════════════════════════════════════════════════════════════ */}
@@ -1012,6 +1070,38 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       Volume: {activeBgmVolume}%
                     </span>
                   </div>
+                </div>
+
+                {/* Master Switch: Background Music ON / OFF */}
+                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2.5 rounded-xl border ${isBgmActive ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-100 border-slate-200 text-slate-400"}`}>
+                      {isBgmActive ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-slate-900">Background Music Track</p>
+                      <p className="text-[11px] text-slate-500">
+                        {isBgmActive ? "Enabled — Auto-ducked background soundtrack will be mixed" : "Disabled — Zero background music will be rendered"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = !isBgmActive;
+                      setIsBgmActive(next);
+                      onBgmEnabledChange?.(next);
+                    }}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                      isBgmActive ? "bg-orange-600" : "bg-slate-300"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        isBgmActive ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
                 </div>
 
                 {/* Volume Slider with Quick Presets */}
@@ -1238,6 +1328,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
               </div>
             </div>
           )}
+
 
           {/* ══════════════════════════════════════════════════════════════
               STEP 3: STYLE (32 Animated Caption Themes & Pacing)
@@ -1466,463 +1557,140 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* ══════════════════════════════════════════════════════════════
-              STEP 4: PREVIEW (16:9 Cinema Monitor, Scene Stepper & Storyboard)
-              ══════════════════════════════════════════════════════════════ */}
-          {currentStep === FACELESS_STEPS.length && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              {/* 16:9 Cinema Widescreen Live Monitor */}
+{/* Dual Font System: Font 1 & Font 2 Selection */}
               <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Eye size={20} className="text-orange-500" />
-                      <span>16:9 Cinema Widescreen Live Monitor</span>
-                      <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
-                        Compulsory Review
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                    <Type size={20} className="text-orange-500" />
+                    <span>Font Pairing Selection (Font 1 &amp; Font 2)</span>
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
+                      Dual Font System
+                    </span>
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Choose two complementary fonts to create visual variety and avoid repetitive typography throughout the video.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Font 1: Headline & Stats Font */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="h-5 w-5 rounded-full bg-orange-600 text-white flex items-center justify-center text-[10px]">1</span>
+                        <span>Font 1 (Headlines, Numbers &amp; Hook Words)</span>
+                      </label>
+                      <span className="text-[10px] font-bold text-orange-600 font-mono bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
+                        {activeHeadingFont}
                       </span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Inspect scene typography, vector illustration badges, and spoken audio sync on pure white canvas.
-                    </p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {POPULAR_HEADING_FONTS.map((f) => {
+                        const isSelected = activeHeadingFont === f.id;
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveHeadingFont(f.id);
+                              onHeadingFontChange?.(f.id);
+                            }}
+                            className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                              isSelected
+                                ? "border-orange-500 bg-orange-50/70 text-slate-900 ring-1 ring-orange-500"
+                                : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            <span className="text-xs font-black truncate">{f.name}</span>
+                            <span className="text-[10px] text-slate-400 truncate mt-0.5">{f.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  {audioPreviewUrl && (
-                    <button
-                      type="button"
-                      onClick={togglePreviewAudio}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-800 transition cursor-pointer self-start sm:self-auto"
-                    >
-                      {isPreviewAudioPlaying ? (
-                        <>
-                          <Pause size={13} className="text-orange-500" />
-                          <span>Pause Audio Sync</span>
-                        </>
-                      ) : (
-                        <>
-                          <Play size={13} className="text-slate-700" />
-                          <span>Play Audio Sync</span>
-                        </>
-                      )}
-                    </button>
-                  )}
+                  {/* Font 2: Body & Subtitles Font */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="h-5 w-5 rounded-full bg-slate-800 text-white flex items-center justify-center text-[10px]">2</span>
+                        <span>Font 2 (Subtitles, Narration &amp; Body Text)</span>
+                      </label>
+                      <span className="text-[10px] font-bold text-slate-700 font-mono bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                        {activeBodyFont}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {POPULAR_BODY_FONTS.map((f) => {
+                        const isSelected = activeBodyFont === f.id;
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => {
+                              setActiveBodyFont(f.id);
+                              onBodyFontChange?.(f.id);
+                            }}
+                            className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                              isSelected
+                                ? "border-orange-500 bg-orange-50/70 text-slate-900 ring-1 ring-orange-500"
+                                : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            <span className="text-xs font-black truncate">{f.name}</span>
+                            <span className="text-[10px] text-slate-400 truncate mt-0.5">{f.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Background Canvas Palette Selection */}
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                    <Layers size={20} className="text-orange-500" />
+                    <span>Background Canvas Palette</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Select your preferred video background canvas tone to match your channel niche.
+                  </p>
                 </div>
 
-                {/* 16:9 Full HD Video Canvas (Pure White Background Guarantee) */}
-                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-300 bg-white shadow-lg flex flex-col justify-between p-6 sm:p-10 select-none">
-                  {/* Top Bar: Scene Pill & Progress */}
-                  <div className="flex items-center justify-between z-10">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 text-white text-[11px] font-black uppercase tracking-wider">
-                      <Film size={12} className="text-orange-400" />
-                      Scene {activePreviewIndex + 1} of {Math.max(1, sceneBlueprint.length)}
-                    </span>
-
-                    <span className="text-xs font-black text-slate-400">
-                      1080p Full HD (1920×1080)
-                    </span>
-                  </div>
-
-                  {/* Center Content: Headline & Vector Badge */}
-                  <div className="my-auto text-center space-y-4 max-w-2xl mx-auto z-10">
-                    <div className="inline-block px-3 py-1 rounded-lg bg-orange-50 border border-orange-200 text-orange-600 text-xs font-black uppercase tracking-widest">
-                      {currentPreviewScene.title || topicTitle || "Key Concept"}
-                    </div>
-
-                    <h3 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                      {currentPreviewScene.keyTakeaway || "Consistent actions compound into extraordinary results."}
-                    </h3>
-
-                    {currentPreviewScene.narrationExcerpt && (
-                      <p className="text-xs sm:text-sm text-slate-600 italic bg-slate-50/80 p-3 rounded-xl border border-slate-200/80">
-                        &ldquo;{currentPreviewScene.narrationExcerpt}&rdquo;
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Bottom Strip: Kinetic Subtitle Preview */}
-                  <div className="flex items-center justify-center z-10">
-                    <div className="bg-slate-900/90 backdrop-blur-md px-4 py-2 rounded-xl text-xs sm:text-sm font-black text-white shadow-md">
-                      {renderPreviewCaptionWords(subtitleStyle)}
-                    </div>
-                  </div>
-
-                  {/* Watermark Notice in Canvas Preview */}
-                  {!removeAiWatermark && (
-                    <div className="absolute bottom-3 right-3 text-[10px] font-bold text-slate-400 bg-white/80 px-2 py-0.5 rounded border border-slate-200">
-                      Itnavideo AI
-                    </div>
-                  )}
-                </div>
-
-                {/* Scene Scrubber Controls */}
-                <div className="flex items-center justify-between pt-2">
-                  <button
-                    type="button"
-                    disabled={activePreviewIndex <= 0}
-                    onClick={() => setActivePreviewIndex(Math.max(0, activePreviewIndex - 1))}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 text-xs font-bold text-slate-800 transition cursor-pointer"
-                  >
-                    <ChevronLeft size={14} />
-                    <span>Previous Scene</span>
-                  </button>
-
-                  <div className="flex items-center gap-1 overflow-x-auto max-w-xs">
-                    {Array.from({ length: Math.max(1, sceneBlueprint.length) }).map((_, idx) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                  {BACKGROUND_PALETTES.map((bg) => {
+                    const isSelected = (backgroundTheme || "solid-white") === bg.id;
+                    return (
                       <button
-                        key={idx}
+                        key={bg.id}
                         type="button"
-                        onClick={() => setActivePreviewIndex(idx)}
-                        className={`h-2.5 rounded-full transition-all cursor-pointer ${
-                          activePreviewIndex === idx ? "w-6 bg-orange-500" : "w-2.5 bg-slate-200 hover:bg-slate-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={activePreviewIndex >= Math.max(0, sceneBlueprint.length - 1)}
-                    onClick={() => setActivePreviewIndex(Math.min(sceneBlueprint.length - 1, activePreviewIndex + 1))}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 text-xs font-bold text-slate-800 transition cursor-pointer"
-                  >
-                    <span>Next Scene</span>
-                    <ChevronRight size={14} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Watermark Toggle */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-                <WatermarkRemoverToggle
-                  checked={removeAiWatermark}
-                  onChange={(val) => onRemoveAiWatermarkChange?.(val)}
-                  label="Remove AI Watermark"
-                  description="Export a completely clean, unbranded 1080p Full HD MP4 video."
-                />
-              </div>
-
-              {/* ── Studio-Grade 1080p Cinema Master Quality Guarantee ── */}
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <Tv size={16} />
-                  </div>
-                  <div>
-                    <p className="font-black text-slate-900">Studio-Grade 1080p Cinema Master</p>
-                    <p className="text-slate-600 text-[11px]">
-                      Composed in 1080p Full HD (1920×1080) at 30 FPS with kinetic typography, high-contrast visual styling, and dynamic audio ducking.
-                    </p>
-                  </div>
-                </div>
-                <span className="font-mono font-bold text-slate-800 bg-white border border-slate-200 px-2.5 py-1 rounded-lg shrink-0 self-start sm:self-auto">
-                  1080p Full HD • 30 FPS
-                </span>
-              </div>
-
-              {/* Storyboard Timeline Detail */}
-              {sceneBlueprint.length > 0 && (
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Layers size={18} className="text-orange-500" />
-                      <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                        Scene Storyboard Breakdown ({sceneBlueprint.length} Scenes)
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">
-                        ✓ All Scenes Approved
-                      </span>
-                      <span className="font-bold text-slate-500">
-                        Total: {formatSec(audioDurationSec)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto pr-1 scrollbar-thin">
-                    {sceneBlueprint.map((sc, i) => (
-                      <div
-                        key={i}
-                        onClick={() => setActivePreviewIndex(i)}
-                        className={`p-3.5 rounded-2xl border text-left transition cursor-pointer space-y-1.5 ${
-                          activePreviewIndex === i
-                            ? "border-orange-500 bg-orange-50/60 shadow-xs"
-                            : "border-slate-200 bg-slate-50 hover:bg-slate-100"
+                        onClick={() => onBackgroundThemeChange?.(bg.id)}
+                        className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${
+                          isSelected
+                            ? "border-orange-500 bg-orange-50/50 shadow-xs ring-2 ring-orange-500/20"
+                            : "border-slate-200 bg-slate-50 hover:bg-slate-100/80"
                         }`}
                       >
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-black text-slate-900">Scene {i + 1}</span>
-                          <span className="font-mono text-[10px] text-slate-500 font-bold">
-                            {formatSec(sc.startTime || 0)} - {formatSec(sc.endTime || 0)}
-                          </span>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-slate-900">{bg.name}</span>
+                          <span
+                            className="w-4 h-4 rounded-full border border-slate-300 shadow-xs"
+                            style={{ backgroundColor: bg.color }}
+                          />
                         </div>
-                        <p className="text-xs font-bold text-slate-800 truncate">
-                          {sc.title || sc.headline || "Scene Beat"}
-                        </p>
-                        <p className="text-[11px] text-slate-500 line-clamp-2">
-                          {sc.narrationExcerpt || sc.keyTakeaway || sc.description || ""}
-                        </p>
-                        <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[10px] text-slate-500">
-                          <span className="font-semibold capitalize text-orange-600">
-                            {sc.visualType || "Stock B-Roll"}
-                          </span>
-                          <span className="text-emerald-700 font-bold">Verified 1080p</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Multi-Track Timeline Architecture Badge & Inspector */}
-                  <div className="pt-3 border-t border-slate-200/80">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
-                          Multi-Track Timeline Architecture (Unlimited Layers Active)
-                        </h4>
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                        NLE Professional Stack
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-[11px]">
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                        <div className="flex items-center justify-between text-slate-700 font-bold">
-                          <span>Text Tracks</span>
-                          <span className="text-orange-600 font-black">10 Layers</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 line-clamp-2">
-                          Headlines, subheads, descriptions, key points, stat callouts &amp; badges.
-                        </p>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                        <div className="flex items-center justify-between text-slate-700 font-bold">
-                          <span>Backgrounds</span>
-                          <span className="text-amber-600 font-black">4 Layers</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 line-clamp-2">
-                          Deep gradient base, halftone grid, ambient mesh &amp; vignette.
-                        </p>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                        <div className="flex items-center justify-between text-slate-700 font-bold">
-                          <span>Audio Tracks</span>
-                          <span className="text-emerald-600 font-black">5 Tracks</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 line-clamp-2">
-                          Voiceover, ducked BGM, ambient bed, whoosh transitions &amp; hit SFX.
-                        </p>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                        <div className="flex items-center justify-between text-slate-700 font-bold">
-                          <span>SVG &amp; Vector</span>
-                          <span className="text-sky-600 font-black">Multi-Layer</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 line-clamp-2">
-                          Concept drawings, curved arrows, badges, icons &amp; metric charts.
-                        </p>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                        <div className="flex items-center justify-between text-slate-700 font-bold">
-                          <span>Media Tracks</span>
-                          <span className="text-violet-600 font-black">Dual-Asset</span>
-                        </div>
-                        <p className="text-[10px] text-slate-500 line-clamp-2">
-                          Primary cinema B-roll with floating PIP callout cards &amp; video clips.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                        <span className="text-[10px] text-slate-500 line-clamp-2">{bg.desc}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
             </div>
           )}
-        </div>
-      </div>
 
-      {/* ── MODAL: Visual Asset Swapper (Audit Recommendation 1) ── */}
-      {swapModalSceneIndex !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200 max-h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                  <ArrowLeftRight size={18} className="text-orange-500" />
-                  <span>Swap Visual for Scene {swapModalSceneIndex + 1}</span>
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Select a curated 16:9 cinema visual or your uploaded custom media for this scene.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSwapModalSceneIndex(null)}
-                className="p-1.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 transition"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="overflow-y-auto space-y-4 pr-1 scrollbar-thin">
-              {/* User Uploads Option */}
-              {userMediaClips.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">
-                    Your Uploaded Media ({userMediaClips.length})
-                  </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    {userMediaClips.map((clip, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleSelectAssetForScene(clip.url)}
-                        className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 hover:border-orange-500 transition text-left cursor-pointer"
-                      >
-                        {clip.type === "video" ? (
-                          <div className="w-full h-full bg-slate-900 flex items-center justify-center text-white">
-                            <Video size={20} />
-                          </div>
-                        ) : (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={clip.url} alt="User media" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                        )}
-                        <span className="absolute bottom-1 left-1 text-[9px] font-bold text-white bg-slate-900/80 px-1.5 py-0.5 rounded">
-                          User Asset
-                        </span>
-                      </button>
-                    ))}
                   </div>
-                </div>
-              )}
-
-              {/* Curated Studio Stock Images */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">
-                  Curated 16:9 Realistic Visuals
-                </h4>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {CURATED_16_9_STOCKS.map((stk, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => handleSelectAssetForScene(stk.url)}
-                      className="group relative aspect-video rounded-xl overflow-hidden border border-slate-200 hover:border-orange-500 transition text-left cursor-pointer shadow-xs"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={stk.url} alt={stk.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex flex-col justify-end p-1.5">
-                        <span className="text-[9px] font-black text-white leading-tight line-clamp-1">
-                          {stk.title}
-                        </span>
-                        <span className="text-[8px] font-bold text-orange-300 uppercase tracking-wider">
-                          {stk.tag}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setSwapModalSceneIndex(null)}
-                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── MODAL: Scene Text Editor (Audit Recommendation 1) ── */}
-      {editSceneIndex !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                <Edit3 size={16} className="text-orange-500" />
-                <span>Edit Scene {editSceneIndex + 1} Content</span>
-              </h3>
-              <button
-                type="button"
-                onClick={() => setEditSceneIndex(null)}
-                className="p-1.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 transition"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-black uppercase tracking-wider text-slate-700 block mb-1">
-                  Scene Headline / Badge
-                </label>
-                <input
-                  type="text"
-                  value={editHeadlineInput}
-                  onChange={(e) => setEditHeadlineInput(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-900 focus:border-orange-500 focus:outline-none"
-                  placeholder="e.g. Core Principle"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-black uppercase tracking-wider text-slate-700 block mb-1">
-                  Key Takeaway Statement
-                </label>
-                <textarea
-                  rows={2}
-                  value={editTakeawayInput}
-                  onChange={(e) => setEditTakeawayInput(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-900 focus:border-orange-500 focus:outline-none"
-                  placeholder="The primary point highlighted on screen"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-black uppercase tracking-wider text-slate-700 block mb-1">
-                  Narration Excerpt
-                </label>
-                <textarea
-                  rows={2}
-                  value={editNarrationInput}
-                  onChange={(e) => setEditNarrationInput(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-semibold text-slate-900 focus:border-orange-500 focus:outline-none"
-                  placeholder="Spoken words corresponding to this scene"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setEditSceneIndex(null)}
-                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleSaveSceneEdits}
-                className="px-5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black shadow-xs cursor-pointer"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* ── MODAL: Pre-Render Confirmation (Audit Recommendation 6) ── */}
       {showPreRenderModal && (

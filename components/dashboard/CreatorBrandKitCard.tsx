@@ -332,7 +332,7 @@ export function CreatorBrandKitCard({
                         <Star size={13} />
                       </button>
                     )}
-                    {preset.id.startsWith("preset-") && (
+                    {typeof preset?.id === "string" && preset.id.startsWith("preset-") && (
                       <button
                         type="button"
                         onClick={() => handleDelete(preset.id)}

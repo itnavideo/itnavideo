@@ -40,8 +40,9 @@ export function BackgroundPicker({
 }: BackgroundPickerProps) {
   const [activeCategory, setActiveCategory] = useState<BackgroundCategory>("all");
   const [hoveredCardId, setHoveredCardId] = useState<string | null>(null);
+  const safeTheme = typeof selectedTheme === 'string' && selectedTheme ? selectedTheme : 'midnight-mesh';
   const [colorGroupFilter, setColorGroupFilter] = useState<'all' | 'core' | 'pastel' | 'vibrant' | 'earth' | 'deep'>('all');
-  const [customHex, setCustomHex] = useState(selectedTheme.startsWith('#') ? selectedTheme : '#FF5722');
+  const [customHex, setCustomHex] = useState(safeTheme.startsWith('#') ? safeTheme : '#FF5722');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Filter catalog
@@ -50,10 +51,10 @@ export function BackgroundPicker({
     return bg.category === activeCategory;
   });
 
-  const isCustomHex = selectedTheme.startsWith('#') || selectedTheme.startsWith('hex-');
-  const activeCoreColor = CREATOR_CORE_COLORS.find((c) => c.id === selectedTheme);
+  const isCustomHex = safeTheme.startsWith('#') || safeTheme.startsWith('hex-');
+  const activeCoreColor = CREATOR_CORE_COLORS.find((c) => c.id === safeTheme);
   const activeBackground =
-    BACKGROUND_CATALOG.find((b) => b.id === selectedTheme) ||
+    BACKGROUND_CATALOG.find((b) => b.id === safeTheme) ||
     (activeCoreColor
       ? {
           id: activeCoreColor.id,
@@ -66,13 +67,13 @@ export function BackgroundPicker({
         }
       : isCustomHex
       ? {
-          id: selectedTheme,
-          name: `Custom Hex (${selectedTheme})`,
+          id: safeTheme,
+          name: `Custom Hex (${safeTheme})`,
           category: "minimal" as const,
           tag: "Minimal" as const,
-          description: `Custom color canvas ${selectedTheme}`,
-          isDark: getBackgroundPalette(selectedTheme).isDark,
-          accentColor: selectedTheme.startsWith('#') ? selectedTheme : '#' + selectedTheme.replace(/^hex-/, ''),
+          description: `Custom color canvas ${safeTheme}`,
+          isDark: getBackgroundPalette(safeTheme).isDark,
+          accentColor: safeTheme.startsWith('#') ? safeTheme : '#' + safeTheme.replace(/^hex-/, ''),
         }
       : BACKGROUND_CATALOG[0]);
 
@@ -182,7 +183,7 @@ export function BackgroundPicker({
     }
 
     // 12 Creator Core Colors & Minimal previews
-    if (bg.id.startsWith("solid-")) {
+    if (typeof bg?.id === 'string' && bg.id.startsWith("solid-")) {
       const core = CREATOR_CORE_COLORS.find((c) => c.id === bg.id);
       const hex = core ? core.hex : "#070B14";
       const isLight = core ? !core.isDark : false;

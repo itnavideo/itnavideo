@@ -96,7 +96,7 @@ const THEME_STYLES: Record<CalloutTheme, { bg: string; border: string; text: str
  * 1. Speech Bubble: Rounded card with an SVG tail pointing towards speaker
  */
 const SpeechBubbleCallout = memo(({ layer, theme }: { layer: DynamicCalloutLayer; theme: typeof THEME_STYLES[CalloutTheme] }) => {
-  const tailPos = layer.tailPosition ?? 'bottom-left';
+  const tailPos = typeof layer.tailPosition === 'string' ? layer.tailPosition : 'bottom-left';
   const isBottom = tailPos.startsWith('bottom');
   const isLeft = tailPos.endsWith('left');
 

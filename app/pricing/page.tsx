@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, CircleHelp, CreditCard, HelpCircle, Mail, Play, ShieldCheck, Video, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleHelp, CreditCard, HelpCircle, Mail, Play, ShieldCheck, Video, Sparkles, Gift } from "lucide-react";
 import type { Metadata } from "next";
 import PricingSection from "@/components/landing/PricingSection";
 import PricingComparisonTable from "@/components/billing/PricingComparisonTable";
+import { PLATFORM_MODE_CONFIG } from "@/lib/config/platformMode";
 
 export const metadata: Metadata = {
   title: "Pricing — Creator & Agency AI Video Plans | Itnavideo",
@@ -22,6 +23,61 @@ export const metadata: Metadata = {
 };
 
 export default function PricingPage() {
+  if (PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS) {
+    return (
+      <main className="bg-white text-slate-900 min-h-screen pt-16 pb-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-1.5 text-xs font-bold text-orange-700">
+            <Gift size={14} className="text-orange-600" />
+            <span>COMMUNITY FEEDBACK ACCESS</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight font-sans">
+            Itnavideo is currently{' '}
+            <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 bg-clip-text text-transparent">
+              100% Free
+            </span>
+          </h1>
+
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 leading-relaxed font-sans">
+            We are actively refining our AI video output to deliver world-class studio quality.
+            During this phase, all paid tiers are temporarily paused so every creator can explore
+            our 15 video creation studios, generate unlimited previews, and download 2 videos daily for free.
+          </p>
+
+          {/* Highlights card */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto pt-4 text-left">
+            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/80 space-y-1.5">
+              <span className="text-xs font-black text-orange-600 uppercase tracking-wider">Daily Allowance</span>
+              <p className="text-xl font-black text-slate-900">2 Free Downloads</p>
+              <p className="text-xs text-slate-500">Resets daily at 12:00 AM IST across all studios.</p>
+            </div>
+            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/80 space-y-1.5">
+              <span className="text-xs font-black text-emerald-600 uppercase tracking-wider">Unrestricted Previews</span>
+              <p className="text-xl font-black text-slate-900">Unlimited Renders</p>
+              <p className="text-xs text-slate-500">Experiment freely across all 15 video tools.</p>
+            </div>
+            <div className="p-5 rounded-2xl border border-slate-200 bg-slate-50/80 space-y-1.5">
+              <span className="text-xs font-black text-sky-600 uppercase tracking-wider">Your Feedback</span>
+              <p className="text-xl font-black text-slate-900">Shape the AI</p>
+              <p className="text-xs text-slate-500">Tell us what to improve after watching your video.</p>
+            </div>
+          </div>
+
+          <div className="pt-6">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-8 py-4 text-sm font-black text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+            >
+              <span>Start Creating Free in Studio</span>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="bg-white text-slate-900 min-h-screen pt-12">
       {/* Universal Modern Pricing Section */}

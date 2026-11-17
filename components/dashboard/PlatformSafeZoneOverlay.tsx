@@ -28,7 +28,8 @@ export function PlatformSafeZoneOverlay({
 }: PlatformSafeZoneOverlayProps) {
   if (platform === "clean") return null;
 
-  const displayHandle = creatorHandle.startsWith("@") ? creatorHandle : `@${creatorHandle}`;
+  const safeHandle = typeof creatorHandle === "string" && creatorHandle ? creatorHandle : "@creator";
+  const displayHandle = safeHandle.startsWith("@") ? safeHandle : `@${safeHandle}`;
 
   return (
     <div className="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between p-3 select-none overflow-hidden font-sans text-white">

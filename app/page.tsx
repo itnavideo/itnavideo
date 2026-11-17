@@ -1,20 +1,18 @@
 import type { Metadata } from 'next';
 import nextDynamic from 'next/dynamic';
 import Hero from '@/components/landing/Hero';
-import HomepageDemoVideo from '@/components/landing/HomepageDemoVideo';
-import HowItWorksVideo from '@/components/landing/HowItWorksVideo';
+import BusyBusinessShowcase from '@/components/landing/BusyBusinessShowcase';
 import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
-import TransformationShowcaseSection from '@/components/landing/TransformationShowcaseSection';
 import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
 import TestimonialSection from '@/components/landing/TestimonialSection';
-import { FreeCreatorUtilitiesSection } from '@/components/landing/FreeCreatorUtilitiesSection';
 import {
   HomepageFinalCta,
   HomepageTrustStrip,
-  PlatformJourney,
 } from '@/components/landing/HomepageValueSections';
 import StickyMobileActionBar from '@/components/landing/StickyMobileActionBar';
 import { pricingPlans } from '@/lib/billing/plans';
+import { PLATFORM_MODE_CONFIG } from '@/lib/config/platformMode';
+import HomepageFeedbackBanner from '@/components/feedback/HomepageFeedbackBanner';
 const HomepagePricing = nextDynamic(() => import('@/components/landing/PricingSection'), { ssr: true });
 const FAQSection = nextDynamic(() => import('@/components/FAQSection'), { ssr: true });
 
@@ -122,16 +120,16 @@ export default function LandingPage() {
 
       <Hero />
       <HomepageTrustStrip />
-      <HomepageDemoVideo />
+      <BusyBusinessShowcase />
       <PlatformMarqueeTicker />
-      <TransformationShowcaseSection />
-      <PlatformJourney />
       <TenStudiosHubArchitecture />
-      <HowItWorksVideo />
       <TestimonialSection />
-      <HomepagePricing />
+      {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? (
+        <HomepageFeedbackBanner />
+      ) : (
+        <HomepagePricing />
+      )}
       <FAQSection />
-      <FreeCreatorUtilitiesSection />
       <HomepageFinalCta />
       <StickyMobileActionBar />
     </div>

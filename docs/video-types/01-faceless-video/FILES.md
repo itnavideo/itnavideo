@@ -5,6 +5,17 @@
 
 ---
 
+## 📖 Core Engineering Specifications (2026 Engine)
+| # | File | Purpose |
+| :-: | :--- | :--- |
+| **#0A** | [`00_INDEX_AND_DECISIONS.md`](./00_INDEX_AND_DECISIONS.md) | Master index, locked values, resolution, safe areas (120/80), 85% vector dominance, and diagnosis of basic output. |
+| **#0B** | [`01_LAYOUT_CATALOG.md`](./01_LAYOUT_CATALOG.md) | 17 dedicated layout recipes (`HookTypographyScene` to `OutroScene`), slots, element budgets, and choreography. |
+| **#0C** | [`02_AI_PLANNER_AND_ROUTER.md`](./02_AI_PLANNER_AND_ROUTER.md) | 2-pass AI planning architecture, prompt templates, slot validators, repair loop, and the anti-stickman fallback ladder. |
+| **#0D** | [`03_DESIGN_SYSTEM_AND_POLISH.md`](./03_DESIGN_SYSTEM_AND_POLISH.md) | Design tokens, typography hierarchy (2× hero size rule), light/dark canvas polarity, kinetic captions, and background depth. |
+| **#0E** | [`04_IMPLEMENTATION_GUIDE.md`](./04_IMPLEMENTATION_GUIDE.md) | Developer implementation guide with Remotion code primitives, ducking envelope, and SFX checklist. |
+
+---
+
 ## 📁 Phase 1: Frontend Studio & Ingestion UI (#1 – #4)
 | # | File | Purpose |
 | :-: | :--- | :--- |

@@ -376,40 +376,40 @@ export function buildMultiLayerAudioStack(
   audioTracks.push({
     id: `audio-whoosh-${scene.sceneNumber}`,
     type: 'transition',
-    src: 'assets/reusable/sfx/whoosh-swoosh-transition.mp3',
+    src: 'assets/reusable/sfx/whoosh.wav',
     startSeconds: start,
     durationSeconds: 1.2,
-    volume: 0.35,
+    volume: 0.28,
   });
 
   // Track 3: Keypoint Reveal Pop SFX (+1.1s mark)
   audioTracks.push({
     id: `audio-pop-1-${scene.sceneNumber}`,
     type: 'sfx',
-    src: 'assets/reusable/sfx/pop-clean-bubble.mp3',
+    src: 'assets/reusable/sfx/pop.mp3',
     startSeconds: start + 1.1,
     durationSeconds: 0.6,
-    volume: 0.45,
+    volume: 0.25,
   });
 
   // Track 4: Keypoint 2 Reveal Pop SFX (+1.6s mark)
   audioTracks.push({
     id: `audio-pop-2-${scene.sceneNumber}`,
     type: 'sfx',
-    src: 'assets/reusable/sfx/pop-clean-bubble.mp3',
+    src: 'assets/reusable/sfx/pop.mp3',
     startSeconds: start + 1.6,
     durationSeconds: 0.6,
-    volume: 0.45,
+    volume: 0.25,
   });
 
   // Track 5: Stat Cash Ding / Hit SFX (+0.9s mark)
   audioTracks.push({
     id: `audio-hit-stat-${scene.sceneNumber}`,
     type: 'impact',
-    src: 'assets/reusable/sfx/cash-register-ding.mp3',
+    src: 'assets/reusable/sfx/ding.mp3',
     startSeconds: start + 0.9,
     durationSeconds: 1.0,
-    volume: 0.4,
+    volume: 0.3,
   });
 
   return audioTracks;

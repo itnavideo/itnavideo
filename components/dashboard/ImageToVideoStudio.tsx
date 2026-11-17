@@ -92,11 +92,13 @@ export const AWS_BGM_TRACKS: LibraryBgmTrack[] = [
 
 export const ITNAVIDEO_LIBRARY_BGM = AWS_BGM_TRACKS;
 
-// Cloud AWS S3 Media Library Resolver for BGM audio playback
-export const getBgmTrackAudioUrl = (path: string): string => {
-  if (!path || path === 'none') return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  const cleanPath = path.replace(/^\/+/, '');
+// Cloud AWS S3 Media Library Resolver for BGM audio playback (safely accepts string path OR track object)
+export const getBgmTrackAudioUrl = (input?: string | LibraryBgmTrack | { path?: string } | null): string => {
+  if (!input) return '';
+  const resolvedPath = typeof input === 'object' && input !== null ? (input as any).path : input;
+  if (!resolvedPath || typeof resolvedPath !== 'string' || resolvedPath === 'none') return '';
+  if (resolvedPath.startsWith('http://') || resolvedPath.startsWith('https://') || resolvedPath.startsWith('blob:') || resolvedPath.startsWith('data:')) return resolvedPath;
+  const cleanPath = resolvedPath.replace(/^\/+/, '');
   return `https://remotionlambda-useast1-2zq6twaok1.s3.us-east-1.amazonaws.com/${cleanPath}`;
 };
 

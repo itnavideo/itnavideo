@@ -48,7 +48,6 @@ import {
 } from "lucide-react";
 import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import { FacelessStoryboardTimeline } from "@/components/dashboard/FacelessStoryboardTimeline";
-import { PlatformSafeZoneOverlay, type SafeZonePlatform } from "@/components/dashboard/PlatformSafeZoneOverlay";
 import {
   AWS_BGM_TRACKS,
   getBgmTrackAudioUrl,
@@ -56,8 +55,6 @@ import {
   renderPreviewCaptionWords,
   type LibraryBgmTrack,
 } from "@/components/dashboard/ImageToVideoStudio";
-import { Player, type PlayerRef } from "@remotion/player";
-import { FacelessShortsTemplate } from "@/remotion/templates/FACELESS_SHORTS/template";
 import type { DynamicTextLayer } from "@/remotion/components/library/MultiLayerTextOverlay";
 import type { DynamicImageLayer } from "@/remotion/components/library/MultiLayerImageOverlay";
 import type { DynamicSvgLayer } from "@/remotion/components/library/MultiLayerSvgOverlay";
@@ -702,7 +699,7 @@ export function FacelessShortsStudio({
       setPlayingBgmId(null);
     } else {
       if (audioAuditionRef.current) audioAuditionRef.current.pause();
-      const url = getBgmTrackAudioUrl(track);
+      const url = getBgmTrackAudioUrl(track.path);
       const audio = new Audio(url);
       audio.volume = Math.max(0.1, Math.min(1, (facelessBgmVolume || 0.12) * 2.5));
       audio.play().catch(() => { });
@@ -1443,750 +1440,45 @@ export function FacelessShortsStudio({
                 </div>
               </div>
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between pt-2">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(1)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-2xs transition cursor-pointer"
-                >
-                  <ArrowLeft size={16} />
-                  <span>Back to Upload</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(3)}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-98"
-                >
-                  <span>Next: Style &amp; Captions</span>
-                  <ArrowRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: Style (Captions & Pacing) */}
-          {currentStep === 3 && (
-            <div className="space-y-6 animate-fadeIn">
-              {/* Creator Brand Kit & Saved Style Presets Card */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
-                      <Bookmark size={20} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-black text-slate-900">
-                          Creator Brand Kit &amp; Style Presets
-                        </h3>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">
-                          1-Click Reuse
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500">
-                        Save your theme, caption preset, soundtrack, and watermark handle to reuse across every video
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsBrandKitModalOpen(!isBrandKitModalOpen)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100/70 text-orange-950 font-bold text-xs transition cursor-pointer shadow-2xs shrink-0 self-start sm:self-auto"
-                  >
-                    <BookmarkCheck size={14} className="text-orange-600" />
-                    <span>Save Current as Brand Kit</span>
-                  </button>
+                            {/* Summary Recap Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-3">
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Duration</span>
+                  <span className="text-sm font-black text-slate-900">~{audioDuration}s</span>
                 </div>
-
-                {/* Save Confirmation Message */}
-                {brandKitSaveMessage && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold animate-fadeIn">
-                    <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                    <span>{brandKitSaveMessage}</span>
-                  </div>
-                )}
-
-                {/* Save New Brand Kit Form */}
-                {isBrandKitModalOpen && (
-                  <div className="p-4 rounded-xl border border-orange-200 bg-orange-50/40 space-y-3 animate-fadeIn">
-                    <p className="text-xs font-black text-slate-900">
-                      Save Current Configuration as a Brand Preset
-                    </p>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                      <input
-                        type="text"
-                        value={brandKitNameInput}
-                        onChange={(e) => setBrandKitNameInput(e.target.value)}
-                        placeholder="e.g. My Channel Brand (Dark Slate + Beast Captions)"
-                        className="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs text-slate-900 focus:outline-none focus:border-orange-500 shadow-2xs font-medium"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleSaveBrandKit(brandKitNameInput, false)}
-                        disabled={!brandKitNameInput.trim()}
-                        className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-500 disabled:opacity-40 text-white font-bold text-xs shadow-2xs transition cursor-pointer"
-                      >
-                        Save Preset
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleSaveBrandKit(brandKitNameInput, true)}
-                        disabled={!brandKitNameInput.trim()}
-                        className="px-4 py-2 rounded-xl border border-orange-300 bg-white hover:bg-orange-50 text-orange-800 font-bold text-xs shadow-2xs transition cursor-pointer flex items-center gap-1 justify-center"
-                      >
-                        <Star size={13} className="text-orange-600 fill-orange-500" />
-                        <span>Save &amp; Set Default</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsBrandKitModalOpen(false)}
-                        className="p-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-500 text-xs transition"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Creator Channel Handle / Watermark Input */}
-                <div className="space-y-1.5 pt-1">
-                  <label className="text-xs font-black text-slate-800 flex items-center gap-1.5 uppercase tracking-wider">
-                    <Tag size={13} className="text-orange-600" />
-                    <span>Channel Watermark &amp; Creator Handle</span>
-                    <span className="text-[10px] font-semibold text-slate-400 capitalize">(Optional)</span>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">@</span>
-                      <input
-                        type="text"
-                        value={creatorHandle.replace(/^@/, '')}
-                        onChange={(e) => onCreatorHandleChange && onCreatorHandleChange(e.target.value ? `@${e.target.value.replace(/^@/, '')}` : '')}
-                        placeholder="yourchannel (e.g. founder_daily)"
-                        className="w-full pl-8 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 text-xs font-bold focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs"
-                      />
-                    </div>
-                    {creatorHandle && (
-                      <span className="text-[11px] font-bold px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-                        Watermark HUD Active
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-slate-500">
-                    Renders an official subtle channel chip in the top-right safe zone of your vertical video.
-                  </p>
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Assets</span>
+                  <span className="text-sm font-black text-slate-900">{totalAssetsCount} Uploaded</span>
                 </div>
-
-                {/* Saved Brand Kits Selector Grid */}
-                <div className="pt-2 border-t border-slate-200/80 space-y-2.5">
-                  <span className="text-[11px] font-black text-slate-700 uppercase tracking-wider block">
-                    Quick-Load Presets &amp; Brand Kits
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    {savedBrandKits.map((kit) => {
-                      const isActive = selectedBrandKitId === kit.id;
-                      return (
-                        <div
-                          key={kit.id}
-                          onClick={() => applyBrandKit(kit)}
-                          className={`group relative flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${isActive
-                            ? "border-orange-500 bg-orange-50/60 ring-1 ring-orange-400/40 shadow-xs"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 hover:border-slate-300"
-                            }`}
-                        >
-                          <div className="min-w-0 flex-1 pr-2">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-black text-slate-900 truncate">
-                                {kit.name}
-                              </span>
-                              {kit.isDefault && (
-                                <span className="inline-flex items-center gap-0.5 text-[9px] font-black px-1.5 py-0.2 rounded-full bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
-                                  <Star size={9} className="fill-amber-500 text-amber-600" />
-                                  Default
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-[10px] text-slate-500 truncate mt-0.5">
-                              {kit.backgroundTheme} • {kit.subtitleStyle} • {kit.creatorHandle || 'No handle'}
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
-                            {!kit.isDefault && (
-                              <button
-                                type="button"
-                                onClick={() => handleSetDefaultBrandKit(kit.id)}
-                                className="p-1 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition"
-                                title="Make Default Preset"
-                              >
-                                <Star size={13} />
-                              </button>
-                            )}
-                            {kit.id.startsWith("kit-") && !kit.id.startsWith("kit-viral") && !kit.id.startsWith("kit-docu") && !kit.id.startsWith("kit-tech") && (
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteBrandKit(kit.id)}
-                                className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
-                                title="Delete Custom Kit"
-                              >
-                                <Trash2 size={13} />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-              {/* 32 Caption Styles Card */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
-                      <FileText size={20} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-slate-900">
-                        32 Animated Kinetic &amp; Viral Caption Styles
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        Master vertical presets with millisecond word synchronization
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Search Bar */}
-                  <div className="relative w-full sm:w-64">
-                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      value={captionSearchQuery}
-                      onChange={(e) => setCaptionSearchQuery(e.target.value)}
-                      placeholder="Search styles..."
-                      className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none transition shadow-2xs"
-                    />
-                  </div>
-                </div>
-
-                {/* Category Pills */}
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  {captionCategories.map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setCaptionCategoryTab(cat)}
-                      className={`text-[11px] font-bold px-2.5 py-1 rounded-full transition cursor-pointer ${captionCategoryTab === cat
-                        ? "bg-orange-600 text-white shadow-2xs"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Caption Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[340px] overflow-y-auto pr-1">
-                  {filteredCaptionStyles.map((style) => {
-                    const isSelected = subtitleStyle === style.id;
-                    return (
-                      <button
-                        key={style.id}
-                        type="button"
-                        onClick={() => onSubtitleStyleChange && onSubtitleStyleChange(style.id)}
-                        className={`group relative flex flex-col items-center justify-between p-3 rounded-xl border text-center transition cursor-pointer min-h-[110px] ${isSelected
-                          ? "border-orange-500 bg-orange-50/50 shadow-xs ring-1 ring-orange-400/40"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
-                          }`}
-                      >
-                        <div className="w-full h-12 flex items-center justify-center rounded-lg bg-slate-950 p-2 overflow-hidden shadow-inner">
-                          {renderPreviewCaptionWords(style.id)}
-                        </div>
-
-                        <div className="w-full mt-2">
-                          <p className="text-[11px] font-black text-slate-800 truncate">
-                            {style.name}
-                          </p>
-                          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">
-                            {style.category}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Caption Position & Animation Style */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
-                  Caption Layout &amp; Animation Dynamics
-                </h4>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                      Vertical Safe-Zone Placement
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(["bottom", "center", "top"] as const).map((pos) => (
-                        <button
-                          key={pos}
-                          type="button"
-                          onClick={() => onCaptionPositionChange && onCaptionPositionChange(pos)}
-                          className={`py-2 rounded-xl text-xs font-bold capitalize transition border ${captionPosition === pos
-                            ? "bg-orange-600 border-orange-600 text-white shadow-2xs"
-                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
-                            }`}
-                        >
-                          {pos}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                      Animation Flavor
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {(["smooth", "bouncy", "capsule"] as const).map((flavor) => (
-                        <button
-                          key={flavor}
-                          type="button"
-                          onClick={() =>
-                            onCaptionAnimationStyleChange &&
-                            onCaptionAnimationStyleChange(flavor as any)
-                          }
-                          className={`py-2 rounded-xl text-xs font-bold capitalize transition border ${captionAnimationStyle === flavor
-                            ? "bg-orange-600 border-orange-600 text-white shadow-2xs"
-                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
-                            }`}
-                        >
-                          {flavor}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Unified Visual Design System (12-System Master Theme Engine) */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                      <Sparkles size={14} className="text-orange-600" />
-                      Unified Visual Design System (Shared Brand Language)
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Controls typography, colors, backgrounds, SVGs, images, shapes, and motion with 100% aesthetic harmony across all scenes
-                    </p>
-                  </div>
-                  <span className="text-[11px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full shrink-0">
-                    6 Master Themes
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Canvas Theme</span>
+                  <span className="text-sm font-black text-slate-900 capitalize truncate block">
+                    {FACELESS_CANVAS_THEMES.find((t) => t.id === (backgroundTheme || "solid-white"))?.name || "Light"}
                   </span>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {Object.values(MASTER_THEMES).map((theme) => {
-                    const isSelected = activeVisualTheme === theme.id;
-                    return (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => {
-                          setActiveVisualTheme(theme.id);
-                          onVisualThemeChange?.(theme.id);
-                        }}
-                        className={`group relative flex flex-col p-4 rounded-xl border text-left transition cursor-pointer ${isSelected
-                          ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
-                          }`}
-                      >
-                        {/* Theme Header & Check */}
-                        <div className="flex items-center justify-between w-full mb-2.5">
-                          <span className="text-xs font-black text-slate-900 tracking-tight">
-                            {theme.name}
-                          </span>
-                          {isSelected && (
-                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-white shadow-xs">
-                              <Check size={12} strokeWidth={3} />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Palette Preview Swatches */}
-                        <div
-                          className="w-full h-12 rounded-lg mb-3 flex items-center justify-between px-3 border shadow-inner"
-                          style={{
-                            backgroundColor: theme.colors.background,
-                            borderColor: theme.colors.border,
-                          }}
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className="w-4 h-4 rounded-full shadow-2xs"
-                              style={{ backgroundColor: theme.colors.primary }}
-                            />
-                            <span
-                              className="w-4 h-4 rounded-full shadow-2xs"
-                              style={{ backgroundColor: theme.colors.accent }}
-                            />
-                            <span
-                              className="w-4 h-4 rounded-full shadow-2xs"
-                              style={{ backgroundColor: theme.colors.surface }}
-                            />
-                          </div>
-                          <span
-                            className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                            style={{
-                              backgroundColor: theme.colors.badgeBg,
-                              color: theme.colors.accent,
-                            }}
-                          >
-                            {theme.typography.id.toUpperCase()}
-                          </span>
-                        </div>
-
-                        {/* Typography & Specs */}
-                        <p className="text-[11px] text-slate-600 font-medium leading-relaxed mb-2.5">
-                          {theme.description}
-                        </p>
-                        <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 pt-2 border-t border-slate-100 mt-auto">
-                          <span>{theme.typography.headingFont.split(',')[0].replace(/['"]/g, '')}</span>
-                          <span className="capitalize">{theme.motion.defaultTransition}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Canvas Background Theme & Niche Palette */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                      <Layers size={14} className="text-orange-600" />
-                      Canvas Theme &amp; Niche Color Palette
-                    </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Choose an atmospheric studio tone tailored to your video niche (Light, Dark, Neon, Paper)
-                    </p>
-                  </div>
-                  <span className="text-[11px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full shrink-0">
-                    4 Niche Themes
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Soundtrack</span>
+                  <span className="text-sm font-black text-slate-900 truncate block">
+                    {selectedTrackObj.label}
                   </span>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {FACELESS_CANVAS_THEMES.map((theme) => {
-                    const isSelected = (backgroundTheme || "solid-white") === theme.id;
-                    return (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => onBackgroundThemeChange && onBackgroundThemeChange(theme.id)}
-                        className={`group relative flex flex-col p-3.5 rounded-xl border text-left transition cursor-pointer ${isSelected
-                          ? "border-orange-500 bg-orange-50/40 shadow-xs ring-2 ring-orange-400/40"
-                          : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60"
-                          }`}
-                      >
-                        {/* Swatch Preview Box */}
-                        <div
-                          className={`w-full h-16 rounded-lg mb-3 flex items-center justify-between px-3 border shadow-inner ${theme.borderPreview}`}
-                          style={{
-                            backgroundColor: theme.bgHex,
-                            background:
-                              theme.id === "neon-twilight"
-                                ? "linear-gradient(135deg, #05050A 0%, #1E1035 50%, #061B2E 100%)"
-                                : theme.bgHex,
-                          }}
-                        >
-                          <div className="flex flex-col">
-                            <span className="text-[11px] font-black tracking-tight" style={{ color: theme.textColor }}>
-                              Aa Visual
-                            </span>
-                            <span className="text-[9px] font-bold opacity-80" style={{ color: theme.accentColor }}>
-                              ● {theme.name}
-                            </span>
-                          </div>
-                          {isSelected && (
-                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-white shadow-xs">
-                              <Check size={12} strokeWidth={3} />
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-black text-slate-900">{theme.name}</span>
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase">
-                            {theme.tag}
-                          </span>
-                        </div>
-
-                        <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">
-                          {theme.description}
-                        </p>
-
-                        <div className="mt-2.5 pt-2 border-t border-slate-100 text-[10px] font-bold text-orange-600 truncate">
-                          Best for: {theme.niche}
-                        </div>
-                      </button>
-                    );
-                  })}
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Captions</span>
+                  <span className="text-sm font-black text-slate-900 capitalize truncate block">
+                    {subtitleStyle}
+                  </span>
                 </div>
               </div>
 
-              {/* Misheard Word / Brand Name Replacer */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <Wand2 size={14} className="text-orange-600" />
-                    Misheard Word &amp; Brand Name Replacer
-                  </h4>
-                  {replaceNotice && (
-                    <span className="text-[11px] font-bold text-emerald-600 animate-fadeIn">
-                      {replaceNotice}
-                    </span>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
-                  <input
-                    type="text"
-                    value={wordToFind}
-                    onChange={(e) => setWordToFind(e.target.value)}
-                    placeholder="Find mistranscribed word..."
-                    className="sm:col-span-5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
+              {/* Watermark Remover Toggle */}
+              {onRemoveAiWatermarkChange && (
+                <div className="pt-2">
+                  <WatermarkRemoverToggle
+                    removeAiWatermark={removeAiWatermark}
+                    onToggle={onRemoveAiWatermarkChange}
                   />
-                  <input
-                    type="text"
-                    value={wordToReplace}
-                    onChange={(e) => setWordToReplace(e.target.value)}
-                    placeholder="Replace with correct word/brand..."
-                    className="sm:col-span-5 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={applyWordReplacement}
-                    disabled={!wordToFind.trim()}
-                    className="sm:col-span-2 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-40 text-white font-bold text-xs transition cursor-pointer"
-                  >
-                    Apply
-                  </button>
                 </div>
-              </div>
-
-              {/* Scene-by-Scene Timeline Editor (Manual Overrides) */}
-              <div className="space-y-3">
-                <FacelessStoryboardTimeline
-                  scenes={studioBlueprint.length > 0 ? studioBlueprint : (previewScenes as any)}
-                  brollUrls={studioBrollUrls}
-                  onBrollUrlsChange={setStudioBrollUrls}
-                  onSceneChange={setStudioBlueprint}
-                  uploadedImageFiles={uploadedImageFiles}
-                  title="Scene-by-Scene Timeline Editor (Manual Overrides)"
-                  subtitle="Fine-tune individual scenes: change visual layouts (Stat, Comparison, SVG, B-roll), swap custom media, or edit headings."
-                />
-              </div>
-
-              {/* Navigation */}
-              <div className="flex items-center justify-between pt-2">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(2)}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-2xs transition cursor-pointer"
-                >
-                  <ArrowLeft size={16} />
-                  <span>Back to Music</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(4)}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-black text-xs shadow-md shadow-orange-600/20 transition cursor-pointer active:scale-98"
-                >
-                  <span>Next: 9:16 Preview Simulator</span>
-                  <ArrowRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 4 (final): Preview (9:16 Shorts Simulator) */}
-          {currentStep === SHORTS_STEPS.length && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
-                      <Tv size={20} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-slate-900">
-                        9:16 Mobile Phone Simulator
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        Safe-zone verified preview with live kinetic typography
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-                    1080×1920 Vertical
-                  </span>
-                </div>
-
-                {/* Platform Safe-Zone Simulator Selector */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-100 text-orange-600 shrink-0">
-                      <ShieldCheck size={16} />
-                    </div>
-                    <div>
-                      <span className="text-xs font-black text-slate-800 block">Smart Video Safe-Zone Simulator</span>
-                      <p className="text-[11px] text-slate-500">Preview real platform overlays to verify captions &amp; cards never get hidden</p>
-                    </div>
-                  </div>
-
-                  <div className="inline-flex rounded-xl bg-slate-200/80 p-1 gap-1 self-stretch sm:self-auto justify-between sm:justify-start">
-                    {(["youtube", "instagram", "tiktok", "clean"] as const).map((plt) => (
-                      <button
-                        key={plt}
-                        type="button"
-                        onClick={() => setOverlayPlatform(plt)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition cursor-pointer ${overlayPlatform === plt
-                          ? "bg-white text-slate-900 shadow-xs"
-                          : "text-slate-600 hover:text-slate-900"
-                          }`}
-                      >
-                        {plt === "youtube" ? "YouTube Shorts" : plt === "instagram" ? "Instagram Reels" : plt === "tiktok" ? "TikTok" : "Clean View"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 9:16 Phone Frame with Shared Remotion Player */}
-                <div className="flex flex-col items-center justify-center py-2">
-                  <div className="relative w-64 sm:w-72 aspect-[9/16] rounded-3xl bg-slate-950 overflow-hidden border-4 border-slate-900 shadow-2xl flex flex-col">
-                    {/* Top Status Bar Notch */}
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-3.5 bg-slate-900 rounded-full shrink-0 z-30 pointer-events-none" />
-
-                    {/* Platform Safe-Zone Overlay (YouTube, Instagram, TikTok UI simulator) */}
-                    <PlatformSafeZoneOverlay
-                      platform={overlayPlatform}
-                      creatorHandle={creatorHandle || "@yourchannel"}
-                      topicTitle={topicTitle || "Faceless AI Short"}
-                    />
-
-                    {isMounted ? (
-                      <Player
-                        ref={playerRef}
-                        component={FacelessShortsTemplate}
-                        durationInFrames={previewDurationInFrames}
-                        compositionWidth={1080}
-                        compositionHeight={1920}
-                        fps={30}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                        }}
-                        controls
-                        loop
-                        autoPlay={false}
-                        inputProps={{
-                          audioSrc: audioPreviewUrl || undefined,
-                          title: topicTitle || "Faceless Short",
-                          creatorHandle: creatorHandle || undefined,
-                          durationSeconds: audioPlaybackRate > 1.0 ? Math.min(90, Math.round(previewDurationSec / audioPlaybackRate)) : Math.min(90, previewDurationSec),
-                          audioPlaybackRate: audioPlaybackRate,
-                          mediaTrimStartSeconds: audioTrimStartSec,
-                          backgroundTheme: backgroundTheme || "solid-white",
-                          musicUrl: selectedTrackObj.id !== "none" ? getBgmTrackAudioUrl(selectedTrackObj) : "",
-                          musicVolume: facelessBgmVolume ?? 0.12,
-                          enableKineticEmojis: true,
-                          templateConfig: {
-                            captionThemeId: subtitleStyle || "glow-viral",
-                            lowerThirdId: "tech_modern",
-                            stickerPackId: "none",
-                          },
-                          captions: previewCaptions as any,
-                          subtitleChunks: previewCaptions as any,
-                          sceneBlueprint: previewScenes as any,
-                          brollUrls: imageObjectUrls.length > 0 ? imageObjectUrls : undefined,
-                          textLayers: customTextLayers,
-                          imageLayers: customImageLayers,
-                          svgLayers: customSvgLayers,
-                          effectsLayers: customEffectLayers,
-                          adjustmentLayers: customAdjustmentLayers,
-                          transitionEvents: customTransitionEvents,
-                          maskLayers: customMaskLayers,
-                          patternLayers: customPatternLayers,
-                          calloutLayers: customCalloutLayers,
-                          isometricLayers: customIsometricLayers,
-                          gaugeLayers: customGaugeLayers,
-                          audioVisualizerLayers: customAudioVisualizerLayers,
-                          cameraConfig: customCameraConfig,
-                          visualTheme: activeVisualTheme,
-                        }}
-                      />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-slate-950 text-slate-500 text-xs">
-                        Loading Remotion Composition...
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-[11px] font-bold text-slate-500 mt-2.5 flex items-center gap-1.5">
-                    <CheckCircle2 size={13} className="text-emerald-500" />
-                    <span>100% Shared Remotion Composition &amp; WebFont Engine (Zero Lambda Mismatch)</span>
-                  </p>
-                </div>
-
-                {/* Summary Recap Cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Duration</span>
-                    <span className="text-sm font-black text-slate-900">~{audioDuration}s</span>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Assets</span>
-                    <span className="text-sm font-black text-slate-900">
-                      {totalAssetsCount} Uploaded
-                    </span>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Canvas Theme</span>
-                    <span className="text-sm font-black text-slate-900 capitalize truncate block">
-                      {FACELESS_CANVAS_THEMES.find((t) => t.id === (backgroundTheme || "solid-white"))?.name || "Light"}
-                    </span>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Soundtrack</span>
-                    <span className="text-sm font-black text-slate-900 truncate block">
-                      {selectedTrackObj.label}
-                    </span>
-                  </div>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-center">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Captions</span>
-                    <span className="text-sm font-black text-slate-900 capitalize truncate block">
-                      {subtitleStyle}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Watermark Remover Toggle */}
-                {onRemoveAiWatermarkChange && (
-                  <div className="pt-2">
-                    <WatermarkRemoverToggle
-                      removeAiWatermark={removeAiWatermark}
-                      onToggle={onRemoveAiWatermarkChange}
-                    />
-                  </div>
-                )}
-              </div>
+              )}
 
               {/* Action Banner */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs">
@@ -2202,10 +1494,10 @@ export function FacelessShortsStudio({
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     type="button"
-                    onClick={() => setCurrentStep(3)}
+                    onClick={() => setCurrentStep(2)}
                     className="flex-1 sm:flex-none px-5 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition cursor-pointer"
                   >
-                    Back to Style
+                    Back to Music
                   </button>
                   <button
                     type="button"
@@ -2219,7 +1511,7 @@ export function FacelessShortsStudio({
                         captionPosition,
                         captionAnimationStyle,
                         backgroundTheme,
-                        selectedBgmPath: selectedTrackObj.id !== "none" ? getBgmTrackAudioUrl(selectedTrackObj) : undefined,
+                        selectedBgmPath: selectedTrackObj.id !== "none" ? getBgmTrackAudioUrl(selectedTrackObj.path) : undefined,
                         facelessBgmVolume,
                         facelessEnableSfx,
                         enableKineticEmojis: true,
@@ -2259,7 +1551,7 @@ export function FacelessShortsStudio({
             </div>
           )}
 
-        </div>
+</div>
       </div>
     </div>
   );

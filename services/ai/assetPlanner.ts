@@ -174,8 +174,47 @@ export function generateCleanConceptHeading(text: string): string {
     return 'WEALTH ACCUMULATION';
   }
 
+  // 1.5 SaaS, Restaurant, Delivery & Tech Business Concepts
+  if (/\b(doordash drive comes in|where doordash drive|meet doordash)\b/i.test(lower)) {
+    return 'MEET DOORDASH DRIVE';
+  }
+  if (/\b(restaurant|restaurants)\b/i.test(lower) && /\b(driver|drivers|delivery|spend|thousands|hiring)\b/i.test(lower)) {
+    return 'CUT DELIVERY COSTS';
+  }
+  if (/\b(delivery network|access to doordash|save money by providing)\b/i.test(lower)) {
+    return 'ON-DEMAND FLEET ACCESS';
+  }
+  if (/\b(website|websites|app|apps|channels|direct|orders placed)\b/i.test(lower)) {
+    return 'DIRECT ORDER INTEGRATION';
+  }
+  if (/\b(instead of hiring|paying salaries|managing vehicles|in-house delivery)\b/i.test(lower)) {
+    return 'IN-HOUSE VS ON-DEMAND';
+  }
+  if (/\b(fewer staffing|lower operational|overhead|maintain an in-house)\b/i.test(lower)) {
+    return 'THREE MAJOR ADVANTAGES';
+  }
+  if (/\b(focus their resources|preparing great food|growing their business|great food)\b/i.test(lower)) {
+    return 'FOCUS ON GREAT FOOD';
+  }
+  if (/\b(request a delivery|whenever they receive|receive an order)\b/i.test(lower)) {
+    return 'DELIVERY ON DEMAND';
+  }
+  if (/\b(simplify|streamline|simplify delivery operations)\b/i.test(lower)) {
+    return 'STREAMLINE OPERATIONS';
+  }
+  if (/\b(save on the costs|running their own delivery team|cost savings)\b/i.test(lower)) {
+    return 'CUT FLEET EXPENSES';
+  }
+  if (/\b(scale|scaling|expansion|reach more customers)\b/i.test(lower)) {
+    return 'SCALE YOUR RESTAURANT';
+  }
+
   // 2. Intelligent grammatical extraction (Never end in dangling conjunctions/prepositions)
-  const rawWords = text
+  const cleanedSource = text
+    .replace(/^(?:imagine|that'?s\s+where|that'?s\s+exactly\s+where|instead\s+of|this\s+means|here\s+is\s+why|you\s+know|we\s+can\s+see)\s+/i, '')
+    .trim();
+
+  const rawWords = cleanedSource
     .split(/\s+/)
     .map((w) => w.replace(/[^\p{L}\p{N}]/gu, '').trim())
     .filter(Boolean);

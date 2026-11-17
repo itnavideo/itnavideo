@@ -4,6 +4,7 @@ import {
   TrendingUp,
   BarChart3,
   Settings,
+  MessageSquareHeart,
 } from "lucide-react";
 
 export type SidebarItem = {
@@ -17,6 +18,11 @@ export const ADMIN_SIDEBAR_ITEMS: SidebarItem[] = [
     label: "Dashboard",
     href: "/admin/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    label: "User Feedback",
+    href: "/admin/feedback",
+    icon: MessageSquareHeart,
   },
   {
     label: "Analytics & VC",

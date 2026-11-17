@@ -79,8 +79,33 @@ export const ALL_VISUAL_LAYOUTS: VisualLayoutType[] = [
 ];
 
 export function normalizeVisualLayout(input?: string): VisualLayoutType {
-  if (!input) return 'vector_concept';
+  if (!input) return 'card_concept';
   const clean = input.trim();
+  const norm = clean.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // 1. Direct Canonical PascalCase (01_LAYOUT_CATALOG.md)
+  if (norm.includes('statscene') || norm === 'stat' || norm === 'statcard' || norm === 'metricpill' || norm === 'metricstat') return 'stat_card';
+  if (norm.includes('comparisonscene') || norm === 'comparison' || norm === 'vsbattle' || norm === 'battlecard' || norm === 'vs') return 'comparison';
+  if (norm.includes('horizontalprocess') || norm.includes('processsteps') || norm === '5stepprocess' || norm === 'steps' || norm === 'numberedsteps') return 'horizontal_process';
+  if (norm.includes('workflowscene') || norm === 'workflow' || norm === 'pipeline' || norm === 'automation' || norm === 'productmockupflow') return 'workflow';
+  if (norm.includes('roadmapscene') || norm === 'roadmap' || norm === 'timeline' || norm === 'milestoneladder') return 'roadmap';
+  if (norm.includes('cardconceptscene') || norm === 'cardconcept' || norm === 'cardiconkeyword' || norm === 'card') return 'card_concept';
+  if (norm.includes('listscene') || norm === 'checklist' || norm === 'iconlist' || norm === 'list') return 'checklist';
+  if (norm.includes('chartscene') || norm === 'datavisualization' || norm === 'chart' || norm === 'diagram') return 'data_visualization';
+  if (norm.includes('hooktypographyscene') || norm === 'hookscene' || norm === 'hook') return 'hook';
+  if (norm.includes('quotescene') || norm === 'quote') return 'quote';
+  if (norm.includes('chaptertitlescene') || norm === 'chaptertitle' || norm === 'chapter') return 'chapter_title';
+  if (norm.includes('drawingstoryscene') || norm === 'drawingstory' || norm === 'sketchstory') return 'drawing_story';
+  if (norm.includes('definitionscene') || norm === 'definition' || norm === 'supportingnote' || norm === 'notecard') return 'supporting_note';
+  if (norm.includes('outroscene') || norm === 'outro' || norm === 'conclusion' || norm === 'creatorcelebration') return 'creator_celebration';
+  if (norm.includes('typographyscene') || norm === 'bigtypography' || norm === 'fullscreenstatement') return 'big_typography';
+  if (norm.includes('uimockup') || norm === 'screenshothighlight' || norm === 'webmockup') return 'screenshot_highlight';
+  if (norm.includes('beforeafter') || norm === 'transformation') return 'before_after_transformation';
+  if (norm.includes('donubreakdown') || norm.includes('donut')) return 'donut_breakdown';
+  if (norm.includes('goaltarget') || norm === 'allocation') return 'goal_target';
+  if (norm.includes('calendargrid') || norm === 'calendar') return 'calendar_grid';
+  if (norm.includes('promptwindow') || norm === 'prompt') return 'prompt_window';
+
   switch (clean) {
     case 'hook':
       return 'hook';
@@ -232,7 +257,7 @@ export function normalizeVisualLayout(input?: string): VisualLayoutType {
     case 'celebration':
       return 'creator_celebration';
     default:
-      return 'vector_concept';
+      return 'card_concept';
   }
 }
 
@@ -306,7 +331,13 @@ export function resolveVectorDrawingIdFromText(
   }
   const rawText = (text || '').toLowerCase();
   let matched = '';
-  if (/zero|shunya|start|shuruat|kadam|first step|scratch|zero se|beginning/i.test(rawText)) {
+  if (/restaurant|kitchen|food|cooking|chef|dining|meal/i.test(rawText)) {
+    matched = 'character_business_leader';
+  } else if (/delivery|driver|drivers|scooter|fleet|courier|doordash/i.test(rawText)) {
+    matched = 'story_journey_road';
+  } else if (/website|app|online|channel|direct/i.test(rawText)) {
+    matched = 'story_home_workspace';
+  } else if (/zero|shunya|start|shuruat|kadam|first step|scratch|zero se|beginning/i.test(rawText)) {
     matched = 'concept_zero_to_one';
   } else if (/money|paisa|paise|rupee|capital|resource|fund|salary|investment|kharcha|wealth/i.test(rawText)) {
     matched = 'money_growth_coins';
@@ -362,12 +393,36 @@ export function extractComparisonItemsFromText(
   supportingText?: string
 ): { left: string; right: string } | undefined {
   const source = (text || '').trim();
-  const vsParts = source.split(/\b(?:versus|vs\.?|compared to|compared with|instead of|rather than)\b/i);
-  if (vsParts.length >= 2) {
+
+  // 1. In-house fleet vs On-demand delivery contrast
+  if (/\b(?:instead of hiring|paying salaries|managing vehicles)\b/i.test(source)) {
+    return {
+      left: 'In-House Delivery Fleet • Fixed monthly driver salaries • Vehicle maintenance & insurance • Complex scheduling & management',
+      right: 'DoorDash On-Demand • Zero driver payroll • Request drivers per order • No vehicle liabilities',
+    };
+  }
+
+  // 2. "Instead of X, Y" pattern
+  const insteadMatch = source.match(/^instead\s+of\s+(.+?),\s*(?:restaurants\s+can|businesses\s+can|you\s+can|we\s+can|they\s+can|simply)?\s*(.+)$/i);
+  if (insteadMatch) {
+    const leftText = insteadMatch[1].replace(/[.!?]+$/g, '').trim();
+    const rightText = insteadMatch[2].replace(/[.!?]+$/g, '').trim();
+    const leftTitle = generateCleanConceptHeading(leftText) || 'Traditional Method';
+    const rightTitle = generateCleanConceptHeading(rightText) || 'Modern Approach';
+    return {
+      left: `${leftTitle} • ${leftText}`,
+      right: `${rightTitle} • ${rightText}`,
+    };
+  }
+
+  // 3. Explicit "X versus Y" / "X vs Y" / "rather than"
+  const vsParts = source.split(/\b(?:versus|vs\.?|compared to|compared with|rather than)\b/i);
+  if (vsParts.length >= 2 && vsParts[0].trim().length >= 3) {
     const left = generateCleanConceptHeading(vsParts[0]) || 'Option A';
     const right = generateCleanConceptHeading(vsParts.slice(1).join(' ')) || 'Option B';
     return { left, right };
   }
+
   const fromTo = source.match(/\bfrom\s+(.{2,45}?)\s+to\s+(.{2,45}?)(?=[.!?,;]|$)/i);
   if (fromTo) {
     return {
@@ -375,7 +430,8 @@ export function extractComparisonItemsFromText(
       right: generateCleanConceptHeading(fromTo[2]) || 'After',
     };
   }
-  if (heading && supportingText) {
+
+  if (heading && supportingText && heading !== supportingText) {
     return {
       left: generateCleanConceptHeading(heading),
       right: generateCleanConceptHeading(supportingText),
@@ -396,7 +452,8 @@ export function extractStructuredStepsFromText(text: string, fallbackHeading?: s
 
   if (rawParts.length >= 2) {
     return rawParts.slice(0, 4).map((p) => {
-      const words = p.split(/\s+/).slice(0, 7).join(' ');
+      const cleanP = p.replace(/^(?:this means|means|which means|namely|such as|including)\s+/i, '').trim();
+      const words = cleanP.split(/\s+/).slice(0, 7).join(' ');
       return words.charAt(0).toUpperCase() + words.slice(1);
     });
   }
@@ -615,23 +672,34 @@ export function enforceEditorialPacingRules(
     scene.sceneNumber = i + 1;
     scene.duration = Math.round(duration * 100) / 100;
 
-    // 1. Ensure keyword emphasis exists
-    if (!scene.highlightedWords || scene.highlightedWords.length === 0) {
+    // 1. Scene 1 is always the HookTypographyScene; Final scene is OutroScene
+    if (i === 0) {
+      scene.layoutType = 'hook';
+      scene.sceneType = 'hook';
+      if (!scene.highlightedWords || scene.highlightedWords.length === 0) {
+        scene.highlightedWords = extractKeywordEmphasis(text || scene.heading, 2);
+      }
+    } else if (i === blueprint.scenes.length - 1 && blueprint.scenes.length >= 3) {
+      scene.layoutType = 'outro';
+      scene.sceneType = 'outro';
+    } else if (!scene.highlightedWords || scene.highlightedWords.length === 0) {
       scene.highlightedWords = extractKeywordEmphasis(text || scene.heading, 2);
     }
 
-    // 2. Anti-Repetition: Prevent 3 identical layouts in a row
-    if (i >= 2) {
-      const prev1 = processedScenes[i - 1];
-      const prev2 = processedScenes[i - 2];
-      if (scene.layoutType === prev1.layoutType && scene.layoutType === prev2.layoutType) {
-        if (scene.layoutType === 'vector_concept' || scene.layoutType === 'drawing_story') {
-          scene.layoutType = 'split_screen';
-        } else if (scene.layoutType === 'split_screen') {
-          scene.layoutType = 'supporting_note';
-        } else {
-          scene.layoutType = 'vector_concept';
-        }
+    // 2. Anti-Repetition: ZERO consecutive identical layouts (Rule 2.1)
+    if (i >= 1) {
+      const prev = processedScenes[i - 1];
+      if (scene.layoutType === prev.layoutType) {
+        const canonicalAlternatives: VisualLayoutType[] = [
+          'card_concept',
+          'horizontal_process',
+          'comparison',
+          'checklist',
+          'stat_card',
+          'workflow',
+        ];
+        const nextAlt = canonicalAlternatives.find((alt) => alt !== prev.layoutType && (i < 2 || alt !== processedScenes[i - 2]?.layoutType)) || 'card_concept';
+        scene.layoutType = nextAlt;
       }
     }
 
@@ -786,7 +854,7 @@ export function buildDeterministicSceneBlueprint(
     let sceneType: NarrativeSceneType = 'main_point';
     let sfx: 'pop' | 'woosh' | 'whoosh' | 'chime' | 'rise' | 'hit' | 'ding' | 'none' = 'none';
 
-    const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b/i.test(text);
+    const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b|thousands?\s+of\s+dollars|save\s+money/i.test(text);
 
     if (i === 0) {
       layoutType = 'hook';
@@ -829,9 +897,14 @@ export function buildDeterministicSceneBlueprint(
       sceneType = 'emphasis';
       sfx = 'chime';
     } else {
-      const variedCadence: VisualLayoutType[] = isShorts
-        ? ['vector_concept', 'split_screen', 'supporting_note', 'vector_concept', 'numbered_steps', 'big_typography']
-        : ['drawing_story', 'split_screen', 'supporting_note', 'vector_concept', 'horizontal_process', 'big_typography'];
+      const variedCadence: VisualLayoutType[] = [
+        'card_concept',
+        'horizontal_process',
+        'workflow',
+        'checklist',
+        'comparison',
+        'stat_card',
+      ];
       layoutType = variedCadence[i % variedCadence.length];
       sceneType = i === timelineSegments.length - 1 ? 'next_point' : 'main_point';
       sfx = 'woosh';
@@ -843,10 +916,16 @@ export function buildDeterministicSceneBlueprint(
         : extractKeywordEmphasis(text, 2);
 
     const heading = generateCleanConceptHeading(text);
-    const supportingText =
-      typographyAnalysis.suggestedSupportingText ||
+    let rawTakeaway =
+      (typographyAnalysis as any).suggestedSupportingText ||
       assetPlan.suggestedSupportingText ||
       generateCleanTakeaway(text, '');
+
+    // Rule 7: Never duplicate the narration sentence in the supporting text card
+    const supportingText =
+      rawTakeaway && rawTakeaway.toLowerCase() !== text.toLowerCase() && rawTakeaway.length <= 65
+        ? rawTakeaway
+        : undefined;
 
     const comparisonItems =
       layoutType === 'comparison' || layoutType === 'vs_battle' || layoutType === 'before_after_transformation'
@@ -893,19 +972,22 @@ export function buildDeterministicSceneBlueprint(
       animation: (assetPlan.motion as MotionAnimationPreset) || 'slow_zoom_in',
       SFX: sfx,
       transition: seg.isChapterStart ? 'zoom' : i % 3 === 0 ? 'dissolve' : 'cut',
-      typographyTreatment: typographyAnalysis.layoutMode,
+      typographyTreatment: typographyAnalysis.layoutMode as any,
       listItems: structuredSteps,
       timelineSteps: structuredSteps,
       checklistItems: structuredSteps,
       comparisonItems,
       vectorDrawingId,
-      statValue: hasRealMetric && typographyAnalysis.statData?.value ? typographyAnalysis.statData.value : undefined,
+      statValue:
+        hasRealMetric && typographyAnalysis.statData?.value
+          ? typographyAnalysis.statData.value
+          : (/\bthousands?\s+of\s+dollars\b/i.test(text) ? '$0' : (/\bsave\s+money\b/i.test(text) ? '100%' : (/\bcosts?\b/i.test(text) ? 'LOW RISK' : undefined))),
       statLabel:
         hasRealMetric && typographyAnalysis.statData?.value
-          ? typographyAnalysis.statData.label || typographyAnalysis.suggestedHeading
-          : undefined,
-      statTrend: typographyAnalysis.statData?.trend,
-      quoteAuthor: typographyAnalysis.quoteData?.author || undefined,
+          ? typographyAnalysis.statData.label || (typographyAnalysis as any).suggestedHeading
+          : (/\bthousands?\s+of\s+dollars\b/i.test(text) ? 'DRIVER SALARIES' : (/\bsave\s+money\b/i.test(text) ? 'ON-DEMAND ACCESS' : (/\bcosts?\b/i.test(text) ? 'PREDICTABLE MARGINS' : undefined))),
+      statTrend: (typographyAnalysis.statData as any)?.trend,
+      quoteAuthor: (typographyAnalysis as any).quoteData?.author || undefined,
       numberBadge: seg.chapterNumber,
       chartValuePercent: Math.min(95, 60 + ((i * 7) % 35)),
     });
@@ -976,34 +1058,36 @@ export async function generateStructuredSceneBlueprint(
     const chunkDecisions: Map<number, any> = new Map();
 
     try {
-      const prompt = `You are an elite motion graphics art director and storyboard architect for ${formatLabel}.
+      const prompt = `You are an elite documentary video director and motion graphics architect for ${formatLabel}.
 
-Analyze each spoken narration sentence below and return a rich, detailed SCENE-BY-SCENE JSON blueprint where every scene visually explains the exact meaning of that sentence.
+Analyze each spoken narration sentence below and return a rich, detailed SCENE-BY-SCENE JSON blueprint.
+The goal is to produce a video better than manual Adobe Premiere Pro / DaVinci Resolve editing, with rich layout variety.
 
-CRITICAL SCENE-BY-SCENE DIRECTION RULES:
-1. NATURAL SCENE MATCHING: Each segment is a complete spoken thought. Pick the single best visual layoutType and populate its exact structured data fields so the screen visually proves what the speaker is saying.
-2. VISUAL VARIETY & ANTI-REPETITION: Never repeat the same layoutType 3 times in a row. Previous layouts used: ${JSON.stringify(prevLayouts)}.
-3. LAYOUT SELECTION GUIDE (${isShorts ? '9:16 Vertical Canvas' : '16:9 Widescreen Canvas'}):
-   - 'hook': Use ONLY for segmentId 1 (the opening hook of the video).
-   - 'chapter_title': Use when isChapterStart is true and segmentId > 1.
-   - 'drawing_story' / 'vector_concept': Two-column (16:9) or full-canvas (9:16) animated vector illustration + bold editorial headline. Choose a matching "vectorDrawingId" from:
-     ["concept_zero_to_one", "money_growth_coins", "character_burning_passion", "mindset_focus_lane", "dream_big_vision", "character_struggling_burden", "story_village_house", "story_city_buildings", "story_journey_road", "character_journey_walking", "story_home_workspace", "character_celebration", "character_doctor", "character_business_leader", "business_growth_chart", "business_target_bullseye", "business_handshake", "character_thinking"].
-   - 'comparison' / 'vs_battle' / 'before_after_transformation': Use when contrasting two ideas, old vs new, before vs after, or mistake vs solution. MUST provide "comparisonItems": {"left": "Old / Problem", "right": "New / Solution"}.
-   - 'horizontal_process' / 'roadmap' / 'vertical_roadmap' / 'numbered_steps' / 'milestone_ladder': Use when explaining steps, stages, a journey, or a progression. MUST provide "listItems": ["Step 1...", "Step 2...", "Step 3..."] (2 to 4 concise items).
-   - 'workflow' / 'product_mockup_flow': Use when explaining a system, pipeline, mechanism, or how a process works. Provide "listItems" (3-4 nodes).
-   - 'checklist' / 'ecosystem': Use when listing multiple benefits, rules, or pillars. Provide "listItems" (3-4 concise points).
-   - 'goal_target': Use when discussing financial targets, budget splits (50/30/20), salary allocation, or specific goals.
-   - 'stat_card' / 'metric_pill': Use ONLY when a real number/percentage/currency is spoken in the segment. Provide "statValue" (e.g. "85%", "₹10 Lakh", "3.5x") and "statLabel".
-   - 'data_visualization': Use ONLY when 2 or more numbers are compared in the segment. Provide "chartItems": [{"label": "2020", "value": 20, "formattedValue": "20%"}, {"label": "2025", "value": 80, "formattedValue": "80%"}].
-   - 'donut_breakdown': Use ONLY for proportional splits (e.g. 80/20 rule). Provide "donutSlices": [{"label": "Core", "value": 80}, {"label": "Rest", "value": 20}].
-   - 'quote': Use for powerful mindset quotes or golden rules.
-   - 'supporting_note' / 'sticky_note': Use for a key takeaway memo, warning, or mental note.
-   - 'chat_dialogue' / 'script_bubble': Use when narration quotes a message or conversation.
-   - 'split_screen' / 'card_concept' / 'big_typography': Use for bold editorial statements and kinetic typography emphasis.
-4. LANGUAGE & COPY:
-   - Write "heading" (2-5 punchy words), "supportingText" (6-12 word crystal-clear takeaway), and "categoryPill" (2-3 word badge like "KEY STRATEGY", "CASE STUDY", "STEP BY STEP") in clean English.
-   - If the spoken segment is in Hindi or Hinglish, provide its accurate English meaning in "englishMeaning".
-   - Choose 1-2 impact words from the heading/text in "highlightedWords".
+CRITICAL ARCHITECTURAL RULES (2026 Engine):
+1. LAYOUT SELECTION FROM CANONICAL CATALOG:
+   - 'StatScene' / 'stat_card': Use when the segment mentions numbers, money, percentages, or growth metrics. Must provide "statValue" and "statLabel".
+   - 'ComparisonScene' / 'comparison' / 'vs_battle': Use when contrasting two ideas, before vs after, old vs new, or mistake vs solution. Must provide "comparisonItems": {"left": "...", "right": "..."}.
+   - 'HorizontalProcessStepsScene' / 'horizontal_process': Use when explaining steps, stages, or a 3-5 item sequence. Must provide "listItems": ["Step 1...", "Step 2...", "Step 3..."].
+   - 'WorkflowScene' / 'workflow': Use when explaining an interconnected system, pipeline, or automation flow. Must provide "listItems" (3-4 nodes).
+   - 'RoadmapScene' / 'roadmap': Use when explaining milestones, career progression, or timelines. Must provide "listItems" (3-4 milestones).
+   - 'CardConceptScene' / 'card_concept': The most flexible flagship layout. Explains a core idea using a central concept and 2-3 supporting feature cards with icons.
+   - 'ListScene' / 'checklist': Use when listing key pillars, rules, or tips. Must provide "listItems" (3-4 items).
+   - 'ChartScene' / 'data_visualization': Use when 2 or more quantitative numbers are compared. Must provide "chartItems".
+   - 'QuoteScene' / 'quote': Use for high-impact philosophy, mindset quotes, or core principles.
+   - 'HookTypographyScene' / 'hook': Use ONLY for segmentId 1 (the opening hook).
+   - 'ChapterTitleScene' / 'chapter_title': Use when isChapterStart is true and segmentId > 1.
+   - 'DrawingStoryScene': Hand-drawn narrative story metaphor. USE VERY SPARINGLY (at most 1 scene in the entire video). NEVER repeat.
+
+2. ABSOLUTE VARIETY & ANTI-STICKMAN MANDATE:
+   - NEVER output the same layoutType twice in a row.
+   - Do NOT default to stickman drawings or drawing_story. Prioritize CardConceptScene, StatScene, ComparisonScene, WorkflowScene, and HorizontalProcessStepsScene.
+   - Across any 4 consecutive scenes, you MUST use at least 3 completely different layouts.
+   - Previous layouts used: ${JSON.stringify(prevLayouts.slice(-4))}.
+
+3. LANGUAGE & COPY:
+   - Write "heading" (2-5 punchy words), "supportingText" (6-12 word crystal-clear takeaway), and "categoryPill" (2-3 word uppercase badge like "KEY STRATEGY", "CASE STUDY", "FRAMEWORK") in clean English.
+   - If spoken segment is Hindi/Hinglish, provide accurate English translation in "englishMeaning".
+   - Select 1-2 impact words in "highlightedWords".
 
 Segments to plan:
 ${JSON.stringify(
@@ -1083,7 +1167,7 @@ Return a strict JSON object with this EXACT structure:
       const assetPlan = planVisualAssetsForSentence(text);
       const typographyAnalysis = analyzeTypographyContent(text);
 
-      const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b/i.test(text);
+      const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b|thousands?\s+of\s+dollars|save\s+money/i.test(text);
 
       let chosenLayout: VisualLayoutType = decision
         ? normalizeVisualLayout(decision.layoutType || decision.layout)
@@ -1097,8 +1181,8 @@ Return a strict JSON object with this EXACT structure:
         else if (typographyAnalysis.layoutMode === 'list' && typographyAnalysis.listItems && typographyAnalysis.listItems.length >= 2) chosenLayout = 'checklist';
         else {
           const fallbackCadence: VisualLayoutType[] = isShorts
-            ? ['vector_concept', 'split_screen', 'supporting_note', 'numbered_steps']
-            : ['drawing_story', 'split_screen', 'supporting_note', 'horizontal_process'];
+            ? ['card_concept', 'supporting_note', 'numbered_steps', 'stat_card']
+            : ['card_concept', 'stat_card', 'horizontal_process', 'comparison', 'workflow', 'checklist', 'roadmap', 'quote'];
           chosenLayout = fallbackCadence[sIdx % fallbackCadence.length];
         }
       }
@@ -1121,7 +1205,7 @@ Return a strict JSON object with this EXACT structure:
       const heading = generateCleanConceptHeading(decision?.heading || text);
       const supportingText =
         decision?.supportingText ||
-        typographyAnalysis.suggestedSupportingText ||
+        (typographyAnalysis as any).suggestedSupportingText ||
         assetPlan.suggestedSupportingText ||
         generateCleanTakeaway(text, '');
 
@@ -1223,8 +1307,8 @@ Return a strict JSON object with this EXACT structure:
         transition: seg.isChapterStart ? 'zoom' : sIdx % 3 === 0 ? 'dissolve' : 'cut',
         statValue: safeStatVal,
         statLabel: safeStatLbl,
-        statTrend: decision?.statTrend || typographyAnalysis.statData?.trend,
-        quoteAuthor: decision?.quoteAuthor || typographyAnalysis.quoteData?.author,
+        statTrend: decision?.statTrend || (typographyAnalysis.statData as any)?.trend,
+        quoteAuthor: decision?.quoteAuthor || (typographyAnalysis as any).quoteData?.author,
         comparisonItems: aiComparisonItems,
         listItems: aiListItems,
         timelineSteps: aiListItems,

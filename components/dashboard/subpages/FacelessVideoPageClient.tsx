@@ -72,6 +72,9 @@ export default function FacelessVideoPageClient() {
   const [backgroundTheme, setBackgroundTheme] = useState<string>("solid-white");
   const [customBgUrl, setCustomBgUrl] = useState<string>("");
   const [customBgFile, setCustomBgFile] = useState<File | null>(null);
+  const [headingFont, setHeadingFont] = useState<string>("Montserrat");
+  const [bodyFont, setBodyFont] = useState<string>("Plus Jakarta Sans");
+  const [bgmEnabled, setBgmEnabled] = useState<boolean>(true);
 
   // Job, billing and render history
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
@@ -229,6 +232,8 @@ export default function FacelessVideoPageClient() {
           assetMode: assetSourceMode,
           uploadedImageUrls,
           backgroundTheme,
+          headingFont,
+          bodyFont,
           brandNamesHint,
         }),
       });
@@ -340,7 +345,9 @@ export default function FacelessVideoPageClient() {
           sourceDurationSeconds: audioDuration,
           mediaAspect: "landscape",
           visualTheme: activeStoryboard?.visualTheme || visualTheme || "modern-saas",
-          backgroundTheme: "solid-white",
+          backgroundTheme: activeStoryboard?.backgroundTheme || backgroundTheme || "solid-white",
+          headingFont: activeStoryboard?.headingFont || headingFont || "Montserrat",
+          bodyFont: activeStoryboard?.bodyFont || bodyFont || "Plus Jakarta Sans",
           customBgUrl: "",
           sceneBlueprint: activeStoryboard?.sceneBlueprint,
           brollUrls: activeStoryboard?.brollUrls,
@@ -655,6 +662,12 @@ export default function FacelessVideoPageClient() {
             onVisualThemeChange={setVisualTheme}
             backgroundTheme={backgroundTheme}
             onBackgroundThemeChange={setBackgroundTheme}
+            headingFont={headingFont}
+            onHeadingFontChange={setHeadingFont}
+            bodyFont={bodyFont}
+            onBodyFontChange={setBodyFont}
+            bgmEnabled={bgmEnabled}
+            onBgmEnabledChange={setBgmEnabled}
             customBgUrl={customBgUrl}
             onCustomBgUrlChange={setCustomBgUrl}
             onCustomBgFileSelect={setCustomBgFile}

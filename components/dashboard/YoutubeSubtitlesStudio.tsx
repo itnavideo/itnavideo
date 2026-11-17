@@ -42,10 +42,13 @@ import {
   renderPreviewCaptionWords,
   type LibraryBgmTrack,
 } from "@/components/dashboard/ImageToVideoStudio";
+import { UniversalCaptionLiveRenderer } from "@/components/captions/UniversalCaptionLiveRenderer";
 
 export const YOUTUBE_SUBTITLES_STEPS = [
   { step: 1, title: "Upload", desc: "16:9 Video or Audio" },
-  { step: 2, title: "Style", desc: "Subtitles & Safe-Zone" },
+  { step: 2, title: "Music", desc: "Soundtrack & Volume" },
+  { step: 3, title: "Style", desc: "Subtitles & Safe-Zone" },
+  { step: 4, title: "Preview", desc: "16:9 Cinema Monitor" },
 ] as const;
 
 // 32 Sound Wave visualizer bars
@@ -218,6 +221,8 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
   const [videoDuration, setVideoDuration] = useState(18);
 
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
+  const step3VideoRef = useRef<HTMLVideoElement | null>(null);
+  const step3MobileVideoRef = useRef<HTMLVideoElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bgmPreviewAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -290,32 +295,56 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
     if (e.target) e.target.value = "";
   };
 
-  // Play / Pause video
+  // Word-level timestamps for kinetic caption animation & live style preview
+  const sampleWords = useMemo(() => {
+    const caps = previewCaptions || activeSampleVideo.sampleCaptions;
+    const wordsList: Array<{ word: string; start: number; end: number }> = [];
+    caps.forEach((cap) => {
+      const rawWords = cap.text.split(/\s+/).filter(Boolean);
+      const dur = Math.max(0.2, (cap.end - cap.start) / Math.max(1, rawWords.length));
+      rawWords.forEach((w, i) => {
+        wordsList.push({
+          word: youtubeSubtitleCase === "uppercase" ? w.toUpperCase() : w,
+          start: cap.start + i * dur,
+          end: cap.start + (i + 1) * dur,
+        });
+      });
+    });
+    return wordsList;
+  }, [previewCaptions, activeSampleVideo, youtubeSubtitleCase]);
+
+  const getActiveVideoEl = () => {
+    return step3MobileVideoRef.current || step3VideoRef.current || videoElementRef.current;
+  };
+
+  // Play / Pause video across all active video monitors
   const togglePlay = () => {
-    const v = videoElementRef.current;
-    if (!v) return;
-    if (v.paused) {
-      v.play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {});
-    } else {
-      v.pause();
-      setIsPlaying(false);
-    }
+    const shouldPlay = !isPlaying;
+    const vids = [videoElementRef.current, step3VideoRef.current, step3MobileVideoRef.current].filter(Boolean) as HTMLVideoElement[];
+    vids.forEach((v) => {
+      if (shouldPlay) {
+        v.play().catch(() => {});
+      } else {
+        v.pause();
+      }
+    });
+    setIsPlaying(shouldPlay);
   };
 
   const toggleMute = () => {
-    const v = videoElementRef.current;
-    if (!v) return;
-    v.muted = !isMuted;
-    setIsMuted(!isMuted);
+    const nextMuted = !isMuted;
+    const vids = [videoElementRef.current, step3VideoRef.current, step3MobileVideoRef.current].filter(Boolean) as HTMLVideoElement[];
+    vids.forEach((v) => {
+      v.muted = nextMuted;
+    });
+    setIsMuted(nextMuted);
   };
 
-  // Sync playback time loop
+  // Sync playback time loop across active video monitor
   useEffect(() => {
     let animId: number;
     const loop = () => {
-      const v = videoElementRef.current;
+      const v = getActiveVideoEl();
       if (v && !v.paused) {
         setPlaybackTime(v.currentTime);
       }
@@ -365,12 +394,12 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
 
   // Filter 32 caption styles
   const filteredCaptionStyles = THIRTY_TWO_CAPTION_STYLES.filter((s) => {
-    const matchesCategory = captionFilter === "all" || s.category.toLowerCase() === captionFilter.toLowerCase();
+    const matchesCategory = captionFilter === "all" || (s.category && s.category.toLowerCase() === captionFilter.toLowerCase());
     const matchesSearch =
       !captionSearchQuery.trim() ||
       s.name.toLowerCase().includes(captionSearchQuery.toLowerCase()) ||
-      s.desc.toLowerCase().includes(captionSearchQuery.toLowerCase()) ||
-      s.badge.toLowerCase().includes(captionSearchQuery.toLowerCase());
+      (s.desc && s.desc.toLowerCase().includes(captionSearchQuery.toLowerCase())) ||
+      (s.badge && s.badge.toLowerCase().includes(captionSearchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 
@@ -391,7 +420,7 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
 
       {/* ── ROW 1: Flexible Studio Stepper ── */}
       <StudioStepperRow
-        steps={YOUTUBE_SUBTITLES_STEPS}
+        steps={[...YOUTUBE_SUBTITLES_STEPS]}
         currentStep={currentStep}
         onStepClick={(step) => setCurrentStep(step)}
       />
@@ -780,188 +809,368 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
           )}
 
           {/* ══════════════════════════════════════════════════════════════
-              STEP 3: STYLE (32 Subtitle Themes, Safe-Zone & Casing)
+              STEP 3: STYLE (32 Subtitle Themes, Safe-Zone & Live Video Preview)
               ══════════════════════════════════════════════════════════════ */}
           {currentStep === 3 && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Type size={20} className="text-orange-500" />
-                      <span>32 Master Kinetic Caption Themes</span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Live animated word-by-word previews for 16:9 YouTube broadcast.
-                    </p>
+              {/* ── MOBILE VIDEO-FIRST PREVIEW CONTAINER (Sticky / Top-Pinned for Mobile) ── */}
+              <div className="block lg:hidden sticky top-2 z-30 mb-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-2xl backdrop-blur-md">
+                  {/* Top Info & Controls */}
+                  <div className="flex items-center justify-between gap-2 mb-2 text-xs">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                      <span className="font-black text-white text-[11px] truncate uppercase tracking-wider">
+                        Preview: <span className="text-orange-400">{captionStyle}</span>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={togglePlay}
+                        className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+                        title={isPlaying ? "Pause Video" : "Play Video"}
+                      >
+                        {isPlaying ? <Pause size={12} className="text-orange-400" /> : <Play size={12} />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={toggleMute}
+                        className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer"
+                        title={isMuted ? "Unmute" : "Mute"}
+                      >
+                        {isMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+                      </button>
+                      <span className="font-mono text-[10px] text-slate-300 font-bold ml-1">
+                        {formatSec(playbackTime)}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Search Bar */}
-                  <div className="relative w-full sm:w-64">
-                    <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      value={captionSearchQuery}
-                      onChange={(e) => setCaptionSearchQuery(e.target.value)}
-                      placeholder="Search caption styles..."
-                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none transition"
+                  {/* 16:9 Cinema Canvas (Mobile Video Stage) */}
+                  <div className="relative aspect-video w-full rounded-xl overflow-hidden border border-white/15 bg-black shadow-inner flex items-center justify-center">
+                    <video
+                      ref={step3MobileVideoRef}
+                      src={activeVideoSrc}
+                      playsInline
+                      muted={isMuted}
+                      loop
+                      className="w-full h-full object-cover pointer-events-none"
                     />
-                  </div>
-                </div>
 
-                {/* Category Filter Pills */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                  {["all", "viral", "cinema", "modern", "creative", "minimal"].map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setCaptionFilter(cat)}
-                      className={`text-xs font-extrabold uppercase px-3 py-1.5 rounded-xl border transition cursor-pointer shrink-0 ${
-                        captionFilter === cat
-                          ? "bg-orange-500 text-white border-orange-500 shadow-xs"
-                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    {/* Live Reactive Subtitle Overlay */}
+                    <div
+                      className={`absolute left-0 right-0 px-4 flex justify-center pointer-events-none transition-all ${
+                        youtubeSubtitleSafeZone === "high"
+                          ? "bottom-8"
+                          : youtubeSubtitleSafeZone === "scrubber"
+                          ? "bottom-5"
+                          : "bottom-2"
                       }`}
                     >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
+                      <UniversalCaptionLiveRenderer
+                        styleName={captionStyle}
+                        words={sampleWords}
+                        playbackTime={playbackTime}
+                        isPlaying={isPlaying}
+                        accentColor="#FFE14D"
+                      />
+                    </div>
 
-                {/* 32 Caption Cards Grid with Live Word Previews */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {filteredCaptionStyles.map((theme) => {
-                    const isSelected = captionStyle === theme.id;
-
-                    return (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => onCaptionStyleChange?.(theme.id)}
-                        className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-3 ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3.5 h-3.5 rounded-full shadow-xs" style={{ backgroundColor: theme.color }} />
-                            <span className="text-xs font-black text-slate-900">{theme.name}</span>
-                          </div>
-                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
-                            {theme.badge}
-                          </span>
-                        </div>
-
-                        {/* Live Kinetic Word Preview Strip */}
-                        <div className="bg-slate-900/95 rounded-xl px-3 py-2 flex items-center justify-center min-h-[38px] overflow-hidden">
-                          {renderPreviewCaptionWords(theme.id)}
-                        </div>
-
-                        <span className="text-[11px] text-slate-500 line-clamp-1">{theme.desc}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* YouTube Scrubber-Safe Zone & Formatting Options */}
-                <div className="pt-4 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {/* YouTube Safe Zone */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-700">
-                      YouTube Safe-Zone Position
-                    </label>
-                    <div className="space-y-1.5">
-                      {[
-                        { id: "scrubber", label: "YouTube Web Safe (84px)", desc: "Elevated above red scrubber progress bar" },
-                        { id: "high", label: "TV / Overscan Safe (120px)", desc: "Guaranteed safe on Smart TV YouTube apps" },
-                        { id: "standard", label: "Standard Lower Third (64px)", desc: "Classic documentary subtitle placement" },
-                      ].map((zone) => (
-                        <button
-                          key={zone.id}
-                          type="button"
-                          onClick={() => onYoutubeSubtitleSafeZoneChange?.(zone.id as any)}
-                          className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${
-                            youtubeSubtitleSafeZone === zone.id
-                              ? "border-orange-500 bg-orange-50 text-orange-700 ring-2 ring-orange-500/20"
-                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                          }`}
-                        >
-                          <div>{zone.label}</div>
-                          <div className="text-[10px] text-slate-500 font-normal">{zone.desc}</div>
-                        </button>
-                      ))}
+                    <div className="absolute bottom-1 right-1 bg-black/60 backdrop-blur-xs text-[8px] font-bold text-white/80 px-1.5 py-0.5 rounded pointer-events-none">
+                      16:9 Cinema Live
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  {/* Font Size */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-700">Subtitle Size</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { id: "small", label: "Small" },
-                        { id: "medium", label: "Medium" },
-                        { id: "large", label: "Large (Standard)" },
-                        { id: "xlarge", label: "X-Large (Pop)" },
-                      ].map((size) => (
-                        <button
-                          key={size.id}
-                          type="button"
-                          onClick={() => onCaptionFontSizeChange?.(size.id as any)}
-                          className={`p-2.5 rounded-xl border text-center text-xs font-bold transition cursor-pointer ${
-                            captionFontSize === size.id
-                              ? "border-orange-500 bg-orange-50 text-orange-600"
-                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                          }`}
-                        >
-                          {size.label}
-                        </button>
-                      ))}
+              {/* ── RESPONSIVE DESKTOP & MOBILE WRAPPER ── */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Left Column (Desktop Only): Sticky 16:9 Cinema Monitor (6 cols) */}
+                <div className="hidden lg:flex lg:col-span-6 sticky top-6 flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-black text-slate-900 uppercase tracking-wider text-xs">
+                        16:9 Cinema Live Monitor
+                      </span>
                     </div>
+                    <span className="font-mono text-xs font-bold text-slate-500">
+                      {formatSec(playbackTime)} / {formatSec(videoDuration)}
+                    </span>
                   </div>
 
-                  {/* Word Casing */}
+                  {/* 16:9 Full HD Video Canvas */}
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden border-2 border-slate-300 bg-black shadow-lg select-none group">
+                    <video
+                      ref={step3VideoRef}
+                      src={activeVideoSrc}
+                      playsInline
+                      muted={isMuted}
+                      loop
+                      className="w-full h-full object-cover"
+                    />
+
+                    {/* Live Reactive Subtitle Overlay */}
+                    <div
+                      className={`absolute left-0 right-0 px-6 flex justify-center pointer-events-none transition-all ${
+                        youtubeSubtitleSafeZone === "high"
+                          ? "bottom-16"
+                          : youtubeSubtitleSafeZone === "scrubber"
+                          ? "bottom-10"
+                          : "bottom-5"
+                      }`}
+                    >
+                      <UniversalCaptionLiveRenderer
+                        styleName={captionStyle}
+                        words={sampleWords}
+                        playbackTime={playbackTime}
+                        isPlaying={isPlaying}
+                        accentColor="#FFE14D"
+                      />
+                    </div>
+
+                    {/* Watermark Notice in Canvas Preview */}
+                    {!removeAiWatermark && (
+                      <div className="absolute bottom-2 right-2 text-[9px] font-bold text-slate-300 bg-black/70 px-2 py-0.5 rounded border border-white/10">
+                        Itnavideo AI
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Scrubber & Controls */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-700">Word Casing</label>
-                    <div className="space-y-2">
-                      {[
-                        { id: "natural", label: "Natural Sentence Case", desc: "Original punctuation and capitalization" },
-                        { id: "uppercase", label: "ALL CAPS (High Impact)", desc: "Bold punchy all-caps words" },
-                      ].map((casing) => (
+                    <div
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const ratio = (e.clientX - rect.left) / rect.width;
+                        const target = ratio * videoDuration;
+                        const v = getActiveVideoEl();
+                        if (v) {
+                          v.currentTime = target;
+                          setPlaybackTime(target);
+                        }
+                      }}
+                      className="w-full h-2 bg-slate-200 rounded-full cursor-pointer overflow-hidden"
+                    >
+                      <div
+                        className="h-full bg-orange-500 rounded-full transition-all"
+                        style={{ width: `${videoDuration > 0 ? (playbackTime / videoDuration) * 100 : 0}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-2">
                         <button
-                          key={casing.id}
                           type="button"
-                          onClick={() => onYoutubeSubtitleCaseChange?.(casing.id as any)}
-                          className={`w-full p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${
-                            youtubeSubtitleCase === casing.id
-                              ? "border-orange-500 bg-orange-50 text-orange-600"
-                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                          }`}
+                          onClick={togglePlay}
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                          title={isPlaying ? "Pause Video" : "Play Video"}
                         >
-                          <div>{casing.label}</div>
-                          <div className="text-[10px] text-slate-400 font-normal">{casing.desc}</div>
+                          {isPlaying ? <Pause size={14} className="text-orange-600" /> : <Play size={14} />}
                         </button>
-                      ))}
+                        <button
+                          type="button"
+                          onClick={toggleMute}
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer"
+                          title={isMuted ? "Unmute" : "Mute"}
+                        >
+                          {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                        </button>
+                      </div>
+                      <span className="text-[11px] font-black bg-orange-50 text-orange-700 px-2.5 py-1 rounded-lg border border-orange-200">
+                        Active: {captionStyle}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* ── Deliverables Clarification Card (Audit PDF 4) ── */}
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                      <CheckCircle2 size={16} />
-                    </div>
+                {/* Right Column (Styles Selection & Customization - 6 cols on Desktop, 12 on Mobile) */}
+                <div className="lg:col-span-6 rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                      <p className="font-black text-slate-900">Dual Export Deliverables Guaranteed</p>
-                      <p className="text-slate-600 text-[11px]">
-                        Render produces a 1080p MP4 with burned-in subtitles + standalone .SRT and .VTT files for native YouTube caption upload.
+                      <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                        <Type size={20} className="text-orange-500" />
+                        <span>32 Master Kinetic Caption Themes</span>
+                      </h2>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Tap any style to see it rendered instantly on your video!
                       </p>
                     </div>
+
+                    {/* Search Bar */}
+                    <div className="relative w-full sm:w-56">
+                      <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        value={captionSearchQuery}
+                        onChange={(e) => setCaptionSearchQuery(e.target.value)}
+                        placeholder="Search caption styles..."
+                        className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none transition"
+                      />
+                    </div>
                   </div>
-                  <span className="font-mono font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-lg shrink-0 self-start sm:self-auto">
-                    FREE · 5 Videos/Day
-                  </span>
+
+                  {/* Category Filter Pills */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                    {["all", "viral", "cinema", "modern", "creative", "minimal"].map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setCaptionFilter(cat)}
+                        className={`text-xs font-extrabold uppercase px-3 py-1.5 rounded-xl border transition cursor-pointer shrink-0 ${
+                          captionFilter === cat
+                            ? "bg-orange-500 text-white border-orange-500 shadow-xs"
+                            : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* 32 Caption Cards Grid with Live Word Previews */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {filteredCaptionStyles.map((theme) => {
+                      const isSelected = captionStyle.toLowerCase().trim() === theme.id.toLowerCase().trim();
+
+                      return (
+                        <button
+                          key={theme.id}
+                          type="button"
+                          onClick={() => onCaptionStyleChange?.(theme.id)}
+                          className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${
+                            isSelected
+                              ? "border-orange-500 bg-orange-50/80 text-slate-900 shadow-md ring-2 ring-orange-500/30 scale-[1.01]"
+                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3.5 h-3.5 rounded-full shadow-xs shrink-0" style={{ backgroundColor: theme.color }} />
+                              <span className="text-xs font-black text-slate-900">{theme.name}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {isSelected && (
+                                <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-orange-600 text-white shadow-xs">
+                                  ✓ Selected
+                                </span>
+                              )}
+                              <span className="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
+                                {theme.badge}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Live Kinetic Word Preview Strip */}
+                          <div className="bg-slate-900/95 rounded-xl px-3 py-2 flex items-center justify-center min-h-[38px] overflow-hidden">
+                            {renderPreviewCaptionWords(theme.id, theme.color, theme.fontFamily, 0)}
+                          </div>
+
+                          <span className="text-[10px] text-slate-500 line-clamp-1">{theme.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* YouTube Scrubber-Safe Zone & Formatting Options */}
+                  <div className="pt-4 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* YouTube Safe Zone */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700">
+                        YouTube Safe-Zone Position
+                      </label>
+                      <div className="space-y-1.5">
+                        {[
+                          { id: "scrubber", label: "YouTube Web Safe (84px)", desc: "Elevated above red scrubber progress bar" },
+                          { id: "high", label: "TV / Overscan Safe (120px)", desc: "Guaranteed safe on Smart TV YouTube apps" },
+                          { id: "standard", label: "Standard Lower Third (64px)", desc: "Classic documentary subtitle placement" },
+                        ].map((zone) => (
+                          <button
+                            key={zone.id}
+                            type="button"
+                            onClick={() => onYoutubeSubtitleSafeZoneChange?.(zone.id as any)}
+                            className={`w-full p-2 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${
+                              youtubeSubtitleSafeZone === zone.id
+                                ? "border-orange-500 bg-orange-50 text-orange-700 ring-2 ring-orange-500/20"
+                                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            <div className="text-[11px]">{zone.label}</div>
+                            <div className="text-[9px] text-slate-500 font-normal">{zone.desc}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Font Size */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700">Subtitle Size</label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {[
+                          { id: "small", label: "Small" },
+                          { id: "medium", label: "Medium" },
+                          { id: "large", label: "Large" },
+                          { id: "xlarge", label: "X-Large" },
+                        ].map((size) => (
+                          <button
+                            key={size.id}
+                            type="button"
+                            onClick={() => onCaptionFontSizeChange?.(size.id as any)}
+                            className={`p-2 rounded-xl border text-center text-xs font-bold transition cursor-pointer ${
+                              captionFontSize === size.id
+                                ? "border-orange-500 bg-orange-50 text-orange-600"
+                                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            {size.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Word Casing */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700">Word Casing</label>
+                      <div className="space-y-1.5">
+                        {[
+                          { id: "natural", label: "Natural Sentence Case", desc: "Original punctuation and capitalization" },
+                          { id: "uppercase", label: "ALL CAPS (High Impact)", desc: "Bold punchy all-caps words" },
+                        ].map((casing) => (
+                          <button
+                            key={casing.id}
+                            type="button"
+                            onClick={() => onYoutubeSubtitleCaseChange?.(casing.id as any)}
+                            className={`w-full p-2 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${
+                              youtubeSubtitleCase === casing.id
+                                ? "border-orange-500 bg-orange-50 text-orange-600"
+                                : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            }`}
+                          >
+                            <div className="text-[11px]">{casing.label}</div>
+                            <div className="text-[9px] text-slate-400 font-normal">{casing.desc}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Deliverables Clarification Card ── */}
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <CheckCircle2 size={16} />
+                      </div>
+                      <div>
+                        <p className="font-black text-slate-900">Dual Export Deliverables Guaranteed</p>
+                        <p className="text-slate-600 text-[11px]">
+                          Render produces a 1080p MP4 with burned-in subtitles + standalone .SRT and .VTT files for native YouTube caption upload.
+                        </p>
+                      </div>
+                    </div>
+                    <span className="font-mono font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-1 rounded-lg shrink-0 self-start sm:self-auto">
+                      FREE · 5 Videos/Day
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -970,7 +1179,7 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
           {/* ══════════════════════════════════════════════════════════════
               STEP 4: PREVIEW (16:9 Video Monitor & Subtitle Review)
               ══════════════════════════════════════════════════════════════ */}
-          {currentStep === YOUTUBE_SUBTITLES_STEPS.length && (
+          {currentStep === 4 && (
             <div className="space-y-6 animate-in fade-in duration-200">
               {/* 16:9 Cinema Widescreen Live Monitor */}
               <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
@@ -1028,11 +1237,13 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
                         : "bottom-6 sm:bottom-8"
                     }`}
                   >
-                    <div className="bg-black/85 backdrop-blur-md px-5 py-2.5 rounded-2xl text-center max-w-2xl border border-white/10 shadow-2xl">
-                      <span className="text-sm sm:text-xl font-black text-white tracking-wide">
-                        {activeCaptionText || (youtubeSubtitleCase === "uppercase" ? "SUBTITLES POWERED BY ITNAVIDEO AI" : "Subtitles powered by Itnavideo AI")}
-                      </span>
-                    </div>
+                    <UniversalCaptionLiveRenderer
+                      styleName={captionStyle}
+                      words={sampleWords}
+                      playbackTime={playbackTime}
+                      isPlaying={isPlaying}
+                      accentColor="#FFE14D"
+                    />
                   </div>
 
                   {/* Watermark Notice in Canvas Preview */}
@@ -1072,7 +1283,7 @@ export const YoutubeSubtitlesStudio: React.FC<YoutubeSubtitlesStudioProps> = ({
               {/* Watermark Toggle */}
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
                 <WatermarkRemoverToggle
-                  checked={removeAiWatermark}
+                  enabled={removeAiWatermark}
                   onChange={(val) => onRemoveAiWatermarkChange?.(val)}
                   label="Remove AI Watermark"
                   description="Export a completely clean, unbranded 1080p MP4 ready for YouTube monetized publishing."

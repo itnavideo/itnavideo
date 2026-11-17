@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthContext';
 import BrandLogo from '@/components/brand/BrandLogo';
+import { PLATFORM_MODE_CONFIG } from '@/lib/config/platformMode';
 
 const SHORT_STUDIOS = [
   { label: 'Auto Caption Generator', desc: 'Kinetic animated captions for Reels & Shorts', href: '/auto-caption-generator', icon: Smartphone, emoji: '💬' },
@@ -50,12 +51,16 @@ const WIDESCREEN_STUDIOS = [
   { label: 'AI Audio Cleaner', desc: 'Studio voice cleanup & mistake detection', href: '/ai-audio-cleaner', icon: Mic, emoji: '🎙️' },
 ];
 
-const RESOURCE_ITEMS = [
+const ALL_RESOURCE_ITEMS = [
   { label: 'Video Types & Specs', desc: 'Master directory & specs for all video studios', href: '/video-types', icon: BookOpen },
   { label: 'Official Blog', desc: 'In-depth creator guides, strategies & growth breakdowns', href: '/blog', icon: FileText },
   { label: 'Pricing & Credit Packs', desc: 'Flexible credit packages with zero monthly expiry', href: '/pricing', icon: CreditCard },
   { label: 'About Itnavideo', desc: 'Our mission and cloud video rendering engine', href: '/about', icon: Sparkles },
 ];
+
+const RESOURCE_ITEMS = PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS
+  ? ALL_RESOURCE_ITEMS.filter((item) => item.href !== '/pricing')
+  : ALL_RESOURCE_ITEMS;
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -256,18 +261,20 @@ export default function Navbar() {
                   Features
                 </Link>
 
-                {/* 3. Pricing */}
-                <Link
-                  href="/pricing"
-                  className={`transition font-semibold ${isActive('/pricing')
-                    ? 'text-orange-600 font-bold'
-                    : isLightPage
-                      ? 'text-slate-800 hover:text-orange-600'
-                      : 'text-zinc-300 hover:text-white'
-                    }`}
-                >
-                  Pricing
-                </Link>
+                {/* 3. Pricing (Temporarily hidden during free access period) */}
+                {!PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS && (
+                  <Link
+                    href="/pricing"
+                    className={`transition font-semibold ${isActive('/pricing')
+                      ? 'text-orange-600 font-bold'
+                      : isLightPage
+                        ? 'text-slate-800 hover:text-orange-600'
+                        : 'text-zinc-300 hover:text-white'
+                      }`}
+                  >
+                    Pricing
+                  </Link>
+                )}
 
                 {/* 4. Blog (Direct Top Level Link) */}
                 <Link
@@ -566,15 +573,17 @@ export default function Navbar() {
                 <ChevronRight size={17} className="text-slate-300" />
               </Link>
 
-              <Link
-                href="/pricing"
-                onClick={closeMobileMenu}
-                className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${isActive('/pricing') ? 'text-orange-600' : 'text-slate-900 hover:text-orange-600'
-                  }`}
-              >
-                <span>Pricing</span>
-                <ChevronRight size={17} className="text-slate-300" />
-              </Link>
+              {!PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS && (
+                <Link
+                  href="/pricing"
+                  onClick={closeMobileMenu}
+                  className={`flex items-center justify-between py-3.5 text-base font-bold transition-colors ${isActive('/pricing') ? 'text-orange-600' : 'text-slate-900 hover:text-orange-600'
+                    }`}
+                >
+                  <span>Pricing</span>
+                  <ChevronRight size={17} className="text-slate-300" />
+                </Link>
+              )}
 
               <Link
                 href="/blog"

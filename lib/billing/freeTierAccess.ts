@@ -9,6 +9,8 @@
  * every studio, feature, and resolution.
  */
 
+import { PLATFORM_MODE_CONFIG } from '@/lib/config/platformMode';
+
 export type FreeTierEntitlement = {
   active?: boolean;
   planId?: string;
@@ -92,6 +94,7 @@ export function isFreeTierUser(
 
 /** Whether a given feature id is available to free-tier users. */
 export function isFeatureFree(featureId: string): boolean {
+  if (PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS) return true;
   return FREE_FEATURE_IDS.has(featureId);
 }
 
@@ -105,6 +108,10 @@ export function isFeatureLockedForUser(
   userEmail?: string,
   userId?: string
 ): boolean {
+  // Temporary Free Access: All 15 video creation tools unlocked for preview & experimentation
+  if (PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS) {
+    return false;
+  }
   if (!isFreeTierUser(ent, userEmail, userId)) return false; // paid/founder users can access everything
   return !isFeatureFree(featureId);
 }

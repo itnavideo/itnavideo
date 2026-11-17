@@ -36,6 +36,7 @@ import { planBrollForScenes } from '@/services/ai/brollMatcher';
 import { planImagesFromLibraryForScenes } from '@/services/ai/aiImageLibraryMatcher';
 import { planSemanticImageToVideoTimeline, planVisualIntelligenceTimeline } from '@/services/ai/visualPlanner';
 import { SUBTITLE_PRESETS } from '@/remotion/types/subtitles';
+import { inspectAndAutoFixComposition } from '@/lib/inspector/bhideCompositionInspector';
 
 function getFontForLanguage(lang?: string): string {
   if (!lang) return 'Plus Jakarta Sans, sans-serif';
@@ -904,7 +905,7 @@ export async function POST(request: Request) {
         frameRange: [0, totalFrames - 1],
         outName,
         privacy: 'private',
-        deleteAfter: '2-days',
+        deleteAfter: '3-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1399,7 +1400,7 @@ export async function POST(request: Request) {
         // Removed to avoid confusion. Remotion's auto-chunking handles frames per worker.
         outName,
         privacy: 'private',
-        deleteAfter: '2-days',
+        deleteAfter: '3-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1492,7 +1493,7 @@ export async function POST(request: Request) {
         // Removed to avoid confusion. Remotion's auto-chunking handles frames per worker.
         outName,
         privacy: 'private',
-        deleteAfter: '2-days',
+        deleteAfter: '3-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1589,7 +1590,7 @@ export async function POST(request: Request) {
         // Removed to avoid confusion. Remotion's auto-chunking handles frames per worker.
         outName,
         privacy: 'private',
-        deleteAfter: '2-days',
+        deleteAfter: '3-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1735,7 +1736,7 @@ export async function POST(request: Request) {
         // Removed to avoid confusion. Remotion's auto-chunking handles frames per worker.
         outName,
         privacy: 'private',
-        deleteAfter: '2-days',
+        deleteAfter: '3-days',
         overwrite: true,
         concurrency: config.concurrency,
         maxRetries: 3,
@@ -1933,7 +1934,7 @@ export async function POST(request: Request) {
           inputProps: clipInputProps,
           outName: clipOutName,
           privacy: 'private',
-          deleteAfter: '2-days',
+          deleteAfter: '3-days',
           overwrite: true,
           concurrency: config.concurrency || 6,
           maxRetries: 3,
@@ -2506,7 +2507,14 @@ export async function POST(request: Request) {
           const captionPosition = readString(body.captionPosition) || 'bottom';
           const visualTheme = readString(body.visualTheme) || 'modern-saas';
 
-          const videoTitle = topicTitle || titleFromTranscript(transcription.transcript) || titleFromFile(fileName) || 'Faceless Video';
+          const isGenericOrFilename = (val: string) =>
+            !val ||
+            /generated[-_]?audio|audio[-_]?rec|recording|voice[-_]?memo|\.mp[34]|\.wav|\.m4a|\b(nov|dec|jan|feb|mar|apr|may|jun|jul|aug|sep|oct)\b|\b\d{1,2}[-_]\d{1,2}(?:am|pm)\b|^faceless\s+video$/i.test(val.trim());
+
+          const derivedTranscriptTitle = titleFromTranscript(transcription.transcript);
+          const videoTitle = (!isGenericOrFilename(topicTitle) ? topicTitle : '') ||
+            (!isGenericOrFilename(derivedTranscriptTitle) ? derivedTranscriptTitle : '') ||
+            'Cut Delivery Costs with DoorDash Drive';
 
           // If user confirmed a storyboard blueprint in studio, reuse it with 100% fidelity
           const userProvidedScenes = Array.isArray(body.sceneBlueprint) && body.sceneBlueprint.length > 0
@@ -2531,8 +2539,8 @@ export async function POST(request: Request) {
           const graphicScenes = planFacelessGraphics(blueprint.scenes);
           blueprint.scenes = graphicScenes;
 
-          // Execute 16-Specialist Production Crew for Faceless Video & Shorts
-          if (targetVideoType === 'facelessShorts' || targetVideoType === 'facelessVideo') {
+          // Execute 16-Specialist Production Crew strictly for 9:16 Vertical Shorts
+          if (targetVideoType === 'facelessShorts') {
             const facelessAssetMode = readString(body.assetMode);
             const facelessImageSource =
               facelessAssetMode === 'library' || facelessAssetMode === 'upload' || facelessAssetMode === 'mix'
@@ -2549,7 +2557,7 @@ export async function POST(request: Request) {
                 bgmVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
                 customBgmUrl: customBgmUrl || undefined,
                 subtitleStyle: subtitleStyle || 'glow-viral',
-                captionPosition,
+                captionPosition: (captionPosition === 'top' || captionPosition === 'center' || captionPosition === 'bottom') ? captionPosition : 'bottom',
                 captionAnimationStyle: (captionAnimationStyle as any) || 'smooth',
                 brandNamesHint: readString(body.brandNamesHint) || undefined,
                 imageSource: facelessImageSource,
@@ -3000,7 +3008,7 @@ export async function POST(request: Request) {
       frameRange: [0, finalReelFrames - 1],
       outName,
       privacy: 'private',
-      deleteAfter: '2-days',
+      deleteAfter: '3-days',
       overwrite: true,
       concurrency: config.concurrency,
       maxRetries: 3,
@@ -4175,7 +4183,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
   if (segments.length) {
     return segments.flatMap((segment) => {
       const parts = readString(segment.text).split(/\s+/).filter(Boolean);
-      const chunks: Array<{ start: number; end: number; text: string }> = [];
+      const chunks: Array<{ start: number; end: number; text: string; words?: Array<{ word: string; start: number; end: number }> }> = [];
       const chunkSize = 5;
       const duration = Math.max(0.8, Number(segment.end) - Number(segment.start));
       const totalChunks = Math.max(1, Math.ceil(parts.length / chunkSize));
@@ -4184,10 +4192,18 @@ function buildCompareCaptionsFromGroq(renderWindow: {
         const chunkWords = parts.slice(index * chunkSize, index * chunkSize + chunkSize);
         const start = Number(segment.start) + (duration / totalChunks) * index;
         const end = Number(segment.start) + (duration / totalChunks) * (index + 1);
+        const chunkSpan = Math.max(0.1, end - start);
+        const wordStep = chunkSpan / Math.max(1, chunkWords.length);
+        const synthesizedWords = chunkWords.map((cw, cwi) => ({
+          word: cw,
+          start: roundSeconds(start + cwi * wordStep),
+          end: roundSeconds(start + (cwi + 1) * wordStep),
+        }));
         chunks.push({
           start: roundSeconds(start),
           end: roundSeconds(end),
           text: chunkWords.join(' '),
+          words: synthesizedWords,
         });
       }
 
@@ -4200,11 +4216,24 @@ function buildCompareCaptionsFromGroq(renderWindow: {
   const chunkSize = 5;
   const totalChunks = Math.max(1, Math.ceil(fallbackWords.length / chunkSize));
 
-  return Array.from({ length: totalChunks }).map((_, index) => ({
-    start: roundSeconds((fallbackDuration / totalChunks) * index),
-    end: roundSeconds((fallbackDuration / totalChunks) * (index + 1)),
-    text: fallbackWords.slice(index * chunkSize, index * chunkSize + chunkSize).join(' '),
-  })).filter((caption) => caption.text.trim());
+  return Array.from({ length: totalChunks }).map((_, index) => {
+    const chunkWords = fallbackWords.slice(index * chunkSize, index * chunkSize + chunkSize);
+    const start = (fallbackDuration / totalChunks) * index;
+    const end = (fallbackDuration / totalChunks) * (index + 1);
+    const chunkSpan = Math.max(0.1, end - start);
+    const wordStep = chunkSpan / Math.max(1, chunkWords.length);
+    const synthesizedWords = chunkWords.map((cw, cwi) => ({
+      word: cw,
+      start: roundSeconds(start + cwi * wordStep),
+      end: roundSeconds(start + (cwi + 1) * wordStep),
+    }));
+    return {
+      start: roundSeconds(start),
+      end: roundSeconds(end),
+      text: chunkWords.join(' '),
+      words: synthesizedWords,
+    };
+  }).filter((caption) => caption.text.trim());
 }
 
 /**

@@ -28,7 +28,11 @@ import {
   ArrowLeft,
   Smartphone,
   Tv,
+  MessageSquareHeart,
 } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthContext';
+import { PLATFORM_MODE_CONFIG } from '@/lib/config/platformMode';
+import { PostDownloadFeedbackModal } from '@/components/feedback/PostDownloadFeedbackModal';
 import {
   requestNotificationPermission,
   sendRenderCompleteNotification,
@@ -235,6 +239,9 @@ export default function InteractiveRenderEngine({
   const [showQrModal, setShowQrModal] = useState(false);
   const [selectedClipQrUrl, setSelectedClipQrUrl] = useState<string | null>(null);
 
+  const { user } = useAuth();
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [limitExceededModal, setLimitExceededModal] = useState<{ resetsIn: string } | null>(null);
 
   const downloadDirectly = async (url: string, filename: string) => {
     try {
@@ -251,6 +258,66 @@ export default function InteractiveRenderEngine({
       window.URL.revokeObjectURL(blobUrl);
     } catch {
       window.open(url, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleClaimDownload = async (url: string, filename: string) => {
+    // If not temporary free access, trigger direct download
+    if (!PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS) {
+      await downloadDirectly(url, filename);
+      return;
+    }
+
+    if (!user) {
+      alert('Please log in with Google or Email to download your video.');
+      return;
+    }
+
+    try {
+      setIsDownloading(true);
+      const videoKey = status.jobId || status.outputFile || filename;
+
+      // 1. Claim download against daily free limit
+      const claimRes = await fetch('/api/downloads/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id || user.uid,
+          videoId: videoKey,
+          videoType: mode || 'generic',
+          outputUrl: url,
+          fileName: filename,
+        }),
+      });
+
+      const claimData = await claimRes.json();
+
+      if (!claimRes.ok || !claimData.ok) {
+        if (claimData.reason === 'DAILY_LIMIT_EXCEEDED') {
+          setLimitExceededModal({ resetsIn: claimData.resetsInFormatted || '12:00 AM IST' });
+          return;
+        }
+        throw new Error(claimData.error || 'Failed to claim download.');
+      }
+
+      // 2. Dispatch event to update DailyDownloadBadge across the app in real time
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('download-claimed', { detail: claimData }));
+      }
+
+      // 3. Trigger actual binary file download
+      await downloadDirectly(url, filename);
+
+      // 4. Trigger contextual post-download feedback modal
+      if (PLATFORM_MODE_CONFIG.ENABLE_POST_DOWNLOAD_FEEDBACK) {
+        setShowFeedbackModal(true);
+      }
+    } catch (err: any) {
+      console.error('Download error:', err);
+      // Fallback: trigger download directly so user is never stranded
+      await downloadDirectly(url, filename);
     } finally {
       setIsDownloading(false);
     }
@@ -433,7 +500,7 @@ export default function InteractiveRenderEngine({
         },
       });
 
-      if (status.outputFile) {
+      if (status.outputFile && !PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS) {
         const downloadName = `${displayTitle.toLowerCase().replace(/[^a-z0-9]/g, '-')}-1080p.mp4`;
         triggerAutoDownload(status.outputFile, downloadName).catch(() => {});
       }
@@ -779,8 +846,9 @@ export default function InteractiveRenderEngine({
                 {clip.outputFile || clip.outputUrl ? (
                   <button
                     type="button"
-                    onClick={() => downloadDirectly(clip.outputFile || clip.outputUrl!, `clip-${idx + 1}.mp4`)}
-                    className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 text-[10px] font-bold inline-flex items-center gap-1 transition"
+                    onClick={() => handleClaimDownload(clip.outputFile || clip.outputUrl!, `clip-${idx + 1}.mp4`)}
+                    disabled={isDownloading}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 text-[10px] font-bold inline-flex items-center gap-1 transition disabled:opacity-50"
                   >
                     <Download size={11} />
                     <span>Download</span>
@@ -802,7 +870,7 @@ export default function InteractiveRenderEngine({
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               type="button"
-              onClick={() => downloadDirectly(status.outputFile!, mode === 'audioClean' ? 'itnavideo-clean-studio-audio.mp3' : `itnavideo-${mode || 'reel'}-1080p.mp4`)}
+              onClick={() => handleClaimDownload(status.outputFile!, mode === 'audioClean' ? 'itnavideo-clean-studio-audio.mp3' : `itnavideo-${mode || 'reel'}-1080p.mp4`)}
               disabled={isDownloading}
               className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-[#FF5722] via-[#FF7043] to-[#FFA000] hover:brightness-110 text-black font-black text-sm transition-all flex items-center justify-center gap-2 shadow-[0_0_24px_rgba(255,109,0,0.35)] cursor-pointer disabled:opacity-50 active:scale-95"
             >
@@ -817,6 +885,16 @@ export default function InteractiveRenderEngine({
                   <span>{mode === 'audioClean' ? 'Download Studio Master (MP3)' : 'Download Ready 1080p MP4'}</span>
                 </>
               )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowFeedbackModal(true)}
+              className="sm:w-auto px-5 py-4 rounded-2xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 whitespace-nowrap shadow-xs"
+              title="Share your honest feedback on this video"
+            >
+              <MessageSquareHeart size={16} />
+              <span>Share Feedback</span>
             </button>
 
             <button
@@ -1085,6 +1163,67 @@ export default function InteractiveRenderEngine({
         title={status.title || 'Itnavideo Render'}
         aspectRatio={isVerticalMode ? '9:16' : '16:9'}
       />
+
+      {/* 💬 POST-DOWNLOAD CONTEXTUAL FEEDBACK MODAL */}
+      <PostDownloadFeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        videoId={status.jobId || status.outputFile || 'rendered-video'}
+        videoType={mode || 'generic'}
+        aspectRatio={isVerticalMode ? '9:16' : '16:9'}
+        durationSeconds={status.durationInSeconds}
+      />
+
+      {/* 🛑 DAILY FREE DOWNLOAD LIMIT REACHED MODAL */}
+      {limitExceededModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md rounded-2xl bg-zinc-900 border border-amber-500/30 p-6 text-white shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                <AlertCircle size={24} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Daily Free Limit Reached (0/2)</h3>
+                <p className="text-xs text-zinc-400">All 2 free video downloads used for today</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-zinc-950/70 border border-white/5 space-y-2 text-xs text-zinc-300">
+              <p>
+                To maintain studio GPU capacity and collect quality feedback, each creator receives <span className="text-amber-400 font-semibold">2 free downloads every day</span>.
+              </p>
+              <div className="flex items-center justify-between pt-1 border-t border-white/5 font-mono text-[11px]">
+                <span className="text-zinc-400">Next Reset:</span>
+                <span className="text-emerald-400 font-bold">{limitExceededModal.resetsIn} (12:00 AM IST)</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-zinc-400">
+              ✨ <strong className="text-zinc-200">Unlimited Studio Generation:</strong> You can continue generating, editing, and previewing videos in any studio without consuming your daily allowance.
+            </p>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setLimitExceededModal(null);
+                  setShowFeedbackModal(true);
+                }}
+                className="flex-1 py-2.5 px-3 rounded-xl border border-white/10 hover:bg-white/5 text-xs font-semibold text-zinc-300 transition-colors"
+              >
+                Share Feedback
+              </button>
+              <button
+                type="button"
+                onClick={() => setLimitExceededModal(null)}
+                className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold text-xs hover:brightness-110 transition-all"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
