@@ -1229,7 +1229,6 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   </div>
                 </div>
               )}
-              </div>
 
               {/* Planning or Error Banner */}
               {isPlanning && (
