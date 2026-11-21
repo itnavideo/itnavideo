@@ -297,9 +297,9 @@ export const STYLE_PREVIEW_WORDS: Record<string, [string, string, string]> = {
 // Helper to render authentic animated caption word previews across all 32 styles
 export function renderPreviewCaptionWords(
   styleId: string,
-  styleColor: string,
-  styleFont: string,
-  activeWordIdx: number
+  styleColor: string = '#f59e0b',
+  styleFont: string = 'Inter, sans-serif',
+  activeWordIdx: number = 1
 ) {
   const words = STYLE_PREVIEW_WORDS[styleId] || ['CINEMA', 'MOTION', 'CAPTIONS'];
 
@@ -313,11 +313,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black tracking-wide ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black tracking-wide ${isActive
                     ? 'text-orange-500 scale-125 drop-shadow-[0_2px_10px_rgba(234,88,12,0.9)]'
                     : 'text-white/80 scale-100 drop-shadow-xs'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -328,11 +327,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-bold tracking-wide ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-bold tracking-wide ${isActive
                     ? 'text-amber-400 scale-110 underline decoration-amber-400 decoration-2 underline-offset-4 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]'
                     : 'text-white/60 scale-100'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -343,11 +341,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black tracking-wide px-1.5 py-0.5 rounded ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black tracking-wide px-1.5 py-0.5 rounded ${isActive
                     ? 'bg-sky-500 text-white shadow-md scale-110 drop-shadow-xs'
                     : 'text-white/80 scale-100'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -358,11 +355,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black tracking-wide ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black tracking-wide ${isActive
                     ? 'text-cyan-300 scale-115 drop-shadow-[0_0_12px_#06B6D4]'
                     : 'text-white/70 scale-100 drop-shadow-xs'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -373,11 +369,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-mono tracking-widest ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-mono tracking-widest ${isActive
                     ? 'text-yellow-400 font-bold scale-110 bg-black/60 px-1 rounded border-r-2 border-yellow-400'
                     : 'text-yellow-100/70 font-medium'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -388,11 +383,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-150 text-xs sm:text-sm uppercase tracking-tighter ${
-                  isActive
+                className={`transition-all duration-150 text-xs sm:text-sm uppercase tracking-tighter ${isActive
                     ? 'text-red-500 scale-125 font-black drop-shadow-[0_4px_8px_rgba(0,0,0,1)]'
                     : 'text-white/80 font-bold'
-                }`}
+                  }`}
                 style={{ fontFamily: 'Impact, sans-serif' }}
               >
                 {word}
@@ -403,11 +397,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm uppercase font-black ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm uppercase font-black ${isActive
                     ? 'text-purple-400 scale-115 drop-shadow-[0_2px_10px_rgba(139,92,246,0.8)]'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -418,11 +411,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-serif italic ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-serif italic ${isActive
                     ? 'text-amber-200 font-bold scale-110 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]'
                     : 'text-amber-100/70'
-                }`}
+                  }`}
                 style={{ fontFamily: 'Georgia, serif' }}
               >
                 {word}
@@ -434,11 +426,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-bold tracking-tight px-2 py-0.5 rounded-full ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-bold tracking-tight px-2 py-0.5 rounded-full ${isActive
                     ? 'bg-teal-400 text-slate-950 font-black shadow-md scale-110'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -450,9 +441,8 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-medium ${
-                  isActive ? 'text-yellow-300 font-bold scale-105' : 'text-white/90'
-                }`}
+                className={`transition-all duration-200 text-xs sm:text-sm font-medium ${isActive ? 'text-yellow-300 font-bold scale-105' : 'text-white/90'
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -463,11 +453,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black tracking-wide ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black tracking-wide ${isActive
                     ? 'bg-lime-400 text-slate-950 px-1.5 py-0.5 rounded font-black scale-110 shadow-xs'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -478,11 +467,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black ${isActive
                     ? 'text-white border-b-2 border-orange-500 pb-0.5 scale-105'
                     : 'text-white/70'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -493,11 +481,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black ${isActive
                     ? 'text-emerald-400 scale-115 drop-shadow-[0_2px_8px_rgba(52,211,153,0.8)]'
                     : 'text-slate-400'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -508,11 +495,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-150 text-xs sm:text-sm uppercase font-black tracking-wider ${
-                  isActive
+                className={`transition-all duration-150 text-xs sm:text-sm uppercase font-black tracking-wider ${isActive
                     ? 'text-lime-400 scale-125 -rotate-2 inline-block drop-shadow-[0_3px_10px_rgba(0,0,0,1)] border-b-2 border-lime-400'
                     : 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)]'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -523,11 +509,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-150 text-xs sm:text-sm uppercase font-black tracking-tight ${
-                  isActive
+                className={`transition-all duration-150 text-xs sm:text-sm uppercase font-black tracking-tight ${isActive
                     ? 'bg-yellow-400 text-black px-2 py-0.5 rounded-md scale-115 shadow-xl'
                     : 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)]'
-                }`}
+                  }`}
                 style={{ fontFamily: 'Impact, Arial Black, sans-serif' }}
               >
                 {word}
@@ -550,11 +535,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black ${isActive
                     ? 'text-pink-400 scale-125 rotate-3 inline-block drop-shadow-[0_2px_10px_rgba(244,114,182,0.9)]'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -565,11 +549,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black ${isActive
                     ? 'bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent scale-115 drop-shadow-[0_0_12px_rgba(192,132,252,0.8)]'
                     : 'text-white/70'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -581,11 +564,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-semibold tracking-normal ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-semibold tracking-normal ${isActive
                     ? 'text-white font-bold scale-105 border-b border-white/60'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -597,11 +579,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-serif italic ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-serif italic ${isActive
                     ? 'text-amber-300 font-bold scale-110 drop-shadow-[0_2px_8px_rgba(217,119,6,0.6)]'
                     : 'text-stone-300 font-medium'
-                }`}
+                  }`}
                 style={{ fontFamily: 'Georgia, serif' }}
               >
                 {word}
@@ -613,11 +594,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-bold ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-bold ${isActive
                     ? 'text-amber-400 scale-110 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]'
                     : 'text-slate-200'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -628,11 +608,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-150 text-xs sm:text-sm uppercase font-black ${
-                  isActive
+                className={`transition-all duration-150 text-xs sm:text-sm uppercase font-black ${isActive
                     ? 'text-white bg-black px-1.5 py-0.5 border border-white/40 scale-110 shadow-md'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: 'sans-serif' }}
               >
                 {word}
@@ -643,11 +622,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black ${isActive
                     ? 'text-white bg-red-600 px-1.5 py-0.5 rounded scale-110 shadow-md'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -658,11 +636,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black ${isActive
                     ? 'text-yellow-400 scale-120 drop-shadow-[0_0_10px_rgba(250,204,21,0.9)]'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {isActive ? `✦ ${word}` : word}
@@ -673,11 +650,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-mono italic ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-mono italic ${isActive
                     ? 'text-orange-300 font-bold scale-115 underline decoration-wavy decoration-orange-400'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: 'cursive, sans-serif' }}
               >
                 {word}
@@ -688,11 +664,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-black ${
-                  isActive
+                className={`transition-all duration-200 text-xs sm:text-sm font-black ${isActive
                     ? 'bg-gradient-to-r from-orange-400 via-rose-500 to-purple-500 bg-clip-text text-transparent scale-120 drop-shadow-md'
                     : 'text-white/70'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -703,11 +678,10 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-150 text-xs sm:text-sm font-black ${
-                  isActive
+                className={`transition-all duration-150 text-xs sm:text-sm font-black ${isActive
                     ? 'text-rose-400 scale-130 drop-shadow-[0_3px_10px_rgba(244,63,94,0.9)]'
                     : 'text-white/80'
-                }`}
+                  }`}
                 style={{ fontFamily: styleFont }}
               >
                 {word}
@@ -718,9 +692,8 @@ export function renderPreviewCaptionWords(
             return (
               <span
                 key={word}
-                className={`transition-all duration-200 text-xs sm:text-sm font-bold ${
-                  isActive ? 'scale-115 drop-shadow-md' : 'text-white/80'
-                }`}
+                className={`transition-all duration-200 text-xs sm:text-sm font-bold ${isActive ? 'scale-115 drop-shadow-md' : 'text-white/80'
+                  }`}
                 style={{
                   color: isActive ? styleColor : undefined,
                   fontFamily: styleFont,
@@ -1053,7 +1026,7 @@ export function ImageToVideoStudio({
     }
     pushToHistory(nextFiles.length > 0 ? nextFiles : undefined, undefined, nextDurations);
   };
-  
+
   const handleDuplicateScene = (index: number) => {
     const currentDur = effectiveSceneDurations[index] || 4;
     const nextDurations = [...effectiveSceneDurations];
@@ -1259,9 +1232,9 @@ export function ImageToVideoStudio({
 
   // 36 Aesthetic Waveform Bar Heights (%) for voiceover visualizer
   const WAVE_BARS = useMemo(() => [
-    25, 40, 70, 50, 85, 100, 65, 45, 90, 80, 
-    35, 20, 60, 75, 95, 100, 70, 45, 30, 55, 
-    75, 90, 60, 40, 85, 95, 65, 50, 30, 60, 
+    25, 40, 70, 50, 85, 100, 65, 45, 90, 80,
+    35, 20, 60, 75, 95, 100, 70, 45, 30, 55,
+    75, 90, 60, 40, 85, 95, 65, 50, 30, 60,
     80, 100, 70, 45, 30, 20
   ], []);
 
@@ -1376,11 +1349,11 @@ export function ImageToVideoStudio({
       prev.map((c) =>
         c.id === id
           ? {
-              ...c,
-              text: captionEditForm.text.trim(),
-              startTime: Number(captionEditForm.startTime),
-              endTime: Number(captionEditForm.endTime),
-            }
+            ...c,
+            text: captionEditForm.text.trim(),
+            startTime: Number(captionEditForm.startTime),
+            endTime: Number(captionEditForm.endTime),
+          }
           : c
       )
     );
@@ -1700,7 +1673,7 @@ export function ImageToVideoStudio({
       {/* ========================================================================= */}
       <header className="shrink-0 border-b border-slate-200/90 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3.5 z-20">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          
+
           {/* Left: Studio Branding & Title */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/20">
@@ -1740,13 +1713,12 @@ export function ImageToVideoStudio({
                   >
                     {/* Circle - Green for completed, Orange for active, Slate for upcoming */}
                     <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all ${
-                        isCompleted
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black transition-all ${isCompleted
                           ? 'bg-emerald-500 text-white shadow-xs shadow-emerald-500/25 ring-2 ring-emerald-500/20'
                           : isActive
-                          ? 'bg-white border-2 border-orange-500 text-orange-600 shadow-[0_0_0_4px_rgba(249,115,22,0.14)] font-black'
-                          : 'bg-slate-100 border border-slate-200 text-slate-400 group-hover:border-slate-300'
-                      }`}
+                            ? 'bg-white border-2 border-orange-500 text-orange-600 shadow-[0_0_0_4px_rgba(249,115,22,0.14)] font-black'
+                            : 'bg-slate-100 border border-slate-200 text-slate-400 group-hover:border-slate-300'
+                        }`}
                     >
                       {isCompleted ? <Check size={14} className="stroke-[3]" /> : s.step}
                     </div>
@@ -1754,13 +1726,12 @@ export function ImageToVideoStudio({
                     {/* Label */}
                     <div className="text-left hidden xl:block">
                       <p
-                        className={`text-xs font-black leading-tight ${
-                          isActive
+                        className={`text-xs font-black leading-tight ${isActive
                             ? 'text-slate-900'
                             : isCompleted
-                            ? 'text-emerald-700'
-                            : 'text-slate-400'
-                        }`}
+                              ? 'text-emerald-700'
+                              : 'text-slate-400'
+                          }`}
                       >
                         {s.title}
                       </p>
@@ -1773,9 +1744,8 @@ export function ImageToVideoStudio({
                   {/* Connecting Line between steps - Green for completed steps */}
                   {idx < STUDIO_STEPS.length - 1 && (
                     <div
-                      className={`h-0.5 w-6 lg:w-8 rounded-full transition-colors ${
-                        s.step < currentStep ? 'bg-emerald-500' : 'bg-slate-200'
-                      }`}
+                      className={`h-0.5 w-6 lg:w-8 rounded-full transition-colors ${s.step < currentStep ? 'bg-emerald-500' : 'bg-slate-200'
+                        }`}
                     />
                   )}
                 </React.Fragment>
@@ -1827,15 +1797,13 @@ export function ImageToVideoStudio({
                   onClick={() => {
                     if (isBackClickable) setCurrentStep(s.step);
                   }}
-                  className={`h-1.5 flex-1 rounded-full transition-all ${
-                    isBackClickable ? 'cursor-pointer hover:opacity-80' : ''
-                  } ${
-                    isDone
+                  className={`h-1.5 flex-1 rounded-full transition-all ${isBackClickable ? 'cursor-pointer hover:opacity-80' : ''
+                    } ${isDone
                       ? 'bg-emerald-500 shadow-xs'
                       : isCurrent
-                      ? 'bg-gradient-to-r from-orange-500 to-amber-500'
-                      : 'bg-slate-200'
-                  }`}
+                        ? 'bg-gradient-to-r from-orange-500 to-amber-500'
+                        : 'bg-slate-200'
+                    }`}
                   title={`Step ${s.step}: ${s.title}`}
                 />
               );
@@ -1848,7 +1816,7 @@ export function ImageToVideoStudio({
       {/* ROW 2: ACTIVE STEP CONTENT REGION (Internal scroll with smooth clearance)  */}
       {/* ========================================================================= */}
       <main className="flex-1 overflow-y-auto overscroll-contain scroll-smooth px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-28 sm:pb-32 w-full">
-        
+
         {/* Global Input Error Banner */}
         {inputError && (
           <div className="max-w-7xl mx-auto mb-6 flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-700 shadow-xs">
@@ -1871,276 +1839,274 @@ export function ImageToVideoStudio({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              
+
               {/* Left Column: Spoken Narration Audio (45%) */}
               <div className="lg:col-span-5 space-y-4">
-          {/* CARD 1: SPOKEN NARRATION AUDIO (BIG SIZE MAIN INPUT) */}
-          <div className="rounded-[28px] sm:rounded-[32px] border-2 border-orange-500/30 bg-gradient-to-b from-orange-50/20 via-white to-white p-4 sm:p-8 shadow-sm space-y-4 sm:space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-md shadow-orange-500/25 shrink-0">
-                  <Mic size={20} className="stroke-[2.5]" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
-                      1. Spoken Narration Audio
-                    </h2>
-                    <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-wider">
-                      Required
-                    </span>
+                {/* CARD 1: SPOKEN NARRATION AUDIO (BIG SIZE MAIN INPUT) */}
+                <div className="rounded-[28px] sm:rounded-[32px] border-2 border-orange-500/30 bg-gradient-to-b from-orange-50/20 via-white to-white p-4 sm:p-8 shadow-sm space-y-4 sm:space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-md shadow-orange-500/25 shrink-0">
+                        <Mic size={20} className="stroke-[2.5]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
+                            1. Spoken Narration Audio
+                          </h2>
+                          <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-wider">
+                            Required
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Your primary voiceover that drives scene cuts and subtitle pacing
+                        </p>
+                      </div>
+                    </div>
+
+                    {selectedAudio && (
+                      <span className="inline-flex items-center self-start sm:self-auto gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-mono font-bold shadow-xs">
+                        <Check size={13} className="stroke-[3]" />
+                        <span>{detectedAudioDuration}s · {calculatedCredits} Cr</span>
+                      </span>
+                    )}
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Your primary voiceover that drives scene cuts and subtitle pacing
-                  </p>
-                </div>
-              </div>
 
-              {selectedAudio && (
-                <span className="inline-flex items-center self-start sm:self-auto gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs font-mono font-bold shadow-xs">
-                  <Check size={13} className="stroke-[3]" />
-                  <span>{detectedAudioDuration}s · {calculatedCredits} Cr</span>
-                </span>
-              )}
-            </div>
-
-            {/* Hidden Input */}
-            <input
-              ref={audioFileInputRef}
-              type="file"
-              accept="audio/*,.mp3,.wav,.m4a,.aac"
-              onChange={handleAudioChange}
-              className="hidden"
-            />
-
-            {/* BIG PROMINENT AUDIO DROPZONE */}
-            {!selectedAudio ? (
-              <div
-                onClick={() => audioFileInputRef.current?.click()}
-                className="group relative flex flex-col items-center justify-center rounded-[24px] sm:rounded-[28px] border-2 border-dashed border-orange-300 hover:border-orange-500 bg-white hover:bg-orange-50/40 min-h-[190px] sm:min-h-[220px] p-5 sm:p-10 text-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
-              >
-                <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-orange-100 group-hover:bg-orange-500 text-orange-600 group-hover:text-white transition-all duration-200 shadow-sm mb-3 sm:mb-4">
-                  <UploadCloud size={28} className="stroke-[2.5]" />
-                </div>
-                
-                <p className="text-sm sm:text-lg font-black text-slate-900 mb-1">
-                  Drop your narration audio here, or <span className="text-orange-600 underline underline-offset-4">Browse File</span>
-                </p>
-                
-                <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm leading-relaxed mb-3 sm:mb-4">
-                  Supports MP3, WAV, M4A, AAC · Maximum 5 Minutes (300s) · Millisecond Speech Sync
-                </p>
-
-                <div className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-black text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition shadow-sm">
-                  <Upload size={14} />
-                  <span>Select Voiceover Audio</span>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-2xl sm:rounded-3xl border-2 border-orange-300/80 bg-gradient-to-b from-orange-50/40 via-white to-white p-4 sm:p-6 shadow-xs space-y-4">
-                {/* Hidden Audio Element with Event Handlers */}
-                {audioPreviewUrl && (
-                  <audio
-                    ref={narrationAudioRef}
-                    src={audioPreviewUrl}
-                    onTimeUpdate={(e) => setNarrationCurrentTime(e.currentTarget.currentTime)}
-                    onLoadedMetadata={(e) => {
-                      if (e.currentTarget.duration && Number.isFinite(e.currentTarget.duration)) {
-                        setNarrationDuration(Math.round(e.currentTarget.duration));
-                      }
-                    }}
-                    onEnded={() => {
-                      setIsPlayingNarration(false);
-                      setNarrationCurrentTime(0);
-                    }}
+                  {/* Hidden Input */}
+                  <input
+                    ref={audioFileInputRef}
+                    type="file"
+                    accept="audio/*,.mp3,.wav,.m4a,.aac"
+                    onChange={handleAudioChange}
                     className="hidden"
                   />
-                )}
 
-                {/* Top Row: File Info & Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/25">
-                      <Headphones size={22} className="stroke-[2.5]" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-black text-slate-900 truncate max-w-[200px] sm:max-w-xs">
-                          {selectedAudio.name}
-                        </p>
-                        <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-wider shrink-0">
-                          Narration
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {(selectedAudio.size / 1024 / 1024).toFixed(2)} MB · Duration: <strong className="text-slate-900 font-bold">{detectedAudioDuration || Math.round(narrationDuration)}s</strong>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
+                  {/* BIG PROMINENT AUDIO DROPZONE */}
+                  {!selectedAudio ? (
+                    <div
                       onClick={() => audioFileInputRef.current?.click()}
-                      className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer shadow-xs"
+                      className="group relative flex flex-col items-center justify-center rounded-[24px] sm:rounded-[28px] border-2 border-dashed border-orange-300 hover:border-orange-500 bg-white hover:bg-orange-50/40 min-h-[190px] sm:min-h-[220px] p-5 sm:p-10 text-center transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
                     >
-                      Replace Audio
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onSelectAudio(null)}
-                      className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer shadow-xs"
-                      title="Remove audio"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                </div>
+                      <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-orange-100 group-hover:bg-orange-500 text-orange-600 group-hover:text-white transition-all duration-200 shadow-sm mb-3 sm:mb-4">
+                        <UploadCloud size={28} className="stroke-[2.5]" />
+                      </div>
 
-                {/* Custom Audio Waveform Visualizer */}
-                <div className="space-y-2 pt-2">
-                  <div
-                    onClick={handleWaveformClick}
-                    className="relative group flex items-center justify-between gap-0.5 sm:gap-1 h-14 sm:h-16 w-full cursor-pointer px-2.5 sm:px-3 py-2 rounded-2xl bg-slate-50/80 hover:bg-orange-50/40 border border-slate-200/80 transition-all select-none shadow-inner"
-                    title="Click anywhere on waveform to scrub audio"
-                  >
-                    {WAVE_BARS.map((barHeight, idx) => {
-                      const totalBars = WAVE_BARS.length;
-                      const barPct = (idx / (totalBars - 1)) * 100;
-                      const currentPct = narrationDuration > 0 ? (narrationCurrentTime / narrationDuration) * 100 : 0;
-                      const isPlayed = barPct <= currentPct;
-                      return (
-                        <div
-                          key={idx}
-                          className="flex-1 flex items-center justify-center h-full"
-                        >
-                          <div
-                            style={{ height: `${barHeight}%` }}
-                            className={`w-full max-w-[4px] sm:max-w-[6px] rounded-full transition-all duration-150 ${
-                              isPlayed
-                                ? 'bg-gradient-to-t from-orange-600 to-amber-500 shadow-2xs'
-                                : 'bg-slate-200 group-hover:bg-slate-300'
-                            } ${
-                              isPlayingNarration && isPlayed
-                                ? 'scale-y-110 brightness-105'
-                                : ''
-                            }`}
-                          />
+                      <p className="text-sm sm:text-lg font-black text-slate-900 mb-1">
+                        Drop your narration audio here, or <span className="text-orange-600 underline underline-offset-4">Browse File</span>
+                      </p>
+
+                      <p className="text-[11px] sm:text-xs text-slate-500 max-w-sm leading-relaxed mb-3 sm:mb-4">
+                        Supports MP3, WAV, M4A, AAC · Maximum 5 Minutes (300s) · Millisecond Speech Sync
+                      </p>
+
+                      <div className="inline-flex items-center gap-2 rounded-xl bg-slate-900 hover:bg-black text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold transition shadow-sm">
+                        <Upload size={14} />
+                        <span>Select Voiceover Audio</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl sm:rounded-3xl border-2 border-orange-300/80 bg-gradient-to-b from-orange-50/40 via-white to-white p-4 sm:p-6 shadow-xs space-y-4">
+                      {/* Hidden Audio Element with Event Handlers */}
+                      {audioPreviewUrl && (
+                        <audio
+                          ref={narrationAudioRef}
+                          src={audioPreviewUrl}
+                          onTimeUpdate={(e) => setNarrationCurrentTime(e.currentTarget.currentTime)}
+                          onLoadedMetadata={(e) => {
+                            if (e.currentTarget.duration && Number.isFinite(e.currentTarget.duration)) {
+                              setNarrationDuration(Math.round(e.currentTarget.duration));
+                            }
+                          }}
+                          onEnded={() => {
+                            setIsPlayingNarration(false);
+                            setNarrationCurrentTime(0);
+                          }}
+                          className="hidden"
+                        />
+                      )}
+
+                      {/* Top Row: File Info & Actions */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/25">
+                            <Headphones size={22} className="stroke-[2.5]" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-black text-slate-900 truncate max-w-[200px] sm:max-w-xs">
+                                {selectedAudio.name}
+                              </p>
+                              <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-wider shrink-0">
+                                Narration
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {(selectedAudio.size / 1024 / 1024).toFixed(2)} MB · Duration: <strong className="text-slate-900 font-bold">{detectedAudioDuration || Math.round(narrationDuration)}s</strong>
+                            </p>
+                          </div>
                         </div>
-                      );
-                    })}
-                  </div>
 
-                  {/* Scrubber & Audio Controls Bar */}
-                  <div className="flex items-center justify-between gap-3 px-1 pt-1">
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={handleTogglePlayNarration}
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-md shadow-orange-500/25 active:scale-95 transition cursor-pointer"
-                        title={isPlayingNarration ? 'Pause voiceover' : 'Play voiceover'}
-                      >
-                        {isPlayingNarration ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
-                      </button>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => audioFileInputRef.current?.click()}
+                            className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer shadow-xs"
+                          >
+                            Replace Audio
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onSelectAudio(null)}
+                            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 transition cursor-pointer shadow-xs"
+                            title="Remove audio"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
 
-                      <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-slate-700">
-                        <span>{formatAudioTime(narrationCurrentTime)}</span>
-                        <span className="text-slate-400">/</span>
-                        <span>{formatAudioTime(narrationDuration || detectedAudioDuration)}</span>
+                      {/* Custom Audio Waveform Visualizer */}
+                      <div className="space-y-2 pt-2">
+                        <div
+                          onClick={handleWaveformClick}
+                          className="relative group flex items-center justify-between gap-0.5 sm:gap-1 h-14 sm:h-16 w-full cursor-pointer px-2.5 sm:px-3 py-2 rounded-2xl bg-slate-50/80 hover:bg-orange-50/40 border border-slate-200/80 transition-all select-none shadow-inner"
+                          title="Click anywhere on waveform to scrub audio"
+                        >
+                          {WAVE_BARS.map((barHeight, idx) => {
+                            const totalBars = WAVE_BARS.length;
+                            const barPct = (idx / (totalBars - 1)) * 100;
+                            const currentPct = narrationDuration > 0 ? (narrationCurrentTime / narrationDuration) * 100 : 0;
+                            const isPlayed = barPct <= currentPct;
+                            return (
+                              <div
+                                key={idx}
+                                className="flex-1 flex items-center justify-center h-full"
+                              >
+                                <div
+                                  style={{ height: `${barHeight}%` }}
+                                  className={`w-full max-w-[4px] sm:max-w-[6px] rounded-full transition-all duration-150 ${isPlayed
+                                      ? 'bg-gradient-to-t from-orange-600 to-amber-500 shadow-2xs'
+                                      : 'bg-slate-200 group-hover:bg-slate-300'
+                                    } ${isPlayingNarration && isPlayed
+                                      ? 'scale-y-110 brightness-105'
+                                      : ''
+                                    }`}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Scrubber & Audio Controls Bar */}
+                        <div className="flex items-center justify-between gap-3 px-1 pt-1">
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={handleTogglePlayNarration}
+                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-md shadow-orange-500/25 active:scale-95 transition cursor-pointer"
+                              title={isPlayingNarration ? 'Pause voiceover' : 'Play voiceover'}
+                            >
+                              {isPlayingNarration ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                            </button>
+
+                            <div className="flex items-center gap-1.5 font-mono text-xs font-bold text-slate-700">
+                              <span>{formatAudioTime(narrationCurrentTime)}</span>
+                              <span className="text-slate-400">/</span>
+                              <span>{formatAudioTime(narrationDuration || detectedAudioDuration)}</span>
+                            </div>
+                          </div>
+
+                          {/* Progress Slider */}
+                          <div className="flex-1 max-w-xs hidden sm:block">
+                            <input
+                              type="range"
+                              min="0"
+                              max={narrationDuration || detectedAudioDuration || 60}
+                              step="0.1"
+                              value={narrationCurrentTime}
+                              onChange={(e) => handleScrubberChange(parseFloat(e.target.value))}
+                              className="w-full accent-orange-500 cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Mute Button */}
+                          <button
+                            type="button"
+                            onClick={handleToggleMuteNarration}
+                            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
+                            title={isNarrationMuted ? 'Unmute voiceover' : 'Mute voiceover'}
+                          >
+                            {isNarrationMuted ? <VolumeX size={16} className="text-red-500" /> : <Volume2 size={16} />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* AI Speech Transcription Status Banner */}
+                      <div className="pt-1">
+                        {transcribeState === 'transcribing' && (
+                          <div className="flex items-center justify-between p-3 rounded-2xl bg-orange-50/80 border border-orange-200 text-xs">
+                            <div className="flex items-center gap-2.5 text-orange-800 font-bold">
+                              <Sparkles size={16} className="animate-spin text-orange-600" />
+                              <span>Transcribing speech with AI (Groq Whisper)...</span>
+                            </div>
+                            <span className="text-[11px] font-mono font-bold text-orange-600 animate-pulse">
+                              Detecting words &amp; stops...
+                            </span>
+                          </div>
+                        )}
+
+                        {transcribeState === 'ready' && (
+                          <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs">
+                            <div className="flex items-center gap-2.5 text-emerald-900 font-bold min-w-0">
+                              <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                              <span className="truncate">
+                                Speech Transcribed ({editableTranscript.split(/\s+/).filter(Boolean).length} words) · Synced with live preview subtitles
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => selectedAudio && triggerDirectTranscription(selectedAudio)}
+                              className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 underline underline-offset-2 shrink-0 cursor-pointer ml-2"
+                            >
+                              Re-transcribe
+                            </button>
+                          </div>
+                        )}
+
+                        {transcribeState === 'error' && (
+                          <div className="flex items-center justify-between p-3 rounded-2xl bg-red-50 border border-red-200 text-xs">
+                            <div className="flex items-center gap-2.5 text-red-800 font-bold min-w-0">
+                              <AlertCircle size={16} className="text-red-600 shrink-0" />
+                              <span className="truncate">
+                                {transcribeError || 'Speech transcription could not be completed.'}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => selectedAudio && triggerDirectTranscription(selectedAudio)}
+                              className="px-3 py-1 rounded-xl bg-red-600 text-white text-[11px] font-bold hover:bg-red-700 transition cursor-pointer shadow-xs shrink-0 ml-2"
+                            >
+                              Retry
+                            </button>
+                          </div>
+                        )}
+
+                        {transcribeState === 'idle' && (
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500">
+                            <span>Audio ready for processing</span>
+                            <button
+                              type="button"
+                              onClick={() => selectedAudio && triggerDirectTranscription(selectedAudio)}
+                              className="text-[11px] font-bold text-orange-600 hover:text-orange-700 cursor-pointer"
+                            >
+                              Start Transcription
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
-
-                    {/* Progress Slider */}
-                    <div className="flex-1 max-w-xs hidden sm:block">
-                      <input
-                        type="range"
-                        min="0"
-                        max={narrationDuration || detectedAudioDuration || 60}
-                        step="0.1"
-                        value={narrationCurrentTime}
-                        onChange={(e) => handleScrubberChange(parseFloat(e.target.value))}
-                        className="w-full accent-orange-500 cursor-pointer"
-                      />
-                    </div>
-
-                    {/* Mute Button */}
-                    <button
-                      type="button"
-                      onClick={handleToggleMuteNarration}
-                      className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
-                      title={isNarrationMuted ? 'Unmute voiceover' : 'Mute voiceover'}
-                    >
-                      {isNarrationMuted ? <VolumeX size={16} className="text-red-500" /> : <Volume2 size={16} />}
-                    </button>
-                  </div>
+                  )}
                 </div>
-
-                {/* AI Speech Transcription Status Banner */}
-                <div className="pt-1">
-                  {transcribeState === 'transcribing' && (
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-orange-50/80 border border-orange-200 text-xs">
-                      <div className="flex items-center gap-2.5 text-orange-800 font-bold">
-                        <Sparkles size={16} className="animate-spin text-orange-600" />
-                        <span>Transcribing speech with AI (Groq Whisper)...</span>
-                      </div>
-                      <span className="text-[11px] font-mono font-bold text-orange-600 animate-pulse">
-                        Detecting words &amp; stops...
-                      </span>
-                    </div>
-                  )}
-
-                  {transcribeState === 'ready' && (
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs">
-                      <div className="flex items-center gap-2.5 text-emerald-900 font-bold min-w-0">
-                        <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                        <span className="truncate">
-                          Speech Transcribed ({editableTranscript.split(/\s+/).filter(Boolean).length} words) · Synced with live preview subtitles
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => selectedAudio && triggerDirectTranscription(selectedAudio)}
-                        className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 underline underline-offset-2 shrink-0 cursor-pointer ml-2"
-                      >
-                        Re-transcribe
-                      </button>
-                    </div>
-                  )}
-
-                  {transcribeState === 'error' && (
-                    <div className="flex items-center justify-between p-3 rounded-2xl bg-red-50 border border-red-200 text-xs">
-                      <div className="flex items-center gap-2.5 text-red-800 font-bold min-w-0">
-                        <AlertCircle size={16} className="text-red-600 shrink-0" />
-                        <span className="truncate">
-                          {transcribeError || 'Speech transcription could not be completed.'}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => selectedAudio && triggerDirectTranscription(selectedAudio)}
-                        className="px-3 py-1 rounded-xl bg-red-600 text-white text-[11px] font-bold hover:bg-red-700 transition cursor-pointer shadow-xs shrink-0 ml-2"
-                      >
-                        Retry
-                      </button>
-                    </div>
-                  )}
-
-                  {transcribeState === 'idle' && (
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500">
-                      <span>Audio ready for processing</span>
-                      <button
-                        type="button"
-                        onClick={() => selectedAudio && triggerDirectTranscription(selectedAudio)}
-                        className="text-[11px] font-bold text-orange-600 hover:text-orange-700 cursor-pointer"
-                      >
-                        Start Transcription
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
                 {/* Smart Pacing Recommendation Card */}
                 {selectedAudio && (
                   <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-xs text-slate-600 space-y-1.5 shadow-2xs">
@@ -2157,107 +2123,106 @@ export function ImageToVideoStudio({
 
               {/* Right Column: Scene Photos & Visuals (55%) */}
               <div className="lg:col-span-7 space-y-4">
-          {/* CARD 2: SCENE IMAGES MANAGER */}
-          <div className="rounded-[24px] sm:rounded-[28px] border border-slate-200/90 bg-white p-4 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600 shrink-0">
-                  <ImageIcon size={18} />
-                </div>
-                <div>
-                  <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
-                    2. Scene Photos &amp; Visuals ({imageFiles.length}/100)
-                  </h2>
-                  <p className="text-[11px] sm:text-xs text-slate-500">
-                    Photos for 16:9 cinema visual montage with Ken Burns motion
-                  </p>
-                </div>
-              </div>
+                {/* CARD 2: SCENE IMAGES MANAGER */}
+                <div className="rounded-[24px] sm:rounded-[28px] border border-slate-200/90 bg-white p-4 sm:p-6 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600 shrink-0">
+                        <ImageIcon size={18} />
+                      </div>
+                      <div>
+                        <h2 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+                          2. Scene Photos &amp; Visuals ({imageFiles.length}/100)
+                        </h2>
+                        <p className="text-[11px] sm:text-xs text-slate-500">
+                          Photos for 16:9 cinema visual montage with Ken Burns motion
+                        </p>
+                      </div>
+                    </div>
 
-              {imageFiles.length > 0 && onClearAllImages && (
-                <button
-                  type="button"
-                  onClick={onClearAllImages}
-                  className="text-xs text-slate-500 hover:text-red-600 font-bold transition cursor-pointer"
-                >
-                  Clear All
-                </button>
-              )}
-            </div>
-
-            {/* Hidden Input */}
-            <input
-              ref={imageFileInputRef}
-              type="file"
-              accept="image/*,.png,.jpg,.jpeg,.webp"
-              multiple
-              onChange={handleImageChange}
-              className="hidden"
-            />
-
-            {/* Image Upload Box */}
-            <div
-              onClick={() => imageFileInputRef.current?.click()}
-              className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 hover:bg-orange-50/30 hover:border-orange-400 p-4 sm:p-6 text-center transition-all cursor-pointer shadow-inner"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-slate-200 group-hover:bg-orange-50 group-hover:border-orange-200 text-slate-500 group-hover:text-orange-600 transition-all mb-2">
-                <Upload size={20} />
-              </div>
-              <p className="text-xs font-bold text-slate-900 mb-0.5">
-                Select or drop multiple scene images here
-              </p>
-              <p className="text-[11px] text-slate-500">
-                Supports PNG, JPG, WEBP · Up to 100 images
-              </p>
-            </div>
-
-            {/* Uploaded Images Thumbnail Grid */}
-            {imageObjectUrls.length > 0 && (
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span>Scene Timeline Sequence:</span>
-                  <span>Click thumbnail to view in video player</span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3">
-                  {imageObjectUrls.map((url, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => setActivePreviewIndex(idx)}
-                      className={`group relative aspect-video rounded-xl overflow-hidden border transition-all cursor-pointer ${
-                        activePreviewIndex === idx
-                          ? 'border-orange-500 ring-2 ring-orange-500/30 scale-[1.02]'
-                          : 'border-slate-200 hover:border-slate-400'
-                      }`}
-                    >
-                      <img
-                        src={url}
-                        alt={`Scene ${idx + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
-
-                      <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-black/80 text-[10px] font-mono font-bold text-white backdrop-blur-xs">
-                        #{idx + 1}
-                      </span>
-
+                    {imageFiles.length > 0 && onClearAllImages && (
                       <button
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onRemoveImage(idx);
-                        }}
-                        className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/80 hover:bg-red-600 text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all cursor-pointer shadow-xs"
-                        title="Delete image"
+                        onClick={onClearAllImages}
+                        className="text-xs text-slate-500 hover:text-red-600 font-bold transition cursor-pointer"
                       >
-                        <Trash2 size={12} />
+                        Clear All
                       </button>
+                    )}
+                  </div>
+
+                  {/* Hidden Input */}
+                  <input
+                    ref={imageFileInputRef}
+                    type="file"
+                    accept="image/*,.png,.jpg,.jpeg,.webp"
+                    multiple
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+
+                  {/* Image Upload Box */}
+                  <div
+                    onClick={() => imageFileInputRef.current?.click()}
+                    className="group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 hover:bg-orange-50/30 hover:border-orange-400 p-4 sm:p-6 text-center transition-all cursor-pointer shadow-inner"
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-slate-200 group-hover:bg-orange-50 group-hover:border-orange-200 text-slate-500 group-hover:text-orange-600 transition-all mb-2">
+                      <Upload size={20} />
                     </div>
-                  ))}
+                    <p className="text-xs font-bold text-slate-900 mb-0.5">
+                      Select or drop multiple scene images here
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Supports PNG, JPG, WEBP · Up to 100 images
+                    </p>
+                  </div>
+
+                  {/* Uploaded Images Thumbnail Grid */}
+                  {imageObjectUrls.length > 0 && (
+                    <div className="space-y-2 pt-2">
+                      <div className="flex items-center justify-between text-xs text-slate-500">
+                        <span>Scene Timeline Sequence:</span>
+                        <span>Click thumbnail to view in video player</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3">
+                        {imageObjectUrls.map((url, idx) => (
+                          <div
+                            key={idx}
+                            onClick={() => setActivePreviewIndex(idx)}
+                            className={`group relative aspect-video rounded-xl overflow-hidden border transition-all cursor-pointer ${activePreviewIndex === idx
+                                ? 'border-orange-500 ring-2 ring-orange-500/30 scale-[1.02]'
+                                : 'border-slate-200 hover:border-slate-400'
+                              }`}
+                          >
+                            <img
+                              src={url}
+                              alt={`Scene ${idx + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none" />
+
+                            <span className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-black/80 text-[10px] font-mono font-bold text-white backdrop-blur-xs">
+                              #{idx + 1}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onRemoveImage(idx);
+                              }}
+                              className="absolute top-1.5 right-1.5 p-1 rounded-md bg-black/80 hover:bg-red-600 text-white opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all cursor-pointer shadow-xs"
+                              title="Delete image"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
               </div>
 
             </div>
@@ -2332,11 +2297,10 @@ export function ImageToVideoStudio({
                       key={cat}
                       type="button"
                       onClick={() => setBgmCategory(cat)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${
-                        bgmCategory === cat
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${bgmCategory === cat
                           ? 'bg-slate-900 text-white shadow-xs'
                           : 'bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900'
-                      }`}
+                        }`}
                     >
                       {cat}
                     </button>
@@ -2352,11 +2316,10 @@ export function ImageToVideoStudio({
                       <div
                         key={track.id}
                         onClick={() => onChangeSelectedLibraryBgmUrl && onChangeSelectedLibraryBgmUrl(track.path)}
-                        className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer ${
-                          isSelected
+                        className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all cursor-pointer ${isSelected
                             ? 'border-2 border-orange-500 bg-orange-50/30 ring-2 ring-orange-500/20 shadow-xs'
                             : 'border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-3.5 min-w-0 pr-3">
                           {/* 40px Circular Play Button */}
@@ -2367,11 +2330,10 @@ export function ImageToVideoStudio({
                                 e.stopPropagation();
                                 handleTogglePlayBgm(track);
                               }}
-                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer ${
-                                isPlaying
+                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all cursor-pointer ${isPlaying
                                   ? 'bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow-md shadow-orange-500/30 scale-105'
                                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 shadow-2xs'
-                              }`}
+                                }`}
                               title="Audition track"
                             >
                               {isPlaying ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
@@ -2399,11 +2361,10 @@ export function ImageToVideoStudio({
                               e.stopPropagation();
                               if (onChangeSelectedLibraryBgmUrl) onChangeSelectedLibraryBgmUrl(track.path);
                             }}
-                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                              isSelected
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${isSelected
                                 ? 'bg-orange-600 text-white shadow-xs'
                                 : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-                            }`}
+                              }`}
                           >
                             {isSelected ? '✓ Selected' : 'Select'}
                           </button>
@@ -2450,11 +2411,10 @@ export function ImageToVideoStudio({
                   <button
                     type="button"
                     onClick={() => setIsAutoplayPreviewActive(!isAutoplayPreviewActive)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer select-none ${
-                      isAutoplayPreviewActive
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer select-none ${isAutoplayPreviewActive
                         ? 'bg-orange-50 text-orange-600 border border-orange-200 shadow-2xs'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
+                      }`}
                     title="Toggle continuous word animation on caption cards"
                   >
                     {isAutoplayPreviewActive ? (
@@ -2500,11 +2460,10 @@ export function ImageToVideoStudio({
                     key={cat}
                     type="button"
                     onClick={() => setCaptionCategory(cat)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
-                      captionCategory === cat
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${captionCategory === cat
                         ? 'bg-slate-900 text-white shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     {cat}
                   </button>
@@ -2520,11 +2479,10 @@ export function ImageToVideoStudio({
                       if (onChangeSubtitleStyle) onChangeSubtitleStyle('none');
                       setAuditioningStyleId('none');
                     }}
-                    className={`group relative rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden flex flex-col text-left select-none ${
-                      subtitleStyle === 'none'
+                    className={`group relative rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden flex flex-col text-left select-none ${subtitleStyle === 'none'
                         ? 'ring-2 ring-orange-500 border-orange-500 shadow-md bg-orange-50/20'
                         : 'border-slate-200 hover:border-slate-400/80 hover:shadow-sm bg-white'
-                    }`}
+                      }`}
                   >
                     <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100 flex flex-col items-center justify-center p-4">
                       {subtitleStyle === 'none' && (
@@ -2572,11 +2530,10 @@ export function ImageToVideoStudio({
                       }}
                       onMouseEnter={() => setHoveredStyleId(style.id)}
                       onMouseLeave={() => setHoveredStyleId(null)}
-                      className={`group relative rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden flex flex-col text-left select-none ${
-                        isSelected
+                      className={`group relative rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden flex flex-col text-left select-none ${isSelected
                           ? 'ring-2 ring-orange-500 border-orange-500 shadow-md bg-orange-50/20'
                           : 'border-slate-200 hover:border-slate-400/80 hover:shadow-sm bg-white'
-                      }`}
+                        }`}
                       title={`Select ${style.name}`}
                     >
                       {/* Video/Photo Preview Box with Cloudinary Backdrop */}
@@ -2677,65 +2634,65 @@ export function ImageToVideoStudio({
 
             {/* Visual Framing & Camera Motion Settings */}
             {/* CARD 5: VIDEO FRAMING & MOTION SETTINGS */}
-          <div className="rounded-[28px] border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
-                <Sliders size={18} />
+            <div className="rounded-[28px] border border-slate-200/90 bg-white p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 border border-orange-200 text-orange-600">
+                  <Sliders size={18} />
+                </div>
+                <div>
+                  <h2 className="text-base font-black text-slate-900 tracking-tight">
+                    5. Visual Framing &amp; Motion
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Project title, cinema fit mode, and camera zoom speed
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-base font-black text-slate-900 tracking-tight">
-                  5. Visual Framing &amp; Motion
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Project title, cinema fit mode, and camera zoom speed
-                </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                    Project Title
+                  </label>
+                  <input
+                    type="text"
+                    value={topicTitle}
+                    onChange={(e) => onChangeTopicTitle && onChangeTopicTitle(e.target.value)}
+                    placeholder="e.g. Journey to the Stars..."
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-orange-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                    Image Fit Mode
+                  </label>
+                  <select
+                    value={fitMode}
+                    onChange={(e) => onChangeFitMode && onChangeFitMode(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-orange-500 cursor-pointer"
+                  >
+                    <option value="cover">16:9 Cover (Cinematic Fill)</option>
+                    <option value="blur-fill">Blur-Fill Ambient Letterbox</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                    Camera Motion
+                  </label>
+                  <select
+                    value={cameraMotionPreset}
+                    onChange={(e) => onChangeCameraMotionPreset && onChangeCameraMotionPreset(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-orange-500 cursor-pointer"
+                  >
+                    <option value="ken-burns">Ken Burns Smooth Zoom &amp; Pan</option>
+                    <option value="subtle-parallax">Subtle Parallax Motion</option>
+                    <option value="static">Static Cut</option>
+                  </select>
+                </div>
               </div>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                  Project Title
-                </label>
-                <input
-                  type="text"
-                  value={topicTitle}
-                  onChange={(e) => onChangeTopicTitle && onChangeTopicTitle(e.target.value)}
-                  placeholder="e.g. Journey to the Stars..."
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-orange-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                  Image Fit Mode
-                </label>
-                <select
-                  value={fitMode}
-                  onChange={(e) => onChangeFitMode && onChangeFitMode(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-orange-500 cursor-pointer"
-                >
-                  <option value="cover">16:9 Cover (Cinematic Fill)</option>
-                  <option value="blur-fill">Blur-Fill Ambient Letterbox</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                  Camera Motion
-                </label>
-                <select
-                  value={cameraMotionPreset}
-                  onChange={(e) => onChangeCameraMotionPreset && onChangeCameraMotionPreset(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-orange-500 cursor-pointer"
-                >
-                  <option value="ken-burns">Ken Burns Smooth Zoom &amp; Pan</option>
-                  <option value="subtle-parallax">Subtle Parallax Motion</option>
-                  <option value="static">Static Cut</option>
-                </select>
-              </div>
-            </div>
-          </div>
           </div>
         )}
         {/* ======================================================================= */}
@@ -2813,7 +2770,7 @@ export function ImageToVideoStudio({
             {/* TOP SECTION: 16:9 CINEMA MONITOR (LEFT) + PROPERTIES INSPECTOR (RIGHT) */}
             {/* =================================================================== */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-              
+
               {/* LEFT 7 COLS: 16:9 CINEMA MONITOR STAGE */}
               <div className="lg:col-span-7 flex flex-col justify-between rounded-[24px] sm:rounded-[28px] border border-slate-200 bg-white p-3.5 sm:p-5 shadow-xs space-y-3 sm:space-y-3.5">
                 {/* Top Monitor Bar */}
@@ -2863,13 +2820,12 @@ export function ImageToVideoStudio({
                       <img
                         src={activeDisplaySceneUrls[activePreviewIndex]}
                         alt={`Scene ${activePreviewIndex + 1}`}
-                        className={`w-full h-full transition-transform duration-1000 ${
-                          (perSceneMotion[activePreviewIndex] || cameraMotionPreset) === 'static'
+                        className={`w-full h-full transition-transform duration-1000 ${(perSceneMotion[activePreviewIndex] || cameraMotionPreset) === 'static'
                             ? 'object-cover'
                             : fitMode === 'blur-fill'
-                            ? 'object-contain scale-95 drop-shadow-2xl'
-                            : 'object-cover scale-105 group-hover:scale-110 transition-transform duration-10000'
-                        }`}
+                              ? 'object-contain scale-95 drop-shadow-2xl'
+                              : 'object-cover scale-105 group-hover:scale-110 transition-transform duration-10000'
+                          }`}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30" />
                     </div>
@@ -2909,15 +2865,14 @@ export function ImageToVideoStudio({
                       title="Click to edit subtitle text in Captions tab"
                     >
                       <div
-                        className={`inline-block truncate whitespace-nowrap overflow-hidden max-w-[95%] sm:max-w-2xl px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-base md:text-lg font-black tracking-wide shadow-2xl backdrop-blur-2xs border border-white/10 ${
-                          currentCaptionObj.id === 'box-highlight' || currentCaptionObj.id === 'mrbeast-shorts-impact'
+                        className={`inline-block truncate whitespace-nowrap overflow-hidden max-w-[95%] sm:max-w-2xl px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xl text-xs sm:text-base md:text-lg font-black tracking-wide shadow-2xl backdrop-blur-2xs border border-white/10 ${currentCaptionObj.id === 'box-highlight' || currentCaptionObj.id === 'mrbeast-shorts-impact'
                             ? 'bg-yellow-400 text-black shadow-yellow-500/30'
                             : currentCaptionObj.id === 'pill-highlight' || currentCaptionObj.id === 'doctor-pill'
-                            ? 'bg-teal-500 text-slate-950 shadow-teal-500/30'
-                            : currentCaptionObj.id === 'hormozi-viral-pop'
-                            ? 'bg-black/90 text-lime-400 border-2 border-lime-500 shadow-lime-500/30 uppercase'
-                            : 'bg-black/65 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]'
-                        }`}
+                              ? 'bg-teal-500 text-slate-950 shadow-teal-500/30'
+                              : currentCaptionObj.id === 'hormozi-viral-pop'
+                                ? 'bg-black/90 text-lime-400 border-2 border-lime-500 shadow-lime-500/30 uppercase'
+                                : 'bg-black/65 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]'
+                          }`}
                         style={{
                           fontFamily: currentCaptionObj.fontFamily,
                           color:
@@ -3025,11 +2980,10 @@ export function ImageToVideoStudio({
                   <button
                     type="button"
                     onClick={() => setStep4ActiveTab('scene')}
-                    className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      step4ActiveTab === 'scene'
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${step4ActiveTab === 'scene'
                         ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
                         : 'text-slate-500 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     <Film size={12} className={step4ActiveTab === 'scene' ? 'text-orange-600' : ''} />
                     <span>Visuals</span>
@@ -3037,11 +2991,10 @@ export function ImageToVideoStudio({
                   <button
                     type="button"
                     onClick={() => setStep4ActiveTab('captions')}
-                    className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      step4ActiveTab === 'captions'
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${step4ActiveTab === 'captions'
                         ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
                         : 'text-slate-500 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     <FileText size={12} className={step4ActiveTab === 'captions' ? 'text-orange-600' : ''} />
                     <span>Captions ({captionTracks.length || 0})</span>
@@ -3049,11 +3002,10 @@ export function ImageToVideoStudio({
                   <button
                     type="button"
                     onClick={() => setStep4ActiveTab('summary')}
-                    className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
-                      step4ActiveTab === 'summary'
+                    className={`flex-1 py-1.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${step4ActiveTab === 'summary'
                         ? 'bg-white text-slate-900 shadow-2xs border border-slate-200/80'
                         : 'text-slate-500 hover:text-slate-900'
-                    }`}
+                      }`}
                   >
                     <Sparkles size={12} className={step4ActiveTab === 'summary' ? 'text-orange-600' : ''} />
                     <span>Export</span>
@@ -3163,22 +3115,20 @@ export function ImageToVideoStudio({
                           <button
                             type="button"
                             onClick={() => handleToggleSceneMotion(activePreviewIndex, 'ken-burns')}
-                            className={`py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                              (perSceneMotion[activePreviewIndex] || cameraMotionPreset) === 'ken-burns'
+                            className={`py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${(perSceneMotion[activePreviewIndex] || cameraMotionPreset) === 'ken-burns'
                                 ? 'bg-orange-600 text-white shadow-xs'
                                 : 'bg-white border border-slate-200 text-slate-700 hover:text-slate-900'
-                            }`}
+                              }`}
                           >
                             Ken Burns (Zoom)
                           </button>
                           <button
                             type="button"
                             onClick={() => handleToggleSceneMotion(activePreviewIndex, 'static')}
-                            className={`py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                              (perSceneMotion[activePreviewIndex] || cameraMotionPreset) === 'static'
+                            className={`py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${(perSceneMotion[activePreviewIndex] || cameraMotionPreset) === 'static'
                                 ? 'bg-orange-600 text-white shadow-xs'
                                 : 'bg-white border border-slate-200 text-slate-700 hover:text-slate-900'
-                            }`}
+                              }`}
                           >
                             Static (Crisp Cut)
                           </button>
@@ -3234,11 +3184,10 @@ export function ImageToVideoStudio({
                                     setNarrationCurrentTime(c.startTime);
                                   }
                                 }}
-                                className={`p-2.5 rounded-xl border transition cursor-pointer text-left ${
-                                  isCur
+                                className={`p-2.5 rounded-xl border transition cursor-pointer text-left ${isCur
                                     ? 'bg-orange-50/90 border-orange-300 ring-1 ring-orange-400/30 shadow-2xs'
                                     : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200'
-                                }`}
+                                  }`}
                               >
                                 <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1.5">
                                   <span className="font-mono text-orange-600 font-bold bg-white px-1.5 py-0.5 rounded border border-orange-100 shadow-2xs">
@@ -3452,27 +3401,24 @@ export function ImageToVideoStudio({
                   <button
                     type="button"
                     onClick={() => setTimelineZoom(1)}
-                    className={`px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                      timelineZoom === 1 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                    }`}
+                    className={`px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${timelineZoom === 1 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
                   >
                     1x
                   </button>
                   <button
                     type="button"
                     onClick={() => setTimelineZoom(1.5)}
-                    className={`px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                      timelineZoom === 1.5 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                    }`}
+                    className={`px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${timelineZoom === 1.5 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
                   >
                     1.5x
                   </button>
                   <button
                     type="button"
                     onClick={() => setTimelineZoom(2)}
-                    className={`px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${
-                      timelineZoom === 2 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-                    }`}
+                    className={`px-1.5 sm:px-2 py-0.5 rounded-lg text-[10px] font-bold transition cursor-pointer ${timelineZoom === 2 ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                      }`}
                   >
                     2x
                   </button>
@@ -3489,7 +3435,7 @@ export function ImageToVideoStudio({
             {/* BOTTOM SECTION: FULL-WIDTH MULTITRACK TIMELINE WORKSPACE             */}
             {/* =================================================================== */}
             <div className="rounded-[24px] sm:rounded-[28px] border border-slate-200 bg-white p-3.5 sm:p-5 text-slate-800 shadow-xs space-y-3 select-none overflow-hidden">
-              
+
               {/* Timeline Header & Track Badges */}
               <div className="flex items-center justify-between text-xs text-slate-500 px-1">
                 <span className="font-black text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-2">
@@ -3563,11 +3509,10 @@ export function ImageToVideoStudio({
                               setStep4ActiveTab('scene');
                             }}
                             style={{ width: `${widthPct}%` }}
-                            className={`group relative h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 select-none min-w-[80px] sm:min-w-[96px] ${
-                              isCurrent
+                            className={`group relative h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 select-none min-w-[80px] sm:min-w-[96px] ${isCurrent
                                 ? 'border-orange-500 ring-2 ring-orange-500/40 shadow-md scale-102 z-10'
                                 : 'border-slate-200 opacity-85 hover:opacity-100'
-                            }`}
+                              }`}
                           >
                             <img
                               src={url}
@@ -3584,9 +3529,8 @@ export function ImageToVideoStudio({
                             {/* Interactive Clip Duration & Stepper Controls */}
                             <div
                               onClick={(e) => e.stopPropagation()}
-                              className={`absolute inset-x-1 bottom-1 flex items-center justify-between gap-1 transition-opacity ${
-                                isCurrent ? 'opacity-100' : 'opacity-90 group-hover:opacity-100'
-                              }`}
+                              className={`absolute inset-x-1 bottom-1 flex items-center justify-between gap-1 transition-opacity ${isCurrent ? 'opacity-100' : 'opacity-90 group-hover:opacity-100'
+                                }`}
                             >
                               <button
                                 type="button"
@@ -3639,11 +3583,10 @@ export function ImageToVideoStudio({
                                 setStep4ActiveTab('captions');
                               }}
                               style={{ width: `${widthPct}%` }}
-                              className={`h-7 rounded-lg px-2 flex items-center justify-between text-[10px] font-bold transition truncate cursor-pointer shrink-0 min-w-[56px] sm:min-w-[72px] ${
-                                isCur
+                              className={`h-7 rounded-lg px-2 flex items-center justify-between text-[10px] font-bold transition truncate cursor-pointer shrink-0 min-w-[56px] sm:min-w-[72px] ${isCur
                                   ? 'bg-amber-400 text-black shadow-xs font-black scale-102 z-10'
                                   : 'bg-amber-50 border border-amber-200 text-amber-900 hover:bg-amber-100'
-                              }`}
+                                }`}
                               title={c.text}
                             >
                               <span className="truncate">{c.text}</span>
@@ -3677,9 +3620,8 @@ export function ImageToVideoStudio({
                           <div
                             key={barIdx}
                             style={{ height: `${pseudoHeight}%` }}
-                            className={`flex-1 rounded-full transition-colors duration-150 ${
-                              isPast ? 'bg-orange-500 shadow-xs' : 'bg-slate-200'
-                            }`}
+                            className={`flex-1 rounded-full transition-colors duration-150 ${isPast ? 'bg-orange-500 shadow-xs' : 'bg-slate-200'
+                              }`}
                           />
                         );
                       })}
@@ -3724,7 +3666,7 @@ export function ImageToVideoStudio({
       {/* ========================================================================= */}
       <footer className="shrink-0 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 pb-[max(12px,env(safe-area-inset-bottom))] z-20">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
-          
+
           {/* Left: Back Button */}
           <div className={currentStep === 1 ? 'hidden sm:block' : ''}>
             {currentStep > 1 ? (
@@ -3786,8 +3728,8 @@ export function ImageToVideoStudio({
                   {currentStep === 1
                     ? 'Next: Choose Music'
                     : currentStep === 2
-                    ? 'Next: Choose Style'
-                    : 'Next: Preview Video'}
+                      ? 'Next: Choose Style'
+                      : 'Next: Preview Video'}
                 </span>
                 <ChevronRight size={16} />
               </button>

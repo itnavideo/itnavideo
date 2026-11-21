@@ -204,6 +204,22 @@ export const UNIVERSAL_CAPTION_THEMES: CaptionThemePreset[] = [
     },
   },
   {
+    id: 'ali-abdaal-editorial',
+    name: 'Ali Abdaal Editorial Clean',
+    description: 'High-signal editorial typography with warm yellow marker-tape highlight on active words.',
+    aspectRatio: 'universal',
+    styles: {
+      fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
+      fontSize: 42,
+      activeTextColor: '#141414',
+      inactiveTextColor: '#F8FAFC',
+      backgroundColor: '#FFE600',
+      borderRadius: 6,
+      padding: '4px 12px',
+      animation: 'marker',
+    },
+  },
+  {
     id: 'minimal-clean',
     name: 'Minimal Clean',
     description: 'Ultra-crisp modern sans-serif with ice blue highlight pill.',

@@ -2,6 +2,7 @@ import React from 'react';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { type AccentTone, useVideoDesignSystem } from '../designSystem';
 import {
+  RelationshipArrow,
   SceneCanvas,
   SceneHeader,
   StepNumberBadge,
@@ -164,26 +165,15 @@ export function WorkflowScene({
                 </div>
               </StudioCard>
 
-              {!isLast && !ds.layout.isVertical && (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: itemSpring,
-                    flexShrink: 0,
-                  }}
-                >
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M5 12H19M19 12L13 6M19 12L13 18"
-                      stroke={ds.surface.textMuted}
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
+              {!isLast && (
+                <RelationshipArrow
+                  type="flow"
+                  direction={ds.layout.isVertical ? 'down' : 'right'}
+                  tone={node.tone}
+                  progress={itemSpring}
+                  sceneFrame={sceneFrame || ds.localFrame}
+                  size={ds.layout.isVertical ? 28 : 36}
+                />
               )}
             </React.Fragment>
           );

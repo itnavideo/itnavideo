@@ -39,7 +39,6 @@ export const UNIFIED_STUDIO_TOOLS: UnifiedToolItem[] = [
     id: "faceless-video",
     title: "Faceless Video",
     description: "Turn voiceovers & scripts into high-retention videos with AI B-roll, visuals, and kinetic captions.",
-    badge: "9:16 & 16:9 Dual Aspect",
     imageCard: "https://res.cloudinary.com/dhouh9idx/image/upload/v1794743849/Faceless_AI_Video_Creation_Infographic_ramnfp.png",
     icon: UserX,
     iconBgClass: "bg-purple-500/15 border border-purple-500/30",

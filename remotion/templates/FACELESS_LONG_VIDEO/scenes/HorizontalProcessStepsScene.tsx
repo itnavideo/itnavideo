@@ -2,7 +2,7 @@ import React from 'react';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 import { useVideoDesignSystem, type AccentTone } from '../designSystem';
-import { SceneCanvas, SceneHeader, StudioCard } from '../components/DesignSystemPrimitives';
+import { SceneCanvas, SceneHeader, StudioCard, RelationshipArrow } from '../components/DesignSystemPrimitives';
 
 export interface HorizontalProcessStepsSceneProps {
   scene: SceneBlueprintItem;
@@ -177,93 +177,110 @@ export function HorizontalProcessStepsScene({
         style={{
           width: '100%',
           maxWidth: ds.layout.maxContentWidth,
-          display: 'grid',
-          gridTemplateColumns: isVertical ? '1fr' : `repeat(${steps.length}, 1fr)`,
-          gap: ds.layout.cardGap,
-          alignItems: 'stretch',
+          display: 'flex',
+          flexDirection: isVertical ? 'column' : 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: isVertical ? '10px' : '10px',
         }}
       >
         {steps.map((step, idx) => {
           const itemSpring = ds.motion.stagger(idx, 5, 7);
           const accent = ds.accents[step.tone];
+          const isLast = idx === steps.length - 1;
 
           return (
-            <StudioCard
-              key={idx}
-              ds={ds}
-              entranceProgress={itemSpring}
-              topAccentBar={accent.solid}
-              padding={isVertical ? '22px 26px' : '28px 22px'}
-              style={{
-                flexDirection: isVertical ? 'row' : 'column',
-                alignItems: 'center',
-                textAlign: isVertical ? 'left' : 'center',
-                gap: isVertical ? 20 : 14,
-              }}
-            >
-              {/* Step Number Pill */}
-              <div
+            <React.Fragment key={idx}>
+              <StudioCard
+                ds={ds}
+                entranceProgress={itemSpring}
+                topAccentBar={accent.solid}
+                padding={isVertical ? '18px 22px' : '26px 18px'}
                 style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: '50%',
-                  backgroundColor: accent.solid,
-                  color: '#FFFFFF',
-                  display: 'flex',
+                  flex: 1,
+                  width: isVertical ? '100%' : undefined,
+                  flexDirection: isVertical ? 'row' : 'column',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  fontFamily: ds.type.fontHeading,
-                  fontSize: 18,
-                  fontWeight: 900,
-                  flexShrink: 0,
-                  boxShadow: `0 6px 16px ${accent.solid}35`,
+                  textAlign: isVertical ? 'left' : 'center',
+                  gap: isVertical ? 18 : 12,
                 }}
               >
-                {step.number}
-              </div>
-
-              {/* Vector Illustration */}
-              <div
-                style={{
-                  width: isVertical ? 56 : 68,
-                  height: isVertical ? 56 : 68,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
-              >
-                <StepIcon type={step.iconType} size={isVertical ? 50 : 62} />
-              </div>
-
-              {/* Copy */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
-                <h3
+                {/* Step Number Pill */}
+                <div
                   style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: '50%',
+                    backgroundColor: accent.solid,
+                    color: '#FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     fontFamily: ds.type.fontHeading,
-                    fontSize: ds.type.cardTitle.fontSize,
-                    fontWeight: ds.type.cardTitle.fontWeight,
-                    color: ds.surface.textPrimary,
-                    margin: 0,
-                    lineHeight: ds.type.cardTitle.lineHeight,
+                    fontSize: 18,
+                    fontWeight: 900,
+                    flexShrink: 0,
+                    boxShadow: `0 6px 16px ${accent.solid}35`,
                   }}
                 >
-                  {step.title}
-                </h3>
-                <p
+                  {step.number}
+                </div>
+
+                {/* Vector Illustration */}
+                <div
                   style={{
-                    fontFamily: ds.type.fontBody,
-                    fontSize: ds.type.bodyMd.fontSize - 1,
-                    fontWeight: 500,
-                    color: ds.surface.textSecondary,
-                    margin: 0,
-                    lineHeight: 1.4,
+                    width: isVertical ? 52 : 64,
+                    height: isVertical ? 52 : 64,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
                   }}
                 >
-                  {step.description}
-                </p>
-              </div>
-            </StudioCard>
+                  <StepIcon type={step.iconType} size={isVertical ? 46 : 58} />
+                </div>
+
+                {/* Copy */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                  <h3
+                    style={{
+                      fontFamily: ds.type.fontHeading,
+                      fontSize: ds.type.cardTitle.fontSize,
+                      fontWeight: ds.type.cardTitle.fontWeight,
+                      color: ds.surface.textPrimary,
+                      margin: 0,
+                      lineHeight: ds.type.cardTitle.lineHeight,
+                    }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: ds.type.fontBody,
+                      fontSize: ds.type.bodyMd.fontSize - 1,
+                      fontWeight: 500,
+                      color: ds.surface.textSecondary,
+                      margin: 0,
+                      lineHeight: 1.4,
+                    }}
+                  >
+                    {step.description}
+                  </p>
+                </div>
+              </StudioCard>
+
+              {/* Semantic Progression Arrow: Explains to viewer which step follows which */}
+              {!isLast && (
+                <RelationshipArrow
+                  type="sequence"
+                  direction={isVertical ? 'down' : 'right'}
+                  tone={step.tone}
+                  progress={itemSpring}
+                  sceneFrame={sceneFrame || ds.localFrame}
+                  size={isVertical ? 26 : 32}
+                />
+              )}
+            </React.Fragment>
           );
         })}
       </div>

@@ -58,6 +58,11 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import {
+  ThreeDCameraIcon,
+  ThreeDClapperboardIcon,
+  ThreeDCoinIcon,
+} from "@/components/ui/ThreeDimensionalIcons";
 
 /** Dynamic Cloudinary compression & WebP/AVIF sizing for instant page loading */
 function optimizeCloudinary(url: string, width = 600): string {
@@ -1054,6 +1059,13 @@ export default function DashboardClient() {
                                 </div>
                               )}
 
+                              {/* 3D Clapperboard Floating Badge for Faceless Video */}
+                              {item.id === "faceless-video" && (
+                                <div className="absolute bottom-2.5 right-2.5 z-10 filter drop-shadow-[0_8px_16px_rgba(0,0,0,0.65)] transform group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-300 pointer-events-none">
+                                  <ThreeDClapperboardIcon size={34} />
+                                </div>
+                              )}
+
                               {/* Center Hover Play Icon */}
                               <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
                                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
@@ -1067,7 +1079,11 @@ export default function DashboardClient() {
                               <div>
                                 <div className="flex items-center gap-2 mb-1.5">
                                   <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${item.iconBgClass} ${item.iconColorClass}`}>
-                                    <Icon size={14} />
+                                    {item.id === "faceless-video" ? (
+                                      <ThreeDCameraIcon size={20} className="filter drop-shadow-xs" />
+                                    ) : (
+                                      <Icon size={14} />
+                                    )}
                                   </div>
                                   <h3 className="text-sm font-extrabold text-white tracking-tight group-hover:text-orange-400 transition-colors line-clamp-1">
                                     {item.title}
@@ -1081,14 +1097,25 @@ export default function DashboardClient() {
 
                               {/* Card Footer CTA */}
                               <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-xs">
-                                <span className={`text-[10px] font-mono font-bold ${
+                                <span className={`text-[10px] font-mono font-bold inline-flex items-center gap-1 ${
                                   item.id === "auto-caption"
                                     ? "text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20"
                                     : isDual
                                     ? "text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-md border border-orange-500/20"
                                     : "text-zinc-400"
                                 }`}>
-                                  {item.id === "auto-caption" ? "FREE • 5/Day" : isDual ? "Dual Format" : item.singlePricing}
+                                  {item.id === "faceless-video" ? (
+                                    <>
+                                      <ThreeDCoinIcon size={13} className="shrink-0" />
+                                      <span>Dual Format</span>
+                                    </>
+                                  ) : item.id === "auto-caption" ? (
+                                    "FREE • 5/Day"
+                                  ) : isDual ? (
+                                    "Dual Format"
+                                  ) : (
+                                    item.singlePricing
+                                  )}
                                 </span>
                                 <span className="inline-flex items-center gap-1 font-bold text-white text-[11px] bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-3 py-1.5 rounded-xl shadow-md shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
                                   <span>{isDual ? "Select Format" : "Create"}</span>

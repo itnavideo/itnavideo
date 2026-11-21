@@ -6,6 +6,8 @@ import { generateStructuredSceneBlueprint } from '@/services/ai/aiScenePlanner';
 import { planFacelessGraphics } from '@/services/ai/facelessGraphicPlanner';
 import { generateSFXEvents } from '@/services/ai/sfxEngine';
 import { validateAndAlignTranscript, type TranscriptSegment } from '@/services/ai/transcriptAlignment';
+import { searchS3AssetCatalog } from '@/services/ai/assetCatalogMatcher';
+import { auditAndSelfHealVideoBlueprint } from '@/services/ai/preRenderQualityAudit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -155,22 +157,48 @@ export async function POST(req: Request) {
     const blueprint = await generateStructuredSceneBlueprint(transcriptChunks, {
       title: videoTitle,
       headingFont,
-      bodyFont,
+      bodyFont: subheadingFont || bodyFont,
       backgroundTheme,
       aspectRatio: targetAspectRatio,
       videoType: targetVideoType,
     });
 
     // Derive scene-by-scene graphics from the approved narration
-    const sceneBlueprint = planFacelessGraphics(blueprint.scenes).map((scene) => ({
-      ...scene,
-      visualAssetRequirement: '',
-      brollSearchQuery: '',
-    }));
+    const sceneBlueprint = planFacelessGraphics(blueprint.scenes);
+
+    // Build brollUrls map from assigned S3 assets
+    const brollUrls: Record<number, string> = {};
+    sceneBlueprint.forEach((sc: any) => {
+      if (sc.assetUrl) {
+        brollUrls[sc.sceneNumber] = sc.assetUrl;
+      }
+    });
+
+    // Curate available S3 assets pool for frontend asset selection
+    const availableAssetsPool = searchS3AssetCatalog(transcript, {
+      maxResults: targetAspectRatio === '9:16' ? 24 : 48,
+    });
 
     // 4. Sound Effects (SFX)
     const sfxEvents = generateSFXEvents(sceneBlueprint, 30, durationSeconds);
     const stickerEvents: any[] = []; // Faceless videos do NOT use 3D cartoon avatar presenters
+
+    // 5. Pre-Render Quality Assurance & Autonomous Self-Healing Ecosystem
+    const {
+      healedScenes,
+      healedBrollUrls,
+      healedSfxEvents,
+      auditReport,
+    } = auditAndSelfHealVideoBlueprint({
+      scenes: sceneBlueprint,
+      durationSeconds,
+      backgroundTheme,
+      aspectRatio: targetAspectRatio,
+      videoType: targetVideoType,
+      brollUrls,
+      sfxEvents,
+      availableAssetsPool,
+    });
 
     return NextResponse.json({
       ok: true,
@@ -178,11 +206,13 @@ export async function POST(req: Request) {
       segments,
       words,
       durationSeconds,
-      sceneBlueprint,
-      brollUrls: {},
+      sceneBlueprint: healedScenes,
+      brollUrls: healedBrollUrls,
+      availableAssetsPool,
       uploadedAssets: [],
-      sfxEvents,
+      sfxEvents: healedSfxEvents,
       stickerEvents,
+      auditReport,
       warnings,
       videoTitle,
       aspectRatio: targetAspectRatio,

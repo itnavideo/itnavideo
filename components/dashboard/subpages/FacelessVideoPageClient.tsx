@@ -139,7 +139,7 @@ export default function FacelessVideoPageClient() {
           setRecentRenders(valid);
         }
       }
-    } catch {}
+    } catch { }
   }, []);
 
   // 4. Persistence across page refreshes: Restore in-progress render if active
@@ -251,6 +251,7 @@ export default function FacelessVideoPageClient() {
         words: planPayload.words,
         sceneBlueprint: planPayload.sceneBlueprint,
         brollUrls: planPayload.brollUrls,
+        availableAssetsPool: planPayload.availableAssetsPool || [],
         durationSeconds: planPayload.durationSeconds,
         warnings: planPayload.warnings,
         uploadedAssets: planPayload.uploadedAssets || [],
@@ -338,7 +339,9 @@ export default function FacelessVideoPageClient() {
           facelessBgmVolume: activeStoryboard?.facelessBgmVolume ?? facelessBgmVolume,
           bgmUrl: activeStoryboard?.bgmUrl || (facelessBgmMood === "none" ? "" : selectedBgmUrl),
           bgmTrackId: activeStoryboard?.bgmTrackId || selectedBgmTrackId,
-          facelessPacingStyle,
+          facelessPacingStyle: activeStoryboard?.facelessPacingStyle || facelessPacingStyle,
+          pacingStyle: activeStoryboard?.facelessPacingStyle || facelessPacingStyle || "clean",
+          autoDucking: activeStoryboard?.autoDucking !== false,
           facelessEnableSfx: activeStoryboard?.facelessEnableSfx ?? facelessEnableSfx,
           aspectRatio: "16:9",
           durationSeconds: audioDuration,
@@ -378,7 +381,7 @@ export default function FacelessVideoPageClient() {
             durationSeconds: audioDuration,
           })
         );
-      } catch {}
+      } catch { }
 
       setJobStatus({
         state: "rendering",
@@ -511,20 +514,20 @@ export default function FacelessVideoPageClient() {
                   setBillingEntitlement((curr) =>
                     curr
                       ? {
-                          ...curr,
-                          usage: payload.usage
-                            ? {
-                                used: payload.usage.used,
-                                limit: payload.usage.limit,
-                                remaining: payload.usage.remaining,
-                              }
-                            : curr.usage,
-                        }
+                        ...curr,
+                        usage: payload.usage
+                          ? {
+                            used: payload.usage.used,
+                            limit: payload.usage.limit,
+                            remaining: payload.usage.remaining,
+                          }
+                          : curr.usage,
+                      }
                       : null
                   );
                 }
               })
-              .catch(() => {});
+              .catch(() => { });
           }
         } else {
           setJobStatus((prev) => ({

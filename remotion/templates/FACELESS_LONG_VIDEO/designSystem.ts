@@ -279,18 +279,18 @@ export function resolveSurfaceTokens(palette?: { isDark?: boolean } | null): Vid
   return {
     isDark: false,
     canvasBg: 'transparent',
-    gridDotColor: 'rgba(15, 23, 42, 0.045)',
+    gridDotColor: 'rgba(26, 25, 24, 0.045)',
     cardBg: '#FFFFFF',
-    cardBgMuted: '#F8FAFC',
+    cardBgMuted: '#FAF6F2',
     cardBgElevated: '#FFFFFF',
-    borderSubtle: '1.5px solid #E2E8F0',
-    borderStrong: '1.5px solid #CBD5E1',
-    shadowCard: '0 20px 45px -12px rgba(15, 23, 42, 0.07), 0 4px 14px -2px rgba(15, 23, 42, 0.04)',
-    shadowElevated: '0 26px 60px -14px rgba(15, 23, 42, 0.10), 0 6px 20px -4px rgba(15, 23, 42, 0.05)',
-    shadowBadge: '0 4px 14px rgba(15, 23, 42, 0.05)',
-    textPrimary: '#0F172A',
-    textSecondary: '#334155',
-    textMuted: '#64748B',
+    borderSubtle: '1.5px solid rgba(26, 25, 24, 0.08)',
+    borderStrong: '1.5px solid rgba(26, 25, 24, 0.16)',
+    shadowCard: '0 20px 45px -12px rgba(180, 160, 140, 0.16), 0 4px 14px -2px rgba(26, 25, 24, 0.05)',
+    shadowElevated: '0 26px 60px -14px rgba(180, 160, 140, 0.22), 0 6px 20px -4px rgba(26, 25, 24, 0.07)',
+    shadowBadge: '0 4px 14px rgba(26, 25, 24, 0.05)',
+    textPrimary: '#141414', // Deep Charcoal Black (#141414 / #1A1918)
+    textSecondary: '#2C2B29', // Warm Charcoal Secondary (#2C2B29)
+    textMuted: '#5C5854', // Editorial Muted Charcoal (#5C5854)
     textInverse: '#FFFFFF',
   };
 }
@@ -298,26 +298,26 @@ export function resolveSurfaceTokens(palette?: { isDark?: boolean } | null): Vid
 export function resolveTypographyScale(isVertical: boolean): VideoTypographyScale {
   if (isVertical) {
     return {
-      eyebrow: { fontSize: 13, fontWeight: 800, letterSpacing: '0.13em', lineHeight: 1.2 },
-      displayHero: { fontSize: 48, fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.1 },
-      sceneTitle: { fontSize: 38, fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.14 },
-      cardTitle: { fontSize: 23, fontWeight: 800, letterSpacing: '-0.015em', lineHeight: 1.24 },
+      eyebrow: { fontSize: 13, fontWeight: 650, letterSpacing: '0.08em', lineHeight: 1.2 },
+      displayHero: { fontSize: 48, fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.1 },
+      sceneTitle: { fontSize: 38, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.14 },
+      cardTitle: { fontSize: 23, fontWeight: 650, letterSpacing: '-0.015em', lineHeight: 1.24 },
       bodyLg: { fontSize: 20, fontWeight: 500, letterSpacing: '-0.005em', lineHeight: 1.48 },
       bodyMd: { fontSize: 17, fontWeight: 500, letterSpacing: '0em', lineHeight: 1.44 },
-      captionMeta: { fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', lineHeight: 1.2 },
-      metricHero: { fontSize: 72, fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.0 },
+      captionMeta: { fontSize: 13, fontWeight: 600, letterSpacing: '0.06em', lineHeight: 1.2 },
+      metricHero: { fontSize: 72, fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.0 },
     };
   }
 
   return {
-    eyebrow: { fontSize: 13, fontWeight: 800, letterSpacing: '0.13em', lineHeight: 1.2 },
-    displayHero: { fontSize: 60, fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.08 },
-    sceneTitle: { fontSize: 46, fontWeight: 900, letterSpacing: '-0.025em', lineHeight: 1.12 },
-    cardTitle: { fontSize: 25, fontWeight: 800, letterSpacing: '-0.015em', lineHeight: 1.22 },
+    eyebrow: { fontSize: 13, fontWeight: 650, letterSpacing: '0.08em', lineHeight: 1.2 },
+    displayHero: { fontSize: 60, fontWeight: 700, letterSpacing: '-0.025em', lineHeight: 1.08 },
+    sceneTitle: { fontSize: 46, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.12 },
+    cardTitle: { fontSize: 25, fontWeight: 650, letterSpacing: '-0.015em', lineHeight: 1.22 },
     bodyLg: { fontSize: 22, fontWeight: 500, letterSpacing: '-0.005em', lineHeight: 1.5 },
     bodyMd: { fontSize: 17, fontWeight: 500, letterSpacing: '0em', lineHeight: 1.45 },
-    captionMeta: { fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', lineHeight: 1.2 },
-    metricHero: { fontSize: 92, fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.0 },
+    captionMeta: { fontSize: 13, fontWeight: 600, letterSpacing: '0.06em', lineHeight: 1.2 },
+    metricHero: { fontSize: 92, fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.0 },
   };
 }
 

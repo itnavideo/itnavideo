@@ -1,5 +1,12 @@
 import { z } from 'zod';
 import {
+  searchS3AssetCatalog,
+  formatAssetCatalogForPrompt,
+  getCatalogAssetById,
+  type S3CatalogAsset,
+} from '@/services/ai/assetCatalogMatcher';
+import { deriveSceneComposition } from '@/services/ai/compositionDeriver';
+import {
   NarrativeSceneType,
   VisualLayoutType,
   MotionAnimationPreset,
@@ -28,6 +35,7 @@ export type ScenePlannerOptions = {
   backgroundTheme?: string;
   aspectRatio?: '16:9' | '9:16';
   videoType?: 'facelessVideo' | 'facelessShorts';
+  creatorStyle?: string;
 };
 
 export const ALL_VISUAL_LAYOUTS: VisualLayoutType[] = [
@@ -75,6 +83,13 @@ export const ALL_VISUAL_LAYOUTS: VisualLayoutType[] = [
   'product_mockup_flow',
   'before_after_transformation',
   'creator_celebration',
+  'curved_roadmap',
+  'circular_org_chart',
+  'horizontal_shelves',
+  'scorecard_dashboard',
+  'table_of_contents',
+  'mission_vision',
+  'medical_infographic',
   'hook',
 ];
 
@@ -84,6 +99,13 @@ export function normalizeVisualLayout(input?: string): VisualLayoutType {
   const norm = clean.toLowerCase().replace(/[^a-z0-9]/g, '');
 
   // 1. Direct Canonical PascalCase (01_LAYOUT_CATALOG.md)
+  if (norm.includes('curvedroadmap') || norm === 'curvedroadmap') return 'curved_roadmap';
+  if (norm.includes('orgchart') || norm.includes('circularorg') || norm === 'circularorgchart') return 'circular_org_chart';
+  if (norm.includes('horizontalshelves') || norm.includes('shelves') || norm.includes('tierstack') || norm === 'horizontalshelves') return 'horizontal_shelves';
+  if (norm.includes('scorecard') || norm.includes('kpidashboard') || norm === 'scorecarddashboard') return 'scorecard_dashboard';
+  if (norm.includes('tableofcontent') || norm.includes('agenda') || norm === 'tableofcontents') return 'table_of_contents';
+  if (norm.includes('missionvision') || norm.includes('visionmission') || norm === 'missionvision') return 'mission_vision';
+  if (norm.includes('medical') || norm.includes('clinical') || norm.includes('clinicalvitals') || norm === 'medicalinfographic') return 'medical_infographic';
   if (norm.includes('statscene') || norm === 'stat' || norm === 'statcard' || norm === 'metricpill' || norm === 'metricstat') return 'stat_card';
   if (norm.includes('comparisonscene') || norm === 'comparison' || norm === 'vsbattle' || norm === 'battlecard' || norm === 'vs') return 'comparison';
   if (norm.includes('horizontalprocess') || norm.includes('processsteps') || norm === '5stepprocess' || norm === 'steps' || norm === 'numberedsteps') return 'horizontal_process';
@@ -256,6 +278,20 @@ export function normalizeVisualLayout(input?: string): VisualLayoutType {
     case 'creator_celebration':
     case 'celebration':
       return 'creator_celebration';
+    case 'curved_roadmap':
+      return 'curved_roadmap';
+    case 'circular_org_chart':
+      return 'circular_org_chart';
+    case 'horizontal_shelves':
+      return 'horizontal_shelves';
+    case 'scorecard_dashboard':
+      return 'scorecard_dashboard';
+    case 'table_of_contents':
+      return 'table_of_contents';
+    case 'mission_vision':
+      return 'mission_vision';
+    case 'medical_infographic':
+      return 'medical_infographic';
     default:
       return 'card_concept';
   }
@@ -505,9 +541,56 @@ export function deriveCategoryPillForScene(layoutType: VisualLayoutType, sceneTy
       return 'MINDSET SHIFT';
     case 'goal_target':
       return 'TARGET PLAN';
+    case 'curved_roadmap':
+      return 'EXECUTION ROADMAP';
+    case 'circular_org_chart':
+      return 'ORGANIZATIONAL ORBIT';
+    case 'horizontal_shelves':
+      return 'ARCHITECTURE STACK';
+    case 'scorecard_dashboard':
+      return 'EXECUTIVE SCORECARD';
+    case 'table_of_contents':
+      return 'AGENDA ROADMAP';
+    case 'mission_vision':
+      return 'STRATEGIC COMPASS';
+    case 'medical_infographic':
+      return 'CLINICAL MONITOR';
     default:
       return sceneType === 'example_stat' ? 'REAL EXAMPLE' : 'KEY INSIGHT';
   }
+}
+
+/**
+ * Derives the core communicative job ("Script ka Kaam") of a given segment.
+ * Ensures every scene explains a deliberate rhetorical mental model.
+ */
+export function deriveRhetoricalPurpose(text: string, layout: VisualLayoutType, sceneNum: number): string {
+  if (sceneNum === 1) return 'High-Impact Hook & Curiosity Trap';
+  if (layout === 'comparison' || layout === 'vs_battle' || layout === 'before_after_transformation') {
+    return 'Dichotomy / Contrasting Competing Paradigms';
+  }
+  if (layout === 'stat_card' || layout === 'scorecard_dashboard' || layout === 'data_visualization') {
+    return 'Quantifiable Proof / Financial Impact Metric';
+  }
+  if (layout === 'horizontal_process' || layout === 'workflow' || layout === 'process_steps') {
+    return 'Sequential Multi-Step Execution Pipeline';
+  }
+  if (layout === 'curved_roadmap' || layout === 'roadmap' || layout === 'vertical_roadmap') {
+    return 'Long-Term Horizon / Multi-Phase Evolution';
+  }
+  if (layout === 'horizontal_shelves' || layout === 'circular_org_chart' || layout === 'ecosystem') {
+    return 'Layered System Architecture / Hub Network';
+  }
+  if (layout === 'quote') {
+    return 'Mindset Axiom / First-Principles Philosophy';
+  }
+  if (layout === 'checklist') {
+    return 'Actionable Rule Checklist / Tactical Pillars';
+  }
+  if (layout === 'search_discovery' || layout === 'prompt_window') {
+    return 'Root Cause Inquiry / Direct Search Exploration';
+  }
+  return 'Mental Model / Conceptual Framework Explanation';
 }
 
 // ── ZOD SCHEMAS FOR STRICT GEMINI BLUEPRINT VALIDATION ──
@@ -567,6 +650,13 @@ export const VisualLayoutTypeSchema = z.enum([
   'product_mockup_flow',
   'before_after_transformation',
   'creator_celebration',
+  'curved_roadmap',
+  'circular_org_chart',
+  'horizontal_shelves',
+  'scorecard_dashboard',
+  'table_of_contents',
+  'mission_vision',
+  'medical_infographic',
   'hook',
 ]);
 
@@ -574,6 +664,7 @@ const SceneBlueprintItemSchema = z.object({
   sceneNumber: z.number().int().positive().optional().default(1),
   sceneType: NarrativeSceneTypeSchema.optional().default('main_point'),
   layoutType: VisualLayoutTypeSchema.optional().default('vector_concept'),
+  rhetoricalPurpose: z.string().optional(),
   duration: z.number().positive(),
   narrationSegment: z.object({
     text: z.string(),
@@ -590,11 +681,11 @@ const SceneBlueprintItemSchema = z.object({
   background: z.string().optional().default('studio-white'),
   fontHierarchy: z
     .object({
-      headingFont: z.string().optional().default('Montserrat'),
+      headingFont: z.string().optional().default('Lora'),
       bodyFont: z.string().optional().default('Plus Jakarta Sans'),
     })
     .optional()
-    .default({ headingFont: 'Montserrat', bodyFont: 'Plus Jakarta Sans' }),
+    .default({ headingFont: 'Lora', bodyFont: 'Plus Jakarta Sans' }),
   animation: z.string().optional().default('slow_zoom_in'),
   SFX: z.enum(['pop', 'woosh', 'whoosh', 'chime', 'rise', 'hit', 'ding', 'none']).optional().default('none'),
   transition: z.enum(['cut', 'dissolve', 'crossfade', 'zoom', 'wipe', 'slide', 'whip', 'fade_to_black']).optional().default('cut'),
@@ -612,6 +703,12 @@ const SceneBlueprintItemSchema = z.object({
   checklistItems: z.array(z.string()).optional(),
   chartValuePercent: z.number().optional(),
   numberBadge: z.union([z.number(), z.string()]).optional(),
+
+  // S3 Curated Asset Assignment Metadata (server-side enriched, not AI-generated)
+  assignedAssetId: z.string().optional().default(''),
+  assetUrl: z.string().optional().default(''),
+  assetTitle: z.string().optional().default(''),
+  assetStyle: z.string().optional().default(''),
 
   // Visual Graphics Metadata
   chartItems: z.array(z.object({
@@ -664,9 +761,9 @@ export function enforceEditorialPacingRules(
     const duration = Math.max(
       1,
       scene.duration ||
-        (scene.narrationSegment?.endSeconds
-          ? scene.narrationSegment.endSeconds - scene.narrationSegment.startSeconds
-          : 4)
+      (scene.narrationSegment?.endSeconds
+        ? scene.narrationSegment.endSeconds - scene.narrationSegment.startSeconds
+        : 4)
     );
 
     scene.sceneNumber = i + 1;
@@ -680,8 +777,8 @@ export function enforceEditorialPacingRules(
         scene.highlightedWords = extractKeywordEmphasis(text || scene.heading, 2);
       }
     } else if (i === blueprint.scenes.length - 1 && blueprint.scenes.length >= 3) {
-      scene.layoutType = 'outro';
-      scene.sceneType = 'outro';
+      scene.layoutType = 'creator_celebration';
+      scene.sceneType = 'next_point';
     } else if (!scene.highlightedWords || scene.highlightedWords.length === 0) {
       scene.highlightedWords = extractKeywordEmphasis(text || scene.heading, 2);
     }
@@ -691,6 +788,11 @@ export function enforceEditorialPacingRules(
       const prev = processedScenes[i - 1];
       if (scene.layoutType === prev.layoutType) {
         const canonicalAlternatives: VisualLayoutType[] = [
+          'curved_roadmap',
+          'scorecard_dashboard',
+          'horizontal_shelves',
+          'circular_org_chart',
+          'mission_vision',
           'card_concept',
           'horizontal_process',
           'comparison',
@@ -762,10 +864,27 @@ export function enforceEditorialPacingRules(
     );
     prevDrawingId = scene.vectorDrawingId;
 
+    // 5b. Guard against weak generic boilerplate headings or verbatim transcript echoes
+    const rawH = String(scene.heading || '').trim();
+    if (!rawH || /^(?:key insight|important point|summary|overview|note|point|concept|strategy|tip|conclusion)$/i.test(rawH) || rawH.split(/\s+/).length < 2) {
+      scene.heading = generateCleanConceptHeading(text);
+    }
+    const rawS = String(scene.supportingText || '').trim();
+    if (rawS && rawS.toLowerCase() === text.toLowerCase()) {
+      scene.supportingText = generateCleanTakeaway(text, scene.heading);
+    }
+
     // 6. Category Pill
     if (!scene.categoryPill) {
       scene.categoryPill = deriveCategoryPillForScene(scene.layoutType, scene.sceneType);
     }
+
+    // 6b. Always derive (or re-derive) composition AFTER layout has been normalised/mutated by rules 2-4.
+    // Unconditional so that anti-repetition layout swaps don't leave a stale composition.
+    scene.composition = deriveSceneComposition(
+      scene.layoutType,
+      Boolean(scene.assetUrl || scene.assignedAssetId)
+    );
 
     // 7. Transitions & SFX polish
     if (i === 0) {
@@ -835,11 +954,19 @@ export function buildDeterministicSceneBlueprint(
     };
   }
 
-  const timelineSegments = buildDeterministicSentenceTimeline(transcript);
-  const headingFont = options.headingFont || 'Montserrat';
+  const isShorts = options.aspectRatio === '9:16' || options.videoType === 'facelessShorts';
+  const headingFont = options.headingFont || 'Lora';
   const bodyFont = options.bodyFont || 'Plus Jakarta Sans';
   const backgroundTheme = options.backgroundTheme || 'studio-white';
-  const isShorts = options.aspectRatio === '9:16' || options.videoType === 'facelessShorts';
+  const timelineSegments = buildDeterministicSentenceTimeline(transcript, {
+    minDurationSeconds: isShorts ? 2.0 : 2.5,
+    maxDurationSeconds: isShorts ? 10.0 : 18.0,
+  });
+
+  // Pre-search S3 asset catalog so deterministic fallback also gets real assets
+  const fullText = transcript.map((t) => t.text).join(' ');
+  const deterministicAssets = searchS3AssetCatalog(fullText, { maxResults: isShorts ? 20 : 36 });
+  const deterministicUsedIds = new Set<string>();
 
   const scenes: SceneBlueprintItem[] = [];
   let prevDrawingId: string | undefined;
@@ -898,6 +1025,11 @@ export function buildDeterministicSceneBlueprint(
       sfx = 'chime';
     } else {
       const variedCadence: VisualLayoutType[] = [
+        'curved_roadmap',
+        'scorecard_dashboard',
+        'horizontal_shelves',
+        'circular_org_chart',
+        'mission_vision',
         'card_concept',
         'horizontal_process',
         'workflow',
@@ -934,11 +1066,11 @@ export function buildDeterministicSceneBlueprint(
 
     const structuredSteps =
       layoutType === 'roadmap' ||
-      layoutType === 'vertical_roadmap' ||
-      layoutType === 'horizontal_process' ||
-      layoutType === 'workflow' ||
-      layoutType === 'checklist' ||
-      layoutType === 'numbered_steps'
+        layoutType === 'vertical_roadmap' ||
+        layoutType === 'horizontal_process' ||
+        layoutType === 'workflow' ||
+        layoutType === 'checklist' ||
+        layoutType === 'numbered_steps'
         ? typographyAnalysis.listItems && typographyAnalysis.listItems.length >= 2
           ? typographyAnalysis.listItems
           : extractStructuredStepsFromText(text, heading)
@@ -947,10 +1079,30 @@ export function buildDeterministicSceneBlueprint(
     const vectorDrawingId = resolveVectorDrawingIdFromText(text, i, undefined, prevDrawingId);
     prevDrawingId = vectorDrawingId;
 
+    // S3 asset assignment for deterministic path (matches visible-asset layouts)
+    let deterministicAssetUrl: string | undefined;
+    let deterministicAssetId: string | undefined;
+    let deterministicAssetTitle: string | undefined;
+    let deterministicAssetStyle: string | undefined;
+    if (layoutType === 'card_concept' || layoutType === 'image_text' || layoutType === 'full_bleed_visual') {
+      const candidate = deterministicAssets.find((a) => !deterministicUsedIds.has(a.id));
+      if (candidate) {
+        deterministicUsedIds.add(candidate.id);
+        deterministicAssetId = candidate.id;
+        deterministicAssetUrl = candidate.absoluteUrl;
+        deterministicAssetTitle = candidate.title;
+        deterministicAssetStyle = candidate.style;
+      }
+    }
+
+    // Derive canvas composition plan
+    const deterministicComposition = deriveSceneComposition(layoutType, Boolean(deterministicAssetUrl));
+
     scenes.push({
       sceneNumber: seg.id,
       sceneType,
       layoutType,
+      rhetoricalPurpose: deriveRhetoricalPurpose(text, layoutType, seg.id),
       duration: seg.duration,
       narrationSegment: {
         text,
@@ -978,6 +1130,11 @@ export function buildDeterministicSceneBlueprint(
       checklistItems: structuredSteps,
       comparisonItems,
       vectorDrawingId,
+      assignedAssetId: deterministicAssetId,
+      assetUrl: deterministicAssetUrl,
+      assetTitle: deterministicAssetTitle,
+      assetStyle: deterministicAssetStyle,
+      composition: deterministicComposition,
       statValue:
         hasRealMetric && typographyAnalysis.statData?.value
           ? typographyAnalysis.statData.value
@@ -1021,11 +1178,11 @@ export async function generateStructuredSceneBlueprint(
     return buildDeterministicSceneBlueprint(transcript, options);
   }
 
-  // 1. Build natural sentence-by-sentence timeline strictly in code
+  // 1. Build natural sentence-by-sentence timeline strictly in code (zero artificial 3-6s chopping)
   const isShorts = options.aspectRatio === '9:16' || options.videoType === 'facelessShorts';
   const timelineSegments = buildDeterministicSentenceTimeline(transcript, {
     minDurationSeconds: isShorts ? 2.0 : 2.5,
-    maxDurationSeconds: isShorts ? 10.0 : 14.0,
+    maxDurationSeconds: isShorts ? 10.0 : 18.0,
     chapterDurationSeconds: isShorts ? 45.0 : 70.0,
   });
 
@@ -1038,9 +1195,17 @@ export async function generateStructuredSceneBlueprint(
     return buildDeterministicSceneBlueprint(transcript, options);
   }
 
-  const headingFont = options.headingFont || 'Montserrat';
+  const headingFont = options.headingFont || 'Lora';
   const bodyFont = options.bodyFont || 'Plus Jakarta Sans';
   const backgroundTheme = options.backgroundTheme || 'studio-white';
+
+  // 1.5. Pre-search S3 Asset Catalog for the entire transcript
+  const fullTranscriptText = transcript.map((t) => t.text).join(' ');
+  const availableS3Assets = searchS3AssetCatalog(fullTranscriptText, {
+    maxResults: isShorts ? 20 : 36,
+  });
+  const formattedAssetPool = formatAssetCatalogForPrompt(availableS3Assets);
+  const usedAssetIds = new Set<string>();
 
   // 2. Chapter-wise chunking (10-12 segments per batch to support up to 5-minute 16:9 videos cleanly)
   const CHUNK_SIZE = 12;
@@ -1060,53 +1225,95 @@ export async function generateStructuredSceneBlueprint(
     try {
       const prompt = `You are an elite documentary video director and motion graphics architect for ${formatLabel}.
 
-Analyze each spoken narration sentence below and return a rich, detailed SCENE-BY-SCENE JSON blueprint.
-The goal is to produce a video better than manual Adobe Premiere Pro / DaVinci Resolve editing, with rich layout variety.
+CRITICAL MANDATE:
+Converting a transcript to JSON is NOT just serialization — you must make STRONG, HIGH-RETENTION VISUAL DECISIONS.
+If you make lazy, weak visual decisions (e.g. defaulting to generic cards or repeating transcript text), the final video will look amateur.
+Every scene must have a deliberate visual mental model that explains the core rhetorical point.
 
 CRITICAL ARCHITECTURAL RULES (2026 Engine):
-1. LAYOUT SELECTION FROM CANONICAL CATALOG:
-   - 'StatScene' / 'stat_card': Use when the segment mentions numbers, money, percentages, or growth metrics. Must provide "statValue" and "statLabel".
-   - 'ComparisonScene' / 'comparison' / 'vs_battle': Use when contrasting two ideas, before vs after, old vs new, or mistake vs solution. Must provide "comparisonItems": {"left": "...", "right": "..."}.
-   - 'HorizontalProcessStepsScene' / 'horizontal_process': Use when explaining steps, stages, or a 3-5 item sequence. Must provide "listItems": ["Step 1...", "Step 2...", "Step 3..."].
-   - 'WorkflowScene' / 'workflow': Use when explaining an interconnected system, pipeline, or automation flow. Must provide "listItems" (3-4 nodes).
-   - 'RoadmapScene' / 'roadmap': Use when explaining milestones, career progression, or timelines. Must provide "listItems" (3-4 milestones).
-   - 'CardConceptScene' / 'card_concept': The most flexible flagship layout. Explains a core idea using a central concept and 2-3 supporting feature cards with icons.
-   - 'ListScene' / 'checklist': Use when listing key pillars, rules, or tips. Must provide "listItems" (3-4 items).
-   - 'ChartScene' / 'data_visualization': Use when 2 or more quantitative numbers are compared. Must provide "chartItems".
-   - 'QuoteScene' / 'quote': Use for high-impact philosophy, mindset quotes, or core principles.
-   - 'HookTypographyScene' / 'hook': Use ONLY for segmentId 1 (the opening hook).
-   - 'ChapterTitleScene' / 'chapter_title': Use when isChapterStart is true and segmentId > 1.
-   - 'DrawingStoryScene': Hand-drawn narrative story metaphor. USE VERY SPARINGLY (at most 1 scene in the entire video). NEVER repeat.
+0. RHETORICAL PURPOSE FIRST ("Script ka Kaam kya hai"):
+   You MUST determine the exact communication job of this script segment BEFORE picking a layout:
+   - "rhetoricalPurpose": State what this sentence is accomplishing in the viewer's mind (e.g. "Contrasting old vs new paradigm", "Quantifying customer ROI lift", "Breaking down 3-step action roadmap", "Posing a core philosophical question", "Revealing root cause mistake").
+   - Match the purpose directly to the appropriate mental model layout:
+     * Dichotomy / Contrast -> 'comparison' | 'vs_battle' | 'before_after_transformation'
+     * Sequence / Progression -> 'horizontal_process' | 'workflow' | 'curved_roadmap'
+     * Metric / Financial Proof -> 'stat_card' | 'scorecard_dashboard' | 'data_visualization'
+     * Layered Stack / Framework -> 'horizontal_shelves' | 'circular_org_chart'
+     * Deep Mindset / Axiom -> 'quote'
+     * Actionable Rules / Principles -> 'checklist'
+     * Concrete Mental Model -> 'card_concept' | 'drawing_story'
+     * Curiosity Question / Query -> 'search_discovery' | 'prompt_window'
 
-2. ABSOLUTE VARIETY & ANTI-STICKMAN MANDATE:
-   - NEVER output the same layoutType twice in a row.
-   - Do NOT default to stickman drawings or drawing_story. Prioritize CardConceptScene, StatScene, ComparisonScene, WorkflowScene, and HorizontalProcessStepsScene.
-   - Across any 4 consecutive scenes, you MUST use at least 3 completely different layouts.
-   - Previous layouts used: ${JSON.stringify(prevLayouts.slice(-4))}.
+1. VISUAL RHETORIC MATCHING (NO LAZY DEFAULTS — REA TOP CREATOR SUITE):
+   - 'curved_roadmap': MANDATORY when explaining multi-phase evolution, long-term progression, or milestone roadmaps. You MUST provide "timelineSteps" (3-4 milestones with step, title, description).
+   - 'scorecard_dashboard': MANDATORY when analyzing multi-metric business KPIs, growth scorecards, or dashboard metrics. You MUST extract "statValue" and "chartItems" / "listItems".
+   - 'horizontal_shelves': MANDATORY when explaining layered architectures, tech stacks, or tiered frameworks (Tier 1, Tier 2, Tier 3). You MUST provide "listItems" (3-4 tiers).
+   - 'circular_org_chart': MANDATORY when explaining ecosystems, company leadership, centralized hubs with satellite departments. You MUST provide "listItems" (4-5 satellite nodes).
+   - 'mission_vision': MANDATORY when discussing strategic direction, dual objectives, core purpose vs future horizon.
+   - 'medical_infographic': MANDATORY for biology, clinical trials, medical vitals, healthcare, or psychological health.
+   - 'StatScene' / 'stat_card': MANDATORY whenever numbers, money, percentages, growth, or metrics are spoken. You MUST extract "statValue" (e.g. "$10,000", "85%", "3.5X") and "statLabel".
+   - 'ComparisonScene' / 'comparison' / 'vs_battle': MANDATORY when contrasting two methods, before vs after, old vs new, or problem vs solution. You MUST provide "comparisonItems": {"left": "...", "right": "..."}.
+   - 'HorizontalProcessStepsScene' / 'horizontal_process': MANDATORY when explaining steps, stages, or a 3-5 item methodology. You MUST provide "listItems": ["Step 1...", "Step 2...", "Step 3..."].
+   - 'WorkflowScene' / 'workflow': MANDATORY when explaining an interconnected system, pipeline, or cause-and-effect flow. You MUST provide "listItems" (3-4 nodes).
+   - 'RoadmapScene' / 'roadmap': MANDATORY when explaining milestones, career progression, or timelines. You MUST provide "listItems" (3-4 milestones).
+   - 'CardConceptScene' / 'card_concept': Used for concrete concepts and mental models. Pair it with an S3 curated visual asset or vectorDrawingId.
+   - 'ListScene' / 'checklist': Used when listing key pillars, rules, or tips. Must provide "listItems" (3-4 items).
+   - 'ChartScene' / 'data_visualization': Used when 2 or more quantitative numbers are compared. Must provide "chartItems".
+   - 'QuoteScene' / 'quote': Used for high-impact philosophy, mindset axioms, or core principles.
+   - 'HookTypographyScene' / 'hook': Used ONLY for segmentId 1 (the opening hook).
+   - 'ChapterTitleScene' / 'chapter_title': Used when isChapterStart is true and segmentId > 1.
+   - 'DrawingStoryScene': Hand-drawn narrative story metaphor with fine-line vector art.
 
-3. LANGUAGE & COPY:
-   - Write "heading" (2-5 punchy words), "supportingText" (6-12 word crystal-clear takeaway), and "categoryPill" (2-3 word uppercase badge like "KEY STRATEGY", "CASE STUDY", "FRAMEWORK") in clean English.
+CRITICAL REA RHETORIC-DRIVEN MANDATE:
+Do NOT force infographics arbitrarily to fill a quota — an explainer video must never look like a boring corporate slide deck!
+Infographics and diagrams must trigger CONTEXTUALLY when the narration actively explains:
+- A multi-phase timeline, career progression, or long-term roadmap -> 'curved_roadmap' or 'roadmap'
+- Quantitative KPIs, multiple metrics, or revenue performance -> 'scorecard_dashboard' or 'stat_card'
+- Layered frameworks, technical stacks, or multi-level tiers -> 'horizontal_shelves'
+- Centralized ecosystems, leadership networks, or team hubs -> 'circular_org_chart'
+- Dual objectives, strategic philosophy, or before vs after -> 'mission_vision' or 'comparison'
+- A structured agenda or module outline -> 'table_of_contents'
+When the narration is narrative, emotional, reflective, or conceptual, use cinematic 'card_concept', 'drawing_story', 'quote', or 'hook' so the video breathes naturally with cinematic editorial flow. Treat infographic density as a natural, rhetoric-driven outcome, NOT a forced rigid quota.
+
+2. EDITORIAL HEADLINES ONLY (ZERO GENERIC BOILERPLATE):
+   - FORBIDDEN HEADINGS: NEVER output "KEY INSIGHT", "IMPORTANT POINT", "SUMMARY", "OVERVIEW", "STEP", "NOTE", or "CONCLUSION".
+   - Write punchy 3-6 word headlines that provoke curiosity (e.g. "THE ASYMMETRIC BET", "COMPOUNDING LEVERAGE", "BREAKING THE TIME TRAP").
+   - NEVER repeat the spoken transcript text in "supportingText"! The viewer is already hearing the voiceover and reading subtitles. "supportingText" must be an executive summary takeaway (6-12 words).
    - If spoken segment is Hindi/Hinglish, provide accurate English translation in "englishMeaning".
    - Select 1-2 impact words in "highlightedWords".
 
+3. ABSOLUTE VARIETY & ANTI-STICKMAN MANDATE:
+   - NEVER output the same layoutType twice in a row.
+   - Do NOT default to lone stickman drawings. Prioritize rich presentation suites: curved_roadmap, scorecard_dashboard, horizontal_shelves, circular_org_chart, mission_vision, CardConceptScene, StatScene, ComparisonScene, WorkflowScene, and HorizontalProcessStepsScene.
+   - Across any 4 consecutive scenes, you MUST use at least 3 completely different layouts.
+   - Previous layouts used: ${JSON.stringify(prevLayouts.slice(-4))}.
+
+4. S3 ASSET SELECTION (AVAILABLE ASSET CATALOG):
+   Below is the curated pool of available visual assets stored in S3 for this video topic.
+   When an image, photo, or illustration fits the scene (especially for CardConceptScene, ImageTextScene, FullBleedVisualScene, or broll), assign an exact "assignedAssetId" from this list.
+   If no asset fits this scene (e.g. pure typography, chart, or numbers), set "assignedAssetId": "". Never invent random IDs outside this list.
+   Available S3 Assets:
+   ${formattedAssetPool}
+
 Segments to plan:
 ${JSON.stringify(
-  chunkSegments.map((s) => ({
-    segmentId: s.id,
-    durationSeconds: s.duration,
-    text: s.text,
-    isChapterStart: s.isChapterStart,
-    chapterNumber: s.chapterNumber,
-  })),
-  null,
-  2
-)}
+        chunkSegments.map((s) => ({
+          segmentId: s.id,
+          durationSeconds: s.duration,
+          text: s.text,
+          isChapterStart: s.isChapterStart,
+          chapterNumber: s.chapterNumber,
+        })),
+        null,
+        2
+      )}
 
 Return a strict JSON object with this EXACT structure:
 {
   "scenes": [
     {
       "segmentId": 1,
+      "rhetoricalPurpose": "Contrasting two paradigms: trading time vs scalable assets",
       "sceneType": "main_point",
       "layoutType": "drawing_story",
       "categoryPill": "CORE INSIGHT",
@@ -1114,6 +1321,7 @@ Return a strict JSON object with this EXACT structure:
       "supportingText": "Focus on scalable systems instead of trading hours for money.",
       "englishMeaning": "Accurate English meaning of the spoken sentence",
       "highlightedWords": ["LEVERAGE", "systems"],
+      "assignedAssetId": "",
       "vectorDrawingId": "character_business_leader",
       "comparisonItems": { "left": "Trading Time", "right": "Scalable Systems" },
       "listItems": ["Identify bottleneck", "Automate workflow", "Scale output"],
@@ -1173,6 +1381,24 @@ Return a strict JSON object with this EXACT structure:
         ? normalizeVisualLayout(decision.layoutType || decision.layout)
         : 'vector_concept';
 
+      const aiRhetoricalPurpose = String(decision?.rhetoricalPurpose || '').trim();
+
+      // ── Editorial Intelligence Guardrail (Upgrade weak AI decisions based on text & rhetorical purpose) ──
+      // 1. Metric upgrade: Text has real quantitative metrics or rhetorical purpose explicitly states metrics/numbers
+      if ((hasRealMetric || /metric|proof|revenue|profit|cost|numbers|roi|\bpercent\b/i.test(aiRhetoricalPurpose)) && (chosenLayout === 'vector_concept' || chosenLayout === 'card_concept' || chosenLayout === 'drawing_story' || !decision)) {
+        chosenLayout = 'stat_card';
+      }
+      // 2. Contrast upgrade: Text or rhetorical purpose indicates dichotomy / contrast
+      else if ((/\b(?:versus|vs\.?|compared to|instead of|rather than|better than|traditionally)\b/i.test(text) || /contrast|dichotomy|versus|vs|difference|compare/i.test(aiRhetoricalPurpose)) && (chosenLayout === 'vector_concept' || chosenLayout === 'card_concept' || !decision)) {
+        chosenLayout = isShorts ? 'comparison' : 'before_after_transformation';
+      }
+      // 3. Process upgrade: Text or rhetorical purpose indicates sequence / workflow
+      else if ((/\b(?:step\s*\d+|first|second|third|finally|workflow|process steps|roadmap)\b/i.test(text) || /process|sequence|workflow|steps|roadmap|pipeline/i.test(aiRhetoricalPurpose)) && (chosenLayout === 'vector_concept' || chosenLayout === 'card_concept' || !decision)) {
+        chosenLayout = isShorts ? 'workflow' : 'horizontal_process';
+      }
+
+      const resolvedRhetoricalPurpose = aiRhetoricalPurpose || deriveRhetoricalPurpose(text, chosenLayout, seg.id);
+
       if (!decision) {
         if (seg.id === 1) chosenLayout = 'hook';
         else if (seg.isChapterStart && seg.id > 1) chosenLayout = 'chapter_title';
@@ -1191,8 +1417,8 @@ Return a strict JSON object with this EXACT structure:
         seg.id === 1
           ? 'hook'
           : seg.isChapterStart && seg.id > 1
-          ? 'transition'
-          : (decision?.sceneType as NarrativeSceneType) || 'main_point';
+            ? 'transition'
+            : (decision?.sceneType as NarrativeSceneType) || 'main_point';
 
       const safeStatVal =
         hasRealMetric && (decision?.statValue || typographyAnalysis.statData?.value)
@@ -1202,12 +1428,29 @@ Return a strict JSON object with this EXACT structure:
         ? String(decision?.statLabel || typographyAnalysis.statData?.label || '')
         : undefined;
 
-      const heading = generateCleanConceptHeading(decision?.heading || text);
-      const supportingText =
+      // Sanitize weak boilerplate headings: NEVER allow "KEY INSIGHT", "IMPORTANT POINT", "SUMMARY", "OVERVIEW"
+      const rawHeading = String(decision?.heading || '').trim();
+      const isWeakHeading =
+        !rawHeading ||
+        /^(?:key insight|important point|summary|overview|note|point|concept|strategy|tip|conclusion)$/i.test(rawHeading) ||
+        rawHeading.split(/\s+/).length < 2;
+
+      const heading = isWeakHeading
+        ? generateCleanConceptHeading(text)
+        : rawHeading.toUpperCase();
+
+      // Sanitize weak supportingText: NEVER allow exact echo of spoken transcript text
+      let rawSupporting = String(
         decision?.supportingText ||
         (typographyAnalysis as any).suggestedSupportingText ||
         assetPlan.suggestedSupportingText ||
-        generateCleanTakeaway(text, '');
+        ''
+      ).trim();
+
+      if (!rawSupporting || rawSupporting.toLowerCase() === text.toLowerCase()) {
+        rawSupporting = generateCleanTakeaway(text, heading);
+      }
+      const supportingText = rawSupporting;
 
       const keywords =
         Array.isArray(decision?.highlightedWords) && decision.highlightedWords.length > 0
@@ -1217,54 +1460,54 @@ Return a strict JSON object with this EXACT structure:
       const aiListItems = Array.isArray(decision?.listItems) && decision.listItems.length >= 2
         ? decision.listItems.map(String)
         : Array.isArray(decision?.timelineSteps) && decision.timelineSteps.length >= 2
-        ? decision.timelineSteps.map(String)
-        : Array.isArray(decision?.checklistItems) && decision.checklistItems.length >= 2
-        ? decision.checklistItems.map(String)
-        : typographyAnalysis.listItems;
+          ? decision.timelineSteps.map(String)
+          : Array.isArray(decision?.checklistItems) && decision.checklistItems.length >= 2
+            ? decision.checklistItems.map(String)
+            : typographyAnalysis.listItems;
 
       const aiComparisonItems =
         decision?.comparisonItems &&
-        typeof decision.comparisonItems.left === 'string' &&
-        typeof decision.comparisonItems.right === 'string' &&
-        decision.comparisonItems.left.trim() &&
-        decision.comparisonItems.right.trim()
+          typeof decision.comparisonItems.left === 'string' &&
+          typeof decision.comparisonItems.right === 'string' &&
+          decision.comparisonItems.left.trim() &&
+          decision.comparisonItems.right.trim()
           ? {
-              left: decision.comparisonItems.left.trim(),
-              right: decision.comparisonItems.right.trim(),
-            }
+            left: decision.comparisonItems.left.trim(),
+            right: decision.comparisonItems.right.trim(),
+          }
           : extractComparisonItemsFromText(text, heading, supportingText);
 
       const aiChartItems =
         Array.isArray(decision?.chartItems) && decision.chartItems.length >= 2
           ? decision.chartItems
-              .map((ci: any) => ({
-                label: String(ci?.label || ''),
-                value: Number(ci?.value || 0),
-                formattedValue: ci?.formattedValue ? String(ci.formattedValue) : undefined,
-                color: ci?.color ? String(ci.color) : undefined,
-              }))
-              .filter((ci: any) => ci.label && ci.value > 0)
+            .map((ci: any) => ({
+              label: String(ci?.label || ''),
+              value: Number(ci?.value || 0),
+              formattedValue: ci?.formattedValue ? String(ci.formattedValue) : undefined,
+              color: ci?.color ? String(ci.color) : undefined,
+            }))
+            .filter((ci: any) => ci.label && ci.value > 0)
           : undefined;
 
       const aiDonutSlices =
         Array.isArray(decision?.donutSlices) && decision.donutSlices.length >= 2
           ? decision.donutSlices
-              .map((ds: any) => ({
-                label: String(ds?.label || ''),
-                value: Number(ds?.value || 0),
-                color: ds?.color ? String(ds.color) : undefined,
-              }))
-              .filter((ds: any) => ds.label && ds.value > 0)
+            .map((ds: any) => ({
+              label: String(ds?.label || ''),
+              value: Number(ds?.value || 0),
+              color: ds?.color ? String(ds.color) : undefined,
+            }))
+            .filter((ds: any) => ds.label && ds.value > 0)
           : undefined;
 
       const aiChatMessages =
         Array.isArray(decision?.chatMessages) && decision.chatMessages.length >= 2
           ? decision.chatMessages
-              .map((cm: any) => ({
-                sender: (cm?.sender === 'right' ? 'right' : 'left') as 'left' | 'right',
-                text: String(cm?.text || ''),
-              }))
-              .filter((cm: any) => cm.text)
+            .map((cm: any) => ({
+              sender: (cm?.sender === 'right' ? 'right' : 'left') as 'left' | 'right',
+              text: String(cm?.text || ''),
+            }))
+            .filter((cm: any) => cm.text)
           : undefined;
 
       const resolvedDrawingId = resolveVectorDrawingIdFromText(
@@ -1282,10 +1525,34 @@ Return a strict JSON object with this EXACT structure:
         else if (sIdx % 3 === 0) sfx = 'woosh';
       }
 
+      let assignedId = String(decision?.assignedAssetId || '').trim();
+      let matchedAsset = assignedId ? getCatalogAssetById(assignedId) : null;
+
+      // If scene layout thrives on visual media and AI didn't assign one, pick the best unused asset from S3 pool
+      if (!matchedAsset && (chosenLayout === 'card_concept' || chosenLayout === 'image_text' || chosenLayout === 'full_bleed_visual')) {
+        const candidate = availableS3Assets.find((a) => !usedAssetIds.has(a.id));
+        if (candidate) {
+          matchedAsset = candidate;
+          assignedId = candidate.id;
+        }
+      }
+
+      if (matchedAsset) {
+        usedAssetIds.add(matchedAsset.id);
+      }
+
+      // Derive full 16:9 canvas composition recipe for each scene
+      const derivedComposition = deriveSceneComposition(
+        chosenLayout,
+        Boolean(matchedAsset),
+        decision?.composition
+      );
+
       plannedScenes.push({
         sceneNumber: seg.id,
         sceneType,
         layoutType: chosenLayout,
+        rhetoricalPurpose: resolvedRhetoricalPurpose,
         duration: seg.duration,
         narrationSegment: {
           text: seg.text,
@@ -1318,6 +1585,11 @@ Return a strict JSON object with this EXACT structure:
         chatMessages: aiChatMessages,
         searchQuery: decision?.searchQuery ? String(decision.searchQuery) : undefined,
         vectorDrawingId: resolvedDrawingId,
+        assignedAssetId: assignedId || undefined,
+        assetUrl: matchedAsset ? matchedAsset.absoluteUrl : undefined,
+        assetTitle: matchedAsset ? matchedAsset.title : undefined,
+        assetStyle: matchedAsset ? matchedAsset.style : undefined,
+        composition: derivedComposition,
         chartValuePercent: decision?.chartValuePercent || Math.min(95, 60 + ((seg.id * 7) % 35)),
         numberBadge: seg.chapterNumber,
       });

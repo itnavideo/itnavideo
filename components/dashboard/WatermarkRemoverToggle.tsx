@@ -78,21 +78,21 @@ export function WatermarkRemoverToggle({
         </div>
       </div>
 
-      {/* Modern iOS-Style Toggle Switch */}
+      {/* Modern Tactile Switch */}
       <div className="shrink-0 flex items-center">
         <div
-          className={`relative h-6 w-11 rounded-full transition-colors duration-200 ease-in-out ${
+          className={`relative inline-flex items-center h-7 w-[48px] rounded-full transition-all duration-200 ease-out select-none ${
             enabled
-              ? 'bg-gradient-to-r from-orange-600 to-amber-600'
-              : 'bg-zinc-800 border border-white/10'
+              ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 shadow-sm shadow-orange-500/30 ring-2 ring-orange-500/20'
+              : 'bg-zinc-800 border border-white/10 shadow-inner'
           }`}
         >
           <span
-            className={`inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out mt-0.5 ${
-              enabled ? 'translate-x-5 text-orange-500' : 'translate-x-0.5 text-zinc-400'
+            className={`inline-flex h-5 w-5 transform items-center justify-center rounded-full bg-white shadow-md shadow-black/25 transition-transform duration-200 ease-out ${
+              enabled ? 'translate-x-[23px] text-orange-600' : 'translate-x-1 text-zinc-400'
             }`}
           >
-            {enabled && <Check size={11} strokeWidth={3} />}
+            {enabled ? <Check size={11} strokeWidth={3} /> : <span className="w-1.5 h-1.5 rounded-full bg-zinc-600" />}
           </span>
         </div>
       </div>

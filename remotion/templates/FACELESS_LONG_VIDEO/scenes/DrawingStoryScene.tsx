@@ -158,7 +158,7 @@ export function DrawingStoryScene({
           <VectorDrawingIcon
             keyword={resolvedKeyword}
             size={ds.layout.isVertical ? 320 : 420}
-            strokeWidth={4}
+            strokeWidth={1.1}
             animated={true}
             frameOverride={ds.localFrame}
             theme={ds.surface.isDark ? 'dark' : 'light'}

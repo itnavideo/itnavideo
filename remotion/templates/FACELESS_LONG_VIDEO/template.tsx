@@ -73,6 +73,7 @@ import { StoryCharacterDeskScene } from './scenes/StoryCharacterDeskScene';
 import { ProductMockupFlowScene } from './scenes/ProductMockupFlowScene';
 import { BeforeAfterTransformationScene } from './scenes/BeforeAfterTransformationScene';
 import { CreatorCelebrationScene } from './scenes/CreatorCelebrationScene';
+import { InfographicScene } from './scenes/InfographicScene';
 import { FACELESS_DESIGN_TOKENS } from './facelessTokens';
 import { BrandWatermark } from '../../components/BrandWatermark';
 import { getFacelessFontAssetPath } from '../../../lib/fonts/facelessFontCatalog';
@@ -157,8 +158,10 @@ export interface FacelessLongVideoProps {
   subheadingFont?: string;
   typographyFont?: string;
   subtitleStyle?: string;
+  autoDucking?: boolean;
+  pacingStyle?: 'clean' | 'cinematic' | 'documentary' | 'dynamic';
   captionThemeId?: string;
-  captionAnimationStyle?: 'mrbeast' | 'handwriting' | 'bouncy' | 'smooth';
+  captionAnimationStyle?: 'mrbeast' | 'handwriting' | 'bouncy' | 'smooth' | 'capsule' | 'stacy-pill' | 'decodingyt' | 'marker' | 'highlighter' | (string & {});
   captionPosition?: 'bottom' | 'center' | 'top';
   templateConfig?: {
     stickerPackId?: string;
@@ -224,7 +227,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     audioVisualizerLayers = [],
     cameraConfig,
     visualTheme = 'modern-saas',
-    headingFont = 'Montserrat, sans-serif',
+    headingFont = 'Lora, "Playfair Display", Georgia, serif',
     subheadingFont = 'Plus Jakarta Sans',
     typographyFont = 'Inter, sans-serif',
     templateConfig = {
@@ -290,12 +293,33 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
     Promise.all(fontFamilies.map(async (family) => {
       const assetPath = getFacelessFontAssetPath(family);
-      if (!assetPath || typeof FontFace === 'undefined' || typeof document === 'undefined') return;
-      const fontFace = new FontFace(family, 'url("' + staticFile(assetPath) + '")', {
-        style: 'normal',
-        weight: '400',
-      });
-      document.fonts.add(await fontFace.load());
+      if (!assetPath || typeof FontFace === 'undefined' || typeof document === 'undefined') {
+        if (typeof document !== 'undefined') {
+          try {
+            const fontLink = document.createElement('link');
+            fontLink.rel = 'stylesheet';
+            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;600;700;800;900&display=swap`;
+            document.head.appendChild(fontLink);
+          } catch {}
+        }
+        return;
+      }
+      try {
+        const fontFace = new FontFace(family, 'url("' + staticFile(assetPath) + '")', {
+          style: 'normal',
+          weight: '400',
+        });
+        document.fonts.add(await fontFace.load());
+      } catch {
+        if (typeof document !== 'undefined') {
+          try {
+            const fontLink = document.createElement('link');
+            fontLink.rel = 'stylesheet';
+            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;600;700;800;900&display=swap`;
+            document.head.appendChild(fontLink);
+          } catch {}
+        }
+      }
     }))
       .then(finish)
       .catch((error) => {
@@ -336,6 +360,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   const dynamicMusicVolume = React.useMemo(() => {
     // Default BGM volume strictly locked at 12% (user configurable)
     const configuredVol = props.bgmVolume ?? props.musicVolume ?? 0.12;
+    if (props.autoDucking === false) return configuredVol;
     const baseDuckedVolume = Math.min(0.35, Math.max(0.0, configuredVol));
     if (!activeCaptions || activeCaptions.length === 0) return baseDuckedVolume;
 
@@ -370,7 +395,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     }
 
     return swellVolume;
-  }, [activeCaptions, currentTimeSec, props.musicVolume, props.bgmVolume]);
+  }, [activeCaptions, currentTimeSec, props.musicVolume, props.bgmVolume, props.autoDucking]);
 
   // Collect all speech words for contextual kinetic emoji pops & kinetic typography
   const allCaptionWords = React.useMemo(() => {
@@ -533,12 +558,19 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
   // Render Vox/Johnny Harris Style Modular Scene Layout
   const renderModularScene = (scene: SceneBlueprintItem) => {
-    const rawLayout: string = scene.layoutType || 'card_concept';
+    const rawLayout: string = typeof scene.layoutType === 'string' && scene.layoutType ? scene.layoutType : 'card_concept';
     const norm = rawLayout.toLowerCase().replace(/[^a-z0-9]/g, '');
 
     // Canonical Layout Normalizer (2026 Engine - maps PascalCase & snake_case)
     let layout = rawLayout;
-    if (norm.includes('statscene') || norm === 'stat' || norm === 'statcard' || norm === 'metricpill') layout = 'stat_card';
+    if (norm.includes('curvedroadmap') || norm.includes('curvedroad')) layout = 'curved_roadmap';
+    else if (norm.includes('orgchart') || norm.includes('circularorg') || norm.includes('radialorbit')) layout = 'circular_org_chart';
+    else if (norm.includes('horizontalshelves') || norm.includes('shelves') || norm.includes('tierstack')) layout = 'horizontal_shelves';
+    else if (norm.includes('scorecard') || norm.includes('kpidashboard')) layout = 'scorecard_dashboard';
+    else if (norm.includes('tableofcontent') || norm.includes('agenda') || norm === 'toc') layout = 'table_of_contents';
+    else if (norm.includes('missionvision') || norm.includes('visionmission')) layout = 'mission_vision';
+    else if (norm.includes('medical') || norm.includes('clinical') || norm.includes('vitalsmonitor')) layout = 'medical_infographic';
+    else if (norm.includes('statscene') || norm === 'stat' || norm === 'statcard' || norm === 'metricpill') layout = 'stat_card';
     else if (norm.includes('comparisonscene') || norm === 'comparison' || norm === 'vsbattle' || norm === 'battlecard') layout = 'comparison';
     else if (norm.includes('horizontalprocess') || norm.includes('processsteps') || norm === '5stepprocess') layout = 'horizontal_process';
     else if (norm.includes('workflowscene') || norm === 'workflow' || norm === 'pipeline' || norm === 'automation') layout = 'workflow';
@@ -616,6 +648,28 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           sceneFrame={framesSinceSceneStart}
           palette={palette}
           creatorHandle={creatorHandle}
+        />
+      );
+    }
+
+    // ── Modern PowerPoint/Keynote-Grade Infographic Presentation Suites ──
+    if (
+      layout === 'curved_roadmap' ||
+      layout === 'circular_org_chart' ||
+      layout === 'horizontal_shelves' ||
+      layout === 'scorecard_dashboard' ||
+      layout === 'table_of_contents' ||
+      layout === 'mission_vision' ||
+      layout === 'medical_infographic' ||
+      layout === 'infographic'
+    ) {
+      return (
+        <InfographicScene
+          scene={scene}
+          headingFont={headingFont}
+          bodyFont={typographyFont}
+          sceneFrame={framesSinceSceneStart}
+          palette={palette}
         />
       );
     }
@@ -1332,8 +1386,8 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       const startSec = Number(scene.narrationSegment?.startSeconds ?? (scene.narrationSegment as any)?.start ?? 0);
       const startFrame = Math.round(startSec * fps);
 
-      // Enforce professional spacing: at least 3.5s apart to avoid repetitive barrage
-      if (startFrame - lastSfxFrame < Math.round(3.5 * fps)) {
+      // Enforce professional spacing: at least 2.6s apart to avoid repetitive barrage
+      if (startFrame - lastSfxFrame < Math.round(2.6 * fps)) {
         return;
       }
 
@@ -1361,7 +1415,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         id: `sfx-scene-${i}`,
         startFrame,
         sfxUrl: sfxPath,
-        volume: 0.28,
+        volume: 0.32,
       });
 
       lastSfxFrame = startFrame;
@@ -1576,7 +1630,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
         </div>
       )}
 
-      {/* ── Multi-Track Audio Engine (Multiple Music Tracks & SFX Layers Coexisting) ── */}
+      {/* ── Multi-Track Audio Engine (Background Music & Audio Layers) ── */}
       {resolvedAudioLayers && resolvedAudioLayers.length > 0 ? (
         <MultiLayerAudioOverlay
           layers={resolvedAudioLayers}
@@ -1590,24 +1644,6 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
               volume={dynamicMusicVolume}
             />
           )}
-          {resolvedAudioSrc && (
-            <Audio
-              src={resolvedAudioSrc}
-              startFrom={Math.round(mediaTrimStartSeconds * fps)}
-              volume={sourceAudioVolume}
-            />
-          )}
-          {resolvedSfxEvents
-            .filter((sfx) => Boolean(sfx?.sfxUrl) && sfx.startFrame >= 0 && sfx.startFrame < durationInFrames)
-            .map((sfx) => (
-              <Sequence
-                key={sfx.id}
-                from={sfx.startFrame}
-                durationInFrames={Math.min(Math.round(2.5 * fps), Math.max(1, durationInFrames - sfx.startFrame))}
-              >
-                <Audio src={safeResolveMediaSrc(sfx.sfxUrl)} volume={sfx.volume} />
-              </Sequence>
-            ))}
         </>
       )}
 
@@ -1619,6 +1655,19 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           volume={sourceAudioVolume}
         />
       )}
+
+      {/* ── Timed Sound Effects Layer (Beat-synced impacts, whooshes, chimes, pops) ── */}
+      {resolvedSfxEvents
+        .filter((sfx) => Boolean(sfx?.sfxUrl) && sfx.startFrame >= 0 && sfx.startFrame < durationInFrames)
+        .map((sfx) => (
+          <Sequence
+            key={sfx.id}
+            from={sfx.startFrame}
+            durationInFrames={Math.min(Math.round(2.5 * fps), Math.max(1, durationInFrames - sfx.startFrame))}
+          >
+            <Audio src={safeResolveMediaSrc(sfx.sfxUrl)} volume={sfx.volume} />
+          </Sequence>
+        ))}
 
       {/* Sticker Layer */}
       {templateConfig.stickerPackId && templateConfig.stickerPackId !== 'none' && resolvedStickerEvents.length > 0 ? (

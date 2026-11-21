@@ -54,6 +54,7 @@ export function ScreenshotScene({
   const resolvedImgSrc = activeMediaUrl ? safeResolveMediaSrc(activeMediaUrl) : '';
   const hasImage = Boolean(
     resolvedImgSrc &&
+    typeof resolvedImgSrc === 'string' &&
     (resolvedImgSrc.startsWith('http') || resolvedImgSrc.startsWith('data:') || resolvedImgSrc.startsWith('/'))
   );
 

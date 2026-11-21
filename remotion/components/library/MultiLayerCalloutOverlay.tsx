@@ -97,8 +97,8 @@ const THEME_STYLES: Record<CalloutTheme, { bg: string; border: string; text: str
  */
 const SpeechBubbleCallout = memo(({ layer, theme }: { layer: DynamicCalloutLayer; theme: typeof THEME_STYLES[CalloutTheme] }) => {
   const tailPos = typeof layer.tailPosition === 'string' ? layer.tailPosition : 'bottom-left';
-  const isBottom = tailPos.startsWith('bottom');
-  const isLeft = tailPos.endsWith('left');
+  const isBottom = typeof tailPos === 'string' && tailPos.startsWith('bottom');
+  const isLeft = typeof tailPos === 'string' && tailPos.endsWith('left');
 
   return (
     <div style={{ position: 'relative', width: `${layer.width ?? 340}px` }}>

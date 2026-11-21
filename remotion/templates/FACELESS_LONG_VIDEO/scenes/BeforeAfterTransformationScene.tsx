@@ -301,7 +301,7 @@ export function BeforeAfterTransformationScene({
           </div>
         </div>
 
-        {/* CENTER: AI MAGIC ENGINE NODE */}
+        {/* CENTER: AI MAGIC ENGINE NODE WITH DIRECTIONAL TRANSFORMATION ARROWS */}
         <div
           style={{
             display: 'flex',
@@ -313,6 +313,50 @@ export function BeforeAfterTransformationScene({
             transform: `scale(${interpolate(centerSpring, [0, 1], [0.8, 1])})`,
           }}
         >
+          {/* Incoming Flow Arrow: Old Way flowing into transformation */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '-48px',
+              top: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              opacity: centerSpring,
+            }}
+          >
+            <svg width="36" height="20" viewBox="0 0 36 20" fill="none">
+              <path
+                d="M0 10H30M30 10L22 4M30 10L22 16"
+                stroke="#EF4444"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
+          {/* Outgoing Flow Arrow: Transformed result flowing into the new solution */}
+          <div
+            style={{
+              position: 'absolute',
+              right: '-48px',
+              top: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              opacity: centerSpring,
+            }}
+          >
+            <svg width="36" height="20" viewBox="0 0 36 20" fill="none">
+              <path
+                d="M0 10H30M30 10L22 4M30 10L22 16"
+                stroke="#10B981"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+
           {/* Animated Glowing Ring */}
           <div
             style={{

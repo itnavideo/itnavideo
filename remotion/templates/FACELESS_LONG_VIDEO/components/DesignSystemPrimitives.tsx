@@ -209,7 +209,7 @@ export function SceneHeader({
   heading,
   supportingText,
   highlightedWords,
-  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  headingFont = 'Lora, "Playfair Display", Georgia, serif',
   bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
   tone = 'coral',
   align = 'center',
@@ -236,8 +236,8 @@ export function SceneHeader({
   const baseFontSize = compact
     ? Math.round(ds.type.sceneTitle.fontSize * 0.88)
     : cleanHeading.length > 52
-    ? Math.round(ds.type.sceneTitle.fontSize * 0.84)
-    : ds.type.sceneTitle.fontSize;
+      ? Math.round(ds.type.sceneTitle.fontSize * 0.84)
+      : ds.type.sceneTitle.fontSize;
 
   return (
     <div
@@ -370,8 +370,8 @@ export function StudioCard({
         backgroundColor: muted
           ? ds.surface.cardBgMuted
           : elevated
-          ? ds.surface.cardBgElevated
-          : ds.surface.cardBg,
+            ? ds.surface.cardBgElevated
+            : ds.surface.cardBg,
         border: elevated ? `1.5px solid ${accent.border}` : ds.surface.borderSubtle,
         boxShadow: elevated ? ds.surface.shadowElevated : ds.surface.shadowCard,
         padding: ds.layout.cardPadding,
@@ -440,6 +440,169 @@ export function StepNumberBadge({
       }}
     >
       {formatted}
+    </div>
+  );
+}
+
+export interface RelationshipArrowProps {
+  /** Purpose of arrow: sequence (order), flow (direction/movement), transformation (shift/leap), contrast (tension) */
+  type?: 'sequence' | 'flow' | 'transformation' | 'contrast';
+  direction?: 'right' | 'down' | 'left' | 'up';
+  label?: string; // e.g. "NEXT STEP", "CONVERTS TO", "LEADS TO", "TRANSFORMS"
+  tone?: AccentTone;
+  progress?: number; // 0 to 1 entrance spring
+  sceneFrame?: number; // frame for continuous flow animation
+  size?: number; // length / width
+  palette?: { isDark?: boolean } | null;
+  style?: React.CSSProperties;
+}
+
+/**
+ * RelationshipArrow
+ * =================
+ * Broadcast-grade semantic connector used to visually communicate relationships:
+ * 1. Sequential progression: which step follows which (Step 1 ➔ Step 2).
+ * 2. Directional flow: which direction energy, data, or action is moving.
+ * 3. Transformation / Connection: how two concepts bridge or relate to each other.
+ */
+export function RelationshipArrow({
+  type = 'sequence',
+  direction = 'right',
+  label,
+  tone = 'coral',
+  progress = 1,
+  sceneFrame = 0,
+  size = 36,
+  palette,
+  style,
+}: RelationshipArrowProps) {
+  const ds = useVideoDesignSystem({ palette });
+  const accent = ds.accents[tone] || ds.accents.coral;
+
+  const isVertical = direction === 'down' || direction === 'up';
+  const flowOffset = -((sceneFrame * 2) % 16);
+
+  const arrowColor = accent.solid;
+  const strokeColor = accent.border || ds.surface.borderSubtle;
+
+  // Rotation based on direction
+  const rotationDeg =
+    direction === 'down' ? 90 : direction === 'left' ? 180 : direction === 'up' ? 270 : 0;
+
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        flexDirection: isVertical ? 'column' : 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: progress,
+        transform: `scale(${interpolate(progress, [0, 1], [0.8, 1])})`,
+        gap: '4px',
+        flexShrink: 0,
+        userSelect: 'none',
+        ...style,
+      }}
+    >
+      {label && (
+        <span
+          style={{
+            fontSize: '10px',
+            fontWeight: 800,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: accent.textOnSoft,
+            whiteSpace: 'nowrap',
+            marginBottom: '2px',
+          }}
+        >
+          {label}
+        </span>
+      )}
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transform: `rotate(${rotationDeg}deg)`,
+          width: size,
+          height: size,
+        }}
+      >
+        {type === 'transformation' ? (
+          // Transformation Badge: Glowing forward connector
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: size,
+              height: size,
+              borderRadius: '50%',
+              backgroundColor: accent.SoftBg,
+              border: `1.5px solid ${arrowColor}`,
+              boxShadow: `0 0 16px ${arrowColor}40`,
+            }}
+          >
+            <svg width={size * 0.55} height={size * 0.55} viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 12H19M19 12L13 6M19 12L13 18"
+                stroke={arrowColor}
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        ) : type === 'flow' ? (
+          // Directional Flow: Moving dashed connector line with dynamic dash animation
+          <svg width={size} height="24" viewBox={`0 0 ${size} 24`} fill="none" style={{ overflow: 'visible' }}>
+            <line
+              x1="0"
+              y1="12"
+              x2={size - 8}
+              y2="12"
+              stroke={arrowColor}
+              strokeWidth="2.5"
+              strokeDasharray="5 5"
+              strokeDashoffset={flowOffset}
+            />
+            <path
+              d={`M ${size - 10} 6 L ${size} 12 L ${size - 10} 18`}
+              stroke={arrowColor}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
+        ) : (
+          // Sequence Arrow: Crisp, high-contrast directional arrow with subtle soft pill
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: size,
+              height: size,
+              borderRadius: '50%',
+              backgroundColor: accent.SoftBg,
+              border: `1px solid ${strokeColor}`,
+            }}
+          >
+            <svg width={size * 0.5} height={size * 0.5} viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 12H19M19 12L13 6M19 12L13 18"
+                stroke={arrowColor}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

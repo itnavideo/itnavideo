@@ -29,7 +29,7 @@ export interface CardConceptSceneProps {
 export function CardConceptScene({
   scene,
   mediaUrl,
-  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  headingFont = 'Lora, "Playfair Display", Georgia, serif',
   bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
   backgroundTheme,
   sceneFrame,
@@ -70,7 +70,17 @@ export function CardConceptScene({
     extrapolateRight: 'clamp',
   });
 
-  const isReversed = !ds.layout.isVertical && (scene.sceneNumber || 0) % 2 === 1;
+  const customMediaSize = scene.composition?.mediaSlot?.size;
+  const mediaWidthPx = customMediaSize?.width && typeof customMediaSize.width === 'number' ? `${customMediaSize.width}px` : undefined;
+  const mediaHeightPx = customMediaSize?.height && typeof customMediaSize.height === 'number' ? `${customMediaSize.height}px` : undefined;
+
+  // Layout dictates WHERE (placement: left vs right) and IN WHAT SIZE (width & height); timestamp dictates WHEN
+  const isReversed =
+    scene.composition?.canvasLayout === 'split_screen_left_media'
+      ? false
+      : scene.composition?.canvasLayout === 'split_screen_right_media'
+        ? true
+        : !ds.layout.isVertical && (scene.sceneNumber || 0) % 2 === 1;
 
   return (
     <SceneCanvas
@@ -88,23 +98,23 @@ export function CardConceptScene({
           flexDirection: ds.layout.isVertical
             ? 'column'
             : isReversed
-            ? 'row-reverse'
-            : 'row',
+              ? 'row-reverse'
+              : 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: ds.layout.isVertical ? '28px' : '56px',
         }}
       >
-        {/* Visual Showcase Frame */}
+        {/* Visual Showcase Frame: Size and placement controlled by composition layout */}
         <StudioCard
           tone="indigo"
           elevated
           palette={resolvedPalette}
           progress={ds.motion.contentSpring}
           style={{
-            width: ds.layout.isVertical ? '100%' : '540px',
-            maxWidth: ds.layout.isVertical ? '520px' : '540px',
-            height: ds.layout.isVertical ? '360px' : '420px',
+            width: ds.layout.isVertical ? '100%' : (mediaWidthPx || '540px'),
+            maxWidth: ds.layout.isVertical ? '520px' : (mediaWidthPx || '540px'),
+            height: ds.layout.isVertical ? '360px' : (mediaHeightPx || '420px'),
             padding: 0,
             display: 'flex',
             alignItems: 'center',
@@ -138,7 +148,7 @@ export function CardConceptScene({
             <VectorDrawingIcon
               keyword={scene.vectorDrawingId || `${headline} ${supportingText}`}
               size={ds.layout.isVertical ? 300 : 350}
-              strokeWidth={4}
+              strokeWidth={1.1}
               animated={true}
               frameOverride={ds.localFrame}
               theme={ds.surface.isDark ? 'dark' : 'light'}

@@ -37,6 +37,7 @@ import { planImagesFromLibraryForScenes } from '@/services/ai/aiImageLibraryMatc
 import { planSemanticImageToVideoTimeline, planVisualIntelligenceTimeline } from '@/services/ai/visualPlanner';
 import { SUBTITLE_PRESETS } from '@/remotion/types/subtitles';
 import { inspectAndAutoFixComposition } from '@/lib/inspector/bhideCompositionInspector';
+import { auditAndSelfHealVideoBlueprint } from '@/services/ai/preRenderQualityAudit';
 
 function getFontForLanguage(lang?: string): string {
   if (!lang) return 'Plus Jakarta Sans, sans-serif';
@@ -610,7 +611,7 @@ export async function POST(request: Request) {
     }, { status: 422 });
   }
   if (mode === 'compare') {
-    if (contentType && !contentType.startsWith('audio/') && !contentType.startsWith('video/')) {
+    if (contentType && typeof contentType === 'string' && !contentType.startsWith('audio/') && !contentType.startsWith('video/')) {
       return NextResponse.json({ ok: false, error: 'Compare requires one audio or video narration file.' }, { status: 400 });
     }
     if (comparisonImageKeys.length !== 2) {
@@ -660,9 +661,9 @@ export async function POST(request: Request) {
       : "";
     const comparisonImageUrls = templateConfig.needsImages
       ? (await Promise.all(
-        comparisonImageKeys.map(async (key: string) => {
-          const cleanKey = readString(key);
-          if (!cleanKey) return '';
+        comparisonImageKeys.map(async (key: any) => {
+          const cleanKey = typeof key === 'string' ? readString(key) : (key?.url || key?.key || '');
+          if (!cleanKey || typeof cleanKey !== 'string') return '';
           if (cleanKey.startsWith('http://') || cleanKey.startsWith('https://')) {
             return cleanKey;
           }
@@ -672,9 +673,10 @@ export async function POST(request: Request) {
       : [];
     const resolvedCustomUrls = (
       await Promise.all(
-        customImageUrls.map(async (item: string) => {
+        customImageUrls.map(async (rawItem: any) => {
           try {
-            if (!item || item.startsWith('blob:')) return '';
+            const item = typeof rawItem === 'string' ? rawItem : (rawItem?.url || rawItem?.src || '');
+            if (!item || typeof item !== 'string' || item.startsWith('blob:')) return '';
             // Remote URLs: drop legacy GCS bucket, pass S3/CDN through unchanged
             if (item.startsWith('http://') || item.startsWith('https://') || item.startsWith('data:')) {
               if (item.includes('storage.googleapis.com')) {
@@ -713,7 +715,7 @@ export async function POST(request: Request) {
             console.log('[resolvedCustomUrls] Uploaded local asset to S3:', safeBasename, '→', s3Key);
             return signedUrl;
           } catch (err) {
-            console.error('[resolvedCustomUrls] Failed to resolve custom image:', item.slice(0, 80), err);
+            console.error('[resolvedCustomUrls] Failed to resolve custom image:', typeof rawItem === 'string' ? rawItem.slice(0, 80) : rawItem, err);
             return '';
           }
         })
@@ -722,8 +724,10 @@ export async function POST(request: Request) {
 
     const uploadedImageUrls = [
       ...(await Promise.all(
-        uploadedImageKeys.map(async (key: string) => {
+        uploadedImageKeys.map(async (rawKey: any) => {
           try {
+            const key = typeof rawKey === 'string' ? rawKey : (rawKey?.key || rawKey?.url || '');
+            if (!key || typeof key !== 'string') return '';
             if (key.startsWith('http://') || key.startsWith('https://')) {
               return key;
             }
@@ -739,14 +743,16 @@ export async function POST(request: Request) {
     const resolvedImageAnchors = await Promise.all(
       uploadedImageAnchors.map(async (anchor, idx) => {
         try {
-          if (!anchor.url) return { url: '', targetPhrase: anchor.targetPhrase, sequenceIndex: idx, originalKey: '' };
-          if (anchor.url.startsWith('http://') || anchor.url.startsWith('https://')) {
-            return { url: anchor.url, targetPhrase: anchor.targetPhrase, sequenceIndex: (anchor as any).sequenceIndex ?? idx, originalKey: anchor.url };
+          const rawAnchorUrl = anchor?.url;
+          const anchorUrl = typeof rawAnchorUrl === 'string' ? rawAnchorUrl : (rawAnchorUrl?.url || '');
+          if (!anchorUrl || typeof anchorUrl !== 'string') return { url: '', targetPhrase: anchor?.targetPhrase, sequenceIndex: idx, originalKey: '' };
+          if (anchorUrl.startsWith('http://') || anchorUrl.startsWith('https://')) {
+            return { url: anchorUrl, targetPhrase: anchor?.targetPhrase, sequenceIndex: (anchor as any).sequenceIndex ?? idx, originalKey: anchorUrl };
           }
-          const signed = readString(await createReadUrl(anchor.url));
-          return { url: signed, targetPhrase: anchor.targetPhrase, sequenceIndex: (anchor as any).sequenceIndex ?? idx, originalKey: anchor.url };
+          const signed = readString(await createReadUrl(anchorUrl));
+          return { url: signed, targetPhrase: anchor?.targetPhrase, sequenceIndex: (anchor as any).sequenceIndex ?? idx, originalKey: anchorUrl };
         } catch {
-          return { url: '', targetPhrase: anchor.targetPhrase, sequenceIndex: idx, originalKey: anchor.url };
+          return { url: '', targetPhrase: anchor?.targetPhrase, sequenceIndex: idx, originalKey: '' };
         }
       })
     );
@@ -1243,7 +1249,10 @@ export async function POST(request: Request) {
       // Convert any local stock asset paths or base64 Data URIs in scenes to S3 presigned URLs so AWS Lambda Chromium can load them cleanly
       const localImageS3Cache = new Map<string, string>();
       for (const scene of scenes) {
-        if (scene.imageUrl) {
+        if (typeof scene.imageUrl === 'object' && scene.imageUrl !== null) {
+          scene.imageUrl = (scene.imageUrl as any).url || (scene.imageUrl as any).src || '';
+        }
+        if (typeof scene.imageUrl === 'string' && scene.imageUrl) {
           if (scene.imageUrl.startsWith('data:')) {
             try {
               const matches = scene.imageUrl.match(/^data:([a-zA-Z0-9\/\-+.]+);base64,(.+)$/);
@@ -2498,7 +2507,7 @@ export async function POST(request: Request) {
             };
           }).filter((c: any) => c.text && c.end > c.start);
 
-          const headingFont = readString(body.headingFont) || 'Montserrat';
+          const headingFont = readString(body.headingFont) || 'Lora';
           const subheadingFont = readString(body.subheadingFont) || 'Plus Jakarta Sans';
           const bodyFont = readString(body.bodyFont) || readString(body.typographyFont) || 'Inter';
           const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'solid-white';
@@ -2598,7 +2607,20 @@ export async function POST(request: Request) {
                 currentImageDuration += sceneDur;
               }
             }
-          } else if (maxImageScenesAllowed > 0) {
+          }
+
+          // If no broll mapped yet, check if AI planner assigned assetUrls directly onto scenes
+          if (Object.keys(mappedBrollUrls).length === 0) {
+            let currentImageDuration = 0;
+            for (const s of blueprint.scenes) {
+              if (s.assetUrl && currentImageDuration + (s.duration || 5) <= maxImageDurationAllowed && Object.keys(mappedBrollUrls).length < maxImageScenesAllowed) {
+                mappedBrollUrls[s.sceneNumber] = String(s.assetUrl);
+                currentImageDuration += (s.duration || 5);
+              }
+            }
+          }
+
+          if (Object.keys(mappedBrollUrls).length === 0 && maxImageScenesAllowed > 0) {
             // Only search library if the 10% budget allows at least 1 image scene
             try {
               const libraryMatches = await planImagesFromLibraryForScenes(blueprint.scenes, {
@@ -2629,19 +2651,41 @@ export async function POST(request: Request) {
             mappedBrollCount: 0,
             customBgUrl: 'disabled-in-svg-mode',
           });
-          const sfxEvents = generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);
+          const isSfxExplicitlyDisabled = body.facelessEnableSfx === false || body.enableSfx === false;
+          const sfxEvents = isSfxExplicitlyDisabled ? [] : generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);
           const chapterEvents = detectChaptersFromTranscript(transcriptChunks, 30);
           const stickerEvents = Array.isArray(body.stickerEvents) && body.stickerEvents.length > 0
             ? body.stickerEvents
             : [];
 
-          console.log('[FACELESS_VIDEO_PLANNER]', {
-            totalScenes: blueprint.totalScenes,
-            mappedBrollCount: Object.keys(mappedBrollUrls).length,
-            customBgUrl: 'disabled-in-svg-mode',
-            sfxCount: sfxEvents.length,
-            chapterCount: chapterEvents.length,
-            stickerCount: stickerEvents.length,
+          // ── Autonomous Pre-Render Quality Assurance & Self-Healing Ecosystem ──
+          const {
+            healedScenes,
+            healedBrollUrls,
+            healedSfxEvents,
+            auditReport,
+          } = auditAndSelfHealVideoBlueprint({
+            scenes: blueprint.scenes,
+            durationSeconds: renderWindow.durationSeconds,
+            backgroundTheme,
+            aspectRatio: targetAspectRatio,
+            videoType: targetVideoType,
+            brollUrls: mappedBrollUrls,
+            sfxEvents: isSfxExplicitlyDisabled ? [] : sfxEvents,
+          });
+
+          console.log('[FACELESS_VIDEO_PRE_RENDER_AUDIT]', {
+            totalScenes: healedScenes.length,
+            zeroBlackFramesGuaranteed: auditReport.zeroBlackFramesGuaranteed,
+            fixedMissingHeadings: auditReport.fixedMissingHeadings,
+            fixedEchoTexts: auditReport.fixedEchoTexts,
+            fixedWeakBoilerplates: auditReport.fixedWeakBoilerplates,
+            fixedRepetitiveLayouts: auditReport.fixedRepetitiveLayouts,
+            fixedMissingAssets: auditReport.fixedMissingAssets,
+            upgradedMetricScenes: auditReport.upgradedMetricScenes,
+            upgradedContrastScenes: auditReport.upgradedContrastScenes,
+            upgradedProcessScenes: auditReport.upgradedProcessScenes,
+            durationSynchronized: auditReport.durationSynchronized,
           });
 
           return {
@@ -2656,16 +2700,18 @@ export async function POST(request: Request) {
             captionThemeId: subtitleStyle || 'glow-viral',
             captionAnimationStyle,
             captionPosition,
+            autoDucking: body.autoDucking !== false,
+            pacingStyle: readString(body.pacingStyle || body.facelessPacingStyle) || 'clean',
             musicUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
             musicSrc: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
             musicVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
             bgmUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
             bgmVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
-            sceneBlueprint: blueprint.scenes,
+            sceneBlueprint: healedScenes,
             brollUrls: Object.fromEntries(
-              Object.entries(mappedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
+              Object.entries(healedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])
             ),
-            sfxEvents,
+            sfxEvents: healedSfxEvents,
             chapterEvents,
             stickerEvents,
             templateConfig: {
@@ -3144,8 +3190,8 @@ async function repairRenderImageSources(inputProps: Record<string, unknown>, con
   const localS3UploadCache = new Map<string, string>();
 
   for (const ref of refs) {
-    const rawUrl = ref.url;
-    if (!rawUrl) {
+    const rawUrl = typeof ref.url === 'string' ? ref.url : (ref.url ? String((ref.url as any).url || ref.url) : '');
+    if (!rawUrl || typeof rawUrl !== 'string') {
       ref.set(fallback.src);
       continue;
     }
@@ -4549,19 +4595,21 @@ function toMode(value: string): ReelMode | null {
   return null;
 }
 
-function getUploadedMediaType({ mode, contentType }: { mode: ReelMode; contentType: string }): 'audio' | 'video' | 'image' {
-  if (mode === 'autoCaption') return contentType.startsWith('audio/') ? 'audio' : 'video';
-  if (mode === 'youtubeSubtitleGenerator') return contentType.startsWith('audio/') ? 'audio' : 'video';
-  if (mode === 'compare') return contentType.startsWith('video/') ? 'video' : 'audio';
-  if (mode === 'imageToVideoAi') return contentType.startsWith('video/') ? 'video' : 'audio';
-  if (mode === 'bookSummary') return contentType.startsWith('video/') ? 'video' : 'audio';
-  if (mode === 'whiteboardVideo') return contentType.startsWith('video/') ? 'video' : 'audio';
+function getUploadedMediaType({ mode, contentType }: { mode: ReelMode; contentType?: string }): 'audio' | 'video' | 'image' {
+  const safeType = typeof contentType === 'string' ? contentType : '';
+  if (mode === 'autoCaption') return safeType.startsWith('audio/') ? 'audio' : 'video';
+  if (mode === 'youtubeSubtitleGenerator') return safeType.startsWith('audio/') ? 'audio' : 'video';
+  if (mode === 'compare') return safeType.startsWith('video/') ? 'video' : 'audio';
+  if (mode === 'imageToVideoAi') return safeType.startsWith('video/') ? 'video' : 'audio';
+  if (mode === 'bookSummary') return safeType.startsWith('video/') ? 'video' : 'audio';
+  if (mode === 'whiteboardVideo') return safeType.startsWith('video/') ? 'video' : 'audio';
   if (mode === 'longVideoClips') return 'video';
-  return contentType.startsWith('audio/') ? 'audio' : 'video';
+  return safeType.startsWith('audio/') ? 'audio' : 'video';
 }
 
-function toMediaType(value: string): 'audio' | 'video' | 'image' {
-  const normalized = value.toLowerCase();
+function toMediaType(value: any): 'audio' | 'video' | 'image' {
+  const safeVal = typeof value === 'string' ? value : '';
+  const normalized = safeVal.toLowerCase();
   if (normalized === 'audio' || normalized.startsWith('audio/')) return 'audio';
   if (normalized === 'image' || normalized.startsWith('image/')) return 'image';
   return 'video';

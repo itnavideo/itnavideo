@@ -53,6 +53,13 @@ export type VisualLayoutType =
   | 'before_after_transformation'
   | 'creator_celebration'
   | 'drawing_story'
+  | 'curved_roadmap'
+  | 'circular_org_chart'
+  | 'horizontal_shelves'
+  | 'scorecard_dashboard'
+  | 'table_of_contents'
+  | 'mission_vision'
+  | 'medical_infographic'
   | 'hook';
 
 export type FacelessGraphicKind = 'allocation' | 'comparison' | 'sequence' | 'metric' | 'concept' | 'growth';
@@ -80,10 +87,74 @@ export type MotionAnimationPreset =
   | 'fade'
   | 'spring';
 
+export type CanvasLayoutMode =
+  | 'split_screen_left_media'
+  | 'split_screen_right_media'
+  | 'full_bleed_cinematic'
+  | 'card_hero_center'
+  | 'typography_dominant'
+  | 'data_dashboard'
+  | 'process_horizontal_flow'
+  | 'comparison_versus';
+
+export interface SpatialPlacement {
+  /** Where on the 1920x1080 canvas the element sits: x, y coordinates */
+  x: number | string;
+  y: number | string;
+  anchor?: 'top-left' | 'top-center' | 'center' | 'bottom-left' | 'bottom-center';
+  quadrant?: 'left-split' | 'right-split' | 'center-stage' | 'full-canvas' | 'floating-overlay';
+}
+
+export interface SpatialSize {
+  /** In what exact size/dimensions the element renders */
+  width: number | string;
+  height: number | string;
+  scale?: number;
+  aspectRatio?: '16:9' | '4:3' | '1:1' | 'auto';
+  maxWidth?: number | string;
+  maxHeight?: number | string;
+}
+
+export interface SceneMediaSlot {
+  region: 'full' | 'left-half' | 'right-half' | 'center-third' | 'floating-card';
+  cameraMotion: 'slow_zoom_in' | 'slow_zoom_out' | 'pan_left' | 'pan_right' | 'ambient_drift' | 'static_focused';
+  aspectFraming: 'contain' | 'cover' | 'padded_card' | 'device_mockup';
+  overlayScrim: 'none' | 'subtle_dark_gradient' | 'soft_vignette' | 'frosted_glass';
+  /** Exact canvas placement coordinates (WHERE: layout decides position, not timestamp) */
+  placement?: SpatialPlacement;
+  /** Exact canvas dimensions & scale (SIZE: layout decides size) */
+  size?: SpatialSize;
+}
+
+export interface SceneTypographySlot {
+  region: 'top-band' | 'left-half' | 'right-half' | 'middle-band' | 'center';
+  alignment: 'left' | 'center' | 'right';
+  badgePosition?: 'above-title' | 'corner' | 'inline';
+  /** Exact canvas placement coordinates (WHERE: layout decides position) */
+  placement?: SpatialPlacement;
+  /** Exact canvas dimensions (SIZE: layout decides size) */
+  size?: SpatialSize;
+}
+
+export interface SceneChoreographySlot {
+  heroEntrance: 'popIn' | 'bouncePop' | 'slideUp' | 'slideLeft' | 'slideRight' | 'maskReveal' | 'drawOn' | 'countUp';
+  staggerDelayMs: number;
+  leadTimeMs: number;
+}
+
+export interface SceneCompositionPlan {
+  canvasLayout: CanvasLayoutMode;
+  mediaSlot: SceneMediaSlot;
+  typographySlot: SceneTypographySlot;
+  choreography: SceneChoreographySlot;
+  visualBalance: '85_vector_dominant' | 'photographic_realism' | 'balanced_editorial';
+}
+
 export type SceneBlueprintItem = {
   sceneNumber: number;
   sceneType: NarrativeSceneType;
   layoutType: VisualLayoutType;
+  rhetoricalPurpose?: string;
   duration: number; // in seconds
   narrationSegment: {
     text: string;
@@ -125,6 +196,15 @@ export type SceneBlueprintItem = {
   searchQuery?: string;
   vectorDrawingId?: string;
   graphicPlan?: FacelessGraphicPlan;
+
+  // S3 Curated Asset Assignment Metadata
+  assignedAssetId?: string;
+  assetUrl?: string;
+  assetTitle?: string;
+  assetStyle?: string;
+
+  // Complete 16:9 Screen Composition Recipe
+  composition?: SceneCompositionPlan;
 
   // Responsive Typography Engine metadata (16:9 widescreen layout intelligence)
   typographyTreatment?: 'stat' | 'quote' | 'list' | 'headline' | 'short_sentence' | 'paragraph' | 'split';

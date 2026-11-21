@@ -115,3 +115,59 @@ The studio follows a guided 4-step workflow:
 
 - **Zero Local Rendering (Rule 0)**: Do not run local Remotion renders on developer machines; all rendering executes on AWS Lambda.
 - **Safe Zone Constants**: Safe zone dimensions are centralized in `lib/constants/videoSafeZones.ts`. Do not use hardcoded pixel offsets in template components.
+
+---
+
+## 10. Creator Reverse-Engineering Blueprint: The Ali Abdaal Talking-Head Polishing Engine
+
+The **AI YouTube Video Polisher** (`aiVideoPolisher`) directly adopts the editing blueprint reverse-engineered from Ali Abdaal's high-retention YouTube masterclasses (e.g. *"This One AI Prompt Will Organise Your Entire Life"* and *"If You Have a Job, Start Selling Your Skills ASAP"*).
+
+### 10.1 The 4 Polishing Pillars Learned from Ali Abdaal
+1. **Rhythmic Camera Punch-Ins**:
+   - Alternates between Wide (1.0x) and Punch-In (1.10x–1.14x) at sentence starts or on key emphasis words. Keeps talking-head footage visually dynamic without feeling jarring.
+2. **Contextual Full-Screen Cutaways & PIP Cards**:
+   - Instead of keeping the camera solely on the presenter's face, the engine triggers editorial cutaways or floating Picture-in-Picture (PIP) cards whenever the voiceover references mental models:
+     - Spoken prompt / AI workflow $\rightarrow$ `PromptWindowAsset` (macOS code terminal with live typing).
+     - Career / salary / pricing discussion $\rightarrow$ `LeverageLadderAsset` (4-rung career multiplier ladder).
+     - Life balance / routine audit $\rightarrow$ `LifePillarsDeckAsset` (4 life pillars deck).
+     - High-ticket problem solving $\rightarrow$ `ProblemAuditCardAsset` (client ROI problems list).
+3. **Editorial Typography & Organic Doodles**:
+   - **Default Canvas for Cutaways**: Warm off-white / editorial cream paper (`#FAF6F2`) with subtle `#EFE7DF` depth shift.
+   - **Heading Font**: `Lora` / `Playfair Display` (700 bold, deep charcoal `#141414`).
+   - **Handwritten Annotations**: `HandwritingAnnotation` using `Caveat, cursive` with orange (`#EA580C`) or amber (`#D97706`) doodle arrows and circles highlighting key words.
+4. **Studio Outro Polish**:
+   - Incorporates `SubscribeBellAsset` with metallic shimmer pill, animated cursor click, and swinging golden bell sound waves during channel sign-offs.
+
+### 10.2 Forensic Visual & Animation Tokens (Learned from Ali Abdaal)
+
+#### 1. Dynamic Screen Partitioning: The Side-Docked Presenter (`SideDockedPresenterLayout`)
+* **Problem**: When a creator sits dead-center in the 16:9 frame, displaying infographics or text overlays directly over their body/head creates visual clutter and looks amateurish.
+* **The Solution**: 
+  - **Center-Stage Mode**: When speaking casually or personally, the presenter is full-screen with subtle `1.0x` $\rightarrow$ `1.12x` punch-in cuts.
+  - **Side-Docked Explanation Mode (`SideDockedPresenterLayout`)**: The moment a concept, prompt, pricing model, or framework is explained, the presenter video smoothly docks into a 35% width card on the left/right with rounded borders (`20px`) and live status tag, while 65% of the screen opens up into a dedicated warm-paper explanation canvas (`#FAF6F2`).
+  - **Cross-Docking Doodle Arrow (`HandwritingAnnotation`)**: An animated doodle arrow connects the presenter's docked card directly to the active step or diagram with a callout note in `Caveat, cursive`.
+
+#### 2. Exact Typography Scale & Color Standards
+* **Hero Titles**: `44px` to `56px`, 700 Bold, Editorial Serif (`Lora`, `Playfair Display`), Color: `#141414` (Deep Charcoal Black).
+* **Section / Card Titles**: `22px` to `28px`, 700 Bold, Color: `#18181B`.
+* **Body / Subtitles**: `14px` to `16px`, 500 Medium, `Plus Jakarta Sans` / `Inter`, Color: `#52525B` / `#71717A`.
+* **Category Badges**: `11px` to `12px`, 700 Bold Uppercase, `0.06em` letter spacing, rounded pill with colored outline.
+* **Handwriting Callouts**: `22px` to `28px`, `Caveat, cursive`, Color: `#EA580C` (Flame Orange) or `#D97706` (Amber), rotated `-4deg` to `-6deg`.
+* **Kinetic Captions**: `32px` to `36px` 16:9 (`48px` to `54px` 9:16), 700 Bold with animated highlight box.
+
+#### 3. Exact Card Geometry & Shadow Hierarchy
+* **Canvas Tone**: Warm Cream (`#FAF6F2`) with soft diagonal tone shift to `#EFE7DF`.
+* **Card Surface**: Pure White (`#FFFFFF`) or frosted glass (`rgba(255, 255, 255, 0.94)`).
+* **Card Borders**: Hairline `1.0px` to `1.5px` border: `rgba(0, 0, 0, 0.08)` (Light) or `rgba(255, 255, 255, 0.10)` (Dark).
+* **Corner Radius**: `16px` to `24px` smooth modern curvature (`border-radius: 18px`).
+* **Card Shadows**: Ambient multi-layer drop shadow `0 20px 40px -15px rgba(0, 0, 0, 0.07)` (never harsh black borders).
+
+#### 4. Animation Timing & Physics Engine
+* **Card Entrance Spring**: `damping: 14-16`, `stiffness: 120-140` via Remotion `spring()`. Natural organic pop without rubberband bounce.
+* **Handwriting Stroke Draw**: `14` to `24` frames draw duration using SVG `strokeDashoffset` interpolation.
+* **Yellow Marker Highlighter**: Smooth left-to-right clip-path wipe across text (`0%` to `100%` in 15 frames) with `#FFE600` at `0.35` opacity.
+* **Camera Punch-Ins**: Direct editor jump cut (`1.0x` $\rightarrow$ `1.12x`) on spoken sentence starts (zero sluggish zoom drift).
+
+---
+
+*Last Updated: November 2026 — Official Master Documentation for Itnavideo Company.*

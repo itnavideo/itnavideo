@@ -27,15 +27,13 @@ import {
   Layers,
   Zap,
   Film,
-    Video,
+  Video,
   Image as ImageIcon,
   CheckCheck,
   Edit3,
   Save,
   Lock,
   ShieldCheck,
-  ChevronLeft,
-  ChevronRight,
   Mic,
   Type,
   ArrowRight,
@@ -45,8 +43,12 @@ import {
   Headphones,
 } from "lucide-react";
 import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
-import { StudioStepper } from "@/components/dashboard/shared/StudioStepper";
+import { StudioStepper, StudioStepperRow } from "@/components/dashboard/shared/StudioStepper";
 import { FacelessStoryboardTimeline } from "@/components/dashboard/FacelessStoryboardTimeline";
+import {
+  ThreeDMicrophoneIcon,
+  ThreeDClapperboardIcon,
+} from "@/components/ui/ThreeDimensionalIcons";
 import {
   AWS_BGM_TRACKS,
   getBgmTrackAudioUrl,
@@ -56,38 +58,48 @@ import {
   type LibraryBgmTrack,
 } from "@/components/dashboard/ImageToVideoStudio";
 import { MASTER_THEMES, type VideoVisualTheme } from "@/services/design/visualDesignSystem";
+import {
+  RAW_ITNAVIDEO_STOCK_ASSETS,
+  ITNAVIDEO_STOCK_CATEGORIES,
+  toAbsoluteS3AssetUrl,
+  type ItnaVideoStockAsset,
+} from "@/constants/itnavideoStockAssets";
 
 export const FACELESS_STEPS = [
-  { step: 1, title: "Upload", desc: "Audio & Media" },
+  { step: 0, title: "Overview", desc: "Process & Time" },
+  { step: 1, title: "Upload", desc: "Audio & Script" },
   { step: 2, title: "Music", desc: "Soundtrack & Volume" },
-  { step: 3, title: "Style", desc: "Captions & Theme" },
+  { step: 3, title: "Style", desc: "Typography & Theme" },
+  { step: 4, title: "Storyboard", desc: "Scene Review & Render" },
 ] as const;
 
 // ── Font Selection (Dual Font Architecture: Font 1 & Font 2) ──
 export const POPULAR_HEADING_FONTS = [
-  { id: "Montserrat", name: "Montserrat", desc: "Bold Modern YouTube Impact" },
-  { id: "Cinzel", name: "Cinzel", desc: "Cinematic Documentary Authority" },
-  { id: "Bebas Neue", name: "Bebas Neue", desc: "Tall Punchy Headline Sans" },
-  { id: "Anton", name: "Anton", desc: "Ultra-Bold Hook Title" },
-  { id: "Archivo Black", name: "Archivo Black", desc: "Heavy Industrial Punch" },
-  { id: "Outfit", name: "Outfit", desc: "Clean Geometric Tech" },
-  { id: "Playfair Display", name: "Playfair Display", desc: "Luxury Editorial Serif" },
-  { id: "Plus Jakarta Sans", name: "Plus Jakarta Sans", desc: "Modern Global Tech Sans" },
+  { id: "Lora", name: "Lora", sample: "Mastery & Vision", category: "Editorial Serif", desc: "Vox & NYT Editorial Serif" },
+  { id: "Playfair Display", name: "Playfair Display", sample: "Timeless Luxury", category: "Luxury Serif", desc: "High-Contrast Luxury" },
+  { id: "Georgia", name: "Georgia", sample: "Authoritative Truth", category: "Classic Serif", desc: "Balanced Editorial Serif" },
+  { id: "Montserrat", name: "Montserrat", sample: "YOUTUBE IMPACT", category: "Bold Sans", desc: "Punchy Modern YouTube" },
+  { id: "Cinzel", name: "Cinzel", sample: "ANCIENT WISDOM", category: "Cinema Serif", desc: "Documentary Authority" },
+  { id: "Bebas Neue", name: "Bebas Neue", sample: "THE BIG SHIFT", category: "Headline Display", desc: "Tall Punchy Title Sans" },
+  { id: "Anton", name: "Anton", sample: "STOP SCROLLING", category: "Hook Display", desc: "Ultra-Bold Hook Title" },
+  { id: "Archivo Black", name: "Archivo Black", sample: "RAW POWER", category: "Heavy Sans", desc: "Heavy Industrial Punch" },
+  { id: "Outfit", name: "Outfit", sample: "Future of AI", category: "Tech Sans", desc: "Clean Geometric Tech" },
+  { id: "Plus Jakarta Sans", name: "Plus Jakarta", sample: "Modern Thinking", category: "Modern Sans", desc: "Global Clean Tech Sans" },
 ] as const;
 
 export const POPULAR_BODY_FONTS = [
-  { id: "Plus Jakarta Sans", name: "Plus Jakarta Sans", desc: "Crisp High-Retention Reading" },
-  { id: "Inter", name: "Inter", desc: "Neutral Modern Legibility" },
-  { id: "DM Sans", name: "DM Sans", desc: "Friendly Geometric Subtitles" },
-  { id: "Poppins", name: "Poppins", desc: "Rounded Clean Contemporary" },
-  { id: "Nunito", name: "Nunito", desc: "Warm Balanced Narrative" },
-  { id: "Lora", name: "Lora", desc: "Refined Storytelling Serif" },
+  { id: "Plus Jakarta Sans", name: "Plus Jakarta", sample: "Every breakthrough starts with a quiet insight.", category: "Tech Sans", desc: "High-Retention Reading" },
+  { id: "Inter", name: "Inter", sample: "Clear typography builds trust and effortless focus.", category: "Clean Sans", desc: "Neutral Modern Legibility" },
+  { id: "DM Sans", name: "DM Sans", sample: "Friendly geometric letters engineered for screens.", category: "Geometric Sans", desc: "Friendly Subtitles" },
+  { id: "Poppins", name: "Poppins", sample: "Rounded contemporary rhythm that feels inviting.", category: "Rounded Sans", desc: "Contemporary Clean" },
+  { id: "Nunito", name: "Nunito", sample: "Warm human balance that makes narration natural.", category: "Warm Sans", desc: "Warm Balanced Narrative" },
+  { id: "Lora", name: "Lora", sample: "Refined storytelling rhythm from classic literature.", category: "Story Serif", desc: "Refined Storytelling Serif" },
 ] as const;
 
 // ── Background Palette Selection ──
 export const BACKGROUND_PALETTES = [
+  { id: "solid-white", name: "Warm Off-White", color: "#FAF6F2", text: "#141414", desc: "Warm Cream Tone with Subtle #EFE7DF Diagonal Depth & Deep Charcoal Text (Recommended)" },
   { id: "deep-dark", name: "Deep Dark", color: "#09090b", text: "#FFFFFF", desc: "Dark Luxury YouTube Documentary" },
-  { id: "solid-white", name: "Studio White", color: "#FFFFFF", text: "#09090b", desc: "Clean Educational & SaaS" },
   { id: "warm-editorial", name: "Warm Editorial", color: "#FCFBF7", text: "#1C1917", desc: "Substack & Vox Paper Aesthetic" },
   { id: "modern-slate", name: "Modern Slate", color: "#0F172A", text: "#FFFFFF", desc: "Engineering & Tech Dark Slate" },
   { id: "midnight-blue", name: "Midnight Navy", color: "#0B0F19", text: "#FFFFFF", desc: "Deep Cinematic Midnight" },
@@ -98,6 +110,55 @@ const WAVE_BARS = [
   25, 45, 65, 30, 85, 95, 40, 70, 55, 80, 100, 60, 45, 90, 75, 35,
   60, 85, 50, 95, 70, 40, 65, 80, 55, 90, 45, 70, 85, 35, 60, 40
 ];
+
+/**
+ * Modern tactile on/off switch component (Clean iOS / Linear standard)
+ */
+export function ModernToggleSwitch({
+  checked,
+  onChange,
+  activeColor = "orange",
+  size = "md",
+}: {
+  checked: boolean;
+  onChange: (val: boolean) => void;
+  activeColor?: "orange" | "emerald";
+  size?: "sm" | "md";
+}) {
+  const isSm = size === "sm";
+  const wClass = isSm ? "w-11 h-6" : "w-[48px] h-7";
+  const knobSize = isSm ? "w-4 h-4" : "w-5 h-5";
+  const translateClass = checked ? (isSm ? "translate-x-5" : "translate-x-[23px]") : "translate-x-1";
+
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={(e) => {
+        e.stopPropagation();
+        onChange(!checked);
+      }}
+      className={`relative inline-flex items-center ${wClass} rounded-full transition-all duration-200 ease-out cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 select-none shrink-0 ${
+        checked
+          ? activeColor === "emerald"
+            ? "bg-gradient-to-r from-emerald-500 to-teal-500 shadow-sm shadow-emerald-500/25 ring-2 ring-emerald-500/20"
+            : "bg-gradient-to-r from-orange-500 to-amber-500 shadow-sm shadow-orange-500/25 ring-2 ring-orange-500/20"
+          : "bg-slate-200 border border-slate-300/80 shadow-inner"
+      }`}
+    >
+      <span
+        className={`inline-flex items-center justify-center ${knobSize} rounded-full bg-white shadow-md shadow-black/15 transition-transform duration-200 ease-out transform ${translateClass}`}
+      >
+        {checked ? (
+          <Check size={isSm ? 10 : 12} strokeWidth={3} className={activeColor === "emerald" ? "text-emerald-600" : "text-orange-600"} />
+        ) : (
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+        )}
+      </span>
+    </button>
+  );
+}
 
 export interface FacelessVideoStudioProps {
   selectedFile: File | null;
@@ -166,12 +227,12 @@ export interface FacelessVideoStudioProps {
     durationSeconds: number;
     warnings?: string[];
     uploadedAssets?: any[];
+    availableAssetsPool?: any[];
   } | null>;
   isPlanning?: boolean;
   planningMessage?: string;
   planningError?: string | null;
   onClearPlanningError?: () => void;
-  onOpenPreview?: () => void;
   onSceneBlueprintChange?: (blueprint: any[]) => void;
   removeAiWatermark?: boolean;
   onRemoveAiWatermarkChange?: (enabled: boolean) => void;
@@ -200,7 +261,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   onEnableSfxChange,
   visualTheme = "modern-saas",
   onVisualThemeChange,
-  headingFont = "Montserrat",
+  headingFont = "Lora",
   onHeadingFontChange,
   bodyFont = "Plus Jakarta Sans",
   onBodyFontChange,
@@ -223,13 +284,18 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   planningMessage = "",
   planningError = null,
   onClearPlanningError,
-  onOpenPreview,
   onSceneBlueprintChange,
   removeAiWatermark = true,
   onRemoveAiWatermarkChange,
 }) => {
-  // ── Flexible Step State (supports any number of steps) ──
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  // ── Flexible Step State (Step 0: Overview Roadmap, Step 1: Upload, Step 2: Music, Step 3: Style, Step 4: Storyboard) ──
+  const [currentStep, setCurrentStep] = useState<number>(selectedFile ? 1 : 0);
+
+  useEffect(() => {
+    if (selectedFile && currentStep === 0) {
+      setCurrentStep(1);
+    }
+  }, [selectedFile]);
 
   // Transcribed state
   const [transcriptText, setTranscriptText] = useState("");
@@ -249,16 +315,13 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
 
-  // Compulsory Preview & Sync Player
-  const [previewConfirmed, setPreviewConfirmed] = useState(false);
-  const [activePreviewIndex, setActivePreviewIndex] = useState(0);
-  const [isPreviewAudioPlaying, setIsPreviewAudioPlaying] = useState(false);
-
   // Background Music State (Default 12%)
   const [activeBgmVolume, setActiveBgmVolume] = useState<number>(Math.round(facelessBgmVolume * 100) || 12);
-  const [selectedBgmTrack, setSelectedBgmTrack] = useState<string>(AWS_BGM_TRACKS[0]?.id || "parasail");
+  const [selectedBgmTrack, setSelectedBgmTrack] = useState<string>(
+    selectedBgmTrackId || AWS_BGM_TRACKS[0]?.id || "not-for-nothing-otis-mcdonald"
+  );
   const [activeVisualTheme, setActiveVisualTheme] = useState<string>(visualTheme || "modern-saas");
-  const [activeHeadingFont, setActiveHeadingFont] = useState<string>(headingFont || "Montserrat");
+  const [activeHeadingFont, setActiveHeadingFont] = useState<string>(headingFont || "Lora");
   const [activeBodyFont, setActiveBodyFont] = useState<string>(bodyFont || "Plus Jakarta Sans");
   const [isBgmActive, setIsBgmActive] = useState<boolean>(bgmEnabled ?? true);
 
@@ -268,6 +331,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [editHeadlineInput, setEditHeadlineInput] = useState<string>("");
   const [editTakeawayInput, setEditTakeawayInput] = useState<string>("");
   const [editNarrationInput, setEditNarrationInput] = useState<string>("");
+  const [editLayoutInput, setEditLayoutInput] = useState<string>("card_concept");
   const [showPreRenderModal, setShowPreRenderModal] = useState<boolean>(false);
 
   // Curated stock library for 16:9 widescreen scenes
@@ -314,6 +378,62 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     },
   ];
 
+  // S3 Curated Media Pool State
+  const [availableAssets, setAvailableAssets] = useState<any[]>([]);
+  const [selectedSceneForAssetSwap, setSelectedSceneForAssetSwap] = useState<number | null>(null);
+  const [assetCategoryFilter, setAssetCategoryFilter] = useState<string>("all");
+  const [assetSearchQuery, setAssetSearchQuery] = useState<string>("");
+  const [assetStyleFilter, setAssetStyleFilter] = useState<string>("all");
+
+  const handleRemoveAssetFromScene = (sceneNum: number) => {
+    setBrollUrls((prev) => {
+      const next = { ...prev };
+      delete next[sceneNum];
+      return next;
+    });
+    setSceneBlueprint((prev) =>
+      prev.map((sc) =>
+        sc.sceneNumber === sceneNum ? { ...sc, assetUrl: undefined, brollUrl: undefined, assignedAssetId: undefined } : sc
+      )
+    );
+  };
+
+  const handleAssignAssetToCurrentOrTarget = (assetUrl: string) => {
+    const targetSceneNum = selectedSceneForAssetSwap || 1;
+    setBrollUrls((prev) => ({
+      ...prev,
+      [targetSceneNum]: assetUrl,
+    }));
+    setSceneBlueprint((prev) =>
+      prev.map((sc) =>
+        sc.sceneNumber === targetSceneNum ? { ...sc, assetUrl, brollUrl: assetUrl } : sc
+      )
+    );
+  };
+
+  const allStockPool: any[] = availableAssets.length > 0
+    ? availableAssets
+    : RAW_ITNAVIDEO_STOCK_ASSETS.map((a) => ({
+      id: a.id,
+      title: a.title,
+      category: a.category,
+      categoryLabel: a.categoryLabel,
+      url: a.url,
+      absoluteUrl: toAbsoluteS3AssetUrl(a.url),
+      style: a.style || "2d",
+      tags: a.positiveTags || [],
+    }));
+
+  const filteredAssets = allStockPool.filter((asset) => {
+    const matchesCat = assetCategoryFilter === "all" || asset.category === assetCategoryFilter;
+    const matchesStyle = assetStyleFilter === "all" || asset.style === assetStyleFilter;
+    const matchesSearch =
+      !assetSearchQuery.trim() ||
+      (asset.title && asset.title.toLowerCase().includes(assetSearchQuery.toLowerCase())) ||
+      (asset.tags && asset.tags.some((t: string) => t.toLowerCase().includes(assetSearchQuery.toLowerCase())));
+    return matchesCat && matchesStyle && matchesSearch;
+  });
+
   const handleOpenSwapModal = (sceneIdx: number) => {
     setSwapModalSceneIndex(sceneIdx);
   };
@@ -335,9 +455,11 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     const sc = sceneBlueprint[sceneIdx];
     if (!sc) return;
     setEditSceneIndex(sceneIdx);
-    setEditHeadlineInput(sc.title || sc.headline || "");
-    setEditTakeawayInput(sc.keyTakeaway || "");
-    setEditNarrationInput(sc.narrationExcerpt || sc.description || "");
+    // Use correct SceneBlueprintItem field names: heading, supportingText, narrationSegment.text
+    setEditHeadlineInput(sc.heading || sc.title || sc.headline || "");
+    setEditTakeawayInput(sc.supportingText || sc.keyTakeaway || "");
+    setEditNarrationInput(sc.narrationSegment?.text || sc.narrationExcerpt || sc.description || "");
+    setEditLayoutInput(sc.layoutType || "card_concept");
   };
 
   const handleSaveSceneEdits = () => {
@@ -346,12 +468,19 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       prev.map((sc, i) =>
         i === editSceneIndex
           ? {
-              ...sc,
-              title: editHeadlineInput,
-              headline: editHeadlineInput,
-              keyTakeaway: editTakeawayInput,
-              narrationExcerpt: editNarrationInput,
-            }
+            ...sc,
+            // Map to correct SceneBlueprintItem fields
+            heading: editHeadlineInput,
+            supportingText: editTakeawayInput,
+            layoutType: editLayoutInput,
+            narrationSegment: sc.narrationSegment
+              ? { ...sc.narrationSegment, text: editNarrationInput || sc.narrationSegment.text }
+              : { text: editNarrationInput, startSeconds: 0 },
+            // Also keep legacy aliases for backward compatibility
+            title: editHeadlineInput,
+            headline: editHeadlineInput,
+            keyTakeaway: editTakeawayInput,
+          }
           : sc
       )
     );
@@ -363,14 +492,59 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       setActiveVisualTheme(visualTheme);
     }
   }, [visualTheme]);
+
+  // Sync BGM track when parent prop changes (PageClient -> Studio)
+  useEffect(() => {
+    if (selectedBgmTrackId) {
+      setSelectedBgmTrack(selectedBgmTrackId);
+    }
+  }, [selectedBgmTrackId]);
+
   const [customBgmUrl, setCustomBgmUrl] = useState<string>("");
   const [customBgmName, setCustomBgmName] = useState<string>("");
   const [playingBgmPreview, setPlayingBgmPreview] = useState<string | null>(null);
   const [autoDucking, setAutoDucking] = useState<boolean>(true);
+  const [bgmMoodFilter, setBgmMoodFilter] = useState<string>("all");
+
+  // Step 3 Sub-Tabs: Fast mobile-first navigation across 65 style cards
+  const [styleSubTab, setStyleSubTab] = useState<"subtitles" | "themes" | "typography" | "canvas">("subtitles");
 
   // Caption Filter & Search
   const [captionFilter, setCaptionFilter] = useState("all");
   const [captionSearchQuery, setCaptionSearchQuery] = useState("");
+  const [previewWordStep, setPreviewWordStep] = useState<number>(1);
+
+  useEffect(() => {
+    if (currentStep !== 3) return;
+    const interval = setInterval(() => {
+      setPreviewWordStep((prev) => (prev + 1) % 3);
+    }, 700);
+    return () => clearInterval(interval);
+  }, [currentStep]);
+
+  const currentCaptionObj = useMemo(() => {
+    return (
+      THIRTY_TWO_CAPTION_STYLES.find(
+        (c) => c.id === subtitleStyle || c.name.toLowerCase() === (subtitleStyle || "").toLowerCase()
+      ) || THIRTY_TWO_CAPTION_STYLES[0]
+    );
+  }, [subtitleStyle]);
+
+  // Filtered BGM tracks by mood chip (Instant mobile search)
+  const filteredBgmTracks = useMemo(() => {
+    if (bgmMoodFilter === "all") return AWS_BGM_TRACKS;
+    return AWS_BGM_TRACKS.filter((t) => {
+      if (t.id === "none") return true;
+      const cat = (t.category || "").toLowerCase();
+      const mood = bgmMoodFilter.toLowerCase();
+      if (mood === "lofi") return cat.includes("lo-fi") || cat.includes("chill");
+      if (mood === "cinematic") return cat.includes("cinematic") || cat.includes("epic") || cat.includes("drama");
+      if (mood === "tech") return cat.includes("beats") || cat.includes("deep") || cat.includes("modern");
+      if (mood === "upbeat") return cat.includes("upbeat") || cat.includes("motown") || cat.includes("narrative");
+      if (mood === "acoustic") return cat.includes("acoustic") || cat.includes("piano") || cat.includes("zen") || cat.includes("lounge");
+      return cat.includes(mood);
+    });
+  }, [bgmMoodFilter]);
 
   // User Uploaded Video Clips & Images
   const [userMediaClips, setUserMediaClips] = useState<Array<{ file: File; type: "video" | "image"; url: string }>>([]);
@@ -378,7 +552,6 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const audioInputRef = useRef<HTMLInputElement>(null);
   const bgmInputRef = useRef<HTMLInputElement>(null);
   const multiMediaInputRef = useRef<HTMLInputElement>(null);
-  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
   const bgmPreviewAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Audio Duration & Calculation (1 Min = 1 Credit, Max 5 min / 300s)
@@ -427,7 +600,6 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       }
     };
 
-    setPreviewConfirmed(false);
     triggerTranscription(file);
     if (e.target) e.target.value = "";
   };
@@ -448,10 +620,12 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
         setSceneBlueprint(planRes.sceneBlueprint || []);
         onSceneBlueprintChange?.(planRes.sceneBlueprint || []);
         setBrollUrls(planRes.brollUrls || {});
+        if ((planRes as any).availableAssetsPool && (planRes as any).availableAssetsPool.length > 0) {
+          setAvailableAssets((planRes as any).availableAssetsPool);
+        }
         if (planRes.durationSeconds > 0) {
           setAudioDurationSec(planRes.durationSeconds);
         }
-        setPreviewConfirmed(false);
       })
       .catch((err) => {
         console.error("[AUTO_TRANSCRIBE_ERROR]", err);
@@ -474,8 +648,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     const imageFilesList: File[] = [...(uploadedImageFiles || [])];
 
     Array.from(files).forEach((f) => {
-      const isVid = f.type.startsWith("video/");
-      const isImg = f.type.startsWith("image/");
+      const fileType = typeof f?.type === "string" ? f.type : "";
+      const fileName = typeof f?.name === "string" ? f.name : "";
+      const isVid = fileType.startsWith("video/") || /\.(mp4|mov|webm)$/i.test(fileName);
+      const isImg = fileType.startsWith("image/") || /\.(png|jpe?g|webp|gif|svg)$/i.test(fileName);
       if (isVid || isImg) {
         newClips.push({
           file: f,
@@ -530,24 +706,6 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     }
   };
 
-  // Toggle narration preview audio sync
-  const togglePreviewAudio = () => {
-    if (!previewAudioRef.current) return;
-    if (isPreviewAudioPlaying) {
-      previewAudioRef.current.pause();
-      setIsPreviewAudioPlaying(false);
-    } else {
-      previewAudioRef.current
-        .play()
-        .then(() => {
-          setIsPreviewAudioPlaying(true);
-        })
-        .catch((err) => {
-          console.warn("Playback error:", err);
-        });
-    }
-  };
-
   // Toggle Audio Play / Pause for Waveform
   const togglePlayAudio = () => {
     if (!audioPlayerRef.current) return;
@@ -573,14 +731,6 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     const target = progress * audioDurationSec;
     audioPlayerRef.current.currentTime = target;
     setAudioCurrentTime(target);
-  };
-
-  // Active scene calculation
-  const currentPreviewScene = sceneBlueprint[activePreviewIndex] || sceneBlueprint[0] || {
-    title: topicTitle || "The Psychology of High Performance",
-    keyTakeaway: "Mastering mental discipline through consistent daily routines.",
-    visualPrompt: "Clean white studio with high-contrast typography and obsidian slate accents.",
-    narrationExcerpt: "True high performance isn't about working harder; it's about clarity of focus.",
   };
 
   // Final Generate Video Action
@@ -614,6 +764,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       bgmTrackId: isBgmActive ? selectedBgmTrack : "none",
       userMediaClips,
       removeAiWatermark,
+      autoDucking,
     };
 
     onGenerate(payload);
@@ -645,6 +796,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       bgmTrackId: selectedBgmTrack,
       userMediaClips,
       removeAiWatermark,
+      autoDucking,
     };
 
     onGenerate(payload);
@@ -681,116 +833,303 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
         preload="auto"
         onEnded={() => setPlayingBgmPreview(null)}
       />
-      <audio
-        ref={previewAudioRef}
-        src={audioPreviewUrl}
-        preload="auto"
-        onEnded={() => setIsPreviewAudioPlaying(false)}
+
+      {/* ── ROW 1: Studio Stepper Row ── */}
+      <StudioStepperRow
+        steps={[...FACELESS_STEPS]}
+        currentStep={currentStep}
+        onStepClick={(step) => setCurrentStep(step)}
       />
 
-      {/* ── ROW 1: Studio Header & 4-Step Stepper (Consistent with Image to Video AI) ── */}
-      <div className="shrink-0 border-b border-slate-200/90 bg-white px-4 sm:px-8 lg:px-12 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3.5">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 shrink-0">
-            <Film size={20} className="stroke-[2.5]" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                Faceless Video AI
-              </h1>
-              <span className="inline-flex items-center gap-1 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-[10px] font-black uppercase text-orange-600">
-                16:9 Widescreen
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 line-clamp-1">
-              Create professional 1080p widescreen YouTube videos with clean white canvas, B-roll, and auto-subtitles.
-            </p>
-          </div>
-        </div>
-
-        {/* Flexible Studio Stepper */}
-        <StudioStepper
-          steps={FACELESS_STEPS}
-          currentStep={currentStep}
-          onStepClick={(step) => setCurrentStep(step)}
-          className="self-start md:self-center bg-slate-50 border border-slate-200/90 rounded-2xl px-2 py-1.5 shadow-2xs"
-        />
-      </div>
-
       {/* ── ROW 2: Scrollable Studio Workspace ── */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-6">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-8 lg:px-12 py-4 sm:py-6">
         <div className="max-w-6xl mx-auto space-y-6">
 
 
           {/* ══════════════════════════════════════════════════════════════
-              STEP 1: UPLOAD (Voiceover, Details, Waveform & Media Clips)
+              STEP 0: OVERVIEW & QUICK ROADMAP (Creation Flow & Time Estimates)
               ══════════════════════════════════════════════════════════════ */}
-          {currentStep === 1 && (
+          {currentStep === 0 && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Voiceover Upload Zone & Waveform Visualizer */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Mic size={20} className="text-orange-500" />
-                      <span>Narration Voiceover Audio</span>
-                      <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
-                        Required • Up to 5 Min (300s)
+              {/* Main Hero Card */}
+              <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-orange-50/20 to-white p-5 sm:p-10 shadow-sm relative overflow-hidden">
+                {/* Decorative ambient corner blur */}
+                <div className="absolute -top-24 -right-24 w-60 h-60 bg-gradient-to-br from-orange-500/10 via-amber-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="max-w-2xl space-y-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100/80 border border-orange-200 text-xs font-black text-orange-600 uppercase tracking-wider">
+                        <Zap size={13} className="fill-orange-500" />
+                        4 Fast Steps • Under 60 Seconds
                       </span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Upload your spoken narration or script recording. Groq Whisper will automatically align word timestamps.
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-xs font-black text-red-600 border border-red-200 shadow-2xs">
+                        <img src="/logos/social/youtube.png" alt="YouTube" className="w-4 h-4 object-contain animate-[pulseGlow_2.5s_ease-in-out_infinite]" />
+                        <span>16:9 YouTube Widescreen</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-[11px] font-bold text-emerald-700 border border-emerald-200">
+                        1080p Cloud Render
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200/90 font-['Caveat',cursive] text-base sm:text-lg font-bold -rotate-1 shadow-2xs">
+                        ✏️ Under 60 seconds total!
+                      </span>
+                    </div>
+
+                    <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                      How Faceless Video AI Works
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-xl">
+                      Transform your raw voiceover audio or script recording into a retention-optimized, 1080p widescreen YouTube video. Here is the exact 4-step process before you begin:
                     </p>
                   </div>
 
-                  {!selectedFile && (
+                  {/* Prominent YouTube 16:9 Feature Card with Dynamic Motion & Floating Glow */}
+                  <div className="relative shrink-0 flex flex-col items-center sm:items-end gap-1.5">
+                    <div className="relative flex items-center justify-center p-4 sm:p-5 rounded-2xl border border-red-200/90 bg-gradient-to-br from-red-500/10 via-white to-orange-500/10 shadow-md backdrop-blur-xs group overflow-hidden">
+                      {/* Animated radial glow ring */}
+                      <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-red-500/30 via-orange-500/20 to-red-500/30 blur-xl animate-[pulseGlow_2.5s_ease-in-out_infinite] pointer-events-none" />
+
+                      <div className="flex items-center gap-4 relative z-10">
+                        {/* YouTube Animated Floating Icon */}
+                        <div className="relative flex items-center justify-center animate-[floatSlow_3.5s_ease-in-out_infinite]">
+                          <div className="absolute inset-0 rounded-2xl bg-red-600/30 blur-lg animate-[pulseGlow_2s_ease-in-out_infinite]" />
+                          <img
+                            src="/logos/social/youtube.png"
+                            alt="YouTube 16:9"
+                            className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-[0_8px_16px_rgba(239,68,68,0.35)] relative transform group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-600 text-white text-[10px] font-black uppercase tracking-wider shadow-2xs">
+                              16:9 Cinema
+                            </span>
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-600"></span>
+                            </span>
+                          </div>
+                          <h4 className="text-sm font-black text-slate-900 leading-tight">
+                            YouTube Video
+                          </h4>
+                          <p className="text-[11px] text-slate-500 font-medium">
+                            1920 × 1080 Full HD
+                          </p>
+                          <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1 pt-0.5">
+                            <CheckCircle2 size={11} />
+                            <span>Monetization Ready</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Handwritten annotation under the YouTube card */}
+                    <div className="font-['Caveat',cursive] text-red-600 text-base sm:text-lg font-bold -rotate-2 select-none flex items-center gap-1 self-center sm:self-end pr-1">
+                      <span>✨ Vox & Johnny Harris documentary style!</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4-Step Interactive Pipeline Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-6">
+                  {[
+                    {
+                      step: "Step 1",
+                      title: "Upload Voiceover",
+                      time: "~10s",
+                      desc: "Drop your audio file (MP3, WAV, M4A) or MP4 clip. AI Whisper aligns millisecond-accurate word timestamps.",
+                      icon: Mic,
+                      tip: "Required",
+                      tipColor: "bg-orange-50 text-orange-600 border-orange-200",
+                      handnote: "drop voice here 🎙️",
+                    },
+                    {
+                      step: "Step 2",
+                      title: "Music & Volume",
+                      time: "~10s",
+                      desc: "Choose from 14 royalty-free background tracks. Dynamic auto-ducking lowers music volume when you speak.",
+                      icon: Headphones,
+                      tip: "Auto-Ducking",
+                      tipColor: "bg-slate-100 text-slate-600 border-slate-200",
+                      handnote: "auto-ducked beats 🎵",
+                    },
+                    {
+                      step: "Step 3",
+                      title: "Style & Subtitles",
+                      time: "~15s",
+                      desc: "Select from 32 kinetic caption animations, 6 visual themes (Modern SaaS, Documentary), and dual font pairings.",
+                      icon: Type,
+                      tip: "32 Presets",
+                      tipColor: "bg-amber-50 text-amber-600 border-amber-200",
+                      handnote: "32 viral presets ✨",
+                    },
+                    {
+                      step: "Step 4",
+                      title: "Review & Render",
+                      time: "~25s",
+                      desc: "AI structures speech into visual scenes with matching S3 illustrations and B-roll visuals. 1-Click 1080p render.",
+                      icon: Film,
+                      tip: "1080p Full HD",
+                      tipColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
+                      handnote: "1-click 1080p export 🚀",
+                    },
+                  ].map((item) => {
+                    const IconC = item.icon;
+                    return (
+                      <div
+                        key={item.step}
+                        className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-white/90 hover:border-orange-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between gap-3 group relative overflow-hidden"
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="h-8 w-8 rounded-xl bg-orange-50 border border-orange-200 text-orange-600 flex items-center justify-center font-black text-xs group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                                <IconC size={16} />
+                              </div>
+                              <span className="text-xs font-black text-slate-900">{item.step}</span>
+                            </div>
+                            <span className="text-[10px] font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">
+                              {item.time}
+                            </span>
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between gap-1">
+                              <h3 className="text-sm font-black text-slate-900 group-hover:text-orange-600 transition-colors">
+                                {item.title}
+                              </h3>
+                            </div>
+                            <p className="text-[11px] text-slate-500 leading-relaxed mt-1">
+                              {item.desc}
+                            </p>
+                            {/* Handwritten playful note */}
+                            <p className="font-['Caveat',cursive] text-sm sm:text-base font-bold text-orange-600/90 pt-1 -rotate-1 select-none">
+                              {item.handnote}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                          <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded border ${item.tipColor}`}>
+                            {item.tip}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-400 group-hover:text-orange-500 transition-colors flex items-center gap-0.5">
+                            <span>Fast</span>
+                            <ArrowRight size={10} />
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Checklist & Primary Action Bar */}
+                <div className="mt-8 pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="space-y-1">
+                    <p className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                      <CheckCircle2 size={15} className="text-emerald-500" />
+                      <span>Ready to create your video?</span>
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      Have your voiceover recording or script ready. The AI will do the heavy lifting.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    {/* Handwritten indicator arrow */}
+                    <div className="hidden sm:flex items-center gap-1 text-orange-600 font-['Caveat',cursive] text-xl font-bold -rotate-2 select-none">
+                      <span>start here</span>
+                      <ArrowRight size={15} className="text-orange-500 animate-[bounceWord_1.5s_infinite]" />
+                    </div>
+
                     <button
                       type="button"
                       onClick={handleLoadSampleDemo}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-orange-200 bg-orange-50 text-xs font-bold text-orange-600 hover:bg-orange-100 transition cursor-pointer self-start sm:self-auto"
+                      className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition cursor-pointer shadow-2xs"
                     >
-                      <Sparkles size={13} />
-                      <span>Try Sample Demo</span>
+                      Try Sample Audio
                     </button>
-                  )}
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(1)}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black shadow-md shadow-orange-500/25 active:scale-95 transition-all cursor-pointer group"
+                    >
+                      <span>Start Step 1: Upload Audio</span>
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
+                    </button>
+                  </div>
                 </div>
+              </div>
+            </div>
+          )}
 
-                <input
-                  ref={audioInputRef}
-                  type="file"
-                  accept="audio/*,video/mp4"
-                  onChange={handleNarrationSelect}
-                  className="hidden"
-                />
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 1: UPLOAD (Voiceover Audio)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 1 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <input
+                ref={audioInputRef}
+                type="file"
+                accept="audio/*,video/mp4"
+                onChange={handleNarrationSelect}
+                className="hidden"
+              />
 
-                {!selectedFile ? (
+              {/* Workflow Pipeline Guide (Gradients + Directional Arrows) */}
+              <div className="flex items-center justify-between gap-1.5 sm:gap-3 py-2 px-3.5 rounded-2xl bg-gradient-to-r from-orange-50/70 via-amber-50/40 to-orange-50/70 border border-orange-200/60 text-[11px] sm:text-xs font-bold text-slate-700 shadow-2xs overflow-x-auto scrollbar-none">
+                <div className="flex items-center gap-1.5 shrink-0 text-orange-600 font-extrabold">
+                  <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping" />
+                  <span>1. Voiceover Narration</span>
+                </div>
+                <ArrowRight size={13} className="text-orange-400 shrink-0" />
+                <div className="flex items-center gap-1.5 shrink-0 text-slate-600">
+                  <Sparkles size={12} className="text-amber-500" />
+                  <span>2. Groq Whisper Word-Sync</span>
+                </div>
+                <ArrowRight size={13} className="text-orange-400 shrink-0" />
+                <div className="flex items-center gap-1.5 shrink-0 text-slate-600">
+                  <Film size={12} className="text-orange-500" />
+                  <span>3. 16:9 Widescreen Storyboard</span>
+                </div>
+              </div>
+
+              {!selectedFile ? (
+                <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-10 shadow-sm relative overflow-hidden group">
+                  <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-orange-500/10 via-amber-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
                   <button
                     type="button"
                     onClick={() => audioInputRef.current?.click()}
-                    className="w-full py-12 border-2 border-dashed border-slate-200 hover:border-orange-500 rounded-3xl bg-slate-50/60 hover:bg-orange-50/20 transition-all flex flex-col items-center justify-center gap-3 cursor-pointer group"
+                    className="w-full py-12 sm:py-20 md:py-24 border-2 border-dashed border-slate-300 hover:border-orange-500 rounded-3xl bg-slate-50/70 hover:bg-orange-50/20 transition-all duration-300 flex flex-col items-center justify-center gap-4 sm:gap-5 cursor-pointer group relative z-10"
                   >
-                    <div className="h-14 w-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-orange-500 group-hover:scale-105 transition-transform shadow-xs">
-                      <UploadCloud size={28} />
+                    <div className="relative">
+                      <div className="absolute -inset-2 bg-gradient-to-tr from-orange-500/20 to-amber-500/20 rounded-full blur-xl opacity-75 group-hover:opacity-100 group-hover:scale-110 transition duration-500" />
+                      <div className="relative h-16 w-16 sm:h-24 sm:w-24 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-orange-50/80 to-white border border-orange-200/80 shadow-md flex items-center justify-center group-hover:scale-110 group-hover:border-orange-400 group-hover:shadow-orange-500/25 transition-all duration-300">
+                        <ThreeDMicrophoneIcon size={42} className="sm:hidden filter drop-shadow-[0_6px_12px_rgba(249,115,22,0.3)]" />
+                        <ThreeDMicrophoneIcon size={52} className="hidden sm:block filter drop-shadow-[0_8px_16px_rgba(249,115,22,0.3)]" />
+                      </div>
                     </div>
-                    <div className="text-center px-4">
-                      <p className="text-sm font-bold text-slate-800">
-                        Click to Upload Spoken Voiceover
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">
-                        MP3, WAV, M4A, or MP4 • Strictly 16:9 Widescreen (1920×1080)
+                    <div className="text-center px-4 space-y-1 sm:space-y-2">
+                      <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight group-hover:text-orange-600 transition-colors flex items-center justify-center gap-2">
+                        <span>Upload Audio / Voiceover</span>
+                        <ArrowRight size={18} className="text-orange-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                      </h2>
+                      <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                        Drag &amp; drop audio file here or tap to browse
                       </p>
                     </div>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-600 text-[11px] font-black">
-                      <Zap size={11} className="fill-orange-500" />
-                      <span>1 Min = 1 Credit Pricing</span>
+                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white border border-slate-200 text-[11px] sm:text-xs font-semibold text-slate-600 shadow-2xs">
+                      <span>MP3, WAV, M4A, or MP4</span>
                     </div>
                   </button>
-                ) : (
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 space-y-4">
+                </div>
+              ) : (
+                <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-6">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5 space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-11 w-11 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 shrink-0">
+                        <div className="h-11 w-11 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/25 shrink-0">
                           <CheckCircle2 size={20} />
                         </div>
                         <div className="min-w-0">
@@ -799,11 +1138,12 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           </p>
                           <div className="flex items-center gap-2 mt-0.5 text-xs">
                             <span className="font-mono font-bold text-slate-700">
-                              {formatSec(audioDurationSec)} / 05:00 Max
+                              {formatSec(audioDurationSec)}
                             </span>
                             <span className="text-slate-300">•</span>
-                            <span className="font-bold text-orange-600">
-                              {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""}
+                            <span className="text-emerald-600 font-extrabold flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                              Ready for 16:9 Cinema
                             </span>
                           </div>
                         </div>
@@ -834,14 +1174,14 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       </div>
                     </div>
 
-                    {/* Waveform Visualizer Bar */}
+                    {/* Waveform Visualizer Bar with Gradient Bars */}
                     <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
                       <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
                         <div className="flex items-center gap-2 font-bold text-slate-800">
                           <button
                             type="button"
                             onClick={togglePlayAudio}
-                            className="h-8 w-8 rounded-lg bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition cursor-pointer"
+                            className="h-8 w-8 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white flex items-center justify-center transition cursor-pointer shadow-xs shadow-orange-500/30"
                           >
                             {isPlayingAudio ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
                           </button>
@@ -852,13 +1192,20 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           >
                             {isAudioMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
                           </button>
+                          {isPlayingAudio && (
+                            <div className="flex items-end gap-0.5 h-3 px-1.5 py-0.5 rounded-md bg-orange-100 text-orange-600">
+                              <span className="w-0.5 bg-orange-500 rounded-full animate-pulse h-2.5" />
+                              <span className="w-0.5 bg-orange-500 rounded-full animate-bounce h-3" />
+                              <span className="w-0.5 bg-orange-500 rounded-full animate-pulse h-2" />
+                            </div>
+                          )}
                           <span>{formatSec(audioCurrentTime)}</span>
                         </div>
                         <span>{formatSec(audioDurationSec)}</span>
                       </div>
 
-                      {/* Interactive Waveform Bars */}
-                      <div className="flex items-end gap-1 h-12 w-full pt-2 cursor-pointer">
+                      {/* Interactive Waveform Bars with Gradient */}
+                      <div className="flex items-end gap-1 h-12 w-full pt-2 cursor-pointer overflow-hidden">
                         {WAVE_BARS.map((height, i) => {
                           const barProgress = i / WAVE_BARS.length;
                           const currentProgress = audioDurationSec > 0 ? audioCurrentTime / audioDurationSec : 0;
@@ -869,7 +1216,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                               key={i}
                               onClick={() => handleWaveformSeek(barProgress)}
                               className={`flex-1 rounded-full transition-all duration-150 ${
-                                isPlayed ? "bg-orange-500" : "bg-slate-200 hover:bg-slate-300"
+                                isPlayed
+                                  ? "bg-gradient-to-t from-orange-600 to-amber-400 shadow-2xs shadow-orange-500/20"
+                                  : "bg-slate-200 hover:bg-slate-300"
                               }`}
                               style={{ height: `${height}%` }}
                             />
@@ -878,6 +1227,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       </div>
                     </div>
                   </div>
+                )}
                 )}
               </div>
 
@@ -962,84 +1312,282 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   )}
                 </div>
               )}
+            </div>
+          )}
 
-              {/* Optional Custom B-Roll Media Clips & Images */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Video size={18} className="text-orange-500" />
-                    <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                      Custom B-Roll Images &amp; Video Clips
-                    </h3>
-                  </div>
-                  <span className="text-[10px] font-extrabold uppercase bg-slate-100 border border-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full">
-                    Optional
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500">
-                  Upload your own MP4 video clips, screenshots, or diagrams to blend alongside AI vector illustrations.
-                </p>
 
-                <input
-                  ref={multiMediaInputRef}
-                  type="file"
-                  accept="image/*,video/mp4,video/webm,video/quicktime"
-                  multiple
-                  onChange={handleMultiMediaSelect}
-                  className="hidden"
-                />
-
-                <div className="rounded-2xl border-2 border-dashed border-slate-200 hover:border-orange-500 bg-slate-50/60 p-5 flex flex-col items-center justify-center gap-3 text-center transition">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-white border border-slate-200 text-orange-500 shadow-xs">
-                      <Video size={18} />
-                    </div>
-                    <div className="p-2 rounded-xl bg-white border border-slate-200 text-amber-500 shadow-xs">
-                      <ImageIcon size={18} />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-800">
-                      Drag &amp; Drop or Select Videos and Images
-                    </p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
-                      MP4 clips, screenshots, diagrams, PNG graphics
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => multiMediaInputRef.current?.click()}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-xs font-bold text-slate-800 transition cursor-pointer shadow-xs"
-                  >
-                    <Upload size={13} />
-                    <span>Choose Media Clips ({userMediaClips.length} Added)</span>
-                  </button>
-                </div>
-
-                {userMediaClips.length > 0 && (
-                  <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin pt-1">
-                    {userMediaClips.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="relative w-24 h-20 rounded-xl overflow-hidden border border-slate-200 shrink-0 group shadow-xs bg-black"
-                      >
-                        {item.type === "video" ? (
-                          <video src={item.url} className="w-full h-full object-cover opacity-80" muted />
-                        ) : (
-                          <img src={item.url} alt={`Media ${idx}`} className="w-full h-full object-cover" />
-                        )}
-                        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-black uppercase bg-black/80 text-white">
-                          {item.type}
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 2: MUSIC (Direct Tracks First & Sleek Controls)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 2 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                
+                {/* Clean Direct Header: Master On/Off Switch & Volume */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+                  <div className="flex items-center gap-3.5">
+                    <ModernToggleSwitch
+                      checked={isBgmActive}
+                      onChange={(next) => {
+                        setIsBgmActive(next);
+                        onBgmEnabledChange?.(next);
+                      }}
+                      activeColor="orange"
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black text-slate-900">
+                          {isBgmActive ? "Background Music: ON" : "Background Music: Muted"}
                         </span>
-                        <button
-                          type="button"
-                          onClick={() => setUserMediaClips(userMediaClips.filter((_, i) => i !== idx))}
-                          className="absolute top-1 right-1 p-1 rounded-md bg-black/80 text-white opacity-0 group-hover:opacity-100 transition hover:bg-red-600 cursor-pointer"
-                        >
-                          <Trash2 size={11} />
-                        </button>
+                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600">
+                          {AWS_BGM_TRACKS.length} Soundtracks
+                        </span>
                       </div>
-                    ))}
+                      <span className="text-xs text-slate-400 font-medium">
+                        {isBgmActive ? "Royalty-free YouTube soundtracks with auto-ducking" : "Zero background music will be rendered"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {isBgmActive && (
+                    <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/90 px-3.5 py-1.5 rounded-2xl self-start sm:self-auto">
+                      <Volume2 size={15} className="text-orange-500" />
+                      <span className="text-xs font-bold text-slate-600">Volume</span>
+                      <span className="text-xs font-mono font-black text-orange-600 bg-white px-2 py-0.5 rounded-lg border border-slate-200">
+                        {activeBgmVolume}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* DIRECT MUSIC TRACKS LIST (Front & Center!) */}
+                {isBgmActive && (
+                  <div className="space-y-3.5">
+                    {/* BGM Mood Filter Pills (Mobile-First Fast Selection) */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                      {[
+                        { id: "all", label: "All Tracks" },
+                        { id: "lofi", label: "☕ Chill Lo-Fi" },
+                        { id: "cinematic", label: "🎬 Cinematic" },
+                        { id: "upbeat", label: "🔥 Upbeat" },
+                        { id: "tech", label: "⚡ Beats / Modern" },
+                        { id: "acoustic", label: "🎸 Acoustic" },
+                      ].map((mood) => {
+                        const isMoodActive = bgmMoodFilter === mood.id;
+                        return (
+                          <button
+                            key={mood.id}
+                            type="button"
+                            onClick={() => setBgmMoodFilter(mood.id)}
+                            className={`text-[11px] font-extrabold px-3 py-1.5 rounded-xl border transition cursor-pointer shrink-0 ${
+                              isMoodActive
+                                ? "bg-orange-500 text-white border-orange-500 shadow-xs"
+                                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                            }`}
+                          >
+                            {mood.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+                      {filteredBgmTracks.map((track) => {
+                        const isSelected = !customBgmUrl && selectedBgmTrack === track.id;
+                        const isPlaying = playingBgmPreview === track.id;
+
+                        return (
+                          <div
+                            key={track.id}
+                            onClick={() => {
+                              setCustomBgmUrl("");
+                              setSelectedBgmTrack(track.id);
+                              onBgmTrackSelect?.(track.id, getBgmTrackAudioUrl(track));
+                            }}
+                            className={`p-3 sm:p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center justify-between gap-2.5 ${isSelected
+                              ? "border-orange-500 bg-gradient-to-r from-orange-50/80 via-amber-50/40 to-white text-slate-900 shadow-md shadow-orange-500/10 ring-2 ring-orange-500/20"
+                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
+                              }`}
+                          >
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-black truncate">{track.label}</span>
+                                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 shrink-0">
+                                  {track.category}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-slate-500 truncate block mt-0.5">{track.desc}</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              {track.id !== "none" && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    togglePlayBgmTrack(track);
+                                  }}
+                                  title="Listen to Preview"
+                                  className="h-8 w-8 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition flex items-center justify-center cursor-pointer shadow-xs"
+                                >
+                                  {isPlaying ? (
+                                    <div className="flex items-end gap-0.5 h-3">
+                                      <span className="w-0.5 bg-orange-500 rounded-full animate-pulse h-2.5" />
+                                      <span className="w-0.5 bg-orange-500 rounded-full animate-bounce h-3" />
+                                      <span className="w-0.5 bg-orange-500 rounded-full animate-pulse h-2" />
+                                    </div>
+                                  ) : (
+                                    <Play size={13} className="ml-0.5 text-slate-600" />
+                                  )}
+                                </button>
+                              )}
+
+                              {isSelected && <CheckCircle2 size={16} className="text-orange-500" />}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Secondary Audio Controls: Volume Slider, Ducking, SFX, Custom Upload */}
+                {isBgmActive && (
+                  <div className="space-y-4 pt-2">
+                    {/* Volume Slider with Quick Presets */}
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                        <span className="flex items-center gap-1.5">
+                          <Sliders size={14} className="text-orange-500" />
+                          <span>Soundtrack Level</span>
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {[
+                            { label: "12%", val: 12 },
+                            { label: "20%", val: 20 },
+                            { label: "35%", val: 35 },
+                          ].map((p) => (
+                            <button
+                              key={p.val}
+                              type="button"
+                              onClick={() => {
+                                setActiveBgmVolume(p.val);
+                                onBgmVolumeChange?.(p.val / 100);
+                              }}
+                              className={`text-[10px] font-bold px-2.5 py-0.5 rounded-md border transition cursor-pointer ${activeBgmVolume === p.val
+                                ? "bg-orange-500 text-white border-orange-500"
+                                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
+                                }`}
+                            >
+                              {p.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="1"
+                        value={activeBgmVolume}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setActiveBgmVolume(val);
+                          onBgmVolumeChange?.(val / 100);
+                        }}
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                      />
+                    </div>
+
+                    {/* Audio Ducking & SFX Toggles with Modern Tactile Switches */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div
+                        onClick={() => setAutoDucking(!autoDucking)}
+                        className={`rounded-2xl border p-4 flex items-center justify-between gap-3 cursor-pointer transition ${autoDucking ? "border-orange-300 bg-orange-50/40" : "border-slate-200 bg-slate-50/50"
+                          }`}
+                      >
+                        <div>
+                          <p className="text-xs font-black text-slate-900">Dynamic Auto-Ducking</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Lowers music volume during voiceover speech
+                          </p>
+                        </div>
+                        <ModernToggleSwitch
+                          checked={autoDucking}
+                          onChange={setAutoDucking}
+                          size="sm"
+                        />
+                      </div>
+
+                      <div
+                        onClick={() => onEnableSfxChange?.(!facelessEnableSfx)}
+                        className={`rounded-2xl border p-4 flex items-center justify-between gap-3 cursor-pointer transition ${facelessEnableSfx ? "border-orange-300 bg-orange-50/40" : "border-slate-200 bg-slate-50/50"
+                          }`}
+                      >
+                        <div>
+                          <p className="text-xs font-black text-slate-900">Sound Effects (SFX)</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Subtle scene whoosh &amp; metric hit sound cues
+                          </p>
+                        </div>
+                        <ModernToggleSwitch
+                          checked={Boolean(facelessEnableSfx)}
+                          onChange={(val) => onEnableSfxChange?.(val)}
+                          size="sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Custom User BGM Upload Box */}
+                    <input
+                      ref={bgmInputRef}
+                      type="file"
+                      accept="audio/*"
+                      onChange={handleCustomBgmUpload}
+                      className="hidden"
+                    />
+
+                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-3.5 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-9 w-9 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-500 shrink-0">
+                          <Upload size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-black text-slate-900 truncate">
+                            {customBgmName ? `Uploaded: ${customBgmName}` : "Upload Custom Background MP3"}
+                          </p>
+                          <p className="text-[11px] text-slate-400">
+                            {customBgmUrl ? "Active custom soundtrack" : "Your own royalty-free audio file"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {customBgmUrl ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCustomBgmUrl("");
+                              setCustomBgmName("");
+                              setSelectedBgmTrack(AWS_BGM_TRACKS[0].id);
+                            }}
+                            className="px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => bgmInputRef.current?.click()}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition cursor-pointer shadow-xs"
+                          >
+                            <Upload size={12} />
+                            <span>Browse</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1048,309 +1596,81 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
 
           {/* ══════════════════════════════════════════════════════════════
-              STEP 2: MUSIC (14 AWS Tracks, Custom Upload & Volume)
-              ══════════════════════════════════════════════════════════════ */}
-          {currentStep === 2 && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Music size={20} className="text-orange-500" />
-                      <span>Background Music &amp; Audio Level</span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Select royalty-free music from AWS S3, or upload your own track. Includes dynamic auto-ducking during speech.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full self-start sm:self-auto">
-                    <Volume2 size={14} className="text-orange-500" />
-                    <span className="text-xs font-black text-slate-800">
-                      Volume: {activeBgmVolume}%
-                    </span>
-                  </div>
-                </div>
-
-                {/* Master Switch: Background Music ON / OFF */}
-                <div className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 bg-slate-50/70">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl border ${isBgmActive ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-slate-100 border-slate-200 text-slate-400"}`}>
-                      {isBgmActive ? <Volume2 size={18} /> : <VolumeX size={18} />}
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-slate-900">Background Music Track</p>
-                      <p className="text-[11px] text-slate-500">
-                        {isBgmActive ? "Enabled — Auto-ducked background soundtrack will be mixed" : "Disabled — Zero background music will be rendered"}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = !isBgmActive;
-                      setIsBgmActive(next);
-                      onBgmEnabledChange?.(next);
-                    }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      isBgmActive ? "bg-orange-600" : "bg-slate-300"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        isBgmActive ? "translate-x-6" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                {/* Volume Slider with Quick Presets */}
-                <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 space-y-3">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                    <span className="flex items-center gap-1.5">
-                      <Sliders size={14} className="text-orange-500" />
-                      <span>Background Music Level (Default: 12%)</span>
-                    </span>
-                    <span className="font-mono text-xs font-black text-orange-600 bg-white px-2.5 py-0.5 rounded-lg border border-slate-200">
-                      {activeBgmVolume}%
-                    </span>
-                  </div>
-
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value={activeBgmVolume}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      setActiveBgmVolume(val);
-                      onBgmVolumeChange?.(val / 100);
-                    }}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                  />
-
-                  <div className="flex items-center gap-2 pt-1">
-                    {[
-                      { label: "Mute (0%)", val: 0 },
-                      { label: "Subtle (12% - Recommended)", val: 12 },
-                      { label: "Moderate (20%)", val: 20 },
-                      { label: "Prominent (35%)", val: 35 },
-                    ].map((p) => (
-                      <button
-                        key={p.val}
-                        type="button"
-                        onClick={() => {
-                          setActiveBgmVolume(p.val);
-                          onBgmVolumeChange?.(p.val / 100);
-                        }}
-                        className={`text-xs font-bold px-3 py-1 rounded-lg border transition cursor-pointer ${
-                          activeBgmVolume === p.val
-                            ? "bg-orange-500 text-white border-orange-500"
-                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Audio Ducking & SFX Toggles */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div
-                    onClick={() => setAutoDucking(!autoDucking)}
-                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 cursor-pointer transition ${
-                      autoDucking ? "border-orange-500 bg-orange-50/40" : "border-slate-200 bg-slate-50/50"
-                    }`}
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-slate-900">Dynamic Auto-Ducking</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        Ducks music volume down during speech and raises it during pauses
-                      </p>
-                    </div>
-                    <div
-                      className={`h-5 w-9 rounded-full transition-colors relative ${
-                        autoDucking ? "bg-orange-500" : "bg-slate-300"
-                      }`}
-                    >
-                      <div
-                        className={`h-4 w-4 rounded-full bg-white transition-transform absolute top-0.5 ${
-                          autoDucking ? "left-4.5" : "left-0.5"
-                        }`}
-                      />
-                    </div>
-                  </div>
-
-                  <div
-                    onClick={() => onEnableSfxChange?.(!facelessEnableSfx)}
-                    className={`rounded-2xl border p-4 flex items-center justify-between gap-3 cursor-pointer transition ${
-                      facelessEnableSfx ? "border-orange-500 bg-orange-50/40" : "border-slate-200 bg-slate-50/50"
-                    }`}
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-slate-900">Synchronized Sound Effects (SFX)</p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        Adds subtle swoosh and whoosh audio transitions between scenes
-                      </p>
-                    </div>
-                    <div
-                      className={`h-5 w-9 rounded-full transition-colors relative ${
-                        facelessEnableSfx ? "bg-orange-500" : "bg-slate-300"
-                      }`}
-                    >
-                      <div
-                        className={`h-4 w-4 rounded-full bg-white transition-transform absolute top-0.5 ${
-                          facelessEnableSfx ? "left-4.5" : "left-0.5"
-                        }`}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Custom User BGM Upload Box */}
-                <input
-                  ref={bgmInputRef}
-                  type="file"
-                  accept="audio/*"
-                  onChange={handleCustomBgmUpload}
-                  className="hidden"
-                />
-
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 p-4 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-10 w-10 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-500 shrink-0">
-                      <Upload size={18} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-black text-slate-900 truncate">
-                        {customBgmName ? `Uploaded: ${customBgmName}` : "Upload Custom Background Music"}
-                      </p>
-                      <p className="text-[11px] text-slate-500">
-                        {customBgmUrl
-                          ? "Custom music track active for render"
-                          : "Upload your own royalty-free background MP3"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    {customBgmUrl ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCustomBgmUrl("");
-                          setCustomBgmName("");
-                          setSelectedBgmTrack(AWS_BGM_TRACKS[0].id);
-                        }}
-                        className="px-3 py-1.5 rounded-xl border border-red-200 bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition cursor-pointer"
-                      >
-                        Remove
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => bgmInputRef.current?.click()}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-xs font-bold text-slate-800 transition cursor-pointer shadow-xs"
-                      >
-                        <Upload size={12} />
-                        <span>Upload Audio</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* AWS S3 Preset Music Tracks (14 Tracks) */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-slate-700">
-                      Or Choose from Curated AWS S3 Music Tracks ({AWS_BGM_TRACKS.length})
-                    </label>
-                    <span className="text-[11px] text-slate-400">All tracks royalty-free for YouTube monetization</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {AWS_BGM_TRACKS.map((track) => {
-                      const isSelected = !customBgmUrl && selectedBgmTrack === track.id;
-                      const isPlaying = playingBgmPreview === track.id;
-
-                      return (
-                        <div
-                          key={track.id}
-                          onClick={() => {
-                            setCustomBgmUrl("");
-                            setSelectedBgmTrack(track.id);
-                            onBgmTrackSelect?.(track.id, getBgmTrackAudioUrl(track));
-                          }}
-                          className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center justify-between gap-3 ${
-                            isSelected
-                              ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-1 ring-orange-500"
-                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-black truncate">{track.label}</span>
-                              <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
-                                {track.category}
-                              </span>
-                            </div>
-                            <span className="text-[11px] text-slate-500 truncate block mt-0.5">{track.desc}</span>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            {track.id !== "none" && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  togglePlayBgmTrack(track);
-                                }}
-                                title="Listen to Preview"
-                                className="h-8 w-8 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 transition flex items-center justify-center cursor-pointer shadow-xs"
-                              >
-                                {isPlaying ? (
-                                  <Pause size={13} className="text-orange-500" />
-                                ) : (
-                                  <Play size={13} className="ml-0.5 text-slate-600" />
-                                )}
-                              </button>
-                            )}
-
-                            {isSelected && <CheckCircle2 size={16} className="text-orange-500" />}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-
-          {/* ══════════════════════════════════════════════════════════════
-              STEP 3: STYLE (32 Animated Caption Themes & Pacing)
+              STEP 3: STYLE (Mobile-Responsive Sub-Tabs Engine)
               ══════════════════════════════════════════════════════════════ */}
           {currentStep === 3 && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Unified Visual Design System (12-System Master Theme Engine) */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Sparkles size={20} className="text-orange-500" />
-                      <span>Unified Visual Design System (16:9 Widescreen)</span>
-                      <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
-                        6 Master Themes
+            <div className="space-y-5 animate-in fade-in duration-200">
+              {/* Sleek Sub-Tabs Strip (Eliminates 65-card infinite scrolling on mobile) */}
+              <div className="p-1 bg-slate-100/90 border border-slate-200/90 rounded-2xl flex items-center gap-1 overflow-x-auto scrollbar-none shadow-2xs">
+                {[
+                  {
+                    id: "subtitles",
+                    label: "Captions",
+                    badge: "32 Presets",
+                    active: currentCaptionObj.name,
+                    icon: Type,
+                  },
+                  {
+                    id: "themes",
+                    label: "Themes",
+                    badge: "6 Systems",
+                    active: MASTER_THEMES[activeVisualTheme]?.name || activeVisualTheme,
+                    icon: Sparkles,
+                  },
+                  {
+                    id: "typography",
+                    label: "Fonts",
+                    badge: "11 Pairs",
+                    active: `${activeHeadingFont} / ${activeBodyFont}`,
+                    icon: FileText,
+                  },
+                  {
+                    id: "canvas",
+                    label: "Canvas",
+                    badge: "5 Tones",
+                    active: backgroundTheme || "solid-white",
+                    icon: Layers,
+                  },
+                ].map((tab) => {
+                  const isTabActive = styleSubTab === tab.id;
+                  const IconComp = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setStyleSubTab(tab.id as any)}
+                      className={`flex-1 min-w-[105px] sm:min-w-0 py-2 sm:py-2.5 px-2.5 sm:px-3 rounded-xl transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 ${
+                        isTabActive
+                          ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/25 font-black scale-[1.01]"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-white/60 font-bold"
+                      }`}
+                    >
+                      <IconComp size={14} className={isTabActive ? "text-white" : "text-slate-400"} />
+                      <span className="text-xs">{tab.label}</span>
+                      <span className={`text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md ${
+                        isTabActive ? "bg-white/20 text-white border border-white/30" : "bg-slate-200/80 text-slate-500"
+                      }`}>
+                        {tab.badge}
                       </span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Controls typography, colors, backgrounds, SVGs, charts, images, and motion with 100% aesthetic harmony across all scenes.
-                    </p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Sub-Tab: Visual Themes */}
+              {styleSubTab === "themes" && (
+                <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-6">
+                  <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <Sparkles size={18} className="text-orange-500" />
+                      <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                        Visual Themes
+                      </h2>
+                    </div>
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600">
+                      6 Master Themes
+                    </span>
                   </div>
-                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                   {Object.values(MASTER_THEMES).map((theme) => {
@@ -1363,11 +1683,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           setActiveVisualTheme(theme.id);
                           onVisualThemeChange?.(theme.id);
                         }}
-                        className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-3 ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
-                        }`}
+                        className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-3 ${isSelected
+                          ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
+                          : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
+                          }`}
                       >
                         <div className="flex items-center justify-between w-full">
                           <span className="text-xs font-black text-slate-900">{theme.name}</span>
@@ -1423,17 +1742,35 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   })}
                 </div>
               </div>
+            )}
 
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Type size={20} className="text-orange-500" />
-                      <span>32 Master Kinetic Caption Themes</span>
+            {/* Sub-Tab 2: Kinetic Subtitle Captions (32 Presets) */}
+            {styleSubTab === "subtitles" && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-5">
+                {/* Kinetic Caption Pipeline Guide */}
+                <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-orange-50/70 via-amber-50/40 to-slate-50 border border-orange-200/60 overflow-x-auto scrollbar-none shadow-2xs">
+                  <span className="text-orange-600 font-extrabold flex items-center gap-1.5 shrink-0">
+                    <Zap size={13} className="fill-orange-500 text-orange-500" />
+                    Kinetic Pipeline:
+                  </span>
+                  <span className="text-slate-800 shrink-0">Spoken Speech</span>
+                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
+                  <span className="text-slate-800 shrink-0">Word Timestamps</span>
+                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
+                  <span className="text-orange-600 font-bold shrink-0">Active Word Glow</span>
+                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
+                  <span className="text-slate-800 shrink-0">1080p Cinema Burn-in</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-1 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Type size={18} className="text-orange-500" />
+                    <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                      Kinetic Caption Styles
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Live animated word-by-word previews. High retention YouTube captions.
-                    </p>
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600">
+                      32 Presets
+                    </span>
                   </div>
 
                   {/* Search Bar */}
@@ -1449,6 +1786,41 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   </div>
                 </div>
 
+                {/* Active Subtitle Live Cinema Preview Bar */}
+                <div className="rounded-2xl bg-slate-950 p-4 border border-slate-800 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
+                      <Sparkles size={16} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
+                          Active Preset:
+                        </span>
+                        <h4 className="text-xs sm:text-sm font-black text-white flex items-center gap-1.5">
+                          {currentCaptionObj.name}
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                            {currentCaptionObj.category}
+                          </span>
+                        </h4>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
+                        {currentCaptionObj.desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Dynamic Preview Words Live Preview */}
+                  <div className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-black/80 border border-slate-800 flex items-center justify-center min-w-[220px]">
+                    {renderPreviewCaptionWords(
+                      currentCaptionObj.id,
+                      currentCaptionObj.color,
+                      currentCaptionObj.fontFamily,
+                      previewWordStep
+                    )}
+                  </div>
+                </div>
+
                 {/* Category Filter Pills */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
                   {["all", "viral", "cinema", "modern", "creative", "minimal"].map((cat) => (
@@ -1456,11 +1828,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       key={cat}
                       type="button"
                       onClick={() => setCaptionFilter(cat)}
-                      className={`text-xs font-extrabold uppercase px-3 py-1.5 rounded-xl border transition cursor-pointer shrink-0 ${
-                        captionFilter === cat
-                          ? "bg-orange-500 text-white border-orange-500 shadow-xs"
-                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                      }`}
+                      className={`text-xs font-extrabold uppercase px-3 py-1.5 rounded-xl border transition cursor-pointer shrink-0 ${captionFilter === cat
+                        ? "bg-orange-500 text-white border-orange-500 shadow-xs"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                        }`}
                     >
                       {cat}
                     </button>
@@ -1477,11 +1848,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         key={theme.id}
                         type="button"
                         onClick={() => onSubtitleStyleChange?.(theme.id)}
-                        className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-3 ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
-                        }`}
+                        className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-3 ${isSelected
+                          ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
+                          : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
+                          }`}
                       >
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center gap-2">
@@ -1494,8 +1864,13 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         </div>
 
                         {/* Live Kinetic Word Preview Strip */}
-                        <div className="bg-slate-900/95 rounded-xl px-3 py-2 flex items-center justify-center min-h-[38px] overflow-hidden">
-                          {renderPreviewCaptionWords(theme.id)}
+                        <div className="bg-slate-950 rounded-xl px-3 py-2.5 flex items-center justify-center min-h-[44px] overflow-hidden border border-slate-800/80 shadow-inner">
+                          {renderPreviewCaptionWords(
+                            theme.id,
+                            theme.color,
+                            theme.fontFamily,
+                            isSelected ? previewWordStep : 1
+                          )}
                         </div>
 
                         <span className="text-[11px] text-slate-500 line-clamp-1">{theme.desc}</span>
@@ -1519,11 +1894,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           key={pace.id}
                           type="button"
                           onClick={() => onPacingStyleChange?.(pace.id as any)}
-                          className={`p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${
-                            facelessPacingStyle === pace.id
-                              ? "border-orange-500 bg-orange-50 text-orange-600"
-                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                          }`}
+                          className={`p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${facelessPacingStyle === pace.id
+                            ? "border-orange-500 bg-orange-50 text-orange-600"
+                            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            }`}
                         >
                           <div>{pace.label}</div>
                           <div className="text-[10px] text-slate-400 font-normal">{pace.desc}</div>
@@ -1544,11 +1918,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           key={pos.id}
                           type="button"
                           onClick={() => onCaptionPositionChange?.(pos.id as any)}
-                          className={`p-2.5 rounded-xl border text-center text-xs font-bold transition cursor-pointer ${
-                            captionPosition === pos.id
-                              ? "border-orange-500 bg-orange-50 text-orange-600"
-                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                          }`}
+                          className={`p-2.5 rounded-xl border text-center text-xs font-bold transition cursor-pointer ${captionPosition === pos.id
+                            ? "border-orange-500 bg-orange-50 text-orange-600"
+                            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                            }`}
                         >
                           {pos.label}
                         </button>
@@ -1557,19 +1930,21 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   </div>
                 </div>
               </div>
-{/* Dual Font System: Font 1 & Font 2 Selection */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
-                <div>
-                  <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                    <Type size={20} className="text-orange-500" />
-                    <span>Font Pairing Selection (Font 1 &amp; Font 2)</span>
-                    <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
-                      Dual Font System
-                    </span>
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Choose two complementary fonts to create visual variety and avoid repetitive typography throughout the video.
-                  </p>
+            )}
+
+            {/* Sub-Tab 3: Dual Font Typography (Font 1 & Font 2) */}
+            {styleSubTab === "typography" && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-6">
+                <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Type size={18} className="text-orange-500" />
+                    <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                      Font Pairing Selection
+                    </h2>
+                  </div>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600">
+                    Dual Font Architecture
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1584,8 +1959,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         {activeHeadingFont}
                       </span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {POPULAR_HEADING_FONTS.map((f) => {
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {POPULAR_HEADING_FONTS.map((f: any) => {
                         const isSelected = activeHeadingFont === f.id;
                         return (
                           <button
@@ -1595,14 +1970,36 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                               setActiveHeadingFont(f.id);
                               onHeadingFontChange?.(f.id);
                             }}
-                            className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                              isSelected
-                                ? "border-orange-500 bg-orange-50/70 text-slate-900 ring-1 ring-orange-500"
-                                : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
-                            }`}
+                            className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${isSelected
+                              ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-2 ring-orange-500/20"
+                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
+                              }`}
                           >
-                            <span className="text-xs font-black truncate">{f.name}</span>
-                            <span className="text-[10px] text-slate-400 truncate mt-0.5">{f.desc}</span>
+                            <div className="flex items-center justify-between w-full">
+                              <span className="text-[11px] font-bold text-slate-500 font-sans">{f.name}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-600 font-sans">
+                                  {f.category}
+                                </span>
+                                {isSelected && (
+                                  <div className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-600 text-white shadow-2xs">
+                                    <Check size={10} strokeWidth={3} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Actual Font Live Specimen Preview */}
+                            <div className="py-1">
+                              <span
+                                style={{ fontFamily: `'${f.id}', serif, sans-serif` }}
+                                className="text-base sm:text-lg font-black text-slate-900 block truncate tracking-tight leading-none"
+                              >
+                                {f.sample}
+                              </span>
+                            </div>
+
+                            <span className="text-[10px] text-slate-400 font-medium font-sans truncate block">{f.desc}</span>
                           </button>
                         );
                       })}
@@ -1620,8 +2017,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         {activeBodyFont}
                       </span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {POPULAR_BODY_FONTS.map((f) => {
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {POPULAR_BODY_FONTS.map((f: any) => {
                         const isSelected = activeBodyFont === f.id;
                         return (
                           <button
@@ -1631,14 +2028,36 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                               setActiveBodyFont(f.id);
                               onBodyFontChange?.(f.id);
                             }}
-                            className={`p-3 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                              isSelected
-                                ? "border-orange-500 bg-orange-50/70 text-slate-900 ring-1 ring-orange-500"
-                                : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700"
-                            }`}
+                            className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${isSelected
+                              ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-2 ring-orange-500/20"
+                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
+                              }`}
                           >
-                            <span className="text-xs font-black truncate">{f.name}</span>
-                            <span className="text-[10px] text-slate-400 truncate mt-0.5">{f.desc}</span>
+                            <div className="flex items-center justify-between w-full">
+                              <span className="text-[11px] font-bold text-slate-500 font-sans">{f.name}</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-600 font-sans">
+                                  {f.category}
+                                </span>
+                                {isSelected && (
+                                  <div className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-600 text-white shadow-2xs">
+                                    <Check size={10} strokeWidth={3} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Actual Font Live Specimen Preview */}
+                            <div className="py-1">
+                              <p
+                                style={{ fontFamily: `'${f.id}', sans-serif, serif` }}
+                                className="text-xs text-slate-800 font-medium line-clamp-1 leading-snug"
+                              >
+                                {f.sample}
+                              </p>
+                            </div>
+
+                            <span className="text-[10px] text-slate-400 font-medium font-sans truncate block">{f.desc}</span>
                           </button>
                         );
                       })}
@@ -1646,17 +2065,21 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* Background Canvas Palette Selection */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
-                <div>
-                  <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                    <Layers size={20} className="text-orange-500" />
-                    <span>Background Canvas Palette</span>
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Select your preferred video background canvas tone to match your channel niche.
-                  </p>
+            {/* Sub-Tab 4: Background Canvas Palette Selection */}
+            {styleSubTab === "canvas" && (
+              <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-4">
+                <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Layers size={18} className="text-orange-500" />
+                    <h2 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                      Background Palette
+                    </h2>
+                  </div>
+                  <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600">
+                    Canvas Tone
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -1667,11 +2090,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         key={bg.id}
                         type="button"
                         onClick={() => onBackgroundThemeChange?.(bg.id)}
-                        className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/50 shadow-xs ring-2 ring-orange-500/20"
-                            : "border-slate-200 bg-slate-50 hover:bg-slate-100/80"
-                        }`}
+                        className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${isSelected
+                          ? "border-orange-500 bg-orange-50/50 shadow-xs ring-2 ring-orange-500/20"
+                          : "border-slate-200 bg-slate-50 hover:bg-slate-100/80"
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-black text-slate-900">{bg.name}</span>
@@ -1686,10 +2108,296 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   })}
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 4: ASSETS (S3 Curated Media Pool & Scene Assignment)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 4 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                      <Layers size={20} className="text-orange-500" />
+                      <span>S3 Curated Media Pool &amp; Scene Assignment</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
+                        730+ Curated S3 Assets
+                      </span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Connect each scene with authentic S3 illustrations, 2D vector concepts, and realistic documentary visuals. AI has pre-matched the most relevant assets below.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                      {sceneBlueprint.length} Scenes Planned
+                    </span>
+                  </div>
+                </div>
+
+                {/* Video Beat Pipeline Guide */}
+                <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-orange-50/70 via-amber-50/40 to-slate-50 border border-orange-200/60 overflow-x-auto scrollbar-none shadow-2xs">
+                  <span className="text-orange-600 font-extrabold flex items-center gap-1.5 shrink-0">
+                    <Film size={13} className="text-orange-500" />
+                    Story Beat Flow:
+                  </span>
+                  <span className="text-slate-800 shrink-0">Hook Intro</span>
+                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
+                  <span className="text-slate-800 shrink-0">Core Tenets &amp; Data</span>
+                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
+                  <span className="text-slate-800 shrink-0">B-Roll Visuals</span>
+                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
+                  <span className="text-orange-600 font-bold shrink-0">Retention Climax</span>
+                </div>
+
+                {/* Scene-to-Asset Mapping Strip */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                      <Film size={14} className="text-orange-500" />
+                      <span>Scene Visual Timeline</span>
+                    </h3>
+                    <span className="text-[11px] font-bold text-slate-500">
+                      Click any scene to assign or replace its S3 asset
+                    </span>
+                  </div>
+
+                  {sceneBlueprint.length === 0 ? (
+                    <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-8 text-center space-y-2">
+                      <Film size={32} className="mx-auto text-slate-400 stroke-1" />
+                      <p className="text-xs font-bold text-slate-700">No scenes planned yet</p>
+                      <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
+                        Please upload your voiceover audio in Step 1 to auto-transcribe and generate scenes with AI.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                      {sceneBlueprint.map((sc, idx) => {
+                        const sceneNum = sc.sceneNumber || idx + 1;
+                        const assetUrl = brollUrls[sceneNum] || sc.assetUrl;
+                        const isSelected = selectedSceneForAssetSwap === sceneNum;
+
+                        return (
+                          <div
+                            key={`scene-asset-card-${sceneNum}`}
+                            onClick={() => setSelectedSceneForAssetSwap(isSelected ? null : sceneNum)}
+                            className={`rounded-2xl border p-3.5 transition-all duration-200 cursor-pointer space-y-2.5 group hover:-translate-y-1 ${isSelected
+                              ? "border-orange-500 bg-gradient-to-b from-orange-50/50 to-white ring-2 ring-orange-500/25 shadow-md shadow-orange-500/10"
+                              : "border-slate-200 bg-white hover:border-orange-300 hover:shadow-md"
+                              }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-tr from-slate-900 to-slate-800 text-white text-[10px] font-mono font-black shadow-xs">
+                                  {sceneNum}
+                                </span>
+                                <span className="text-xs font-black text-slate-900 truncate max-w-[140px] group-hover:text-orange-600 transition-colors">
+                                  {sc.heading || sc.title || `Scene ${sceneNum}`}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">
+                                  {sc.duration ? `${Math.round(sc.duration)}s` : "5s"}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenEditModal(idx);
+                                  }}
+                                  className="p-1 rounded-md text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition cursor-pointer"
+                                  title="Edit Scene Text"
+                                >
+                                  <Edit3 size={11} />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Thumbnail / Visual Placeholder */}
+                            <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 flex items-center justify-center group">
+                              {assetUrl ? (
+                                <>
+                                  <img
+                                    src={assetUrl}
+                                    alt={sc.heading || "Scene Visual"}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemoveAssetFromScene(sceneNum);
+                                    }}
+                                    className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-slate-900/80 hover:bg-red-600 text-white transition opacity-0 group-hover:opacity-100 shadow-sm cursor-pointer"
+                                    title="Remove asset from scene"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </>
+                              ) : (
+                                <div className="flex flex-col items-center gap-1 text-slate-400 p-2 text-center">
+                                  <Type size={18} className="text-slate-400" />
+                                  <span className="text-[10px] font-bold text-slate-500">
+                                    {sc.layoutType ? String(sc.layoutType).replace(/_/g, " ") : "Vector Typography"}
+                                  </span>
+                                  <span className="text-[9px] text-orange-600 font-semibold">
+                                    Click to assign S3 visual
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="text-slate-500 line-clamp-1">
+                                {sc.supportingText || sc.keyTakeaway || "Supporting explanation"}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* S3 Curated Asset Library Browser */}
+                <div className="pt-4 border-t border-slate-200/80 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                        <Search size={14} className="text-orange-500" />
+                        <span>Browse S3 Asset Library</span>
+                        {selectedSceneForAssetSwap && (
+                          <span className="bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                            Target: Scene #{selectedSceneForAssetSwap}
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Select any asset below to assign it to {selectedSceneForAssetSwap ? `Scene #${selectedSceneForAssetSwap}` : "the active scene"}.
+                      </p>
+                    </div>
+
+                    {/* Search Box */}
+                    <div className="relative w-full sm:w-64">
+                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        value={assetSearchQuery}
+                        onChange={(e) => setAssetSearchQuery(e.target.value)}
+                        placeholder="Search tags or titles..."
+                        className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-orange-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Category Pills */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {ITNAVIDEO_STOCK_CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setAssetCategoryFilter(cat.id)}
+                        className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${assetCategoryFilter === cat.id
+                          ? "bg-slate-900 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Assets Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[460px] overflow-y-auto pr-1">
+                    {filteredAssets.map((asset) => {
+                      const isAssigned = Object.values(brollUrls).includes(asset.absoluteUrl);
+                      return (
+                        <div
+                          key={`stock-card-${asset.id}`}
+                          className="group relative rounded-2xl border border-slate-200 bg-white p-2 hover:border-orange-400 hover:shadow-md transition flex flex-col space-y-2"
+                        >
+                          <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
+                            <img
+                              src={asset.absoluteUrl}
+                              alt={asset.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                              loading="lazy"
+                            />
+                            <span className="absolute top-1 left-1 bg-slate-900/80 backdrop-blur-xs text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md">
+                              {asset.style || "2d"}
+                            </span>
+                            {isAssigned && (
+                              <span className="absolute bottom-1 right-1 bg-emerald-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs flex items-center gap-0.5">
+                                <Check size={10} /> In Use
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex-1 flex flex-col justify-between">
+                            <p className="text-[11px] font-black text-slate-900 line-clamp-1" title={asset.title}>
+                              {asset.title}
+                            </p>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">
+                              {asset.categoryLabel || asset.category}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleAssignAssetToCurrentOrTarget(asset.absoluteUrl)}
+                            className="w-full py-1.5 rounded-xl bg-orange-50 hover:bg-orange-500 text-orange-600 hover:text-white text-[11px] font-black transition cursor-pointer flex items-center justify-center gap-1 active:scale-95 border border-orange-200 hover:border-orange-500"
+                          >
+                            <Plus size={12} />
+                            <span>{selectedSceneForAssetSwap ? `Assign to #${selectedSceneForAssetSwap}` : "Assign to Scene"}</span>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Preflight Guarantee Banner */}
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                      <ShieldCheck size={18} />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-emerald-950 uppercase tracking-wider">
+                        Studio-Grade 1080p Cinema Preflight Verified
+                      </h4>
+                      <p className="text-[11px] text-emerald-800">
+                        All visual assets, BGM audio tracks, and Remotion scene templates are cleared for commercial YouTube monetization.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-[11px] font-bold text-emerald-900">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 size={13} className="text-emerald-600" />
+                      <span>1920×1080 @ 30 FPS</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 size={13} className="text-emerald-600" />
+                      <span>-16 LUFS Audio Mastering</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 size={13} className="text-emerald-600" />
+                      <span>Dynamic BGM Auto-Ducking</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 size={13} className="text-emerald-600" />
+                      <span>AWS Lambda Parallel Render</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
-                  </div>
+        </div>
       </div>
 
       {/* ── MODAL: Pre-Render Confirmation (Audit Recommendation 6) ── */}
@@ -1763,51 +2471,150 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
         </div>
       )}
 
-      {/* ── ROW 3: Sticky Bottom Action Bar ── */}
-      <div className="shrink-0 border-t border-slate-200/90 bg-white/95 backdrop-blur-xl px-4 sm:px-8 lg:px-12 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500">Topic:</span>
-            <span className="text-xs font-black text-slate-900 max-w-[200px] truncate">
-              {topicTitle || "Faceless Video"}
-            </span>
-          </div>
-          <span className="hidden sm:inline text-slate-300">•</span>
-          <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
-            <Zap size={13} className="fill-orange-500 text-orange-500" />
-            <span>Cost: {calculatedCredits} Credit{calculatedCredits > 1 ? "s" : ""} (1 Min = 1 Cr)</span>
+      {/* ── MODAL: Edit Scene Text ── */}
+      {editSceneIndex !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-9 rounded-xl bg-orange-100 border border-orange-200 text-orange-600 flex items-center justify-center">
+                  <Edit3 size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">Edit Scene #{editSceneIndex + 1}</h3>
+                  <p className="text-xs text-slate-500">Update headline and takeaway text</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditSceneIndex(null)}
+                className="p-1.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-100 transition cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Visual Layout & Presentation Infographic</label>
+                <select
+                  value={editLayoutInput}
+                  onChange={(e) => setEditLayoutInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-orange-500 bg-white"
+                >
+                  <optgroup label="── Modern Infographics (PowerPoint/Keynote Suite) ──">
+                    <option value="curved_roadmap">Curved Serpentine Roadmap (Poles & Milestones)</option>
+                    <option value="circular_org_chart">Multi-Level Circular Org Chart (Radial Hub)</option>
+                    <option value="horizontal_shelves">Horizontal Architecture Shelves (3-4 Tiers)</option>
+                    <option value="scorecard_dashboard">Scorecard / Executive KPI Dashboard</option>
+                    <option value="table_of_contents">Table of Contents / Agenda Roadmap</option>
+                    <option value="mission_vision">Mission & Vision Dual Strategic Pillars</option>
+                    <option value="medical_infographic">Medical & Clinical Monitor (Live ECG Waveform)</option>
+                  </optgroup>
+                  <optgroup label="── Core 16:9 Narrative Archetypes ──">
+                    <option value="card_concept">Card Concept (Default Modern Card)</option>
+                    <option value="stat_card">Stat Card (Single KPI & Accent Chime)</option>
+                    <option value="comparison">Versus Comparison (Side-by-Side)</option>
+                    <option value="horizontal_process">5-Step Horizontal Process Flow</option>
+                    <option value="workflow">Workflow & Automation Pipeline</option>
+                    <option value="before_after_transformation">Before / After Transformation</option>
+                    <option value="checklist">Checklist / Core Tenets</option>
+                    <option value="quote">Quote & Mindset Principle</option>
+                    <option value="chapter_title">Chapter Title Card</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Headline Text (2-5 words)</label>
+                <input
+                  type="text"
+                  value={editHeadlineInput}
+                  onChange={(e) => setEditHeadlineInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-orange-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Supporting Takeaway Text</label>
+                <textarea
+                  rows={3}
+                  value={editTakeawayInput}
+                  onChange={(e) => setEditTakeawayInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:border-orange-500 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEditSceneIndex(null)}
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveSceneEdits}
+                className="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black shadow-sm shadow-orange-500/20 active:scale-95 cursor-pointer"
+              >
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
+      )}
 
-        <div className="flex items-center gap-2.5 self-end sm:self-auto">
-          {currentStep > 1 && (
+      {/* ── ROW 3: Sticky Bottom Action Bar ── */}
+      <div className="shrink-0 border-t border-slate-200/90 bg-white/95 backdrop-blur-xl px-3 sm:px-8 lg:px-12 py-2.5 sm:py-3.5 flex items-center justify-between gap-2 shadow-lg">
+        {/* Left Side: Back button + Step info */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {currentStep > 0 && (
             <button
               type="button"
               onClick={() => setCurrentStep((currentStep - 1))}
-              className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
+              className="px-3 sm:px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer shrink-0"
             >
               Back
             </button>
           )}
 
-          {currentStep < FACELESS_STEPS.length ? (
+          <div className="flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-orange-600 bg-orange-50 px-2.5 sm:px-3 py-1 rounded-full border border-orange-200 shrink-0">
+            <Zap size={12} className="fill-orange-500 text-orange-500" />
+            <span className="hidden sm:inline">
+              {currentStep === 0 ? "Overview Roadmap • " : `Step ${currentStep} of 4 • `}
+            </span>
+            <span>{currentStep === 0 ? "~60s Total" : `${calculatedCredits} Cr`}</span>
+          </div>
+
+          <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500 max-w-[200px] truncate">
+            <span className="font-semibold text-slate-400">Topic:</span>
+            <span className="font-black text-slate-900 truncate">{topicTitle || "Faceless Video"}</span>
+          </div>
+        </div>
+
+        {/* Right Side: Next or Generate */}
+        <div className="flex items-center gap-2 shrink-0">
+          {currentStep < FACELESS_STEPS[FACELESS_STEPS.length - 1].step ? (
             <button
               type="button"
               onClick={() => setCurrentStep((currentStep + 1))}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black transition cursor-pointer shadow-sm shadow-orange-500/20 active:scale-95"
+              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black transition-all cursor-pointer shadow-md shadow-orange-500/25 active:scale-95 group"
             >
-              <span>Next: {FACELESS_STEPS.find(s => s.step === currentStep + 1)?.title ?? "Next"}</span>
-              <ArrowRight size={14} />
+              <span>{currentStep === 0 ? "Start Step 1: Upload" : `Next: ${FACELESS_STEPS.find(s => s.step === currentStep + 1)?.title ?? "Next"}`}</span>
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
             </button>
           ) : (
             <button
               type="button"
               onClick={() => setShowPreRenderModal(true)}
               disabled={isGenerating || !selectedFile}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black transition cursor-pointer shadow-md shadow-orange-500/25 active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+              className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black transition-all cursor-pointer shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:pointer-events-none group"
             >
-              <Sparkles size={14} />
+              <Sparkles size={14} className="group-hover:rotate-12 transition-transform duration-300" />
               <span>Create Faceless Video</span>
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
             </button>
           )}
         </div>

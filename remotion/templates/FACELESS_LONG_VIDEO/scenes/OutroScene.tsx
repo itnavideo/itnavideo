@@ -8,6 +8,7 @@ import {
   SceneCanvas,
   StudioCard,
 } from '../components/DesignSystemPrimitives';
+import { SubscribeBellAsset } from '../../../components/library/SubscribeBellAsset';
 
 export interface OutroSceneProps {
   scene: SceneBlueprintItem;
@@ -20,12 +21,12 @@ export interface OutroSceneProps {
 
 /**
  * L17. OutroScene
- * Clean, high-impact outro with Call To Action, brand pill, and celebratory accents.
- * Provides a definitive conclusion instead of cutting abruptly on a random visual.
+ * Clean, high-impact outro with Call To Action, brand pill, celebratory accents,
+ * and animated YouTube Subscribe + Bell overlay asset.
  */
 export function OutroScene({
   scene,
-  headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
+  headingFont = 'Lora, "Playfair Display", Georgia, serif',
   bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
   sceneFrame,
   palette,
@@ -101,8 +102,8 @@ export function OutroScene({
           <h2
             style={{
               fontFamily: headingFont,
-              fontSize: '56px',
-              fontWeight: 900,
+              fontSize: '52px',
+              fontWeight: 700,
               lineHeight: 1.15,
               letterSpacing: '-0.02em',
               color: ds.surface.textPrimary,
@@ -117,8 +118,8 @@ export function OutroScene({
           <p
             style={{
               fontFamily: bodyFont,
-              fontSize: '24px',
-              fontWeight: 600,
+              fontSize: '22px',
+              fontWeight: 500,
               lineHeight: 1.45,
               color: ds.surface.textSecondary,
               margin: '0',
@@ -128,35 +129,24 @@ export function OutroScene({
             {ctaText}
           </p>
 
-          {/* High-Impact CTA Button */}
+          {/* Ultra-Premium YouTube Subscribe + Bell Asset */}
           <div
             style={{
-              marginTop: '12px',
-              opacity: buttonSpring,
-              transform: `scale(${interpolate(buttonSpring, [0, 1], [0.85, 1])})`,
+              position: 'relative',
+              width: '100%',
+              height: '90px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: '16px',
             }}
           >
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '16px 36px',
-                borderRadius: '9999px',
-                background: 'linear-gradient(135deg, #059669, #10B981)',
-                color: '#FFFFFF',
-                fontFamily: headingFont,
-                fontSize: '20px',
-                fontWeight: 800,
-                letterSpacing: '0.04em',
-                boxShadow: '0 8px 24px rgba(16, 185, 129, 0.4)',
-              }}
-            >
-              <span>{creatorHandle ? `Follow ${creatorHandle}` : 'Subscribe for More'}</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </div>
+            <SubscribeBellAsset
+              scale={1.05}
+              position="center"
+              sceneFrame={sceneFrame}
+              startDelayFrames={10}
+            />
           </div>
         </StudioCard>
       </div>

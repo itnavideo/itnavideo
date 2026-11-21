@@ -84,9 +84,15 @@ Across all 4 audited video and audio engines, the audits converged on **5 fundam
 *Source: `Faceless Video Generator md.pdf` • 16:9 Cinema • 1 Min = 1 Credit*
 
 #### P0 — Must Implement Before Release
+- [x] **S3 Asset Library AI Catalog Connection & 5-Step Architecture**:
+  - Implemented `services/ai/assetCatalogMatcher.ts` connecting AI planner directly with S3 asset repository (730+ assets across Finance, Tech, Workspace, Lifestyle, 2D, 3D, Realistic).
+  - Pre-searches S3 catalog using narration transcript and injects available asset pool directly into Gemini prompt.
+  - AI directly outputs `assignedAssetId` bound to verified S3 URLs (no imaginary asset queries, zero mismatch).
+  - Expanded studio to 5 flexible steps: Upload → Music → Style → Assets → Storyboard.
+  - Step 4 (Assets): Visual timeline mapping + S3 Curated Asset Library Browser with category pills, live tag search, and one-click scene assignment/swap.
+  - Step 5 (Storyboard): 16:9 Cinema Monitor live preview, scene text editor modal, -16 LUFS preflight verification, and credit confirmation.
 - [x] **Mandatory Storyboard Review & Edit Stage**:
-  - Expanded workflow to 4 distinct guided steps: Upload → Music → Style → Storyboard.
-  - Storyboard Breakdown cards for all scenes with visual type tags (Stock B-Roll, SVG, Vignette).
+  - Expanded workflow to guided steps with scene cards and visual type tags.
   - Studio-Grade 1080p Cinema Output Guarantee: 1080p Full HD @ 30 FPS, Pure White Canvas, -16 LUFS audio mastering.
 - [ ] **Deterministic AI Planning Contract (Zod Schema)**:
   - Gemini prompt must output structured JSON validated against a versioned Zod schema.
@@ -148,6 +154,30 @@ Applicable across all 15 studios:
   - Use signed, short-lived (48-hour) download URLs.
 - [ ] **Mandatory Brand Watermark Enforcement (Rule 7.2)**:
   - Audit all Remotion templates to verify `<BrandWatermark watermark={watermark} />` renders before `</AbsoluteFill>`.
+
+---
+
+## 3.1 Autonomous AI Video Director & Timestamp-Level Self-Healing Polish Engine
+
+An autonomous pre-flight inspection and enhancement layer that audits the entire video timeline **timestamp-by-timestamp** before triggering cloud render. It inspects all visible layers, detects "weak video zones" (low-retention, static, or unpolished segments), and automatically applies professional directorial polish.
+
+### A. The 6-Layer Timestamp Inspection Protocol
+| Inspection Layer | What the AI Audits at Every Timestamp | Failure / Weakness Condition | Autonomous Self-Healing Fix |
+|---|---|---|---|
+| **1. Visual Retention & Motion** | Screen dynamism across every 2.0–3.0 second window. | Static canvas with zero camera drift or element motion for >2.5s ("Boring Zone"). | Injects subtle Ken Burns camera motion (`scale: 1.0 → 1.05`, subtle pan), or adds a micro-sticker accent with pop SFX. |
+| **2. Asset Presentation Polish** | Raw user uploads (screenshots, photos, screen recordings). | Raw unstyled rectangle floating on canvas ("Cheap / Amateur Look"). | Automatically wraps asset inside `PremiumAssetShowcase` (macOS Safari browser frame, Titanium iPhone mockup, or 3D perspective tilt with soft shadow). |
+| **3. Kinetic Visual Hierarchy** | Focus directing when narrator emphasizes numbers, key facts, or contrasts. | Flat unhighlighted text or plain card where the viewer's eye wanders. | Injects `HandwritingHighlight` under core metric or `HandwritingAnnotation` pointer arrow + cursive callout note (*"Notice this!"*). |
+| **4. Audio & SFX Synchronization** | Alignment between spoken emphasis, visual entry, and sound effects. | Visual card pops in silently, or sound effect is offset by >150ms from visual spring start. | Automatically synchronizes exact frame trigger of `woosh.mp3`, `pop.mp3`, or `subtle-click.mp3` with Remotion spring entrance frame. |
+| **5. Spatial Collision & Safe Zones** | Bounding box coordinates of captions, central graphic cards, and UI safe zones. | Subtitle text collides with device mockup, sticker overlaps text, or element bleeds into mobile notch. | Auto-offsets subtitle vertical position (`translateY`), scales down central graphic by 8%–12%, or repacks elements into side-docked layout. |
+| **6. Thematic Color Harmony** | Color palette consistency with topic sentiment (Finance, Tech, Crisis, Growth). | Random mismatched colors (e.g., bright pink cards in a serious corporate debt autopsy). | Auto-realigns cards to semantic palette (e.g., Finance $\rightarrow$ Deep Navy/Emerald; Crisis $\rightarrow$ Crimson/Amber; Tech $\rightarrow$ Indigo/Sky). |
+
+### B. The "Weak Video" Detection & Auto-Polish Engine
+* **Pacing & Energy Curve**: Analyzes speech tempo (words per minute). During fast narration, cuts B-roll/stickers every 1.5s–2.0s; during thoughtful pauses, slows camera drift and swells background music volume by +3dB.
+* **Smart B-Roll & Conceptual Fill**: If narration discusses an abstract topic without an assigned visual, AI queries `constants/itnavideoStockAssets.ts` for semantic matching and automatically slots a relevant curated 2D/3D visual or infographic.
+* **Pre-Flight Execution (Cloud & 4GB Safe)**:
+  1. **Deterministic Rule Engine (0ms, 0 tokens)**: Geometry collisions, duration checks, static screen timers, and audio volume levels.
+  2. **Sampled Keyframe Vision Audit (Gemini 2.0 Flash)**: Captures 8–12 keyframe snapshots at major transition timestamps. Vision prompt returns `{ weakZones: [], recommendedPolish: [] }`.
+  3. **Auto-Patching**: Remotion composition props are updated in-memory with the polished parameters *before* dispatching the final AWS Lambda render job.
 
 ---
 

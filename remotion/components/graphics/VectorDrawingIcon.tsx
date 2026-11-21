@@ -126,6 +126,13 @@ export const VectorDrawingIcon: React.FC<VectorDrawingIconProps> = ({
         />
       );
     }
+
+    // Optical stroke calculation: if rendered size is large (e.g. 300px+),
+    // dampen viewBox units so screen lines stay slim, elegant and editorial (~2.5px-3.5px)
+    const numSize = typeof size === 'number' ? size : 100;
+    const sizeScale = numSize / 100;
+    const defaultCatalogWidth = sizeScale > 1.8 ? 1.05 : 1.35;
+
     return (
       <svg
         viewBox={item.viewBox || '0 0 100 100'}
@@ -140,7 +147,9 @@ export const VectorDrawingIcon: React.FC<VectorDrawingIconProps> = ({
       >
         {item.paths.map((p, idx) => {
           const strokeColor = getColorForStroke(p.colorKey);
-          const width = strokeWidth || p.strokeWidth || 2.8;
+          const width = strokeWidth !== undefined
+            ? strokeWidth
+            : (p.strokeWidth ? Math.min(defaultCatalogWidth, p.strokeWidth * 0.45) : defaultCatalogWidth);
           return (
             <path
               key={idx}
@@ -165,6 +174,11 @@ export const VectorDrawingIcon: React.FC<VectorDrawingIconProps> = ({
   const def = resolvedDef as VectorDrawingDef;
   if (!def.strokes) return null;
 
+  const numSize = typeof size === 'number' ? size : 100;
+  const sizeScale = numSize / 100;
+  // For 100x100 viewBox scaled to 300px-420px, 1.1 SVG units gives crisp ~3.3px-4px on-screen stroke
+  const defaultWhiteboardWidth = sizeScale > 1.8 ? 1.1 : 1.45;
+
   return (
     <svg
       viewBox={def.viewBox || '0 0 100 100'}
@@ -180,7 +194,9 @@ export const VectorDrawingIcon: React.FC<VectorDrawingIconProps> = ({
       {def.strokes.map((stroke, idx) => {
         const strokeColor = getColorForStroke(stroke.colorKey);
         const strokeLen = stroke.len || 100;
-        const width = strokeWidth || stroke.strokeWidth || 3;
+        const width = strokeWidth !== undefined
+          ? strokeWidth
+          : (stroke.strokeWidth ? Math.min(defaultWhiteboardWidth, stroke.strokeWidth * 0.45) : defaultWhiteboardWidth);
         const strokeDashoffset = animated ? strokeLen * (1 - progress) : 0;
 
         return (

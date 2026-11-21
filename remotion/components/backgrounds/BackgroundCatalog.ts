@@ -53,7 +53,7 @@ export interface CreatorCoreColor {
 export const CREATOR_CORE_COLORS: CreatorCoreColor[] = [
   // ── 1. CORE CANVA CREATOR CANVASES (12) ──
   { id: 'solid-black', name: 'Studio Obsidian Black', shortName: 'Black', hex: '#070B14', textColor: '#FFFFFF', isDark: true, description: 'Classic high-contrast dark canvas for documentaries and explainers.', group: 'core' },
-  { id: 'solid-white', name: 'Crisp Studio White', shortName: 'White', hex: '#FFFFFF', textColor: '#0F172A', isDark: false, description: 'Clean modern paper-white background for bright, high-retention explainers.', group: 'core' },
+  { id: 'solid-white', name: 'Warm Studio Canvas', shortName: 'Warm White', hex: '#FAF6F2', textColor: '#141414', isDark: false, description: 'Soft warm off-white cream canvas (#FAF6F2) with subtle diagonal depth shift (#EFE7DF) and deep charcoal text (#141414) for maximum visual contrast and pop.', group: 'core' },
   { id: 'solid-orange', name: 'Flame Brand Orange', shortName: 'Orange', hex: '#FF5722', textColor: '#FFFFFF', isDark: true, description: 'High-energy signature flame orange for punchy marketing and growth videos.', group: 'core' },
   { id: 'solid-slate', name: 'Deep Midnight Slate', shortName: 'Slate', hex: '#0F172A', textColor: '#FFFFFF', isDark: true, description: 'Calm corporate slate-900 surface for business, SaaS and tech analysis.', group: 'core' },
   { id: 'solid-cream', name: 'Warm Vintage Cream', shortName: 'Cream', hex: '#FAF8F5', textColor: '#1E293B', isDark: false, description: 'Warm editorial cream page look favored by book summaries and essayists.', group: 'core' },
@@ -508,30 +508,30 @@ export const DEFAULT_BACKGROUND_PALETTE: BackgroundColorPalette = {
 };
 
 export const BACKGROUND_PALETTES: Record<string, BackgroundColorPalette> = {
-  // 1. Crisp Studio White (Light Mode)
+  // 1. Warm Studio Canvas (Light Mode - Warm off-white #FAF6F2 with subtle #EFE7DF diagonal tone shift)
   'solid-white': {
     id: 'solid-white',
-    name: 'Crisp Studio White',
-    bg: '#FFFFFF',
-    textPrimary: '#0F172A',
-    textSecondary: '#475569',
-    cardBg: '#F8FAFC',
-    cardBorder: 'rgba(15, 23, 42, 0.12)',
-    accent: '#FF5722',
+    name: 'Warm Studio Canvas',
+    bg: '#FAF6F2',
+    textPrimary: '#141414',
+    textSecondary: '#2C2B29',
+    cardBg: '#FFFFFF',
+    cardBorder: 'rgba(26, 25, 24, 0.08)',
+    accent: '#EA580C',
     accentSecondary: '#2563EB',
     highlightBg: '#FFE600',
-    highlightText: '#0F172A',
+    highlightText: '#141414',
     isDark: false,
   },
   'studio-white': {
     id: 'studio-white',
-    name: 'Crisp Studio White',
-    bg: '#FFFFFF',
-    textPrimary: '#0F172A',
-    textSecondary: '#475569',
-    cardBg: '#F8FAFC',
-    cardBorder: 'rgba(15, 23, 42, 0.12)',
-    accent: '#FF5722',
+    name: 'Warm Studio Canvas',
+    bg: '#FAF6F2',
+    textPrimary: '#141414',
+    textSecondary: '#2C2B29',
+    cardBg: '#FFFFFF',
+    cardBorder: 'rgba(26, 25, 24, 0.08)',
+    accent: '#EA580C',
     accentSecondary: '#2563EB',
     highlightBg: '#FFE600',
     highlightText: '#0F172A',

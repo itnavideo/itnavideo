@@ -32,22 +32,23 @@ export interface TimelineSegment {
 }
 
 export interface TimelineBuildOptions {
-  minDurationSeconds?: number; // default: 2.0 (natural short sentence)
-  maxDurationSeconds?: number; // default: 3.5 (audio-driven visual rhythm: bounds visual hold to <= 3.5s for viral retention)
+  minDurationSeconds?: number; // default: 2.5 (natural short sentence)
+  maxDurationSeconds?: number; // default: 18.0 (preserves complete spoken thoughts; zero artificial 3-6s beats)
   chapterDurationSeconds?: number; // default: 70.0 (~60-90s)
   totalDurationSeconds?: number;
 }
 
 /**
  * Builds a frame-accurate, natural sentence-by-sentence timeline strictly in deterministic code.
- * Cuts happen at natural sentence boundaries (. ! ?) or natural speech pauses, NOT arbitrary fixed 4s/7s timers.
+ * Scenes represent complete spoken thoughts. Cuts happen at natural sentence boundaries (. ! ? ।)
+ * or genuine speech pauses, NEVER arbitrary 3-6s artificial beats.
  */
 export function buildDeterministicSentenceTimeline(
   rawSegments: RawSegmentInput[],
   options: TimelineBuildOptions = {}
 ): TimelineSegment[] {
-  const minDur = options.minDurationSeconds ?? 2.0;
-  const maxDur = options.maxDurationSeconds ?? 3.5;
+  const minDur = options.minDurationSeconds ?? 2.5;
+  const maxDur = options.maxDurationSeconds ?? 18.0;
   const chapterDur = options.chapterDurationSeconds ?? 70.0;
 
   if (!rawSegments || rawSegments.length === 0) {
@@ -79,21 +80,17 @@ export function buildDeterministicSentenceTimeline(
       const currentDuration = w.end - currentStart;
       const cleanWord = w.word.trim();
       const hasSentenceEndPunctuation = /[.!?।]$/.test(cleanWord);
-      const hasClausePunctuation = /[,;:—–-]$/.test(cleanWord);
       const pauseAfterWord = nextW ? nextW.start - w.end : 0;
-      const isNaturalSentencePause = pauseAfterWord >= 0.45;
-      const isClausePause = pauseAfterWord >= 0.3;
+      const isNaturalSentencePause = pauseAfterWord >= 0.65;
 
       const shouldCut =
         // End of all words
         !nextW ||
-        // Clean natural sentence end (. ! ? ।) with a meaningful thought (at least 1.8s or 4 words)
-        (hasSentenceEndPunctuation && (currentDuration >= 1.8 || currentWords.length >= 4)) ||
-        // Audio-Driven Visual Rhythm: Natural clause break (comma, dash, colon) or pause (>= 0.25s) once hold reaches 2.5s
-        (currentDuration >= 2.5 && currentWords.length >= 4 && (hasClausePunctuation || isClausePause || pauseAfterWord >= 0.25)) ||
-        // Clear speaker breath/pause (>= 0.40s) after a complete phrase (at least minDur and 5 words)
-        (currentDuration >= minDur && currentWords.length >= 5 && isNaturalSentencePause) ||
-        // Max visual hold limit: never allow a single visual framing to exceed maxDur (defaults to 3.5s for viral retention)
+        // Clean natural sentence end (. ! ? ।) with a complete thought
+        (hasSentenceEndPunctuation && (currentDuration >= minDur || currentWords.length >= 3)) ||
+        // Speaker natural long breath pause (>= 0.65s) after a substantial spoken clause (at least 5 words and minDur)
+        (currentDuration >= minDur && currentWords.length >= 6 && isNaturalSentencePause) ||
+        // Runaway safety ceiling only: never allow a single unbroken sentence to exceed maxDur (18s)
         currentDuration >= maxDur;
 
       if (shouldCut && currentWords.length > 0) {

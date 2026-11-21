@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Itnavideo Ultra-Premium Subscribe + Bell Asset</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      transition: background-color 0.3s ease;
+    }
+
+    /* Preview Canvas Modes */
+    body.bg-studio {
+      background: radial-gradient(circle at 50% 42%, #191B24 0%, #0B0C10 100%);
+    }
+
+    body.bg-transparent-grid {
+      background-color: #141519;
+      background-image:
+        linear-gradient(45deg, #1E2028 25%, transparent 25%),
+        linear-gradient(-45deg, #1E2028 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1E2028 75%),
+        linear-gradient(-45deg, transparent 75%, #1E2028 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    }
+
+    /* Entrance Pop Animation */
+    @keyframes ivStageEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(24px) scale(0.86);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .iv-stage {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      animation: ivStageEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Metallic Gold/White Gradient Border Wrapper */
+    .iv-pill-shell {
+      position: relative;
+      padding: 1.5px;
+      border-radius: 9999px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.85) 0%,
+        rgba(255, 215, 115, 0.75) 35%,
+        rgba(255, 59, 92, 0.55) 70%,
+        rgba(255, 255, 255, 0.75) 100%
+      );
+      box-shadow:
+        0 20px 42px -8px rgba(0, 0, 0, 0.55),
+        0 0 28px -4px rgba(255, 23, 68, 0.42);
+      transition:
+        transform 0.16s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.32s ease,
+        background 0.32s ease;
+    }
+
+    .iv-pill-shell.is-subscribed {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(251, 191, 36, 0.65) 50%,
+        rgba(255, 255, 255, 0.45) 100%
+      );
+      box-shadow:
+        0 18px 36px -8px rgba(0, 0, 0, 0.48),
+        0 0 22px -6px rgba(251, 191, 36, 0.25);
+    }
+
+    .iv-pill-shell.is-pressing {
+      transform: scale(0.9) !important;
+    }
+
+    /* Inner Luxury Pill Button */
+    .iv-sub-btn {
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 26px;
+      border: none;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #1E1318 0%, #2C0B14 48%, #B90E31 100%);
+      color: #FFFFFF;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.24);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .iv-pill-shell.is-subscribed .iv-sub-btn {
+      background: linear-gradient(135deg, #16181F 0%, #222530 100%);
+      color: #F9FAFB;
+    }
+
+    /* Continuous Light Sweep Shimmer */
+    @keyframes ivShimmerSweep {
+      0% {
+        transform: translateX(-160%) skewX(-22deg);
+      }
+      45%, 100% {
+        transform: translateX(260%) skewX(-22deg);
+      }
+    }
+
+    .iv-shimmer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.28) 50%,
+        transparent 100%
+      );
+      pointer-events: none;
+      animation: ivShimmerSweep 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    /* Shockwave Ripple Ring */
+    @keyframes ivRippleOut {
+      0% {
+        opacity: 0.85;
+        transform: scale(0.92);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.38, 1.65);
+      }
+    }
+
+    .iv-ripple {
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      border: 2px solid rgba(255, 215, 115, 0.85);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .iv-ripple.is-active {
+      animation: ivRippleOut 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Prominent Separate Notification Bell Pill */
+    .iv-bell-shell {
+      position: relative;
+      width: 0;
+      opacity: 0;
+      transform: scale(0.4) translateX(-16px);
+      pointer-events: none;
+      transition:
+        width 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.28s ease,
+        transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .iv-bell-shell.is-revealed {
+      width: 52px;
+      opacity: 1;
+      transform: scale(1) translateX(0);
+      pointer-events: auto;
+    }
+
+    .iv-bell-shell.is-pressing {
+      transform: scale(0.86) !important;
+    }
+
+    .iv-bell-btn {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      border-radius: 9999px;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      background: linear-gradient(145deg, #1B1D26 0%, #111218 100%);
+      color: #E5E7EB;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow:
+        0 14px 28px -6px rgba(0, 0, 0, 0.55),
+        inset 0 1px 1px rgba(255, 255, 255, 0.18);
+      transition:
+        background 0.28s ease,
+        border-color 0.28s ease,
+        box-shadow 0.28s ease,
+        color 0.28s ease;
+    }
+
+    /* Activated Golden Bell State */
+    .iv-bell-btn.is-ringing-gold {
+      background: linear-gradient(145deg, #FBBF24 0%, #D97706 100%);
+      border-color: #FEF08A;
+      color: #111827;
+      box-shadow:
+        0 14px 32px -4px rgba(245, 158, 11, 0.55),
+        0 0 24px rgba(251, 191, 36, 0.5),
+        inset 0 1px 2px rgba(255, 255, 255, 0.65);
+    }
+
+    /* Bell Swing Animation */
+    @keyframes ivBellSwing {
+      0%, 100% { transform: rotate(0deg); }
+      15% { transform: rotate(26deg); }
+      30% { transform: rotate(-22deg); }
+      45% { transform: rotate(18deg); }
+      60% { transform: rotate(-14deg); }
+      75% { transform: rotate(9deg); }
+      90% { transform: rotate(-4deg); }
+    }
+
+    .iv-bell-swing {
+      transform-origin: top center;
+      animation: ivBellSwing 0.85s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+    }
+
+    /* Sound-Wave Arcs Radiating From Bell */
+    @keyframes ivSoundWave {
+      0% {
+        opacity: 0;
+        transform: scale(0.75);
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.38);
+      }
+    }
+
+    .iv-wave-arc {
+      opacity: 0;
+      transform-origin: center;
+    }
+
+    .iv-wave-arc.is-active {
+      animation: ivSoundWave 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Golden Particle Burst */
+    .iv-particle {
+      position: absolute;
+      border-radius: 9999px;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    @keyframes ivParticleFly {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(0.4);
+      }
+      65% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--px), var(--py)) scale(1.2);
+      }
+    }
+
+    .iv-particle.is-burst {
+      animation: ivParticleFly 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Dual-Action Vector Mouse Cursor */
+    .iv-cursor {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 40;
+      filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
+      transition:
+        transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.25s ease;
+    }
+  </style>
+</head>
+<body class="bg-studio flex flex-col items-center justify-center min-h-screen relative">
+
+  <!-- Standalone Ultra-Premium Asset Stage (Zero Card Wrapper / Zero Channel Name) -->
+  <div id="assetStage" class="iv-stage">
+    <!-- Subscribe Pill -->
+    <div id="pillShell" class="iv-pill-shell">
+      <div id="rippleRing" class="iv-ripple"></div>
+      <button
+        id="subBtn"
+        type="button"
+        onclick="manualToggleSub()"
+        class="iv-sub-btn focus:outline-none"
+        aria-label="Subscribe"
+      >
+        <span class="iv-shimmer"></span>
+
+        <!-- Play Icon (Before Subscribe) -->
+        <svg
+          id="playIcon"
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          class="shrink-0 relative z-10"
+        >
+          <path
+            d="M8 5.5V18.5L19 12L8 5.5Z"
+            fill="#FFFFFF"
+            stroke="#FFFFFF"
+            stroke-width="1.2"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <!-- Checkmark Icon (After Subscribe) -->
+        <svg
+          id="checkIcon"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          class="hidden shrink-0 relative z-10"
+        >
+          <path
+            d="M20 6L9 17L4 12"
+            stroke="#FBBF24"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+
+        <span id="subLabel" class="relative z-10">Subscribe</span>
+      </button>
+    </div>
+
+    <!-- Separate Prominent Interactive Notification Bell -->
+    <div id="bellShell" class="iv-bell-shell">
+      <!-- Golden Particle Layer -->
+      <div id="bellParticles" class="absolute inset-0 pointer-events-none"></div>
+
+      <!-- Radiating Sound-Wave Arcs SVG -->
+      <svg
+        width="76"
+        height="76"
+        viewBox="0 0 76 76"
+        fill="none"
+        class="absolute -left-3 -top-3 pointer-events-none"
+      >
+        <path
+          id="waveLeft"
+          class="iv-wave-arc"
+          d="M15 26C11 32 11 44 15 50"
+          stroke="#FBBF24"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+        <path
+          id="waveRight"
+          class="iv-wave-arc"
+          d="M61 26C65 32 65 44 61 50"
+          stroke="#FBBF24"
+          stroke-width="1.6"
+          stroke-linecap="round"
+        />
+      </svg>
+
+      <button
+        id="bellBtn"
+        type="button"
+        onclick="manualToggleBell()"
+        class="iv-bell-btn focus:outline-none"
+        aria-label="Enable Notifications"
+      >
+        <svg
+          id="bellSvg"
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path
+            d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Vector Mouse Cursor -->
+    <svg
+      id="cursorSvg"
+      class="iv-cursor"
+      width="34"
+      height="34"
+      viewBox="0 0 24 24"
+      fill="none"
+      style="transform: translate(120px, 85px) scale(1);"
+    >
+      <path
+        d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87c.45 0 .67-.53.35-.85L6.35 2.86a.5.5 0 0 0-.85.35Z"
+        fill="#FFFFFF"
+        stroke="#111827"
+        stroke-width="1.35"
+      />
+    </svg>
+  </div>
+
+  <!-- Minimal Floating Control Bar -->
+  <div class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 flex flex-wrap items-center justify-center gap-2 px-3 py-2 rounded-2xl bg-gray-900/90 backdrop-blur-md border border-white/10 shadow-2xl">
+    <!-- Replay Sequence -->
+    <button
+      type="button"
+      onclick="playFullSequence()"
+      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-white/10 hover:bg-white/15 active:scale-95 transition-all cursor-pointer"
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+      </svg>
+      <span>Replay Sequence</span>
+    </button>
+
+    <!-- Transparent BG Toggle -->
+    <button
+      id="bgToggleBtn"
+      type="button"
+      onclick="toggleCanvasBg()"
+      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-amber-200 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/25 active:scale-95 transition-all cursor-pointer"
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="3" />
+        <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+      </svg>
+      <span id="bgToggleLabel">Transparent BG: Off</span>
+    </button>
+
+    <!-- Copy Clean Asset Code -->
+    <button
+      type="button"
+      onclick="copyCleanAssetCode()"
+      class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-gray-950 bg-gradient-to-r from-amber-300 to-yellow-400 hover:brightness-105 active:scale-95 transition-all cursor-pointer shadow-md"
+    >
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      </svg>
+      <span id="copyBtnLabel">Copy Clean Asset Code</span>
+    </button>
+  </div>
+
+  <!-- Hidden Buffer for Reliable Clipboard Copy -->
+  <textarea id="clipboardBuffer" class="sr-only" aria-hidden="true"></textarea>
+
+  <script>
+    let isSubscribed = false;
+    let isBellActivated = false;
+    let isTransparentMode = false;
+    let timers = [];
+
+    const assetStage = document.getElementById('assetStage');
+    const pillShell = document.getElementById('pillShell');
+    const rippleRing = document.getElementById('rippleRing');
+    const playIcon = document.getElementById('playIcon');
+    const checkIcon = document.getElementById('checkIcon');
+    const subLabel = document.getElementById('subLabel');
+
+    const bellShell = document.getElementById('bellShell');
+    const bellBtn = document.getElementById('bellBtn');
+    const bellSvg = document.getElementById('bellSvg');
+    const bellParticles = document.getElementById('bellParticles');
+    const waveLeft = document.getElementById('waveLeft');
+    const waveRight = document.getElementById('waveRight');
+
+    const cursorSvg = document.getElementById('cursorSvg');
+
+    function clearAllTimers() {
+      timers.forEach((id) => clearTimeout(id));
+      timers = [];
+    }
+
+    function triggerShockwave() {
+      rippleRing.classList.remove('is-active');
+      void rippleRing.offsetWidth;
+      rippleRing.classList.add('is-active');
+    }
+
+    function triggerGoldenBurst() {
+      bellParticles.innerHTML = '';
+      const colors = ['#FDE047', '#FBBF24', '#F59E0B', '#FFFFFF', '#FCD34D'];
+      const count = 16;
+
+      for (let i = 0; i < count; i++) {
+        const spark = document.createElement('span');
+        spark.className = 'iv-particle is-burst';
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.2;
+        const dist = 34 + Math.random() * 24;
+        const size = 4.5 + Math.random() * 4;
+
+        spark.style.width = `${size}px`;
+        spark.style.height = `${size}px`;
+        spark.style.backgroundColor = colors[i % colors.length];
+        spark.style.boxShadow = '0 0 8px rgba(251, 191, 36, 0.85)';
+        spark.style.left = '50%';
+        spark.style.top = '50%';
+        spark.style.setProperty('--px', `${Math.cos(angle) * dist}px`);
+        spark.style.setProperty('--py', `${Math.sin(angle) * dist}px`);
+
+        bellParticles.appendChild(spark);
+      }
+    }
+
+    function triggerBellRingEffects() {
+      bellSvg.classList.remove('iv-bell-swing');
+      waveLeft.classList.remove('is-active');
+      waveRight.classList.remove('is-active');
+
+      void bellSvg.offsetWidth;
+      bellSvg.classList.add('iv-bell-swing');
+      waveLeft.classList.add('is-active');
+      waveRight.classList.add('is-active');
+      triggerGoldenBurst();
+    }
+
+    function setSubscribeState(active, withFx = true) {
+      isSubscribed = active;
+      pillShell.classList.toggle('is-subscribed', active);
+      playIcon.classList.toggle('hidden', active);
+      checkIcon.classList.toggle('hidden', !active);
+      subLabel.textContent = active ? 'Subscribed' : 'Subscribe';
+
+      if (active) {
+        bellShell.classList.add('is-revealed');
+        if (withFx) triggerShockwave();
+      } else {
+        bellShell.classList.remove('is-revealed');
+        setBellState(false, false);
+      }
+    }
+
+    function setBellState(active, withFx = true) {
+      isBellActivated = active;
+      bellBtn.classList.toggle('is-ringing-gold', active);
+      if (active && withFx) {
+        triggerBellRingEffects();
+      }
+    }
+
+    function manualToggleSub() {
+      clearAllTimers();
+      cursorSvg.style.opacity = '0';
+      pillShell.classList.add('is-pressing');
+      setTimeout(() => {
+        pillShell.classList.remove('is-pressing');
+        setSubscribeState(!isSubscribed, true);
+      }, 120);
+    }
+
+    function manualToggleBell() {
+      clearAllTimers();
+      cursorSvg.style.opacity = '0';
+      bellShell.classList.add('is-pressing');
+      setTimeout(() => {
+        bellShell.classList.remove('is-pressing');
+        setBellState(!isBellActivated, true);
+      }, 120);
+    }
+
+    function playFullSequence() {
+      clearAllTimers();
+
+      // Reset states cleanly
+      setSubscribeState(false, false);
+      setBellState(false, false);
+      pillShell.classList.remove('is-pressing');
+      bellShell.classList.remove('is-pressing');
+
+      assetStage.classList.remove('iv-stage');
+      void assetStage.offsetWidth;
+      assetStage.classList.add('iv-stage');
+
+      cursorSvg.style.transition = 'none';
+      cursorSvg.style.opacity = '0';
+      cursorSvg.style.transform = 'translate(120px, 85px) scale(1)';
+      void cursorSvg.offsetWidth;
+
+      // Step 1: Cursor glides onto Subscribe pill
+      timers.push(
+        setTimeout(() => {
+          cursorSvg.style.transition =
+            'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease';
+          cursorSvg.style.opacity = '1';
+          cursorSvg.style.transform = 'translate(-12px, 4px) scale(1)';
+        }, 260)
+      );
+
+      // Step 2: Cursor clicks Subscribe (squish)
+      timers.push(
+        setTimeout(() => {
+          cursorSvg.style.transition = 'transform 0.12s ease';
+          cursorSvg.style.transform = 'translate(-12px, 4px) scale(0.82)';
+          pillShell.classList.add('is-pressing');
+        }, 880)
+      );
+
+      // Step 3: Release -> Subscribed + Checkmark + Shockwave + Bell Reveals
+      timers.push(
+        setTimeout(() => {
+          cursorSvg.style.transform = 'translate(-12px, 4px) scale(1)';
+          pillShell.classList.remove('is-pressing');
+          setSubscribeState(true, true);
+        }, 1010)
+      );
+
+      // Step 4: Cursor glides right onto the newly revealed Bell button
+      timers.push(
+        setTimeout(() => {
+          cursorSvg.style.transition =
+            'transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)';
+          cursorSvg.style.transform = 'translate(84px, 4px) scale(1)';
+        }, 1360)
+      );
+
+      // Step 5: Cursor clicks the Bell button (squish)
+      timers.push(
+        setTimeout(() => {
+          cursorSvg.style.transition = 'transform 0.12s ease';
+          cursorSvg.style.transform = 'translate(84px, 4px) scale(0.82)';
+          bellShell.classList.add('is-pressing');
+        }, 1840)
+      );
+
+      // Step 6: Release -> Golden Bell Swing + Sound-Wave Arcs + Golden Particle Burst
+      timers.push(
+        setTimeout(() => {
+          cursorSvg.style.transform = 'translate(84px, 4px) scale(1)';
+          bellShell.classList.remove('is-pressing');
+          setBellState(true, true);
+        }, 1970)
+      );
+
+      // Step 7: Cursor smoothly exits
+      timers.push(
+        setTimeout(() => {
+          cursorSvg.style.transition =
+            'transform 0.45s ease, opacity 0.35s ease';
+          cursorSvg.style.transform = 'translate(125px, 42px) scale(0.95)';
+          cursorSvg.style.opacity = '0';
+        }, 2480)
+      );
+    }
+
+    function toggleCanvasBg() {
+      isTransparentMode = !isTransparentMode;
+      document.body.classList.toggle('bg-studio', !isTransparentMode);
+      document.body.classList.toggle('bg-transparent-grid', isTransparentMode);
+
+      const label = document.getElementById('bgToggleLabel');
+      label.textContent = isTransparentMode
+        ? 'Transparent BG: On'
+        : 'Transparent BG: Off';
+    }
+
+    async function copyCleanAssetCode() {
+      const stage = document.getElementById('assetStage');
+      const cleanHTML = stage ? stage.outerHTML : '';
+      const buffer = document.getElementById('clipboardBuffer');
+      if (buffer) buffer.value = cleanHTML;
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(cleanHTML);
+        } else if (buffer) {
+          buffer.select();
+          document.execCommand('copy');
+        }
+      } catch (err) {
+        if (buffer) {
+          buffer.select();
+          document.execCommand('copy');
+        }
+      }
+
+      const label = document.getElementById('copyBtnLabel');
+      if (label) {
+        label.textContent = 'Copied for Itnavideo!';
+        setTimeout(() => {
+          label.textContent = 'Copy Clean Asset Code';
+        }, 2000);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(playFullSequence, 320);
+    });
+  </script>
+</body>
+</html>
+

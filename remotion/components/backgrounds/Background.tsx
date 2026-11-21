@@ -19,7 +19,7 @@ export interface BackgroundProps {
  * 4. Infinite Resolution: Sharp at 1080p, 4K, 16:9 widescreen or 9:16 vertical.
  */
 export function Background({
-  theme = 'midnight-mesh',
+  theme = 'solid-white',
   customBgUrl = '',
   aspectRatio = '16:9',
   children,
@@ -27,8 +27,8 @@ export function Background({
   const frame = useCurrentFrame();
   const { fps, width = 1920, height = 1080 } = useVideoConfig();
 
-  // Normalize theme or fallback
-  const activeId = (theme || 'midnight-mesh').toLowerCase().trim();
+  // Normalize theme or fallback to Ali Abdaal signature warm off-white cream canvas
+  const activeId = (theme || 'solid-white').toLowerCase().trim();
   const matched = BACKGROUND_CATALOG.find((b) => b.id === activeId) || BACKGROUND_CATALOG[0];
   const activePalette = getBackgroundPalette(theme);
   const isLight = !activePalette.isDark;
@@ -137,7 +137,7 @@ export function Background({
 
   // ── 2. MINIMAL BACKGROUNDS (Includes 12 Creator Video Colors) ──
   const renderMinimal = () => {
-    // 1. Crisp Studio White with 4-Layer Depth Stack (2026 Engine)
+    // 1. Warm Off-White / Cream Studio Canvas (#FAF6F2 with subtle #EFE7DF diagonal tone shift to bottom-right)
     if (activeId === 'studio-white' || activeId === 'solid-white') {
       const driftX1 = Math.sin(frame * 0.02) * 35;
       const driftY1 = Math.cos(frame * 0.015) * 25;
@@ -145,64 +145,64 @@ export function Background({
       const driftY2 = Math.sin(frame * 0.022) * 28;
 
       return (
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', backgroundColor: '#FAFAFD' }}>
-          {/* Base Plate with subtle studio gradient */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', backgroundColor: '#FAF6F2' }}>
+          {/* Base Plate: Warm off-white #FAF6F2 with soft diagonal tone shift towards #EFE7DF at the bottom-right */}
           <div
             style={{
               position: 'absolute',
               inset: 0,
-              backgroundImage: 'radial-gradient(circle at 50% 35%, #FFFFFF 0%, #F8FAFC 75%, #F1F5F9 100%)',
+              background: 'linear-gradient(135deg, #FAF6F2 0%, #FAF6F2 50%, #F5EEE7 75%, #EFE7DF 100%)',
             }}
           />
 
-          {/* Ambient Blob 1: Soft warm amber accent glow */}
+          {/* Ambient Lighting 1: Soft top-left light falloff */}
           <div
             style={{
               position: 'absolute',
-              left: `${25 + driftX1 * 0.1}%`,
-              top: `${20 + driftY1 * 0.1}%`,
-              width: '720px',
-              height: '720px',
+              left: `${15 + driftX1 * 0.08}%`,
+              top: `${10 + driftY1 * 0.08}%`,
+              width: '850px',
+              height: '850px',
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(249, 115, 22, 0.07) 0%, rgba(249, 115, 22, 0.02) 50%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(250, 246, 242, 0.25) 50%, transparent 70%)',
+              filter: 'blur(50px)',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Ambient Lighting 2: Bottom-right subtle depth tone shift to #EFE7DF */}
+          <div
+            style={{
+              position: 'absolute',
+              right: `${5 + driftX2 * 0.08}%`,
+              bottom: `${5 + driftY2 * 0.08}%`,
+              width: '900px',
+              height: '900px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(239, 231, 223, 0.70) 0%, rgba(239, 231, 223, 0.20) 50%, transparent 75%)',
               filter: 'blur(60px)',
               pointerEvents: 'none',
             }}
           />
 
-          {/* Ambient Blob 2: Soft modern sky blue accent glow */}
-          <div
-            style={{
-              position: 'absolute',
-              right: `${20 + driftX2 * 0.1}%`,
-              bottom: `${15 + driftY2 * 0.1}%`,
-              width: '800px',
-              height: '800px',
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(29, 112, 245, 0.06) 0%, rgba(99, 102, 241, 0.02) 50%, transparent 70%)',
-              filter: 'blur(70px)',
-              pointerEvents: 'none',
-            }}
-          />
-
-          {/* Subtle Studio Dot Grid Texture */}
+          {/* Subtle Studio Dot Grid Texture (warm charcoal micro-dots for tactile paper feel) */}
           <div
             style={{
               position: 'absolute',
               inset: 0,
-              backgroundImage: 'radial-gradient(rgba(100, 116, 139, 0.08) 1px, transparent 1px)',
+              backgroundImage: 'radial-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px)',
               backgroundSize: '36px 36px',
-              opacity: 0.6,
+              opacity: 0.55,
               pointerEvents: 'none',
             }}
           />
 
-          {/* Light Cinematic Edge Vignette */}
+          {/* Light Cinematic Edge Vignette (warm subtle framing) */}
           <div
             style={{
               position: 'absolute',
               inset: 0,
-              boxShadow: 'inset 0 0 140px rgba(15, 23, 42, 0.05)',
+              boxShadow: 'inset 0 0 140px rgba(180, 160, 140, 0.08)',
               pointerEvents: 'none',
             }}
           />
