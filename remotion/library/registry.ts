@@ -1942,6 +1942,14 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     description: 'Deep learning neural network transformer architecture diagram showing multi-head attention and layers.',
     tags: ['technology', 'ai', 'transformer', 'neural-network', 'deep-learning', 'llm'],
   },
+  {
+    id: 'database-schema',
+    name: 'DatabaseSchema',
+    category: 'technology',
+    aspectRatio: 'both',
+    description: 'Relational database schema visualizer with primary/foreign keys, indexes, table cards, and SQL query animation.',
+    tags: ['technology', 'database', 'schema', 'sql', 'postgres', 'relational', 'tables'],
+  },
 
   // ── Maps & Transportation Suite (19 Components) ──
   {

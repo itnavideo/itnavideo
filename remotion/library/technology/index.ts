@@ -79,3 +79,7 @@ export type { SoftwareStackDiagramProps, TechItem } from './SoftwareStackDiagram
 
 export { AIModelArchitecture } from './AIModelArchitecture';
 export type { AIModelArchitectureProps, ModelLayer } from './AIModelArchitecture';
+
+export { DatabaseSchema } from './DatabaseSchema';
+export type { DatabaseSchemaProps, SchemaTable, SchemaColumn } from './DatabaseSchema';
+
