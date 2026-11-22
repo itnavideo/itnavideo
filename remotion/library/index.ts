@@ -79,6 +79,9 @@ export * from './mathematics';
 // 2t. Engineering & CAD Suite (ExplodedView, CrossSection, Blueprint, TechnicalDrawing, AssemblyDiagram, DimensionCallout)
 export * from './engineering';
 
+// 2u. E-Commerce & Retail Suite (ProductShowcase, ProductComparison, PriceTag, ProductFeatures, ShoppingInterface, FlashSaleCountdown)
+export * from './ecommerce';
+
 // 3. Infographics
 export * from './infographics';
 

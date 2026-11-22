@@ -26,6 +26,7 @@ export type ComponentCategory =
   | 'editorial'
   | 'mathematics'
   | 'engineering'
+  | 'ecommerce'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -1212,6 +1213,56 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Precision engineering CAD dimension measurement tool with dual arrowheads and tolerance tags.',
     tags: ['engineering', 'dimension', 'callout', 'measurement', 'tolerance', 'cad'],
+  },
+
+  // ── E-Commerce & Retail Suite ──
+  {
+    id: 'product-showcase',
+    name: 'ProductShowcase',
+    category: 'ecommerce',
+    aspectRatio: 'both',
+    description: 'Animated product hero showcase with photo carousel, 5-star rating, pricing ribbon, and CTA button.',
+    tags: ['ecommerce', 'product', 'showcase', 'retail', 'cta', 'rating', 'review'],
+  },
+  {
+    id: 'product-comparison',
+    name: 'ProductComparison',
+    category: 'ecommerce',
+    aspectRatio: 'both',
+    description: 'Side-by-side product duel comparison card with winner badge, specs table, and checkmark indicators.',
+    tags: ['ecommerce', 'comparison', 'versus', 'specs', 'features', 'duel'],
+  },
+  {
+    id: 'price-tag',
+    name: 'PriceTag',
+    category: 'ecommerce',
+    aspectRatio: 'both',
+    description: 'High-impact price badge with animated slash strike-through, discount savings percentage pill, and currency formatting.',
+    tags: ['ecommerce', 'pricing', 'discount', 'price-tag', 'sale', 'strikethrough'],
+  },
+  {
+    id: 'product-features',
+    name: 'ProductFeatures',
+    category: 'ecommerce',
+    aspectRatio: 'both',
+    description: 'Product unique selling propositions grid with staggered icon reveals, stat callouts, and badge highlights.',
+    tags: ['ecommerce', 'features', 'benefits', 'grid', 'specs', 'highlights'],
+  },
+  {
+    id: 'shopping-interface',
+    name: 'ShoppingInterface',
+    category: 'ecommerce',
+    aspectRatio: 'both',
+    description: 'Realistic interactive shopping cart drawer, checkout modal with line items, coupon code, and animated Apple Pay/Card CTA.',
+    tags: ['ecommerce', 'cart', 'checkout', 'shop', 'order', 'pricing'],
+  },
+  {
+    id: 'flash-sale-countdown',
+    name: 'FlashSaleCountdown',
+    category: 'ecommerce',
+    aspectRatio: 'both',
+    description: 'Split-flap urgency countdown timer with pulsing red alert badge, remaining inventory stock bar, and FOMO triggers.',
+    tags: ['ecommerce', 'flash-sale', 'countdown', 'urgency', 'stock', 'timer'],
   },
 
   // ── Graphics & Frames ──
