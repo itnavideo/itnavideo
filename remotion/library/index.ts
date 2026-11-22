@@ -157,5 +157,8 @@ export * from './advanced-vfx';
 // 8i. Sound Design & Audio-Reactive Visualizers
 export * from './audio';
 
+// 8j. Calendar, Time & Temporal Storytelling Suite
+export * from './calendar';
+
 // 9. Component Registry & Metadata
 export * from './registry';
