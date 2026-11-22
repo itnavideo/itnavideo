@@ -194,3 +194,4 @@ export * from './powerbi';
 export * from './google';
 export * from './docfile';
 export * from './productivity';
+export * from './google-ecosystem';

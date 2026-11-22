@@ -6,6 +6,7 @@
  */
 
 export type ComponentCategory =
+  | 'google-ecosystem'
   | 'workflow-productivity'
   | 'primitives'
   | 'charts'
@@ -13072,6 +13073,540 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "efficiencyTrend": "+14% vs last week",
       "benchmarkPercentile": "Top 5%",
       "accentColor": "#8B5CF6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-search-serp-result',
+    name: 'GoogleSearchSERPResult',
+    category: 'google-ecosystem',
+    description: 'Organic Google Search SERP result snippet with favicon, URL breadcrumbs, blue title link, and star ratings',
+    defaultProps: {
+      "title": "Itnavideo — AI Video Creation & Subtitle Engine",
+      "url": "https://itnavideo.com",
+      "breadcrumb": "itnavideo.com > tools > auto-caption",
+      "snippet": "Generate studio-quality vertical reels and subtitles in seconds. Automated Groq Whisper transcription with cloud 30fps rendering.",
+      "rating": 4.9,
+      "reviewsCount": 1420,
+      "sitelinks": [
+            "Auto Caption Reel",
+            "Compare Explainer",
+            "Pricing Plans",
+            "Remotion Cloud"
+      ],
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-search-knowledge-panel',
+    name: 'GoogleSearchKnowledgePanel',
+    category: 'google-ecosystem',
+    description: 'Knowledge Graph sidebar card with verified badge, synopsis, key attributes, and social profiles',
+    defaultProps: {
+      "title": "Itnavideo Platform",
+      "entityType": "Software company",
+      "verified": true,
+      "description": "Itnavideo is an enterprise cloud video automation suite utilizing serverless AWS Lambda Remotion rendering and speech transcription.",
+      "attributes": [
+            {
+                  "label": "Founded",
+                  "value": "2024"
+            },
+            {
+                  "label": "Headquarters",
+                  "value": "San Francisco, CA"
+            },
+            {
+                  "label": "Engine",
+                  "value": "AWS Lambda Remotion 30fps"
+            }
+      ],
+      "socials": [
+            "YouTube",
+            "X (Twitter)",
+            "GitHub",
+            "LinkedIn"
+      ],
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-search-autocomplete',
+    name: 'GoogleSearchAutocomplete',
+    category: 'google-ecosystem',
+    description: 'Google search box with animated query typing and dropdown autocomplete predictive suggestions',
+    defaultProps: {
+      "title": "Google Search Bar",
+      "typedQuery": "how to create ai viral shorts",
+      "suggestions": [
+            "how to create ai viral shorts with captions",
+            "how to create ai viral shorts free without watermark",
+            "how to create ai viral shorts on remotion lambda",
+            "how to create ai viral shorts for youtube and tiktok"
+      ],
+      "accentColor": "#4285F4",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-search-people-also-ask',
+    name: 'GoogleSearchPeopleAlsoAsk',
+    category: 'google-ecosystem',
+    description: 'SERP People Also Ask accordion widget with animated dropdown answer reveal',
+    defaultProps: {
+      "title": "People also ask",
+      "questions": [
+            {
+                  "q": "How long does it take to render a 60s video with Remotion Lambda?",
+                  "open": true,
+                  "ans": "Typically 15 to 30 seconds across distributed headless Chromium containers running on AWS Lambda."
+            },
+            {
+                  "q": "What is the best subtitle style for viral reels?",
+                  "open": false
+            },
+            {
+                  "q": "Can I generate faceless videos from audio scripts?",
+                  "open": false
+            },
+            {
+                  "q": "How does Groq Whisper achieve millisecond transcription accuracy?",
+                  "open": false
+            }
+      ],
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-analytics-4-realtime',
+    name: 'GoogleAnalytics4Realtime',
+    category: 'google-ecosystem',
+    description: 'GA4 Realtime dashboard with active users in the last 30 minutes, pulsing globe map dots, and device split',
+    defaultProps: {
+      "title": "Realtime Overview (GA4)",
+      "activeUsers": 842,
+      "minutesWindow": 30,
+      "devices": [
+            {
+                  "type": "Mobile",
+                  "pct": 68,
+                  "color": "#4285F4"
+            },
+            {
+                  "type": "Desktop",
+                  "pct": 28,
+                  "color": "#34A853"
+            },
+            {
+                  "type": "Tablet",
+                  "pct": 4,
+                  "color": "#FBBC05"
+            }
+      ],
+      "topCountries": [
+            "United States (310)",
+            "India (215)",
+            "United Kingdom (84)",
+            "Germany (52)"
+      ],
+      "accentColor": "#F57C00",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-analytics-user-funnel',
+    name: 'GoogleAnalyticsUserFunnel',
+    category: 'google-ecosystem',
+    description: 'GA4 exploration funnel visualization from session start to checkout with conversion drop-offs',
+    defaultProps: {
+      "title": "E-commerce Purchase Funnel",
+      "steps": [
+            {
+                  "name": "1. Session Start",
+                  "users": 12500,
+                  "drop": "0%"
+            },
+            {
+                  "name": "2. View Product",
+                  "users": 7800,
+                  "drop": "-37.6%"
+            },
+            {
+                  "name": "3. Add to Cart",
+                  "users": 3400,
+                  "drop": "-56.4%"
+            },
+            {
+                  "name": "4. Completed Purchase",
+                  "users": 1120,
+                  "drop": "-67.1%"
+            }
+      ],
+      "conversionRate": "8.96%",
+      "accentColor": "#4285F4",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-analytics-traffic-acquisition',
+    name: 'GoogleAnalyticsTrafficAcquisition',
+    category: 'google-ecosystem',
+    description: 'GA4 Traffic Acquisition channel breakdown (Organic, Direct, Paid, Referral) with revenue attribution',
+    defaultProps: {
+      "title": "Traffic Acquisition Channels",
+      "channels": [
+            {
+                  "channel": "Organic Search",
+                  "sessions": 48200,
+                  "users": 39100,
+                  "convRate": "4.8%"
+            },
+            {
+                  "channel": "Direct",
+                  "sessions": 22400,
+                  "users": 18200,
+                  "convRate": "3.9%"
+            },
+            {
+                  "channel": "Paid Search (Ads)",
+                  "sessions": 19100,
+                  "users": 16400,
+                  "convRate": "6.2%"
+            },
+            {
+                  "channel": "Organic Social",
+                  "sessions": 8500,
+                  "users": 7100,
+                  "convRate": "2.1%"
+            }
+      ],
+      "totalSessions": 98200,
+      "accentColor": "#4285F4",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-analytics-retention-cohort',
+    name: 'GoogleAnalyticsRetentionCohort',
+    category: 'google-ecosystem',
+    description: 'Weekly user retention cohort matrix heatmap displaying decay curves and engagement loyalty',
+    defaultProps: {
+      "title": "Weekly Retention Cohorts",
+      "cohorts": [
+            {
+                  "week": "Oct 06 - Oct 12",
+                  "size": "2,400",
+                  "w0": "100%",
+                  "w1": "42%",
+                  "w2": "31%",
+                  "w3": "26%"
+            },
+            {
+                  "week": "Oct 13 - Oct 19",
+                  "size": "2,850",
+                  "w0": "100%",
+                  "w1": "45%",
+                  "w2": "34%",
+                  "w3": "29%"
+            },
+            {
+                  "week": "Oct 20 - Oct 26",
+                  "size": "3,100",
+                  "w0": "100%",
+                  "w1": "48%",
+                  "w2": "36%",
+                  "w3": "-"
+            }
+      ],
+      "accentColor": "#34A853",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'search-console-performance-clicks',
+    name: 'SearchConsolePerformanceClicks',
+    category: 'google-ecosystem',
+    description: 'Google Search Console total clicks, impressions, average CTR, and average position KPI cards',
+    defaultProps: {
+      "title": "GSC Search Performance",
+      "totalClicks": "148K",
+      "totalImpressions": "3.2M",
+      "averageCTR": "4.6%",
+      "averagePosition": "8.4",
+      "accentColor": "#4285F4",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'search-console-query-rankings',
+    name: 'SearchConsoleQueryRankings',
+    category: 'google-ecosystem',
+    description: 'Top ranking organic search queries table with click volume, impressions, and SERP position shifts',
+    defaultProps: {
+      "title": "Top Organic Queries",
+      "queries": [
+            {
+                  "query": "ai auto caption video generator",
+                  "clicks": 18400,
+                  "impr": 142000,
+                  "pos": 2.1
+            },
+            {
+                  "query": "faceless shorts maker",
+                  "clicks": 12900,
+                  "impr": 98000,
+                  "pos": 3.4
+            },
+            {
+                  "query": "remotion lambda cloud render",
+                  "clicks": 9400,
+                  "impr": 61000,
+                  "pos": 1.8
+            },
+            {
+                  "query": "youtube subtitle generator free",
+                  "clicks": 8200,
+                  "impr": 85000,
+                  "pos": 4.2
+            }
+      ],
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'search-console-page-indexing',
+    name: 'SearchConsolePageIndexing',
+    category: 'google-ecosystem',
+    description: 'Page index coverage status report with indexed vs excluded pages and crawl reasons',
+    defaultProps: {
+      "title": "Page Indexing Coverage",
+      "indexedPages": 1420,
+      "notIndexedPages": 84,
+      "reasons": [
+            {
+                  "reason": "Crawled - currently not indexed",
+                  "count": 42
+            },
+            {
+                  "reason": "Page with redirect",
+                  "count": 26
+            },
+            {
+                  "reason": "Excluded by noindex tag",
+                  "count": 16
+            }
+      ],
+      "accentColor": "#34A853",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'search-console-core-web-vitals',
+    name: 'SearchConsoleCoreWebVitals',
+    category: 'google-ecosystem',
+    description: 'Core Web Vitals assessment gauge card for LCP, INP, and CLS page speed performance',
+    defaultProps: {
+      "title": "Core Web Vitals Assessment",
+      "device": "Mobile",
+      "metrics": [
+            {
+                  "name": "LCP (Largest Contentful Paint)",
+                  "val": "1.4s",
+                  "status": "Good",
+                  "color": "#34A853"
+            },
+            {
+                  "name": "INP (Interaction to Next Paint)",
+                  "val": "85ms",
+                  "status": "Good",
+                  "color": "#34A853"
+            },
+            {
+                  "name": "CLS (Cumulative Layout Shift)",
+                  "val": "0.02",
+                  "status": "Good",
+                  "color": "#34A853"
+            }
+      ],
+      "overallStatus": "Passed",
+      "accentColor": "#34A853",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'tag-manager-trigger-tag-flow',
+    name: 'TagManagerTriggerTagFlow',
+    category: 'google-ecosystem',
+    description: 'Google Tag Manager trigger-to-tag execution pipeline linking variables to event tags',
+    defaultProps: {
+      "title": "GTM Event Pipeline",
+      "trigger": "Click — Video Render CTA",
+      "variable": "{{Click ID}} = \"render-btn\"",
+      "tagsFired": [
+            {
+                  "name": "GA4 Event — video_render_started",
+                  "type": "Google Analytics"
+            },
+            {
+                  "name": "Google Ads Conversion — Render Initiated",
+                  "type": "Google Ads"
+            },
+            {
+                  "name": "Meta Pixel — Lead Event",
+                  "type": "Custom HTML"
+            }
+      ],
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'tag-manager-data-layer-inspector',
+    name: 'TagManagerDataLayerInspector',
+    category: 'google-ecosystem',
+    description: 'Live window.dataLayer event inspector showing JSON payload keys, values, and timestamps',
+    defaultProps: {
+      "title": "dataLayer.push Monitor",
+      "eventName": "purchase",
+      "payload": {
+            "transaction_id": "ORD_9410",
+            "value": 49,
+            "currency": "USD",
+            "items": [
+                  {
+                        "item_name": "Pro Creator 100 Credits",
+                        "price": 49
+                  }
+            ]
+      },
+      "timestamp": "14:22:08.412",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'tag-manager-preview-debugger',
+    name: 'TagManagerPreviewDebugger',
+    category: 'google-ecosystem',
+    description: 'Tag Assistant preview mode debugger showing tags fired vs tags not fired on selected DOM event',
+    defaultProps: {
+      "title": "Tag Assistant Debugger",
+      "selectedEvent": "4: Link Click",
+      "tagsFiredCount": 3,
+      "tagsNotFiredCount": 2,
+      "firedTags": [
+            "Google Ads Remarketing",
+            "GA4 Form Submit",
+            "LinkedIn Insight Tag"
+      ],
+      "notFiredTags": [
+            "TikTok Pixel Lead",
+            "Hotjar Heatmap Init"
+      ],
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-ads-campaign-overview',
+    name: 'GoogleAdsCampaignOverview',
+    category: 'google-ecosystem',
+    description: 'Google Ads campaign overview dashboard card with impressions, clicks, CPC, and total ad spend',
+    defaultProps: {
+      "title": "Search — High Intent Reels SaaS",
+      "budget": "$150.00 / day",
+      "impressions": "42,800",
+      "clicks": "2,640",
+      "cpc": "$0.84",
+      "cost": "$2,217.60",
+      "conversions": 218,
+      "costPerConv": "$10.17",
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-ads-quality-score-metric',
+    name: 'GoogleAdsQualityScoreMetric',
+    category: 'google-ecosystem',
+    description: 'Keyword Quality Score 1-10 rating with Expected CTR, Ad Relevance, and Landing Page Experience',
+    defaultProps: {
+      "title": "Keyword Quality Score: 9/10",
+      "keyword": "\"ai video creation software\"",
+      "factors": [
+            {
+                  "name": "Expected CTR",
+                  "grade": "Above Average",
+                  "color": "#34A853"
+            },
+            {
+                  "name": "Ad Relevance",
+                  "grade": "Above Average",
+                  "color": "#34A853"
+            },
+            {
+                  "name": "Landing Page Experience",
+                  "grade": "Average",
+                  "color": "#FBBC05"
+            }
+      ],
+      "score": 9,
+      "accentColor": "#34A853",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-ads-auction-insights',
+    name: 'GoogleAdsAuctionInsights',
+    category: 'google-ecosystem',
+    description: 'Auction insights competitive share comparing competitor impression shares and outranking percentages',
+    defaultProps: {
+      "title": "Auction Insights Report",
+      "competitors": [
+            {
+                  "domain": "You (Itnavideo)",
+                  "imprShare": "64.2%",
+                  "overlapRate": "-",
+                  "outrankShare": "-",
+                  "topOfPage": "88.4%"
+            },
+            {
+                  "domain": "CompetitorA.io",
+                  "imprShare": "42.1%",
+                  "overlapRate": "58.4%",
+                  "outrankShare": "72.1%",
+                  "topOfPage": "74.2%"
+            },
+            {
+                  "domain": "CompetitorB.com",
+                  "imprShare": "31.5%",
+                  "overlapRate": "41.2%",
+                  "outrankShare": "84.6%",
+                  "topOfPage": "61.0%"
+            }
+      ],
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-ads-responsive-search-ad',
+    name: 'GoogleAdsResponsiveSearchAd',
+    category: 'google-ecosystem',
+    description: 'Responsive Search Ad (RSA) creative builder previewing rotating headline and description combinations',
+    defaultProps: {
+      "title": "Responsive Search Ad Preview",
+      "headlines": [
+            "AI Video Creator 1080p",
+            "Auto Subtitles In 30 Seconds",
+            "Render Fast on Cloud Lambda"
+      ],
+      "descriptions": [
+            "Turn audio and voiceovers into high-retention vertical reels automatically. 100% cloud rendering.",
+            "No manual editing required. Try our free auto caption generator today."
+      ],
+      "adStrength": "Excellent",
+      "accentColor": "#1A73E8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'google-ads-roas-tracker',
+    name: 'GoogleAdsROASTracker',
+    category: 'google-ecosystem',
+    description: 'Target ROAS (Return on Ad Spend) efficiency meter comparing target vs actual profit multipliers',
+    defaultProps: {
+      "title": "Target ROAS Performance",
+      "targetROAS": "380%",
+      "actualROAS": "462%",
+      "totalCost": "$4,120.00",
+      "convValue": "$19,034.40",
+      "status": "Target Exceeded (+82%)",
+      "accentColor": "#34A853",
       "theme": "dark"
 }
   },
