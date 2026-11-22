@@ -10,6 +10,7 @@ export type ComponentCategory =
   | 'charts'
   | 'diagrams'
   | 'timelines'
+  | 'comparisons'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -220,6 +221,48 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Historical evolution timeline with year badges and narrative documentary cards.',
     tags: ['history', 'evolution', 'documentary', 'biography', 'origin'],
+  },
+
+  // ── Animated Comparisons Suite ──
+  {
+    id: 'comparison-table',
+    name: 'ComparisonTable',
+    category: 'comparisons',
+    aspectRatio: 'both',
+    description: 'Feature matrix with checkmarks, crosses, and spotlight winner column.',
+    tags: ['comparison', 'table', 'matrix', 'features', 'versus'],
+  },
+  {
+    id: 'before-after',
+    name: 'BeforeAfter',
+    category: 'comparisons',
+    aspectRatio: 'both',
+    description: 'Old manual way (red) vs AI transformation (green) dual comparison cards.',
+    tags: ['before-after', 'transformation', 'contrast', 'old-vs-new'],
+  },
+  {
+    id: 'pros-cons',
+    name: 'ProsCons',
+    category: 'comparisons',
+    aspectRatio: 'both',
+    description: 'Objective trade-off analysis cards: green advantages vs red considerations.',
+    tags: ['pros-cons', 'trade-offs', 'advantages', 'disadvantages'],
+  },
+  {
+    id: 'splitscreen',
+    name: 'Splitscreen',
+    category: 'comparisons',
+    aspectRatio: 'both',
+    description: '50/50 dual side-by-side view with central glowing animated VS circle badge.',
+    tags: ['split-screen', 'vs', 'versus', 'dual-panel', 'head-to-head'],
+  },
+  {
+    id: 'ranking-list',
+    name: 'RankingList',
+    category: 'comparisons',
+    aspectRatio: 'both',
+    description: 'Ranked leaderboard stack with gold, silver, and bronze podium medal badges.',
+    tags: ['ranking', 'leaderboard', 'top-tier', 'podium', 'medal'],
   },
 
   // ── Graphics & Frames ──

@@ -31,6 +31,9 @@ export * from './diagrams';
 // 2d. Animated Timelines & Process Suite (Timeline, ProcessSteps, Roadmap, Milestone, HistoryTimeline)
 export * from './timelines';
 
+// 2e. Animated Comparisons Suite (ComparisonTable, BeforeAfter, ProsCons, Splitscreen, RankingList)
+export * from './comparisons';
+
 // 3. Infographics
 export * from './infographics';
 
