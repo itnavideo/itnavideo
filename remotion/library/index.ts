@@ -192,3 +192,4 @@ export * from './teams';
 export * from './access';
 export * from './powerbi';
 export * from './google';
+export * from './docfile';
