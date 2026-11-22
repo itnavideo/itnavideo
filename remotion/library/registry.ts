@@ -17,6 +17,7 @@ export type ComponentCategory =
   | 'statistics'
   | 'ui-mockups'
   | 'motion'
+  | 'media'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -641,6 +642,104 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Cinematic horizontal and vertical camera panning drift across wide or tall canvases.',
     tags: ['camera-pan', 'camera-tilt', 'drift', 'travel', 'cinematic'],
+  },
+
+  // ── Media & Visual Suite ──
+  {
+    id: 'video-image',
+    name: 'VideoImage',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'High-retention video image showcase with Ken Burns zoom, glassmorphism border, and caption pill.',
+    tags: ['image', 'ken-burns', 'photo', 'showcase', 'caption'],
+  },
+  {
+    id: 'image-gallery',
+    name: 'ImageGallery',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Multi-image grid, filmstrip, and staggered stack gallery with spring cascade entrance.',
+    tags: ['image-gallery', 'grid', 'gallery', 'photos', 'filmstrip', 'stack'],
+  },
+  {
+    id: 'video-player',
+    name: 'VideoPlayer',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Programmatic video player wrapping OffthreadVideo with scrub progress bar, timecode, and bezel.',
+    tags: ['video', 'player', 'offthread-video', 'playback', 'controls', 'scrubber'],
+  },
+  {
+    id: 'background-video',
+    name: 'BackgroundVideo',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Ambient looping video layer with dark vignette, blur, and color grading tint for subtitles.',
+    tags: ['background-video', 'ambient', 'vignette', 'b-roll', 'color-grade'],
+  },
+  {
+    id: 'audio-waveform',
+    name: 'AudioWaveform',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Kinetic sound wave visualizer with harmonic oscillation bars and neon glow.',
+    tags: ['audio-waveform', 'soundwave', 'audio', 'bars', 'voice'],
+  },
+  {
+    id: 'spectrum-visualizer',
+    name: 'SpectrumVisualizer',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Multi-band audio spectrum analyzer with linear frequency EQ and circular radial halo modes.',
+    tags: ['spectrum', 'visualizer', 'frequency', 'equalizer', 'radial-audio'],
+  },
+  {
+    id: 'avatar',
+    name: 'Avatar',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Animated presenter avatar with reactive speaking soundwave rings, verified badge, and online status.',
+    tags: ['avatar', 'presenter', 'speaker', 'creator', 'soundwave-ring'],
+  },
+  {
+    id: 'map-pin',
+    name: 'MapPin',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Vector map with latitude/longitude coordinate grid, bouncing location pin, and flight route line.',
+    tags: ['map', 'location', 'pin', 'coordinates', 'flight-route'],
+  },
+  {
+    id: 'screenshot',
+    name: 'Screenshot',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'SaaS screenshot showcase frame with 3D perspective tilt and spotlight magnifying zoom lens.',
+    tags: ['screenshot', 'mockup', 'magnifying-lens', 'zoom-callout', 'perspective'],
+  },
+  {
+    id: 'device-frame',
+    name: 'DeviceFrame',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Photorealistic hardware frames for iPhone 16 Pro (Dynamic Island), MacBook Pro, iPad Pro & Apple Watch.',
+    tags: ['device-frame', 'iphone-16', 'macbook', 'ipad', 'apple-watch', 'notch'],
+  },
+  {
+    id: 'visual-background',
+    name: 'VisualBackground',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Procedural video backdrop supporting mesh gradient orbs, blueprint grid, starfield, and spotlight.',
+    tags: ['background', 'mesh-gradient', 'grid', 'starfield', 'spotlight'],
+  },
+  {
+    id: 'texture',
+    name: 'Texture',
+    category: 'media',
+    aspectRatio: 'both',
+    description: 'Analog film grain, halftone dots, CRT retro scanlines, lens vignette, and paper fiber tactile depth.',
+    tags: ['texture', 'film-grain', 'halftone', 'crt', 'scanlines', 'vignette', 'paper'],
   },
 
   // ── Graphics & Frames ──

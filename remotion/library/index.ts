@@ -52,6 +52,9 @@ export * from './ui-mockups';
 // 2k. Animated Motion & Animation VFX Suite (Fade, Slide, Scale, Rotate, Spring, Stagger, Reveal, Mask, Typewriter, WordHighlight, TextScramble, PathDraw, Morph, Parallax, CameraZoom, CameraPan)
 export * from './motion';
 
+// 2l. Media & Visual Suite (VideoImage, ImageGallery, VideoPlayer, BackgroundVideo, AudioWaveform, SpectrumVisualizer, Avatar, MapPin, Screenshot, DeviceFrame, VisualBackground, Texture)
+export * from './media';
+
 // 3. Infographics
 export * from './infographics';
 
