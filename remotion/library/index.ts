@@ -181,5 +181,8 @@ export * from './database';
 // 8q. SQL Query Execution & Relational Algebra Suite
 export * from './sql';
 
+// 8r. Microsoft Excel & Advanced Spreadsheet Suite
+export * from './spreadsheet';
+
 // 9. Component Registry & Metadata
 export * from './registry';

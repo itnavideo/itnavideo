@@ -46,7 +46,8 @@ export type ComponentCategory =
   | 'storytelling-assets'
   | 'editing'
   | 'color'
-  | 'advanced-vfx';
+  | 'advanced-vfx'
+  | 'spreadsheet';
 
 export type AspectRatioSupport = '16:9' | '9:16' | 'both';
 
@@ -10408,6 +10409,246 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           provisionedIOPS: 25000,
           throughputMBps: 1000
     },
+  {
+    id: 'excel-formula-bar',
+    name: 'ExcelFormulaBar',
+    category: 'spreadsheet',
+    description: 'Microsoft Excel authentic formula bar showing active cell name box, fx function launcher, formula editor, and syntax color coding.',
+    tags: ['excel', 'formula-bar', 'spreadsheet', 'fx-bar', 'active-cell'],
+    aspectRatio: 'both',
+    defaultProps: {
+          cellReference: 'C4',
+          formulaText: '=SUM(C2:C3) * 1.18',
+          calculatedValue: '$14,850.00'
+    },
+  },
+  {
+    id: 'spreadsheet-grid',
+    name: 'SpreadsheetGrid',
+    category: 'spreadsheet',
+    description: 'Classic Excel spreadsheet grid with column letters, row numbers, active cell border, and data cells.',
+    tags: ['spreadsheet-grid', 'excel-grid', 'sheet-cells', 'rows-columns', 'fill-handle'],
+    aspectRatio: 'both',
+    defaultProps: {
+          sheetTitle: 'Q4 Financial Model.xlsx'
+    },
+  },
+  {
+    id: 'vlookup-explainer',
+    name: 'VLOOKUPExplainer',
+    category: 'spreadsheet',
+    description: 'Visual lookup mechanics diagram demonstrating VLOOKUP with lookup value, table array, column index, and return value.',
+    tags: ['vlookup', 'excel-formula', 'lookup-value', 'column-index', 'exact-match'],
+    aspectRatio: 'both',
+    defaultProps: {
+          lookupValue: 'EMP-1042',
+          tableRange: 'A2:D500',
+          colIndexNum: 3,
+          exactMatch: true
+    },
+  },
+  {
+    id: 'xlookup-card',
+    name: 'XLOOKUPCard',
+    category: 'spreadsheet',
+    description: 'Modern XLOOKUP formula visualizer demonstrating bidirectional lookups, default exact matches, and not-found fallbacks.',
+    tags: ['xlookup', 'modern-excel', 'bidirectional-lookup', 'return-array', 'lookup-array'],
+    aspectRatio: 'both',
+    defaultProps: {
+          lookupValue: 'P-9840',
+          lookupArray: 'Products[SKU]',
+          returnArray: 'Products[RetailPrice]'
+    },
+  },
+  {
+    id: 'index-match-visualizer',
+    name: 'INDEXMATCHVisualizer',
+    category: 'spreadsheet',
+    description: 'Two-way matrix lookup visualizer combining INDEX and MATCH to locate row and column intersection coordinates.',
+    tags: ['index-match', '2-way-lookup', 'matrix-lookup', 'row-col-intersection', 'excel-advanced'],
+    aspectRatio: 'both',
+    defaultProps: {
+          lookupRowItem: 'Q3 2026',
+          lookupColItem: 'Operating Profit',
+          matchedRowIndex: 4,
+          matchedColIndex: 3
+    },
+  },
+  {
+    id: 'pivot-table-builder',
+    name: 'PivotTableBuilder',
+    category: 'spreadsheet',
+    description: 'Interactive PivotTable configuration visualizer showing Rows, Columns, Values, and Filters layout quadrants.',
+    tags: ['pivot-table', 'olap-excel', 'data-summarization', 'values-quadrant', 'field-list'],
+    aspectRatio: 'both',
+    defaultProps: {
+          rowsField: 'Sales_Representative',
+          columnsField: 'Quarter (Q1..Q4)',
+          valuesField: 'SUM(Gross_Revenue)'
+    },
+  },
+  {
+    id: 'conditional-formatting-rule',
+    name: 'ConditionalFormattingRule',
+    category: 'spreadsheet',
+    description: 'Excel conditional formatting rule evaluator displaying data bars, icon sets, and color scales for data visualization.',
+    tags: ['conditional-formatting', 'color-scales', 'data-bars', 'cell-highlighting', 'excel-formatting'],
+    aspectRatio: 'both',
+    defaultProps: {
+          ruleType: 'Highlight Cell Rules (Greater Than)',
+          criteria: 'Cell Value > 10,000'
+    },
+  },
+  {
+    id: 'sumifs-formula-card',
+    name: 'SUMIFSFormulaCard',
+    category: 'spreadsheet',
+    description: 'Multi-criteria aggregation formula card for SUMIFS with highlighted criteria ranges and calculated total.',
+    tags: ['sumifs', 'multi-condition-sum', 'criteria-range', 'excel-math', 'conditional-sum'],
+    aspectRatio: 'both',
+    defaultProps: {
+          sumRange: 'Sales[Amount]',
+          criteria1: 'Sales[Region] = 'APAC'',
+          aggregatedTotal: '$1,450,800.00'
+    },
+  },
+  {
+    id: 'nested-if-statement',
+    name: 'NestedIFStatement',
+    category: 'spreadsheet',
+    description: 'Nested IF and IFS formula decision tree visualizer showing logical branches and evaluation paths.',
+    tags: ['nested-if', 'ifs-formula', 'logical-functions', 'decision-tree', 'excel-logic'],
+    aspectRatio: 'both',
+    defaultProps: {
+          score: 88,
+          gradeResult: 'B+ (Honors)'
+    },
+  },
+  {
+    id: 'excel-data-validation',
+    name: 'ExcelDataValidation',
+    category: 'spreadsheet',
+    description: 'Excel in-cell dropdown list data validation card with customizable allowed items and warning modal.',
+    tags: ['data-validation', 'dropdown-list', 'in-cell-dropdown', 'input-restriction', 'error-alert'],
+    aspectRatio: 'both',
+    defaultProps: {
+          cell: 'Status (Column E)',
+          selectedItem: 'Approved'
+    },
+  },
+  {
+    id: 'text-to-columns-wizard',
+    name: 'TextToColumnsWizard',
+    category: 'spreadsheet',
+    description: 'Text to Columns parsing wizard demonstrating delimiter splitting of raw text strings into discrete columns.',
+    tags: ['text-to-columns', 'csv-parsing', 'delimiter-split', 'data-cleaning', 'string-split'],
+    aspectRatio: 'both',
+    defaultProps: {
+          rawString: 'EMP102,John Doe,Finance,Analyst,$95000',
+          delimiter: 'Comma (,)'
+    },
+  },
+  {
+    id: 'flash-fill-simulator',
+    name: 'FlashFillSimulator',
+    category: 'spreadsheet',
+    description: 'Excel Flash Fill pattern recognition demonstrator automatically filling formatted records down columns.',
+    tags: ['flash-fill', 'pattern-recognition', 'auto-extract', 'ctrl-e', 'string-manipulation'],
+    aspectRatio: 'both',
+    defaultProps: {
+          patternRule: 'Extract Initial + Last Name from Full Name'
+    },
+  },
+  {
+    id: 'excel-sparklines',
+    name: 'ExcelSparklines',
+    category: 'spreadsheet',
+    description: 'In-cell micro sparkline charts (Line, Column, Win/Loss) embedded directly inside data rows.',
+    tags: ['sparklines', 'in-cell-charts', 'micro-trends', 'data-visualization', 'excel-charts'],
+    aspectRatio: 'both',
+    defaultProps: {},
+  },
+  {
+    id: 'goal-seek-solver',
+    name: 'GoalSeekSolver',
+    category: 'spreadsheet',
+    description: 'Excel What-If Goal Seek solver dialog displaying target cell value and iterating source variables.',
+    tags: ['goal-seek', 'what-if-analysis', 'solver', 'target-cell', 'sensitivity-analysis'],
+    aspectRatio: 'both',
+    defaultProps: {
+          setCell: 'Total_Gross_Profit (B14)',
+          toValue: '$100,000',
+          byChangingCell: 'Price_Per_Unit (C2)'
+    },
+  },
+  {
+    id: 'dynamic-array-filter',
+    name: 'DynamicArrayFilter',
+    category: 'spreadsheet',
+    description: 'Modern Excel dynamic array formula visualizer showing spilled range output and #SPILL! boundary handling.',
+    tags: ['dynamic-array', 'filter-formula', 'spill-range', 'spill-error', 'modern-formulas'],
+    aspectRatio: 'both',
+    defaultProps: {
+          formula: '=FILTER(A2:D500, D2:D500 > 1000, 'None')',
+          spillCount: 14
+    },
+  },
+  {
+    id: 'spreadsheet-macro-vba',
+    name: 'SpreadsheetMacroVBA',
+    category: 'spreadsheet',
+    description: 'Excel VBA macro code editor card showing Sub procedures, range automation, and execution trigger.',
+    tags: ['vba', 'excel-macros', 'automation', 'visual-basic', 'office-scripts'],
+    aspectRatio: 'both',
+    defaultProps: {
+          macroName: 'Sub FormatMonthlyReport()',
+          executionTimeMs: 45
+    },
+  },
+  {
+    id: 'excel-trace-precedents',
+    name: 'ExcelTracePrecedents',
+    category: 'spreadsheet',
+    description: 'Excel formula auditing card showing trace precedents arrows and dependent cell relationships.',
+    tags: ['trace-precedents', 'formula-auditing', 'trace-dependents', 'error-checking', 'audit-arrows'],
+    aspectRatio: 'both',
+    defaultProps: {
+          formulaCell: 'Total_Revenue (F12)'
+    },
+  },
+  {
+    id: 'scenario-manager-card',
+    name: 'ScenarioManagerCard',
+    category: 'spreadsheet',
+    description: 'What-If Scenario Manager summary table comparing Base Case, Best Case, and Worst Case business projections.',
+    tags: ['scenario-manager', 'what-if', 'financial-projections', 'sensitivity-model', 'case-summary'],
+    aspectRatio: 'both',
+    defaultProps: {},
+  },
+  {
+    id: 'countifs-frequency-card',
+    name: 'COUNTIFSFrequencyCard',
+    category: 'spreadsheet',
+    description: 'Multi-criteria counting frequency card for COUNTIFS calculating occurrences matching multiple parameters.',
+    tags: ['countifs', 'conditional-count', 'multi-criteria-count', 'statistical-formulas', 'frequency'],
+    aspectRatio: 'both',
+    defaultProps: {
+          range1: 'Deals[Stage] = 'Negotiation'',
+          countResult: 34,
+          totalRecords: 180
+    },
+  },
+  {
+    id: 'power-query-pipeline-card',
+    name: 'PowerQueryPipelineCard',
+    category: 'spreadsheet',
+    description: 'Power Query ETL data preparation pipeline card displaying sequential Applied Steps transformation flow.',
+    tags: ['power-query', 'm-code', 'applied-steps', 'etl-excel', 'data-transformation'],
+    aspectRatio: 'both',
+    defaultProps: {
+          rowsProcessedCount: 48500
+    },
+  },
   },
   },
   },
