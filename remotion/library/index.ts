@@ -100,6 +100,9 @@ export * from './transportation';
 // 2aa. Human Psychology & Business Explanation Suite (HumanBrain, BrainActivity, DecisionMakingDiagram, BehaviorLoop, HabitLoop, MotivationScale, MemoryDiagram, CustomerJourney, UserPersona, CustomerLifecycle, SalesPipeline, RevenueModel, BusinessModelCanvas, OrganizationalHierarchy, StakeholderMap, MarketSegmentation, CompetitivePositioning)
 export * from './psychology';
 
+// 2ab. Social Media & Creator Engagement Suite (YouTubeSubscribeButton, InstagramFollowCard, TikTokProfileCard, TwitterPostCard, SocialEngagementPill, PodcastBadge, StarRatingCard, VerifiedBadge, CommentOverlay, ShareNotification, LikeHeartExplosion, FollowGoalBar, LiveStreamChat, SubscriberMilestone, NotificationBell, PinnedCommentCard)
+export * from './social';
+
 // 3. Infographics
 export * from './infographics';
 
