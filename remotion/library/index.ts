@@ -178,5 +178,8 @@ export * from './handdrawn';
 // 8p. Database Architecture & Schema Structure Suite
 export * from './database';
 
+// 8q. SQL Query Execution & Relational Algebra Suite
+export * from './sql';
+
 // 9. Component Registry & Metadata
 export * from './registry';
