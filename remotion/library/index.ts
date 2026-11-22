@@ -166,5 +166,8 @@ export * from './physics';
 // 8l. Specialized Presentation & Annotation Suite
 export * from './annotation';
 
+// 8m. Digital Marketing & Growth Suite
+export * from './marketing';
+
 // 9. Component Registry & Metadata
 export * from './registry';
