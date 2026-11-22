@@ -88,6 +88,9 @@ export * from './vfx';
 // 2w. Cinematic Documentary Suite (DocumentaryTitle, ChapterIntroduction, LocationIntroduction, EvidenceBoard, CaseFile, ArchivalPhoto, HistoricalFootageFrame, InvestigationBoard, NewspaperClipping, PhotoZoom, DateStamp, LocationCoordinates, DocumentaryTimeline, SourceCitation, InterviewFrame, DocumentaryLowerThird, CinematicCredits, MapJourney, EventReconstruction, SplitNarrative)
 export * from './documentary';
 
+// 2x. PowerPoint & Presentation Graphics Suite (SmartArt, PresentationVenn, MatrixDiagram, SWOTAnalysis, FishboneDiagram, GanttChart, PERTChart, SankeyDiagram, Treemap, SunburstChart, BubbleChart, ScatterPlot, BoxPlot, Histogram, ParetoChart, FunnelDiagram, DecisionTree, LogicTree, PyramidDiagram, HierarchicalDiagram, WaterfallDiagram, BridgeChart, ClusterDiagram, ConceptMap)
+export * from './presentation';
+
 // 3. Infographics
 export * from './infographics';
 
