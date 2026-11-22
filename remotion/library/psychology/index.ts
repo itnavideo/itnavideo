@@ -71,3 +71,10 @@ export type { MarketSegmentationProps, MarketLayer } from './MarketSegmentation'
 
 export { CompetitivePositioning } from './CompetitivePositioning';
 export type { CompetitivePositioningProps, PositioningPoint } from './CompetitivePositioning';
+
+export { EmotionMeter } from './EmotionMeter';
+export type { EmotionMeterProps } from './EmotionMeter';
+
+export { MemoryScale } from './MemoryScale';
+export type { MemoryScaleProps } from './MemoryScale';
+

@@ -2250,6 +2250,22 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     description: 'Perceptual market positioning matrix (Retention Optimization vs Autonomous Speed) with competitor clusters.',
     tags: ['psychology', 'positioning', 'competitive', 'differentiation', 'matrix', 'strategy'],
   },
+  {
+    id: 'emotion-meter',
+    name: 'EmotionMeter',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Psychological emotion, sentiment, and valence gauge with animated needle sweep and Plutchik polarity score.',
+    tags: ['psychology', 'emotion', 'sentiment', 'valence', 'meter', 'gauge'],
+  },
+  {
+    id: 'memory-scale',
+    name: 'MemoryScale',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Ebbinghaus cognitive memory retention scale and spaced repetition active recall decay graph.',
+    tags: ['psychology', 'memory', 'ebbinghaus', 'retention', 'cognitive', 'learning'],
+  },
 
   // ── Social Media & Creator Engagement Suite (16 Components) ──
   {
