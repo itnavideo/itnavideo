@@ -61,6 +61,9 @@ export * from './svg';
 // 2n. 3D & Isometric Suite (ThreeDObject, IsometricBuilding, ThreeDGlobe, ThreeDDevice, ThreeDLayers, IsometricGrid, ThreeDCard)
 export * from './isometric';
 
+// 2o. Scientific & STEM Suite (MoleculeModel, AtomDiagram, DNAStructure, HumanAnatomy, PhysicsDiagram, CellDiagram, CircuitDiagram)
+export * from './scientific';
+
 // 3. Infographics
 export * from './infographics';
 

@@ -20,6 +20,7 @@ export type ComponentCategory =
   | 'media'
   | 'svg'
   | '3d-isometric'
+  | 'scientific'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -898,6 +899,64 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Spatial parallax card with specular shine highlight, dynamic tilt physics, and detached Z-space badges.',
     tags: ['3d', 'card', 'parallax', 'tilt', 'specular', 'glare'],
+  },
+
+  // ── Scientific & STEM Suite ──
+  {
+    id: 'molecule-model',
+    name: 'MoleculeModel',
+    category: 'scientific',
+    aspectRatio: 'both',
+    description: '3D chemical molecular bond structure with atom spheres, covalent sticks, and continuous rotation.',
+    tags: ['chemistry', 'molecule', 'atoms', 'bonds', 'science', 'stem'],
+  },
+  {
+    id: 'atom-diagram',
+    name: 'AtomDiagram',
+    category: 'scientific',
+    aspectRatio: 'both',
+    description: 'Rutherford-Bohr atom model with multi-plane elliptical orbital rings and high-velocity electrons.',
+    tags: ['physics', 'atom', 'bohr', 'electrons', 'nucleus', 'science'],
+  },
+  {
+    id: 'dna-structure',
+    name: 'DNAStructure',
+    category: 'scientific',
+    aspectRatio: 'both',
+    description: '3D animated double helix with twisting nucleotide base pairs (A-T, C-G) and sequence readout.',
+    tags: ['biology', 'dna', 'genetics', 'double-helix', 'nucleotides', 'stem'],
+  },
+  {
+    id: 'human-anatomy',
+    name: 'HumanAnatomy',
+    category: 'scientific',
+    aspectRatio: 'both',
+    description: 'Medical human anatomy silhouette with pulsating cardiac rhythm, laser scan beam, and biometric tags.',
+    tags: ['medicine', 'anatomy', 'biology', 'human-body', 'heart-rate', 'biometrics'],
+  },
+  {
+    id: 'physics-diagram',
+    name: 'PhysicsDiagram',
+    category: 'scientific',
+    aspectRatio: 'both',
+    description: 'Mechanics and physics diagram generator: free-body force vectors, harmonic pendulum, and projectiles.',
+    tags: ['physics', 'mechanics', 'forces', 'free-body', 'pendulum', 'vectors'],
+  },
+  {
+    id: 'cell-diagram',
+    name: 'CellDiagram',
+    category: 'scientific',
+    aspectRatio: 'both',
+    description: 'Eukaryotic animal cell cross-section model with labeled organelles, lipid membrane, and floating cytoplasm.',
+    tags: ['biology', 'cell', 'organelles', 'nucleus', 'mitochondria', 'stem'],
+  },
+  {
+    id: 'circuit-diagram',
+    name: 'CircuitDiagram',
+    category: 'scientific',
+    aspectRatio: 'both',
+    description: 'Electrical engineering schematic with DC voltage source, load resistor, and animated current packets.',
+    tags: ['electronics', 'circuit', 'schematic', 'ohms-law', 'engineering', 'stem'],
   },
 
   // ── Graphics & Frames ──
