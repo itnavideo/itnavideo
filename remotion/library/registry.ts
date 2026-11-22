@@ -18,6 +18,7 @@ export type ComponentCategory =
   | 'ui-mockups'
   | 'motion'
   | 'media'
+  | 'svg'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -740,6 +741,104 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Analog film grain, halftone dots, CRT retro scanlines, lens vignette, and paper fiber tactile depth.',
     tags: ['texture', 'film-grain', 'halftone', 'crt', 'scanlines', 'vignette', 'paper'],
+  },
+
+  // ── SVG Vector Graphics Suite ──
+  {
+    id: 'svg-path',
+    name: 'SVGPath',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Animated vector path with progressive stroke-dashoffset drawing, fill fade, and neon glow filter.',
+    tags: ['svg', 'path', 'stroke-draw', 'vector', 'contour', 'handwriting'],
+  },
+  {
+    id: 'svg-line',
+    name: 'SVGLine',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Dynamic animated line with progressive draw and animated traveling data packet pulse.',
+    tags: ['svg', 'line', 'packet', 'pulse', 'stream', 'connection'],
+  },
+  {
+    id: 'svg-circle',
+    name: 'SVGCircle',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Percentage gauge progress circle arc with spring radius scale and continuous breathing pulse halo.',
+    tags: ['svg', 'circle', 'gauge', 'arc', 'radial-progress', 'pulse'],
+  },
+  {
+    id: 'svg-polygon',
+    name: 'SVGPolygon',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Geometric regular polygon generator (hexagons, triangles, diamonds) with rotation and spring pop.',
+    tags: ['svg', 'polygon', 'hexagon', 'triangle', 'geometry', 'shape'],
+  },
+  {
+    id: 'svg-gradient',
+    name: 'SVGGradient',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Reusable linear and radial gradient definitions with animated rotating angle and luminescence.',
+    tags: ['svg', 'gradient', 'linear-gradient', 'radial-gradient', 'color-stops'],
+  },
+  {
+    id: 'svg-mask',
+    name: 'SVGMask',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'High-leverage vector mask wrapper enabling stencil cutouts, alpha gradients, and luminance reveals.',
+    tags: ['svg', 'mask', 'stencil', 'cutout', 'alpha-mask', 'luminance'],
+  },
+  {
+    id: 'svg-clip-path',
+    name: 'SVGClipPath',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Animated vector clipping path wrapper for sharp geometric wipes (circle iris, diagonal split).',
+    tags: ['svg', 'clip-path', 'wipe', 'iris', 'geometric-transition'],
+  },
+  {
+    id: 'svg-filter',
+    name: 'SVGFilter',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Hardware-accelerated SVG filter definitions: neon glow, cyber glitch, duotone, and soft drop shadow.',
+    tags: ['svg', 'filter', 'neon-glow', 'cyber-glitch', 'duotone', 'drop-shadow'],
+  },
+  {
+    id: 'svg-pattern',
+    name: 'SVGPattern',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Reusable SVG pattern generator: architectural dot matrix, isometric grid, and honeycomb meshes.',
+    tags: ['svg', 'pattern', 'dot-matrix', 'isometric-grid', 'honeycomb', 'mesh'],
+  },
+  {
+    id: 'svg-marker',
+    name: 'SVGMarker',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Vector path terminal marker tips: crisp arrowheads, stealth points, circular dots, and diamond pins.',
+    tags: ['svg', 'marker', 'arrowhead', 'terminal-dot', 'stealth-arrow'],
+  },
+  {
+    id: 'svg-arrow',
+    name: 'SVGArrow',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Dynamic animated vector arrow connecting two coordinates with curvature, stroke draw, and glow.',
+    tags: ['svg', 'arrow', 'curved-arrow', 'flow', 'pointer', 'direction'],
+  },
+  {
+    id: 'svg-connector',
+    name: 'SVGConnector',
+    category: 'svg',
+    aspectRatio: 'both',
+    description: 'Flow connector between UI nodes with orthogonal elbows, bezier curves, and streaming data packets.',
+    tags: ['svg', 'connector', 'flowchart', 'orthogonal', 'bezier', 'data-packets'],
   },
 
   // ── Graphics & Frames ──

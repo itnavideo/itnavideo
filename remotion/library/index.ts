@@ -55,6 +55,9 @@ export * from './motion';
 // 2l. Media & Visual Suite (VideoImage, ImageGallery, VideoPlayer, BackgroundVideo, AudioWaveform, SpectrumVisualizer, Avatar, MapPin, Screenshot, DeviceFrame, VisualBackground, Texture)
 export * from './media';
 
+// 2m. SVG Vector Graphics Suite (SVGPath, SVGLine, SVGCircle, SVGPolygon, SVGGradient, SVGMask, SVGClipPath, SVGFilter, SVGPattern, SVGMarker, SVGArrow, SVGConnector)
+export * from './svg';
+
 // 3. Infographics
 export * from './infographics';
 
