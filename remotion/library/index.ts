@@ -106,6 +106,9 @@ export * from './social';
 // 2ac. Gaming, HUD & Cyberpunk Elements Suite (HealthBar, SpeedometerHUD, CrosshairTarget, MiniRadarMap, LevelProgressionBadge, QuestLog, ShieldMeter, InventoryGrid, AmmoCounter, BossHealthBar, KillStreakPopup, XPFloatingText, CyberpunkFrame, DamageVignette, TacticalCompass, HitMarker)
 export * from './gaming';
 
+// 2ad. Sports, Fitness & Health Tracking Suite (HeartRateMonitor, CalorieBurnCounter, RepetitionCounter, ScoreboardWidget, SpeedPaceTracker, WorkoutIntervalTimer, WaterIntakeTracker, StepGoalRing, LeaderboardRank, RestTimer, BPMVisualizer, MatchTimer, WeightProgressChart, MacroNutrientBar, GymSetTracker, ActivityRingsThreeWay)
+export * from './fitness';
+
 // 3. Infographics
 export * from './infographics';
 
