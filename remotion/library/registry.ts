@@ -32,6 +32,7 @@ export type ComponentCategory =
   | 'presentation'
   | 'technology'
   | 'transportation'
+  | 'psychology'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -2094,6 +2095,144 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Simulated orbital reconnaissance satellite viewport with sensor crosshair reticle and optical zoom.',
     tags: ['transportation', 'satellite', 'reconnaissance', 'orbital', 'crosshair', 'surveillance'],
+  },
+
+  // ── Human Psychology & Business Explanation Suite (17 Components) ──
+  {
+    id: 'human-brain',
+    name: 'HumanBrain',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Anatomical brain lobes (Frontal, Parietal, Temporal, Occipital, Cerebellum) with active neural firing indicators.',
+    tags: ['psychology', 'brain', 'neuroscience', 'cognition', 'lobes', 'thinking'],
+  },
+  {
+    id: 'brain-activity',
+    name: 'BrainActivity',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'EEG frequency band cognitive load monitor tracking Gamma, Beta, Alpha, and Theta brain wave frequencies.',
+    tags: ['psychology', 'eeg', 'brain-waves', 'focus', 'attention', 'cognitive-load'],
+  },
+  {
+    id: 'decision-making-diagram',
+    name: 'DecisionMakingDiagram',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Dual-process cognitive decision theory (Kahneman System 1 fast intuitive vs System 2 slow deliberative reasoning).',
+    tags: ['psychology', 'decision-making', 'kahneman', 'system-1', 'system-2', 'behavioral-economics'],
+  },
+  {
+    id: 'behavior-loop',
+    name: 'BehaviorLoop',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'BJ Fogg behavior design model (Behavior = Motivation × Ability × Prompt) action trigger cards.',
+    tags: ['psychology', 'behavior', 'fogg', 'motivation', 'ability', 'prompt'],
+  },
+  {
+    id: 'habit-loop',
+    name: 'HabitLoop',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Neurological habit loop (Cue ➔ Craving ➔ Response ➔ Reward) from Charles Duhigg and James Clear.',
+    tags: ['psychology', 'habit', 'habit-loop', 'atomic-habits', 'cue', 'reward'],
+  },
+  {
+    id: 'motivation-scale',
+    name: 'MotivationScale',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Self-determination theory motivation spectrum contrasting intrinsic autonomy, mastery, and purpose vs. extrinsic rewards.',
+    tags: ['psychology', 'motivation', 'autonomy', 'mastery', 'purpose', 'drive'],
+  },
+  {
+    id: 'memory-diagram',
+    name: 'MemoryDiagram',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Atkinson-Shiffrin multi-store memory model (Sensory Register ➔ Working Memory ➔ Long-Term Memory).',
+    tags: ['psychology', 'memory', 'retention', 'working-memory', 'long-term-memory', 'learning'],
+  },
+  {
+    id: 'customer-journey',
+    name: 'CustomerJourney',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'End-to-end customer journey map tracking Awareness, Consideration, Decision, and Advocacy touchpoints.',
+    tags: ['psychology', 'customer-journey', 'ux', 'marketing', 'touchpoints', 'funnel'],
+  },
+  {
+    id: 'user-persona',
+    name: 'UserPersona',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Creator demographic archetype card with photo avatar, bio quote, core goals, and key frustrations.',
+    tags: ['psychology', 'persona', 'user-research', 'creator', 'archetype', 'demographics'],
+  },
+  {
+    id: 'customer-lifecycle',
+    name: 'CustomerLifecycle',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Circular customer retention lifecycle flywheel (Acquire, Onboard, Adopt, Expand, Renew).',
+    tags: ['psychology', 'lifecycle', 'retention', 'saas', 'churn', 'onboarding'],
+  },
+  {
+    id: 'sales-pipeline',
+    name: 'SalesPipeline',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'B2B enterprise sales pipeline stages (Lead, Discovery, Demo, Proposal, Closed Won) with deal valuations.',
+    tags: ['psychology', 'sales', 'pipeline', 'deals', 'b2b', 'revenue'],
+  },
+  {
+    id: 'revenue-model',
+    name: 'RevenueModel',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Diversified business revenue model breakdown detailing SaaS subscriptions, credits, and enterprise tiers.',
+    tags: ['psychology', 'revenue-model', 'monetization', 'saas', 'pricing', 'business'],
+  },
+  {
+    id: 'business-model-canvas',
+    name: 'BusinessModelCanvas',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Strategyzer 9-building-block business model canvas detailing value prop, customer segments, channels, and costs.',
+    tags: ['psychology', 'business-model-canvas', 'strategy', 'venture', 'startup', 'value-prop'],
+  },
+  {
+    id: 'organizational-hierarchy',
+    name: 'OrganizationalHierarchy',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Executive corporate leadership structure with CEO, VP engineering/product/growth, and subordinate reporting lines.',
+    tags: ['psychology', 'organization', 'hierarchy', 'leadership', 'c-suite', 'team'],
+  },
+  {
+    id: 'stakeholder-map',
+    name: 'StakeholderMap',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Power vs. Interest stakeholder engagement 2x2 matrix with strategy classifications.',
+    tags: ['psychology', 'stakeholder', 'power-interest', 'governance', 'management'],
+  },
+  {
+    id: 'market-segmentation',
+    name: 'MarketSegmentation',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'TAM / SAM / SOM addressable market opportunity sizing with market valuations.',
+    tags: ['psychology', 'market-segmentation', 'tam', 'sam', 'som', 'market-size'],
+  },
+  {
+    id: 'competitive-positioning',
+    name: 'CompetitivePositioning',
+    category: 'psychology',
+    aspectRatio: 'both',
+    description: 'Perceptual market positioning matrix (Retention Optimization vs Autonomous Speed) with competitor clusters.',
+    tags: ['psychology', 'positioning', 'competitive', 'differentiation', 'matrix', 'strategy'],
   },
 
   // ── Graphics & Frames ──

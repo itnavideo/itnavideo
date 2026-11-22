@@ -97,6 +97,9 @@ export * from './technology';
 // 2z. Maps & Transportation Suite (WorldGlobe, TransportGlobe, GlobalTransitMap, CountryHighlight, StateMap, CityMap, FlightPath, ShippingRoute, RoadNetwork, MetroMap, RailwayMap, GPSNavigation, RouteTracker, LocationMarker, BorderHighlight, TerritoryComparison, AnimatedCompass, LatitudeLongitude, SatelliteView)
 export * from './transportation';
 
+// 2aa. Human Psychology & Business Explanation Suite (HumanBrain, BrainActivity, DecisionMakingDiagram, BehaviorLoop, HabitLoop, MotivationScale, MemoryDiagram, CustomerJourney, UserPersona, CustomerLifecycle, SalesPipeline, RevenueModel, BusinessModelCanvas, OrganizationalHierarchy, StakeholderMap, MarketSegmentation, CompetitivePositioning)
+export * from './psychology';
+
 // 3. Infographics
 export * from './infographics';
 
