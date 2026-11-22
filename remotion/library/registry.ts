@@ -9153,6 +9153,261 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           rowsReturned: 14,
           queryTag: 'GET /api/v1/analytics/reports'
     },
+  {
+    id: 'sql-injection-shield',
+    name: 'SQLInjectionShield',
+    category: 'database',
+    description: 'SQL injection attack prevention shield demonstrating prepared statements and parameterized query protection against malicious payloads.',
+    tags: ['sqli', 'sql-injection', 'parameterized-queries', 'waf', 'security-shield'],
+    aspectRatio: 'both',
+    defaultProps: {
+          maliciousPayload: 'SELECT * FROM users WHERE email = '' OR '1'='1' --',
+          parameterizedQuery: 'SELECT * FROM users WHERE email = $1',
+          blockedStatus: 'ATTACK MITIGATED'
+    },
+  },
+  {
+    id: 'row-level-security-policy',
+    name: 'RowLevelSecurityPolicy',
+    category: 'database',
+    description: 'Row Level Security (RLS) policy visualizer evaluating user identity and tenant isolation policies before granting table access.',
+    tags: ['rls', 'row-level-security', 'tenant-isolation', 'supabase-rls', 'data-security'],
+    aspectRatio: 'both',
+    defaultProps: {
+          policyName: 'tenant_isolation_policy',
+          tableName: 'public.customer_orders',
+          condition: 'tenant_id = current_setting('app.current_tenant_id')::uuid'
+    },
+  },
+  {
+    id: 'database-role-permission',
+    name: 'DatabaseRolePermission',
+    category: 'database',
+    description: 'Database Role-Based Access Control (RBAC) matrix showing granted and revoked SQL privileges across user personas.',
+    tags: ['rbac', 'database-roles', 'grant-revoke', 'privileges', 'access-control'],
+    aspectRatio: 'both',
+    defaultProps: {
+          roleName: 'app_readonly_analyst',
+          tableName: 'analytics.user_transactions'
+    },
+  },
+  {
+    id: 'tde-encryption-at-rest',
+    name: 'TDEEncryptionAtRest',
+    category: 'database',
+    description: 'Transparent Data Encryption (TDE) architecture showing AES-256 block-level encryption with cloud KMS keys.',
+    tags: ['tde', 'encryption-at-rest', 'aes-256', 'fips-140', 'kms-keys'],
+    aspectRatio: 'both',
+    defaultProps: {
+          algorithm: 'AES-256-XTS',
+          tablespace: 'encrypted_ts_primary',
+          keyRotationDays: 90
+    },
+  },
+  {
+    id: 'ssl-tls-encryption-in-transit',
+    name: 'SSLTLSEncryptionInTransit',
+    category: 'database',
+    description: 'Client-to-database TLS in-transit encryption certificate handshake card with cipher suite and strict verification mode.',
+    tags: ['tls', 'ssl-encryption', 'mtls', 'in-transit', 'certificate-verification'],
+    aspectRatio: 'both',
+    defaultProps: {
+          tlsVersion: 'TLSv1.3',
+          cipherSuite: 'TLS_AES_256_GCM_SHA384',
+          sslMode: 'verify-full (mTLS)'
+    },
+  },
+  {
+    id: 'database-audit-log',
+    name: 'DatabaseAuditLog',
+    category: 'database',
+    description: 'Compliance audit trail logger capturing actor PID, client IP, executed statement, and tamper-proof SHA-256 event hash.',
+    tags: ['audit-log', 'compliance', 'soc2', 'hipaa-audit', 'event-trail'],
+    aspectRatio: 'both',
+    defaultProps: {
+          actor: 'db_admin_svc',
+          eventAction: 'DDL_ALTER_TABLE',
+          clientIp: '192.168.10.42'
+    },
+  },
+  {
+    id: 'data-masking-anonymization',
+    name: 'DataMaskingAnonymization',
+    category: 'database',
+    description: 'Dynamic Data Masking (DDM) for PII/PCI fields displaying masked and unmasked representations based on role authorization.',
+    tags: ['data-masking', 'ddm', 'pii-masking', 'pci-dss', 'anonymization'],
+    aspectRatio: 'both',
+    defaultProps: {
+          authorizedRole: 'support_agent_tier_1'
+    },
+  },
+  {
+    id: 'database-firewall-rules',
+    name: 'DatabaseFirewallRules',
+    category: 'database',
+    description: 'Database firewall rule enforcer showing allowed private CIDR subnets versus rejected public ingress attempts.',
+    tags: ['database-firewall', 'network-security', 'cidr-rules', 'vpc-ingress', 'port-security'],
+    aspectRatio: 'both',
+    defaultProps: {
+          vpcSubnet: '10.100.0.0/16 (Private VPC)',
+          port: 5432,
+          blockedAttemptsCount: 842
+    },
+  },
+  {
+    id: 'credential-rotation-vault',
+    name: 'CredentialRotationVault',
+    category: 'database',
+    description: 'Automated database credential rotation card showing active secret version, rotation cadence, and zero-downtime dual-user mechanism.',
+    tags: ['credential-rotation', 'hashicorp-vault', 'secrets-manager', 'zero-downtime', 'ephemeral-creds'],
+    aspectRatio: 'both',
+    defaultProps: {
+          secretPath: 'vault/database/creds/billing-service',
+          activeVersion: 'v4-dual-user-A',
+          rotationIntervalDays: 30
+    },
+  },
+  {
+    id: 'data-exfiltration-alert',
+    name: 'DataExfiltrationAlert',
+    category: 'database',
+    description: 'Security anomaly detection alert triggered when bulk data dumps exceed normal analytical export thresholds.',
+    tags: ['data-exfiltration', 'data-leak-prevention', 'anomaly-detection', 'bulk-dump-alert', 'soc-alert'],
+    aspectRatio: 'both',
+    defaultProps: {
+          attemptedRows: 850000,
+          thresholdRows: 10000,
+          anomalyScore: 98.4
+    },
+  },
+  {
+    id: 'column-level-encryption',
+    name: 'ColumnLevelEncryption',
+    category: 'database',
+    description: 'Column-level envelope encryption visualizer protecting sensitive database columns via client-side public-key cryptography.',
+    tags: ['column-encryption', 'envelope-encryption', 'field-level-security', 'crypto-shredding', 'ciphertext'],
+    aspectRatio: 'both',
+    defaultProps: {
+          tableName: 'public.patient_records',
+          columnName: 'medical_diagnosis_notes',
+          keyCipher: 'RSA-OAEP-4096 + AES-GCM-256'
+    },
+  },
+  {
+    id: 'privilege-escalation-guard',
+    name: 'PrivilegeEscalationGuard',
+    category: 'database',
+    description: 'Privilege escalation intrusion guard catching unauthorized attempts to elevate user rights to SUPERUSER status.',
+    tags: ['privilege-escalation', 'superuser-block', 'intrusion-prevention', 'guardrail', 'access-denied'],
+    aspectRatio: 'both',
+    defaultProps: {
+          unauthorizedUser: 'developer_dev_03',
+          guardRule: 'POLICY-PREVENT-SUPERUSER-ESCALATION'
+    },
+  },
+  {
+    id: 'database-vulnerability-scan',
+    name: 'DatabaseVulnerabilityScan',
+    category: 'database',
+    description: 'Database vulnerability and CIS benchmark security audit scanner showing compliance score and resolved checks.',
+    tags: ['vulnerability-scan', 'cis-benchmark', 'security-audit', 'cve-audit', 'hardening'],
+    aspectRatio: 'both',
+    defaultProps: {
+          securityScore: 96,
+          checksPassed: 48,
+          checksTotal: 50
+    },
+  },
+  {
+    id: 'immutable-audit-ledger',
+    name: 'ImmutableAuditLedger',
+    category: 'database',
+    description: 'Cryptographic hash-chained immutable audit ledger verifying tamper-proof log sequences and Merkle block integrity.',
+    tags: ['immutable-ledger', 'merkle-tree', 'blockchain-audit', 'hash-chain', 'tamper-evident'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentBlockIndex: 148920,
+          ledgerIntegrity: '100% VERIFIED TAMPER-PROOF'
+    },
+  },
+  {
+    id: 'session-kill-circuit-breaker',
+    name: 'SessionKillCircuitBreaker',
+    category: 'database',
+    description: 'Immediate defensive kill of compromised or runaway database sessions via pg_terminate_backend with incident response code.',
+    tags: ['session-kill', 'pg-terminate-backend', 'circuit-breaker', 'rogue-session', 'defensive-kill'],
+    aspectRatio: 'both',
+    defaultProps: {
+          terminatedPid: 14209,
+          reason: 'EXCEEDED_IDLE_IN_TRANSACTION_LIMIT',
+          queryDurationSec: 3600
+    },
+  },
+  {
+    id: 'database-honeypot-table',
+    name: 'DatabaseHoneypotTable',
+    category: 'database',
+    description: 'Deception honeypot trap table triggering intrusion alarms and automated IP ban upon unauthorized query interaction.',
+    tags: ['honeypot', 'deception-security', 'canary-table', 'intrusion-alarm', 'decoy'],
+    aspectRatio: 'both',
+    defaultProps: {
+          decoyTableName: 'shadow_master_keys_decoy',
+          attackerIp: '198.51.100.74',
+          quarantineStatus: 'IP_QUARANTINED_BGP_NULLROUTED'
+    },
+  },
+  {
+    id: 'least-privilege-enforcer',
+    name: 'LeastPrivilegeEnforcer',
+    category: 'database',
+    description: 'Principle of Least Privilege (PoLP) analyzer highlighting overprivileged database users and recommending tighter permissions.',
+    tags: ['least-privilege', 'polp', 'overprivileged-audit', 'access-hygiene', 'security-remedy'],
+    aspectRatio: 'both',
+    defaultProps: {
+          userRole: 'frontend_web_app',
+          recommendedRole: 'restricted_crud_app_role',
+          riskLevel: 'HIGH RISK'
+    },
+  },
+  {
+    id: 'pii-data-discovery-scanner',
+    name: 'PIIDataDiscoveryScanner',
+    category: 'database',
+    description: 'Automated personal data scanner discovering unmasked PII across database schemas with GDPR/CCPA tags.',
+    tags: ['pii-discovery', 'gdpr-scanner', 'ccpa-compliance', 'data-classification', 'sensitive-columns'],
+    aspectRatio: 'both',
+    defaultProps: {
+          scannedTablesCount: 142,
+          piiColumnsFound: 18,
+          complianceFramework: 'GDPR / CCPA / HIPAA'
+    },
+  },
+  {
+    id: 'zero-trust-database-access',
+    name: 'ZeroTrustDatabaseAccess',
+    category: 'database',
+    description: 'Zero-Trust identity-aware database proxy gateway requiring ephemeral credentials and multi-factor approval.',
+    tags: ['zero-trust', 'ztna', 'identity-aware-proxy', 'ephemeral-access', 'mfa-challenge'],
+    aspectRatio: 'both',
+    defaultProps: {
+          userEmail: 'sarah.dev@enterprise.internal',
+          accessTtlMin: 15,
+          mfaVerified: true
+    },
+  },
+  {
+    id: 'backup-encryption-verification',
+    name: 'BackupEncryptionVerification',
+    category: 'database',
+    description: 'Database backup snapshot encryption verification ensuring pg_dump and physical WAL files are GPG/KMS encrypted before cloud storage.',
+    tags: ['backup-encryption', 'pg-dump-encrypted', 'kms-backup', 'integrity-checksum', 'cold-storage'],
+    aspectRatio: 'both',
+    defaultProps: {
+          backupSnapshotName: 'pg_dump_production_20261122.sql.gz.enc',
+          backupSizeBytesGB: 142.5,
+          encryptionKeyType: 'KMS Customer-Managed Key (CMK)'
+    },
+  },
   },
   },
 
