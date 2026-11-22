@@ -9666,6 +9666,267 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           automatedRecoverySuccess: true,
           scorePercent: 98.5
     },
+  {
+    id: 'relational-rdbms-card',
+    name: 'RelationalRDBMSCard',
+    category: 'database',
+    description: 'Relational database (RDBMS) architecture card showcasing ACID guarantees, structured schemas, SQL normalization, and foreign keys.',
+    tags: ['rdbms', 'relational-database', 'acid', 'sql-schema', 'normalization'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'PostgreSQL 16 Enterprise',
+          acidCompliance: 'FULL ACID COMPLIANT',
+          schemaType: 'Strict Normalized (3NF)'
+    },
+  },
+  {
+    id: 'document-nosql-card',
+    name: 'DocumentNoSQLCard',
+    category: 'database',
+    description: 'Document NoSQL database card showcasing semi-structured JSON/BSON schemas, embedded hierarchies, and flexible indexing.',
+    tags: ['nosql', 'document-store', 'mongodb', 'bson', 'json-database'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'MongoDB Atlas / Firestore',
+          dataFormat: 'BSON / Nested JSON Documents'
+    },
+  },
+  {
+    id: 'key-value-store-card',
+    name: 'KeyValueStoreCard',
+    category: 'database',
+    description: 'In-memory Key-Value database card showing O(1) hash map operations, sub-millisecond read/write latencies, and TTL eviction.',
+    tags: ['key-value', 'redis', 'in-memory-db', 'sub-millisecond', 'o1-lookup'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'Redis Enterprise / Memcached',
+          avgLatencyUs: 450
+    },
+  },
+  {
+    id: 'wide-column-store-card',
+    name: 'WideColumnStoreCard',
+    category: 'database',
+    description: 'Wide-column distributed family store card (Cassandra, ScyllaDB) showcasing partition key hashing and append-only write scaling.',
+    tags: ['wide-column', 'column-family', 'cassandra', 'scylladb', 'partition-key'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'Apache Cassandra / ScyllaDB',
+          partitionKey: 'user_id (Murmur3Partitioner)',
+          clusteringColumn: 'created_at DESC'
+    },
+  },
+  {
+    id: 'graph-database-card',
+    name: 'GraphDatabaseCard',
+    category: 'database',
+    description: 'Property graph database card (Neo4j, Neptune) showing nodes, directed labeled relationships, and graph traversal algorithms.',
+    tags: ['graph-database', 'neo4j', 'cypher', 'nodes-edges', 'index-free-adjacency'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'Neo4j Enterprise / Amazon Neptune',
+          queryLanguage: 'openCypher / Gremlin'
+    },
+  },
+  {
+    id: 'time-series-database-card',
+    name: 'TimeSeriesDatabaseCard',
+    category: 'database',
+    description: 'Time-series database card (TimescaleDB, InfluxDB) showcasing metric ingestion rates, downsampling rollups, and chunk intervals.',
+    tags: ['tsdb', 'time-series', 'timescaledb', 'influxdb', 'metrics-ingestion'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'TimescaleDB / InfluxDB 3.0',
+          ingestRateOpsSec: 450000
+    },
+  },
+  {
+    id: 'vector-database-card',
+    name: 'VectorDatabaseCard',
+    category: 'database',
+    description: 'Vector database card (Pinecone, Milvus, pgvector) displaying high-dimensional embeddings, HNSW index graph, and cosine similarity.',
+    tags: ['vector-database', 'embeddings', 'hnsw', 'cosine-similarity', 'rag-database'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'Pinecone / Qdrant / pgvector',
+          dimensions: 1536,
+          distanceMetric: 'Cosine Similarity'
+    },
+  },
+  {
+    id: 'spatial-gis-database-card',
+    name: 'SpatialGISDatabaseCard',
+    category: 'database',
+    description: 'Spatial geospatial database card (PostGIS, SpatiaLite) displaying GeoJSON polygon bounding boxes, ST_Contains queries, and R-Tree index.',
+    tags: ['spatial-database', 'postgis', 'geospatial', 'gis-index', 'geojson'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'PostgreSQL + PostGIS 3.4',
+          srid: 4326
+    },
+  },
+  {
+    id: 'embedded-database-card',
+    name: 'EmbeddedDatabaseCard',
+    category: 'database',
+    description: 'Embedded in-process serverless database card (SQLite, DuckDB, RocksDB) showing zero network hop overhead and instant execution.',
+    tags: ['embedded-database', 'sqlite', 'duckdb', 'zero-network-hop', 'in-process'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'DuckDB / SQLite 3',
+          memoryOverheadMB: 12
+    },
+  },
+  {
+    id: 'search-engine-database-card',
+    name: 'SearchEngineDatabaseCard',
+    category: 'database',
+    description: 'Distributed search engine database card (Elasticsearch, OpenSearch) displaying BM25 relevance scoring and full-text inverted indexes.',
+    tags: ['search-engine', 'elasticsearch', 'opensearch', 'bm25', 'full-text-search'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'Elasticsearch 8 / OpenSearch 2.14',
+          scoringAlgorithm: 'Okapi BM25 + Lucene Core'
+    },
+  },
+  {
+    id: 'newsql-distributed-acid-card',
+    name: 'NewSQLDistributedACIDCard',
+    category: 'database',
+    description: 'Globally distributed NewSQL database card (CockroachDB, Spanner) showcasing Raft consensus and multi-region serializable ACID transactions.',
+    tags: ['newsql', 'cockroachdb', 'spanner', 'global-acid', 'distributed-sql'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'CockroachDB / Google Cloud Spanner',
+          consensusType: 'Multi-Raft Consensus Groups'
+    },
+  },
+  {
+    id: 'inverted-index-visualizer',
+    name: 'InvertedIndexVisualizer',
+    category: 'database',
+    description: 'Search engine internal inverted index visualizer displaying term dictionary, posting lists, and document frequency arrays.',
+    tags: ['inverted-index', 'term-dictionary', 'postings-list', 'search-internals', 'lucene-index'],
+    aspectRatio: 'both',
+    defaultProps: {
+          terms: [
+                {
+                      term: 'remotion',
+                      docIds: [
+                            12,
+                            45,
+                            89
+                      ]
+                },
+                {
+                      term: 'video',
+                      docIds: [
+                            3,
+                            12,
+                            45
+                      ]
+                }
+          ]
+    },
+  },
+  {
+    id: 'lsm-compaction-visualizer',
+    name: 'LSMCompactionVisualizer',
+    category: 'database',
+    description: 'Log-Structured Merge (LSM) Tree visualizer showcasing RAM MemTable flushes and tiered Level 0 to Level 2 SSTable compactions.',
+    tags: ['lsm-tree', 'memtable', 'sstable', 'compaction', 'leveldb'],
+    aspectRatio: 'both',
+    defaultProps: {
+          memTableMB: 64,
+          level0Count: 4,
+          level1Count: 12
+    },
+  },
+  {
+    id: 'columnar-storage-parquet',
+    name: 'ColumnarStorageParquet',
+    category: 'database',
+    description: 'Columnar storage format visualizer (Parquet, ClickHouse) comparing row-group chunking and columnar compression for OLAP analytics.',
+    tags: ['columnar-storage', 'parquet', 'clickhouse', 'olap-compression', 'row-groups'],
+    aspectRatio: 'both',
+    defaultProps: {
+          rowGroupsCount: 24,
+          columnsStored: 48,
+          compressionRatio: '6.2x (Snappy + Dictionary)'
+    },
+  },
+  {
+    id: 'blockchain-decentralized-db',
+    name: 'BlockchainDecentralizedDB',
+    category: 'database',
+    description: 'Decentralized blockchain database card (Hyperledger, BigchainDB) showcasing cryptographic Byzantine fault tolerance.',
+    tags: ['blockchain-db', 'decentralized-database', 'bft', 'hyperledger', 'immutable-state'],
+    aspectRatio: 'both',
+    defaultProps: {
+          consensusAlgorithm: 'Byzantine Fault Tolerant (PBFT / Tendermint)',
+          peerNodesCount: 16
+    },
+  },
+  {
+    id: 'hierarchical-database-card',
+    name: 'HierarchicalDatabaseCard',
+    category: 'database',
+    description: 'Hierarchical tree and network database card (IBM IMS, LDAP DIT) displaying tree path traversals and parent-child pointers.',
+    tags: ['hierarchical-database', 'tree-database', 'ibm-ims', 'ldap-dit', 'pointer-arrays'],
+    aspectRatio: 'both',
+    defaultProps: {
+          modelType: 'Hierarchical Tree Model (DL/I)',
+          rootSegment: 'ORGANIZATION_ROOT -> DIVISION -> DEPARTMENT'
+    },
+  },
+  {
+    id: 'multi-model-database-card',
+    name: 'MultiModelDatabaseCard',
+    category: 'database',
+    description: 'Polyglot multi-model database card (ArangoDB, Cosmos DB) combining document, graph, and relational query paradigms in one core.',
+    tags: ['multi-model', 'polyglot-database', 'arangodb', 'cosmos-db', 'multi-paradigm'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'ArangoDB / Azure Cosmos DB',
+          unifiedQueryLanguage: 'AQL (ArangoDB Query Language)'
+    },
+  },
+  {
+    id: 'memory-mapped-database',
+    name: 'MemoryMappedDatabase',
+    category: 'database',
+    description: 'Zero-copy memory-mapped database card (LMDB, BoltDB) displaying virtual memory mmap integration and raw B-Tree lookups.',
+    tags: ['mmap', 'memory-mapped-db', 'lmdb', 'zero-copy', 'kernel-cache'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'Lightning Memory-Mapped Database (LMDB)',
+          readThroughputOPS: 1450000
+    },
+  },
+  {
+    id: 'event-sourcing-append-log',
+    name: 'EventSourcingAppendLog',
+    category: 'database',
+    description: 'Event-sourcing append-only log card (Kafka, EventStoreDB) showcasing immutable ordered state streams and consumer offsets.',
+    tags: ['event-sourcing', 'append-only-log', 'kafka-stream', 'consumer-offsets', 'immutable-events'],
+    aspectRatio: 'both',
+    defaultProps: {
+          streamName: 'orders.checkout.events.v1',
+          currentOffset: 4892014
+    },
+  },
+  {
+    id: 'object-oriented-database',
+    name: 'ObjectOrientedDatabase',
+    category: 'database',
+    description: 'Object-oriented database card (ObjectDB, db4o) persisting native OOP classes without ORM object-relational impedance mismatch.',
+    tags: ['oodbms', 'object-database', 'objectdb', 'db4o', 'zero-orm'],
+    aspectRatio: 'both',
+    defaultProps: {
+          engineName: 'ObjectDB / db4o / GemStone',
+          languageBinding: 'Native Java / C# / Python Objects'
+    },
+  },
   },
   },
   },
