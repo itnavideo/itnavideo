@@ -8882,6 +8882,278 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       workersCount: 3,
       tablesMonitored: 48,
     },
+  {
+    id: 'slow-query-log',
+    name: 'SlowQueryLog',
+    category: 'database',
+    description: 'Slow query log alert displaying query text, duration, threshold, rows examined, and index optimization recommendation.',
+    tags: ['slow-query', 'database-log', 'performance-tuning', 'execution-time', 'query-alert'],
+    aspectRatio: 'both',
+    defaultProps: {
+          query: 'SELECT * FROM orders WHERE status = 'pending' AND created_at >= NOW() - INTERVAL '7 days';',
+          durationMs: 4850,
+          thresholdMs: 1000,
+          rowsExamined: 1250400,
+          rowsSent: 42
+    },
+  },
+  {
+    id: 'query-execution-cost',
+    name: 'QueryExecutionCost',
+    category: 'database',
+    description: 'EXPLAIN ANALYZE visual cost card displaying startup cost, total cost, planning time, execution time, and plan node tree.',
+    tags: ['explain-analyze', 'query-cost', 'planner-cost', 'execution-time', 'query-optimizer'],
+    aspectRatio: 'both',
+    defaultProps: {
+          planNode: 'Hash Aggregate (cost=12450.80..12580.20 rows=450 width=32)',
+          startupCost: 12450.8,
+          totalCost: 12580.2,
+          executionTimeMs: 348.2
+    },
+  },
+  {
+    id: 'index-coverage-ratio',
+    name: 'IndexCoverageRatio',
+    category: 'database',
+    description: 'Index coverage and hit ratio meter comparing index lookups against sequential table scans with optimization score.',
+    tags: ['index-hit', 'table-scan', 'coverage-ratio', 'database-indexing', 'cache-hit'],
+    aspectRatio: 'both',
+    defaultProps: {
+          indexHits: 4850000,
+          seqScans: 620000,
+          tableName: 'user_sessions'
+    },
+  },
+  {
+    id: 'disk-iops-monitor',
+    name: 'DiskIOPSMonitor',
+    category: 'database',
+    description: 'Read IOPS vs Write IOPS storage throughput meter with burst limit and throttling indicators.',
+    tags: ['disk-iops', 'storage-throughput', 'read-iops', 'write-iops', 'ebs-volume'],
+    aspectRatio: 'both',
+    defaultProps: {
+          readIOPS: 7850,
+          writeIOPS: 3420,
+          maxIOPS: 12000,
+          volumeType: 'io2 Provisioned SSD'
+    },
+  },
+  {
+    id: 'cpu-core-utilization',
+    name: 'CPUCoreUtilization',
+    category: 'database',
+    description: 'Multi-core database host CPU breakdown showing user %, system %, and I/O wait % bottlenecks.',
+    tags: ['cpu-utilization', 'core-usage', 'io-wait', 'system-load', 'bottleneck-detector'],
+    aspectRatio: 'both',
+    defaultProps: {
+          cores: 8,
+          userPercent: 42,
+          systemPercent: 16,
+          iowaitPercent: 28
+    },
+  },
+  {
+    id: 'connection-pool-saturation',
+    name: 'ConnectionPoolSaturation',
+    category: 'database',
+    description: 'Database connection pool capacity indicator showing active, idle, waiting clients, and queue depth.',
+    tags: ['connection-pool', 'pgbouncer', 'pool-saturation', 'client-connections', 'queue-depth'],
+    aspectRatio: 'both',
+    defaultProps: {
+          activeConnections: 92,
+          idleConnections: 8,
+          waitingQueue: 14,
+          maxConnections: 100
+    },
+  },
+  {
+    id: 'lock-wait-duration',
+    name: 'LockWaitDuration',
+    category: 'database',
+    description: 'Database lock contention tracker with waiting PID, blocking PID, lock type, and live latency timer.',
+    tags: ['lock-contention', 'lock-wait', 'blocking-pid', 'exclusive-lock', 'transaction-block'],
+    aspectRatio: 'both',
+    defaultProps: {
+          waitingPid: 18420,
+          blockingPid: 12095,
+          lockType: 'ExclusiveLock',
+          relation: 'public.orders',
+          waitDurationSec: 14.8
+    },
+  },
+  {
+    id: 'buffer-cache-hit-ratio',
+    name: 'BufferCacheHitRatio',
+    category: 'database',
+    description: 'Database shared buffer memory cache efficiency gauge showing cache hit percentage against physical disk reads.',
+    tags: ['buffer-cache', 'cache-hit-ratio', 'shared-buffers', 'ram-cache', 'disk-reads'],
+    aspectRatio: 'both',
+    defaultProps: {
+          hitRatioPercent: 99.4,
+          diskReadsCount: 18400,
+          bufferHitsCount: 3060000
+    },
+  },
+  {
+    id: 'temp-file-spill',
+    name: 'TempFileSpill',
+    category: 'database',
+    description: 'Memory exhaustion alert when query sorts spill to disk due to work_mem limits with temporary file statistics.',
+    tags: ['temp-file', 'work-mem', 'disk-spill', 'external-sort', 'memory-exhaustion'],
+    aspectRatio: 'both',
+    defaultProps: {
+          tempBytesMB: 340,
+          tempFilesCount: 6,
+          workMemMB: 64
+    },
+  },
+  {
+    id: 'table-bloat-gauge',
+    name: 'TableBloatGauge',
+    category: 'database',
+    description: 'Dead tuple table bloat gauge displaying dead vs live row count, wasted storage MB, and vacuum recommendation.',
+    tags: ['table-bloat', 'dead-tuples', 'storage-waste', 'vacuum-needed', 'space-reclamation'],
+    aspectRatio: 'both',
+    defaultProps: {
+          tableName: 'public.audit_events',
+          bloatPercent: 38.5,
+          liveTuples: 1450000,
+          deadTuples: 560000
+    },
+  },
+  {
+    id: 'replication-lag-gauge',
+    name: 'ReplicationLagGauge',
+    category: 'database',
+    description: 'Primary to replica replication delay meter in milliseconds with replication mode and bytes behind primary.',
+    tags: ['replication-lag', 'replica-delay', 'streaming-replication', 'wal-lag', 'sync-status'],
+    aspectRatio: 'both',
+    defaultProps: {
+          lagMs: 45,
+          replicaHost: 'db-replica-us-west',
+          bytesBehindPrimary: 1420000
+    },
+  },
+  {
+    id: 'throughput-qps-counter',
+    name: 'ThroughputQPSCounter',
+    category: 'database',
+    description: 'Database throughput monitor displaying real-time queries per second (QPS) and transactions per second (TPS).',
+    tags: ['qps-counter', 'tps-throughput', 'transactions-per-sec', 'query-rate', 'database-metrics'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentQPS: 16450,
+          currentTPS: 2850,
+          peakQPS: 24000
+    },
+  },
+  {
+    id: 'cache-invalidation-rate',
+    name: 'CacheInvalidationRate',
+    category: 'database',
+    description: 'Key eviction and TTL cache invalidation rate per second visualizer with memory churn analysis.',
+    tags: ['cache-invalidation', 'key-eviction', 'redis-ttl', 'cache-churn', 'memory-reclaim'],
+    aspectRatio: 'both',
+    defaultProps: {
+          evictionsPerSec: 1420,
+          expirationsPerSec: 3850,
+          cacheStore: 'Redis Cluster'
+    },
+  },
+  {
+    id: 'write-amplification-factor',
+    name: 'WriteAmplificationFactor',
+    category: 'database',
+    description: 'SSD write amplification factor (WAF) tracker comparing host logical writes to physical NAND writes.',
+    tags: ['write-amplification', 'waf-factor', 'ssd-wear', 'nand-writes', 'flash-storage'],
+    aspectRatio: 'both',
+    defaultProps: {
+          waf: 2.4,
+          logicalWritesGB: 540,
+          physicalWritesGB: 1296
+    },
+  },
+  {
+    id: 'database-p99-latency',
+    name: 'DatabaseP99Latency',
+    category: 'database',
+    description: 'Database latency distribution card showing p50, p90, p95, p99, and p99.9 latency tiers.',
+    tags: ['p99-latency', 'tail-latency', 'latency-percentiles', 'database-sla', 'p95-latency'],
+    aspectRatio: 'both',
+    defaultProps: {
+          p50Ms: 2.1,
+          p90Ms: 7.4,
+          p95Ms: 14.8,
+          p99Ms: 48.2,
+          p999Ms: 180.5
+    },
+  },
+  {
+    id: 'index-fragmentation-level',
+    name: 'IndexFragmentationLevel',
+    category: 'database',
+    description: 'B-Tree index page fragmentation gauge showing fragmentation percentage, leaf pages, and REINDEX trigger.',
+    tags: ['index-fragmentation', 'btree-fragmentation', 'leaf-pages', 'reindex', 'fillfactor'],
+    aspectRatio: 'both',
+    defaultProps: {
+          indexName: 'idx_orders_customer_id',
+          fragmentationPercent: 46.8,
+          leafPages: 14200
+    },
+  },
+  {
+    id: 'dirty-page-clean-rate',
+    name: 'DirtyPageCleanRate',
+    category: 'database',
+    description: 'Database background writer dirty page rate vs checkpoint clean rate graph with flush spike warning.',
+    tags: ['dirty-pages', 'clean-rate', 'bgwriter', 'checkpoint-flush', 'buffer-flush'],
+    aspectRatio: 'both',
+    defaultProps: {
+          dirtyRateMBps: 48.5,
+          cleanRateMBps: 46.2,
+          checkpointIntervalMin: 15
+    },
+  },
+  {
+    id: 'query-plan-regression',
+    name: 'QueryPlanRegression',
+    category: 'database',
+    description: 'Query plan regression comparison card showing baseline index scan cost vs regressed table scan cost.',
+    tags: ['plan-regression', 'degraded-query', 'plan-flip', 'optimizer-regression', 'seq-scan-degrade'],
+    aspectRatio: 'both',
+    defaultProps: {
+          baselineCostMs: 145,
+          regressedCostMs: 3840,
+          baselinePlan: 'Index Scan using idx_users_email',
+          regressedPlan: 'Seq Scan on users (Filter: email)'
+    },
+  },
+  {
+    id: 'max-connections-limit',
+    name: 'MaxConnectionsLimit',
+    category: 'database',
+    description: 'Database max connections ceiling monitor showing current connections, rejection counts, and headroom.',
+    tags: ['max-connections', 'connection-ceiling', 'connection-limit', 'client-headroom', 'rejection-alert'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentConnections: 478,
+          maxConnections: 500,
+          reservedSuperuser: 10
+    },
+  },
+  {
+    id: 'row-fetch-efficiency',
+    name: 'RowFetchEfficiency',
+    category: 'database',
+    description: 'Ratio of rows examined vs rows returned indicator highlighting index scan efficiency and query filtering quality.',
+    tags: ['row-fetch-efficiency', 'rows-examined', 'rows-returned', 'over-fetching', 'filter-quality'],
+    aspectRatio: 'both',
+    defaultProps: {
+          rowsExamined: 540000,
+          rowsReturned: 14,
+          queryTag: 'GET /api/v1/analytics/reports'
+    },
+  },
   },
 
   },
