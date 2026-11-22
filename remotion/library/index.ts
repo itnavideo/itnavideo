@@ -186,3 +186,4 @@ export * from './spreadsheet';
 
 // 9. Component Registry & Metadata
 export * from './registry';
+export * from './word';
