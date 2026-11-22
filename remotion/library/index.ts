@@ -160,5 +160,8 @@ export * from './audio';
 // 8j. Calendar, Time & Temporal Storytelling Suite
 export * from './calendar';
 
+// 8k. Advanced Mechanical & Physical Simulations
+export * from './physics';
+
 // 9. Component Registry & Metadata
 export * from './registry';
