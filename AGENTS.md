@@ -34,6 +34,7 @@ This document serves as the **single source of truth** and primary entry point f
 18. [Homepage Documentation Reference](#18-homepage-documentation-reference)
 19. [Verification, Quality Assurance & Task Hygiene](#19-verification-quality-assurance--task-hygiene)
 20. [Documentation Maintenance Guidelines](#20-documentation-maintenance-guidelines)
+21. [Autonomous Motion Graphic Library & Semantic Pipeline](#21-autonomous-motion-graphic-library--semantic-pipeline)
 
 ---
 
@@ -514,3 +515,16 @@ Follow the **"Check First, Update After"** policy:
 2. **Implement**: Perform the visual, algorithmic, or pipeline update.
 3. **Update After**: Immediately update the corresponding specification file with any new props, parameters, or UI controls so that documentation never lags behind production code.
 4. **Maintain Simplicity**: All documentation must be written in simple, clear, professional English without colloquialisms or historical changelog noise.
+
+---
+
+## 21. Autonomous Motion Graphic Library & Semantic Pipeline
+
+Itnavideo integrates a verified catalog of **1,282 modular broadcast motion graphic components** across **68 categorical subdirectories** (`remotion/library/`), registered in `remotion/library/registry.ts`.
+
+### 21.1 Core Policies
+- **Zero Manual UI Button Mandate**: Itnavideo is an autonomous AI-first platform. Never present a manual "Add Graphic Overlay" button to users. The AI Scene Planner and Production Crew autonomously scan spoken audio and narration to dynamically select and attach components.
+- **Semantic Matching Engine**: `services/ai/componentMatcher.ts` evaluates words against a weighted inverted index (Name/ID: 2.0, Category: 1.5, Description: 0.8; threshold >= 1.8). Matched components are assigned to `SceneBlueprintItem.overlayComponent`.
+- **Dynamic 3D Remotion Host**: `remotion/components/DynamicLibraryHost.tsx` renders matched components inside `FACELESS_SHORTS` (9:16) and `FACELESS_LONG_VIDEO` (16:9) with Vox-style 3D perspective tilt (`perspective(1000px) rotateX(4deg) rotateY(-3deg)`), subtle breathing float, and spring damping.
+- **Dedicated Specification**: [`docs/REMOTION_COMPONENT_LIBRARY.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/REMOTION_COMPONENT_LIBRARY.md)
+

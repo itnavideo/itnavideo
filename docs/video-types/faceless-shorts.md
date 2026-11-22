@@ -32,6 +32,7 @@ The **Faceless Shorts Generator** (`facelessShorts`) transforms raw voiceover au
 - **First-3-Seconds Hook Retention**: Special `HookScene` triggers high-contrast curiosity headlines and visual pattern interrupts to halt user scrolling within the first 1.5 seconds.
 - **Procedural SVG Vector Art**: Library of 16 custom SVG drawings that animate on-screen with drawing stroke effects. Consecutive scenes never repeat the same drawing.
 - **Dynamic Camera Punch-Ins**: Alternates frame scale (+5% to +18%) on major sentence breaks to reset visual attention.
+- **Autonomous Motion Graphic Overlays**: AI Semantic Matcher scans spoken words to dynamically attach Vox-style 3D motion graphic overlays from the 1,282 Remotion component library via `<DynamicLibraryHost />` without manual UI toggles.
 - **Mobile Safe-Zone Clearance**: Enforces 100px bottom margin and 80px right margin to prevent overlaps with platform UI elements.
 
 ---
