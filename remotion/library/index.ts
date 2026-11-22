@@ -112,6 +112,9 @@ export * from './fitness';
 // 2ae. Broadcast, News & Media Lower Thirds Suite (BreakingNewsBanner, BroadcastLowerThird, FinancialTickerTape, SplitScreenInterview, LiveLocationBug, TopicDiscussionCard, FactCheckStamp, WeatherForecastBadge, PressReleaseHeader, AudiencePollOverlay, QuoteCalloutFrame, CountdownBug, ViewerWarning, SourceAttributionPill, StudioCameraRecBug, UpcomingSegmentTeaser)
 export * from './broadcast';
 
+// 2af. Education, STEM & Anatomy Laboratory Suite (DNAHelix, AtomModel, PeriodicTableCard, MicroscopeView, SolarSystemOrbit, TectonicPlates, WaterCycleDiagram, ChemicalReactionEquation, HumanSkeleton, LungsRespiratory, HeartCirculation, NeuronSynapse, PhotosynthesisDiagram, MagneticFieldLines, WaveSpectrogram, GeometricProof)
+export * from './education';
+
 // 3. Infographics
 export * from './infographics';
 
