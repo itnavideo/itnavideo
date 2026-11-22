@@ -154,5 +154,8 @@ export * from './editing';
 // 8h. Advanced Visual Effects & Tracking
 export * from './advanced-vfx';
 
+// 8i. Sound Design & Audio-Reactive Visualizers
+export * from './audio';
+
 // 9. Component Registry & Metadata
 export * from './registry';
