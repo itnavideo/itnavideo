@@ -94,6 +94,9 @@ export * from './presentation';
 // 2y. Technology & Computer Graphics Suite (ServerRack, CloudInfrastructure, ERDiagram, APIArchitecture, MicroservicesDiagram, SystemArchitecture, NetworkTopology, DataPipeline, WorkflowAutomation, AuthenticationFlow, EncryptionVisualization, CybersecurityDashboard, CodeDiff, GitBranchGraph, TerminalAnimation, CommandLineSequence, BrowserDevTools, SoftwareStackDiagram, AIModelArchitecture)
 export * from './technology';
 
+// 2z. Maps & Transportation Suite (WorldGlobe, TransportGlobe, GlobalTransitMap, CountryHighlight, StateMap, CityMap, FlightPath, ShippingRoute, RoadNetwork, MetroMap, RailwayMap, GPSNavigation, RouteTracker, LocationMarker, BorderHighlight, TerritoryComparison, AnimatedCompass, LatitudeLongitude, SatelliteView)
+export * from './transportation';
+
 // 3. Infographics
 export * from './infographics';
 
