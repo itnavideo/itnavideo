@@ -15,6 +15,7 @@ export type ComponentCategory =
   | 'business'
   | 'network'
   | 'statistics'
+  | 'ui-mockups'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -411,6 +412,104 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Multi-metric glassmorphism statistics card with icon badge and secondary trending tag.',
     tags: ['stat-card', 'metrics', 'badge', 'card', 'trend'],
+  },
+
+  // ── Animated UI Mockups Suite ──
+  {
+    id: 'browser-window',
+    name: 'BrowserWindow',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'macOS Chrome browser frame with traffic light controls, address bar, and canvas.',
+    tags: ['browser', 'chrome', 'window', 'address-bar', 'macos'],
+  },
+  {
+    id: 'mobile-mockup',
+    name: 'MobileMockup',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'Smartphone device bezel with Dynamic Island notch, home bar, and 9:16 screen.',
+    tags: ['mobile', 'iphone', 'smartphone', 'notch', 'mockup'],
+  },
+  {
+    id: 'dashboard',
+    name: 'Dashboard',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'SaaS analytics dashboard with multi-card metrics and live production badge.',
+    tags: ['dashboard', 'saas', 'analytics', 'kpi', 'metrics'],
+  },
+  {
+    id: 'code-editor',
+    name: 'CodeEditor',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'Developer IDE window with file tabs, syntax highlighting, and line numbers.',
+    tags: ['code-editor', 'ide', 'developer', 'syntax', 'typescript'],
+  },
+  {
+    id: 'terminal',
+    name: 'Terminal',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'Command line shell interface with prompt and staggered colored execution logs.',
+    tags: ['terminal', 'bash', 'shell', 'cli', 'logs'],
+  },
+  {
+    id: 'notification',
+    name: 'Notification',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'Glassmorphism push notification toast with app icon, sender, and time badge.',
+    tags: ['notification', 'toast', 'push', 'alert', 'pop-up'],
+  },
+  {
+    id: 'chat-bubble',
+    name: 'ChatBubble',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'Conversational chat bubbles (user prompt vs AI response) with timestamps.',
+    tags: ['chat', 'bubble', 'imessage', 'whatsapp', 'conversation'],
+  },
+  {
+    id: 'search-bar',
+    name: 'SearchBar',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'Floating search bar pill with typewriter query animation and command shortcut.',
+    tags: ['search-bar', 'typewriter', 'google', 'spotlight', 'query'],
+  },
+  {
+    id: 'pricing-card',
+    name: 'PricingCard',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'SaaS pricing tier card with popular badge, feature checklist, and CTA button.',
+    tags: ['pricing', 'subscription', 'saas', 'tiers', 'plan'],
+  },
+  {
+    id: 'login-form',
+    name: 'LoginForm',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'Authentication login modal with email and password fields and submit button.',
+    tags: ['login', 'auth', 'signin', 'modal', 'form'],
+  },
+  {
+    id: 'cursor-point',
+    name: 'CursorPoint',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'macOS pointer arrow cursor with animated movement, click ripple, and action tag.',
+    tags: ['cursor', 'pointer', 'mouse', 'click', 'ripple'],
+  },
+  {
+    id: 'tooltip',
+    name: 'Tooltip',
+    category: 'ui-mockups',
+    aspectRatio: 'both',
+    description: 'Contextual hover callout speech bubble with highlighted keyword tag.',
+    tags: ['tooltip', 'callout', 'hover', 'badge', 'speech-bubble'],
   },
 
   // ── Graphics & Frames ──

@@ -46,6 +46,9 @@ export * from './network';
 // 2i. Animated Statistics Suite (Counter, Percentage, KPIWidget, ProgressBar, StatCard)
 export * from './statistics';
 
+// 2j. Animated UI Mockups Suite (Browser, Mobile, Dashboard, CodeEditor, Terminal, Notification, ChatBubble, SearchBar, PricingCard, LoginForm, CursorPoint, Tooltip)
+export * from './ui-mockups';
+
 // 3. Infographics
 export * from './infographics';
 
