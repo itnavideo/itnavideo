@@ -43,6 +43,9 @@ export * from './business';
 // 2h. Animated Network Graphics Suite (NodeGraph, ConnectionLine, NetworkMap, HierarchyGraph)
 export * from './network';
 
+// 2i. Animated Statistics Suite (Counter, Percentage, KPIWidget, ProgressBar, StatCard)
+export * from './statistics';
+
 // 3. Infographics
 export * from './infographics';
 

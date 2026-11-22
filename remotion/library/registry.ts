@@ -14,6 +14,7 @@ export type ComponentCategory =
   | 'radial'
   | 'business'
   | 'network'
+  | 'statistics'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -368,6 +369,48 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Multi-tier directed acyclic graph (DAG) breakdown showing top-down system layers.',
     tags: ['hierarchy-graph', 'dag', 'tiers', 'layers', 'architecture'],
+  },
+
+  // ── Animated Statistics Suite ──
+  {
+    id: 'counter',
+    name: 'Counter',
+    category: 'statistics',
+    aspectRatio: 'both',
+    description: 'Giant animated numeric odometer counter with prefixes, suffixes, and spring physics.',
+    tags: ['counter', 'odometer', 'numbers', 'revenue', 'subscribers'],
+  },
+  {
+    id: 'percentage',
+    name: 'Percentage',
+    category: 'statistics',
+    aspectRatio: 'both',
+    description: 'Growth and decline percentage indicators with directional trending arrow icons.',
+    tags: ['percentage', 'growth', 'trending', 'delta', 'increase'],
+  },
+  {
+    id: 'kpi-widget',
+    name: 'KPIWidget',
+    category: 'statistics',
+    aspectRatio: 'both',
+    description: 'Executive metric card with top accent bar, delta indicator, and period benchmark.',
+    tags: ['kpi', 'widget', 'executive', 'metric', 'benchmark'],
+  },
+  {
+    id: 'progress-bar',
+    name: 'ProgressBar',
+    category: 'statistics',
+    aspectRatio: 'both',
+    description: 'Horizontal retention and quota progress meter with animated gradient fill.',
+    tags: ['progress-bar', 'progress', 'quota', 'percentage', 'fill'],
+  },
+  {
+    id: 'stat-card',
+    name: 'StatCard',
+    category: 'statistics',
+    aspectRatio: 'both',
+    description: 'Multi-metric glassmorphism statistics card with icon badge and secondary trending tag.',
+    tags: ['stat-card', 'metrics', 'badge', 'card', 'trend'],
   },
 
   // ── Graphics & Frames ──
