@@ -8,6 +8,7 @@
 export type ComponentCategory =
   | 'primitives'
   | 'charts'
+  | 'diagrams'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -126,6 +127,56 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Spiderweb polygonal radar chart for comparing multi-axis viral metrics vs niche averages.',
     tags: ['radar-chart', 'spider-chart', 'multi-axis', 'benchmark', 'comparison'],
+  },
+
+  // ── Animated Diagrams Suite ──
+  {
+    id: 'flowchart',
+    name: 'Flowchart',
+    category: 'diagrams',
+    aspectRatio: 'both',
+    description: 'Sequential decision-making flowchart with step nodes and animated connecting arrows.',
+    tags: ['flowchart', 'process', 'decision', 'steps', 'workflow'],
+  },
+  {
+    id: 'tree-diagram',
+    name: 'TreeDiagram',
+    category: 'diagrams',
+    aspectRatio: 'both',
+    description: 'Hierarchical branching tree structure with root, category nodes, and leaf badges.',
+    tags: ['tree', 'hierarchy', 'branching', 'taxonomy', 'leaves'],
+  },
+  {
+    id: 'org-chart',
+    name: 'OrgChart',
+    category: 'diagrams',
+    aspectRatio: 'both',
+    description: 'Organizational hierarchy structure showcasing leadership and departmental teams.',
+    tags: ['org-chart', 'organization', 'leadership', 'team', 'hierarchy'],
+  },
+  {
+    id: 'mind-map',
+    name: 'MindMap',
+    category: 'diagrams',
+    aspectRatio: 'both',
+    description: 'Radial organic mind map with curved branches radiating outwards from a central core idea.',
+    tags: ['mind-map', 'brainstorm', 'core-idea', 'branches', 'radial'],
+  },
+  {
+    id: 'network-diagram',
+    name: 'NetworkDiagram',
+    category: 'diagrams',
+    aspectRatio: 'both',
+    description: 'Decentralized mesh graph with interconnected service nodes and dashed communication links.',
+    tags: ['network', 'mesh', 'nodes', 'graph', 'distributed'],
+  },
+  {
+    id: 'cycle-diagram',
+    name: 'CycleDiagram',
+    category: 'diagrams',
+    aspectRatio: 'both',
+    description: 'Continuous circular flywheel loop with orbital step badges and center hub.',
+    tags: ['cycle', 'flywheel', 'loop', 'circular', 'continuous'],
   },
 
   // ── Graphics & Frames ──

@@ -25,6 +25,9 @@ export * from './graphics';
 // 2b. Animated Charts Suite (Bar, Line, Pie, Donut, Area, Radar)
 export * from './charts';
 
+// 2c. Animated Diagrams Suite (Flowchart, Tree, Org, MindMap, Network, Cycle)
+export * from './diagrams';
+
 // 3. Infographics
 export * from './infographics';
 
