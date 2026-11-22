@@ -103,6 +103,9 @@ export * from './psychology';
 // 2ab. Social Media & Creator Engagement Suite (YouTubeSubscribeButton, InstagramFollowCard, TikTokProfileCard, TwitterPostCard, SocialEngagementPill, PodcastBadge, StarRatingCard, VerifiedBadge, CommentOverlay, ShareNotification, LikeHeartExplosion, FollowGoalBar, LiveStreamChat, SubscriberMilestone, NotificationBell, PinnedCommentCard)
 export * from './social';
 
+// 2ac. Gaming, HUD & Cyberpunk Elements Suite (HealthBar, SpeedometerHUD, CrosshairTarget, MiniRadarMap, LevelProgressionBadge, QuestLog, ShieldMeter, InventoryGrid, AmmoCounter, BossHealthBar, KillStreakPopup, XPFloatingText, CyberpunkFrame, DamageVignette, TacticalCompass, HitMarker)
+export * from './gaming';
+
 // 3. Infographics
 export * from './infographics';
 
