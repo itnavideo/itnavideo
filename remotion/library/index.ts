@@ -193,3 +193,4 @@ export * from './access';
 export * from './powerbi';
 export * from './google';
 export * from './docfile';
+export * from './productivity';

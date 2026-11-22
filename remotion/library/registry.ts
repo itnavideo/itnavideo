@@ -6,6 +6,7 @@
  */
 
 export type ComponentCategory =
+  | 'workflow-productivity'
   | 'primitives'
   | 'charts'
   | 'diagrams'
@@ -12477,7 +12478,603 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     defaultProps: {
       printerName: 'HP LaserJet Enterprise MFP M635',
       queuedJobs: 2,
-    },
+    },\n  {
+    id: 'kanban-workflow-board',
+    name: 'KanbanWorkflowBoard',
+    category: 'workflow-productivity',
+    description: '3-column agile kanban board with animated card transitions, WIP limits, priority pills, and avatar badges',
+    defaultProps: {
+      "title": "Sprint Workflow Board",
+      "columns": [
+            {
+                  "name": "To Do",
+                  "limit": 5,
+                  "cards": [
+                        "Refactor Auth API",
+                        "Design Style Guide"
+                  ]
+            },
+            {
+                  "name": "In Progress",
+                  "limit": 3,
+                  "cards": [
+                        "Remotion Player v2",
+                        "Webhook Handler"
+                  ]
+            },
+            {
+                  "name": "Done",
+                  "limit": 10,
+                  "cards": [
+                        "Setup Cloud Run",
+                        "Tailwind Config"
+                  ]
+            }
+      ],
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'gantt-project-timeline',
+    name: 'GanttProjectTimeline',
+    category: 'workflow-productivity',
+    description: 'Timeline schedule grid with milestone markers, cascading task bars, and progress percentage fills',
+    defaultProps: {
+      "title": "Product Launch Timeline",
+      "tasks": [
+            {
+                  "name": "Architecture Design",
+                  "start": 5,
+                  "duration": 25,
+                  "progress": 100,
+                  "color": "#3B82F6"
+            },
+            {
+                  "name": "Core Engine Build",
+                  "start": 20,
+                  "duration": 40,
+                  "progress": 75,
+                  "color": "#8B5CF6"
+            },
+            {
+                  "name": "UI / UX Integration",
+                  "start": 45,
+                  "duration": 30,
+                  "progress": 40,
+                  "color": "#10B981"
+            },
+            {
+                  "name": "Security & QA Audit",
+                  "start": 65,
+                  "duration": 25,
+                  "progress": 10,
+                  "color": "#F59E0B"
+            }
+      ],
+      "todayMarker": 55,
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'pomodoro-timer-card',
+    name: 'PomodoroTimerCard',
+    category: 'workflow-productivity',
+    description: 'Circular radial countdown timer with interval sessions, focus status, and interval progression',
+    defaultProps: {
+      "title": "Deep Focus Sprint",
+      "currentMinutes": 24,
+      "totalMinutes": 25,
+      "sessionsCompleted": 3,
+      "mode": "Focus Session",
+      "accentColor": "#EF4444",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'eisenhower-matrix-card',
+    name: 'EisenhowerMatrixCard',
+    category: 'workflow-productivity',
+    description: '2x2 urgent vs important decision matrix with animated quadrant cards and task badges',
+    defaultProps: {
+      "title": "Priority Decision Matrix",
+      "quadrants": [
+            {
+                  "name": "Do First",
+                  "subtitle": "Urgent & Important",
+                  "color": "#EF4444",
+                  "tasks": [
+                        "Server Crash Patch",
+                        "Client Pitch"
+                  ]
+            },
+            {
+                  "name": "Schedule",
+                  "subtitle": "Not Urgent & Important",
+                  "color": "#3B82F6",
+                  "tasks": [
+                        "Q3 Product Strategy",
+                        "Workout Routine"
+                  ]
+            },
+            {
+                  "name": "Delegate",
+                  "subtitle": "Urgent & Not Important",
+                  "color": "#F59E0B",
+                  "tasks": [
+                        "Weekly Report Gen",
+                        "Inbox Sorting"
+                  ]
+            },
+            {
+                  "name": "Delete",
+                  "subtitle": "Not Urgent & Not Important",
+                  "color": "#6B7280",
+                  "tasks": [
+                        "Random Browsing",
+                        "Unsorted Spam"
+                  ]
+            }
+      ],
+      "activeQuadrant": 0,
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'daily-standup-meeting',
+    name: 'DailyStandupMeeting',
+    category: 'workflow-productivity',
+    description: 'Scrum daily standup board with active speaker timer, yesterday/today tasks, and blocker alerts',
+    defaultProps: {
+      "title": "Engineering Daily Standup",
+      "currentSpeaker": "Sarah Connor (Lead Dev)",
+      "yesterdayTasks": [
+            "Merged PR #412 for Lambda video engine",
+            "Resolved S3 CORS upload issue"
+      ],
+      "todayTasks": [
+            "Implement Remotion player caching",
+            "Review Batch 76 PR"
+      ],
+      "blockers": [
+            "Waiting on Cloud Run IAM secret permissions"
+      ],
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'approval-route-workflow',
+    name: 'ApprovalRouteWorkflow',
+    category: 'workflow-productivity',
+    description: 'Multi-stage sequential document approval pipeline with stamps, route connectors, and status badges',
+    defaultProps: {
+      "title": "Capital Expenditure Approval",
+      "stages": [
+            {
+                  "name": "Submission",
+                  "actor": "Alex Chen",
+                  "status": "approved",
+                  "time": "10:14 AM"
+            },
+            {
+                  "name": "Tech Lead Review",
+                  "actor": "Marcus Vance",
+                  "status": "approved",
+                  "time": "11:30 AM"
+            },
+            {
+                  "name": "VP Finance",
+                  "actor": "Elena Rostova",
+                  "status": "in-review",
+                  "time": "Pending"
+            },
+            {
+                  "name": "Executive Sign-off",
+                  "actor": "CEO Office",
+                  "status": "pending",
+                  "time": "Queued"
+            }
+      ],
+      "currentStageIndex": 2,
+      "approverName": "Elena Rostova",
+      "accentColor": "#8B5CF6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'sprint-burndown-chart',
+    name: 'SprintBurndownChart',
+    category: 'workflow-productivity',
+    description: 'Agile story point burndown chart with ideal slope line, actual burn points, and remaining forecast',
+    defaultProps: {
+      "title": "Sprint 14 Burndown Velocity",
+      "sprintName": "Mobile Core V2",
+      "idealPoints": [
+            100,
+            80,
+            60,
+            40,
+            20,
+            0
+      ],
+      "actualPoints": [
+            100,
+            88,
+            72,
+            48,
+            30
+      ],
+      "currentDay": 4,
+      "totalDays": 5,
+      "accentColor": "#06B6D4",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'timesheet-tracker-card',
+    name: 'TimesheetTrackerCard',
+    category: 'workflow-productivity',
+    description: 'Weekly billable timesheet logger with daily bar distribution, project allocation, and rate totals',
+    defaultProps: {
+      "title": "Weekly Billable Hours",
+      "employeeName": "Julian Vance",
+      "days": [
+            {
+                  "day": "Mon",
+                  "hours": 8.5,
+                  "billable": 7.5
+            },
+            {
+                  "day": "Tue",
+                  "hours": 9,
+                  "billable": 8
+            },
+            {
+                  "day": "Wed",
+                  "hours": 8,
+                  "billable": 8
+            },
+            {
+                  "day": "Thu",
+                  "hours": 7.5,
+                  "billable": 6.5
+            },
+            {
+                  "day": "Fri",
+                  "hours": 6,
+                  "billable": 5
+            }
+      ],
+      "totalHours": 39,
+      "billableRate": "$140/hr",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'task-checklist-progress',
+    name: 'TaskChecklistProgress',
+    category: 'workflow-productivity',
+    description: 'Dynamic to-do task checklist with animated check-offs, strikethrough styling, and progress fill',
+    defaultProps: {
+      "title": "Launch Readiness Checklist",
+      "items": [
+            {
+                  "text": "Finalize Remotion 30fps configs",
+                  "done": true
+            },
+            {
+                  "text": "Deploy Lambda rendering worker",
+                  "done": true
+            },
+            {
+                  "text": "Set S3 asset lifecycle retention",
+                  "done": true
+            },
+            {
+                  "text": "Review Stripe webhook keys",
+                  "done": false
+            },
+            {
+                  "text": "Run live end-to-end user test",
+                  "done": false
+            }
+      ],
+      "completedCount": 3,
+      "accentColor": "#6366F1",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'milestone-roadmap-tracker',
+    name: 'MilestoneRoadmapTracker',
+    category: 'workflow-productivity',
+    description: 'Quarterly strategic roadmap visualizer with milestone flag nodes, status indicators, and deliverables',
+    defaultProps: {
+      "title": "2026 Product Milestone Roadmap",
+      "quarters": [
+            {
+                  "quarter": "Q1",
+                  "goal": "Core Remotion Engine",
+                  "status": "Completed",
+                  "color": "#10B981"
+            },
+            {
+                  "quarter": "Q2",
+                  "goal": "AI Reel Automations",
+                  "status": "In Progress",
+                  "color": "#3B82F6"
+            },
+            {
+                  "quarter": "Q3",
+                  "goal": "Multi-User Teams",
+                  "status": "Planned",
+                  "color": "#8B5CF6"
+            },
+            {
+                  "quarter": "Q4",
+                  "goal": "Enterprise APIs",
+                  "status": "Planned",
+                  "color": "#64748B"
+            }
+      ],
+      "currentQuarter": "Q2",
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'timebox-schedule-calendar',
+    name: 'TimeboxScheduleCalendar',
+    category: 'workflow-productivity',
+    description: 'Daily timeblocked calendar planner with color-coded focus slots and current time indicator',
+    defaultProps: {
+      "title": "Daily Timebox Schedule",
+      "date": "Tuesday, Nov 24",
+      "timeblocks": [
+            {
+                  "time": "09:00 - 11:30",
+                  "name": "Deep Work: Core Engine",
+                  "tag": "Deep Focus",
+                  "color": "#3B82F6"
+            },
+            {
+                  "time": "11:30 - 12:30",
+                  "name": "Sprint Standup & Triage",
+                  "tag": "Team Sync",
+                  "color": "#10B981"
+            },
+            {
+                  "time": "13:30 - 15:30",
+                  "name": "Client Demo & Architecture",
+                  "tag": "Meeting",
+                  "color": "#8B5CF6"
+            },
+            {
+                  "time": "15:30 - 17:00",
+                  "name": "Async Code Reviews",
+                  "tag": "Admin",
+                  "color": "#F59E0B"
+            }
+      ],
+      "currentTime": "10:45 AM",
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'habit-streak-tracker',
+    name: 'HabitStreakTracker',
+    category: 'workflow-productivity',
+    description: 'Contribution heat grid and 30-day streak counter with consistency success metrics',
+    defaultProps: {
+      "title": "Daily Coding & Shipping Streak",
+      "habitName": "Production Commit",
+      "streakDays": 47,
+      "gridWeeks": 8,
+      "bestStreak": 65,
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'expense-reimbursement-flow',
+    name: 'ExpenseReimbursementFlow',
+    category: 'workflow-productivity',
+    description: 'Corporate travel and tool expense claim workflow with receipt breakdown and audit stamps',
+    defaultProps: {
+      "title": "Expense Claim #EXP-8841",
+      "claimId": "EXP-8841",
+      "totalAmount": "$1,248.50",
+      "currency": "USD",
+      "items": [
+            {
+                  "desc": "AWS Lambda Render Credits",
+                  "amount": "$540.00",
+                  "cat": "Cloud Infra"
+            },
+            {
+                  "desc": "Flight to Tech Summit NYC",
+                  "amount": "$480.00",
+                  "cat": "Travel"
+            },
+            {
+                  "desc": "Groq Whisper API Quota",
+                  "amount": "$228.50",
+                  "cat": "AI Compute"
+            }
+      ],
+      "status": "Approved & Reimbursed",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'workload-capacity-balancer',
+    name: 'WorkloadCapacityBalancer',
+    category: 'workflow-productivity',
+    description: 'Team resource capacity allocation matrix with workload bars and overcapacity warnings',
+    defaultProps: {
+      "title": "Engineering Team Workload",
+      "teamMembers": [
+            {
+                  "name": "Dave Miller",
+                  "allocation": 92,
+                  "role": "Backend Lead"
+            },
+            {
+                  "name": "Elena Zhou",
+                  "allocation": 115,
+                  "role": "Frontend Architect"
+            },
+            {
+                  "name": "Carlos Gomez",
+                  "allocation": 70,
+                  "role": "DevOps / SRE"
+            },
+            {
+                  "name": "Maya Patel",
+                  "allocation": 85,
+                  "role": "AI / Remotion"
+            }
+      ],
+      "thresholdWarning": 100,
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'meeting-action-item-log',
+    name: 'MeetingActionItemLog',
+    category: 'workflow-productivity',
+    description: 'Post-meeting decision and action item tracker with assignee chips and due dates',
+    defaultProps: {
+      "title": "Executive Sync Action Items",
+      "meetingTitle": "Architecture Review Meeting",
+      "actionItems": [
+            {
+                  "task": "Provision AWS Lambda rendering concurrency",
+                  "owner": "Carlos",
+                  "due": "Nov 26"
+            },
+            {
+                  "task": "Optimize Remotion audio waveform generator",
+                  "owner": "Elena",
+                  "due": "Nov 27"
+            },
+            {
+                  "task": "Refactor Supabase RLS policies for quotas",
+                  "owner": "Dave",
+                  "due": "Nov 29"
+            }
+      ],
+      "accentColor": "#8B5CF6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'sla-escalation-tracker',
+    name: 'SLAEscalationTracker',
+    category: 'workflow-productivity',
+    description: 'Service Level Agreement countdown timer with L1/L2 escalation tiers and breach alert',
+    defaultProps: {
+      "title": "Incident SLA Tracker",
+      "ticketId": "INC-9042",
+      "timeRemaining": "18m 42s",
+      "slaTarget": "45m 00s",
+      "escalationLevel": "Tier 2 Escalated",
+      "priority": "P1 - Critical",
+      "accentColor": "#EF4444",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'focus-time-blocker',
+    name: 'FocusTimeBlocker',
+    category: 'workflow-productivity',
+    description: 'Distraction-free deep work dashboard with Do Not Disturb status, ambient waves, and blocked apps',
+    defaultProps: {
+      "title": "Deep Work Shield",
+      "focusDurationMinutes": 90,
+      "blockedNotifications": 24,
+      "soundscape": "Binaural Alpha Waves",
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'priority-backlog-scoring',
+    name: 'PriorityBacklogScoring',
+    category: 'workflow-productivity',
+    description: 'RICE framework priority scoring calculator ranking product backlog items automatically',
+    defaultProps: {
+      "title": "RICE Prioritization Matrix",
+      "features": [
+            {
+                  "name": "Lambda Cloud Render v2",
+                  "reach": 80,
+                  "impact": 90,
+                  "conf": 85,
+                  "effort": 30,
+                  "score": 204
+            },
+            {
+                  "name": "Auto-Subtitles Dual Tab",
+                  "reach": 95,
+                  "impact": 85,
+                  "conf": 90,
+                  "effort": 40,
+                  "score": 182
+            },
+            {
+                  "name": "AI Voice Cloning Studio",
+                  "reach": 60,
+                  "impact": 75,
+                  "conf": 70,
+                  "effort": 50,
+                  "score": 63
+            }
+      ],
+      "accentColor": "#F59E0B",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'employee-onboarding-checklist',
+    name: 'EmployeeOnboardingChecklist',
+    category: 'workflow-productivity',
+    description: 'New hire onboarding roadmap with 30-60-90 day milestone gates and ramp-up metrics',
+    defaultProps: {
+      "title": "Developer Ramp-Up Journey",
+      "employeeName": "Aisha Malik",
+      "roleTitle": "Senior Video Engineer",
+      "phases": [
+            {
+                  "phase": "Day 1",
+                  "task": "Dev environment & GitHub access",
+                  "status": "done"
+            },
+            {
+                  "phase": "Week 1",
+                  "task": "First Remotion template deployed",
+                  "status": "done"
+            },
+            {
+                  "phase": "Month 1",
+                  "task": "Full ownership of Lambda pipeline",
+                  "status": "in-progress"
+            },
+            {
+                  "phase": "Month 3",
+                  "task": "Lead architecture review",
+                  "status": "queued"
+            }
+      ],
+      "overallProgress": 60,
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'productivity-metrics-score',
+    name: 'ProductivityMetricsScore',
+    category: 'workflow-productivity',
+    description: 'Executive productivity scorecard with focus vs meeting ratio and velocity index',
+    defaultProps: {
+      "title": "Weekly Productivity Pulse",
+      "score": 94,
+      "focusHours": 28.5,
+      "meetingHours": 6.2,
+      "efficiencyTrend": "+14% vs last week",
+      "benchmarkPercentile": "Top 5%",
+      "accentColor": "#8B5CF6",
+      "theme": "dark"
+}
+  },
   },
   },
   },
