@@ -5,6 +5,7 @@ import { Inter, Plus_Jakarta_Sans, JetBrains_Mono, Instrument_Serif, Playfair_Di
 import { AuthProvider } from '@/components/auth/AuthContext';
 import { Toaster } from 'sonner';
 import AppChrome from '@/components/layout/AppChrome';
+import SmoothScrollProvider from '@/components/layout/SmoothScrollProvider';
 import { HOMEPAGE_WORKFLOW_COUNT } from '@/constants/homepageWorkflows';
 
 export const viewport: Viewport = {
@@ -257,11 +258,13 @@ export default function RootLayout({
           }}
         />
         <AuthProvider>
-          <div className="relative flex flex-col min-h-screen">
-            <AppChrome>{children}</AppChrome>
-          </div>
+          <SmoothScrollProvider>
+            <div className="relative flex flex-col min-h-screen">
+              <AppChrome>{children}</AppChrome>
+            </div>
 
-          <Toaster richColors position="top-right" closeButton />
+            <Toaster richColors position="top-right" closeButton />
+          </SmoothScrollProvider>
         </AuthProvider>
       </body>
       <Script strategy="afterInteractive" async src="https://www.googletagmanager.com/gtag/js?id=G-8NSFBYS9EF" />
