@@ -9,6 +9,7 @@ export type ComponentCategory =
   | 'primitives'
   | 'charts'
   | 'diagrams'
+  | 'timelines'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -177,6 +178,48 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Continuous circular flywheel loop with orbital step badges and center hub.',
     tags: ['cycle', 'flywheel', 'loop', 'circular', 'continuous'],
+  },
+
+  // ── Animated Timelines & Process Suite ──
+  {
+    id: 'timeline',
+    name: 'Timeline',
+    category: 'timelines',
+    aspectRatio: 'both',
+    description: 'Vertical or horizontal event timeline with continuous spine line and glowing markers.',
+    tags: ['timeline', 'events', 'pacing', 'chronological', 'schedule'],
+  },
+  {
+    id: 'process-steps',
+    name: 'ProcessSteps',
+    category: 'timelines',
+    aspectRatio: 'both',
+    description: 'Numbered operational step cards with status indicators (completed, active, upcoming).',
+    tags: ['process', 'steps', 'workflow', 'checklist', 'status'],
+  },
+  {
+    id: 'roadmap',
+    name: 'Roadmap',
+    category: 'timelines',
+    aspectRatio: 'both',
+    description: 'Product or strategic roadmap featuring quarterly phases and deliverables.',
+    tags: ['roadmap', 'strategy', 'phases', 'quarters', 'releases'],
+  },
+  {
+    id: 'milestone',
+    name: 'Milestone',
+    category: 'timelines',
+    aspectRatio: 'both',
+    description: 'Metric achievement celebration cards with bold numbers and celebratory icons.',
+    tags: ['milestone', 'achievement', 'kpi', 'subscribers', 'records'],
+  },
+  {
+    id: 'history-timeline',
+    name: 'HistoryTimeline',
+    category: 'timelines',
+    aspectRatio: 'both',
+    description: 'Historical evolution timeline with year badges and narrative documentary cards.',
+    tags: ['history', 'evolution', 'documentary', 'biography', 'origin'],
   },
 
   // ── Graphics & Frames ──

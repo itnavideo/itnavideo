@@ -28,6 +28,9 @@ export * from './charts';
 // 2c. Animated Diagrams Suite (Flowchart, Tree, Org, MindMap, Network, Cycle)
 export * from './diagrams';
 
+// 2d. Animated Timelines & Process Suite (Timeline, ProcessSteps, Roadmap, Milestone, HistoryTimeline)
+export * from './timelines';
+
 // 3. Infographics
 export * from './infographics';
 
