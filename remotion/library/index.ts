@@ -188,3 +188,4 @@ export * from './spreadsheet';
 export * from './registry';
 export * from './word';
 export * from './outlook';
+export * from './teams';
