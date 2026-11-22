@@ -40,6 +40,9 @@ export * from './radial';
 // 2g. Animated Business Graphics Suite (FunnelChart, PyramidChart, WaterfallChart, GaugeChart)
 export * from './business';
 
+// 2h. Animated Network Graphics Suite (NodeGraph, ConnectionLine, NetworkMap, HierarchyGraph)
+export * from './network';
+
 // 3. Infographics
 export * from './infographics';
 

@@ -13,6 +13,7 @@ export type ComponentCategory =
   | 'comparisons'
   | 'radial'
   | 'business'
+  | 'network'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -333,6 +334,40 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Half-circle speedometer gauge with color gradient zones and rotating indicator needle.',
     tags: ['gauge', 'speedometer', 'velocity', 'meter', 'tachometer'],
+  },
+
+  // ── Animated Network Graphics Suite ──
+  {
+    id: 'node-graph',
+    name: 'NodeGraph',
+    category: 'network',
+    aspectRatio: 'both',
+    description: 'Autonomous agent topological cluster graph with floating halo nodes and connecting links.',
+    tags: ['node-graph', 'agents', 'topology', 'mesh', 'clusters'],
+  },
+  {
+    id: 'connection-line',
+    name: 'ConnectionLine',
+    category: 'network',
+    aspectRatio: 'both',
+    description: 'Curved bezier, straight, or orthogonal animated connecting line with data packet pulse.',
+    tags: ['connection-line', 'stream', 'bezier', 'flow', 'packets'],
+  },
+  {
+    id: 'network-map',
+    name: 'NetworkMap',
+    category: 'network',
+    aspectRatio: 'both',
+    description: 'Global distributed server mesh map with coordinate dots, ping ripples, and latency badges.',
+    tags: ['network-map', 'world-map', 'servers', 'latency', 'edge'],
+  },
+  {
+    id: 'hierarchy-graph',
+    name: 'HierarchyGraph',
+    category: 'network',
+    aspectRatio: 'both',
+    description: 'Multi-tier directed acyclic graph (DAG) breakdown showing top-down system layers.',
+    tags: ['hierarchy-graph', 'dag', 'tiers', 'layers', 'architecture'],
   },
 
   // ── Graphics & Frames ──
