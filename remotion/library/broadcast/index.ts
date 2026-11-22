@@ -67,3 +67,22 @@ export type { StudioCameraRecBugProps } from './StudioCameraRecBug';
 
 export { UpcomingSegmentTeaser } from './UpcomingSegmentTeaser';
 export type { UpcomingSegmentTeaserProps } from './UpcomingSegmentTeaser';
+
+export * from './NewsTicker';
+export * from './UrgentBulletinBanner';
+export * from './NewsBug';
+export * from './ChannelIdent';
+export * from './NewsAnchorLowerThird';
+export * from './WeatherLowerOverlay';
+export * from './SportsScorebug';
+export * from './MatchClock';
+export * from './LeaderboardOverlay';
+export * from './ElectionResultsBoard';
+export * from './LiveDataOverlay';
+export * from './NewsHeadlinePanel';
+export * from './ReporterNamePlate';
+export * from './LocationBug';
+export * from './BroadcastFrame';
+export * from './SponsorBug';
+export * from './ReplayLabel';
+export * from './LiveIndicator';
