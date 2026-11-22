@@ -9926,6 +9926,246 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           engineName: 'ObjectDB / db4o / GemStone',
           languageBinding: 'Native Java / C# / Python Objects'
     },
+  {
+    id: 'data-distribution-histogram',
+    name: 'DataDistributionHistogram',
+    category: 'database',
+    description: 'Database column value distribution histogram showing bucket ranges, frequencies, and data skew.',
+    tags: ['data-distribution', 'histogram', 'frequency-buckets', 'column-profiler', 'data-skew'],
+    aspectRatio: 'both',
+    defaultProps: {
+          columnName: 'order_amount_usd',
+          tableName: 'public.orders'
+    },
+  },
+  {
+    id: 'cardinality-heatmap',
+    name: 'CardinalityHeatmap',
+    category: 'database',
+    description: 'Database table column cardinality heatmap showing distinct value density and indexing suitability.',
+    tags: ['cardinality', 'distinct-values', 'indexing-suitability', 'data-density', 'column-statistics'],
+    aspectRatio: 'both',
+    defaultProps: {
+          tableName: 'public.users'
+    },
+  },
+  {
+    id: 'null-value-percentage-bar',
+    name: 'NullValuePercentageBar',
+    category: 'database',
+    description: 'Schema nullness and data sparsity meter showing percentage of NULL values across database table columns.',
+    tags: ['null-percentage', 'data-sparsity', 'missing-values', 'schema-health', 'data-cleaning'],
+    aspectRatio: 'both',
+    defaultProps: {
+          tableName: 'public.customer_leads'
+    },
+  },
+  {
+    id: 'table-storage-tree-map',
+    name: 'TableStorageTreeMap',
+    category: 'database',
+    description: 'Database table storage allocation treemap breakdown by heap size, index bytes, and toast storage.',
+    tags: ['table-storage', 'heap-size', 'index-bytes', 'toast-storage', 'storage-treemap'],
+    aspectRatio: 'both',
+    defaultProps: {
+          tableName: 'public.audit_logs',
+          heapSizeMB: 4850,
+          indexSizeMB: 3120,
+          toastSizeMB: 1240
+    },
+  },
+  {
+    id: 'schema-erd-visualizer',
+    name: 'SchemaERDVisualizer',
+    category: 'database',
+    description: 'Interactive schema Entity-Relationship Diagram (ERD) with connected primary and foreign keys.',
+    tags: ['erd', 'schema-diagram', 'entity-relationship', 'foreign-keys', 'relational-mapping'],
+    aspectRatio: 'both',
+    defaultProps: {
+          primaryTable: 'users (id PK)'
+    },
+  },
+  {
+    id: 'query-latency-scatter-plot',
+    name: 'QueryLatencyScatterPlot',
+    category: 'database',
+    description: 'Query latency scatter plot displaying execution durations across queries with SLA breach thresholds.',
+    tags: ['latency-scatter-plot', 'query-durations', 'sla-breach', 'p95-latency', 'p99-latency'],
+    aspectRatio: 'both',
+    defaultProps: {
+          totalQueriesSampled: 5000,
+          p95Ms: 18.4,
+          p99Ms: 48.2,
+          breachCount: 14
+    },
+  },
+  {
+    id: 'record-growth-time-series',
+    name: 'RecordGrowthTimeSeries',
+    category: 'database',
+    description: 'Historical database record count and disk growth curve over time with future predictive extrapolation.',
+    tags: ['record-growth', 'disk-growth', 'growth-curve', 'capacity-planning', 'data-scaling'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentRecordsMillion: 48.5,
+          growthRatePercentMonthly: 8.4,
+          projectedSixMonthsMillion: 78.4
+    },
+  },
+  {
+    id: 'index-size-vs-table-size',
+    name: 'IndexSizeVsTableSize',
+    category: 'database',
+    description: 'Dual comparison visualizer showing raw heap data size versus auxiliary index storage footprint.',
+    tags: ['index-to-data-ratio', 'index-overhead', 'table-vs-index', 'storage-breakdown', 'disk-allocation'],
+    aspectRatio: 'both',
+    defaultProps: {
+          tableDataGB: 420,
+          indexDataGB: 280,
+          indexToDataRatio: 66.7
+    },
+  },
+  {
+    id: 'data-sparsity-matrix',
+    name: 'DataSparsityMatrix',
+    category: 'database',
+    description: 'Sparse matrix visualizer displaying non-zero cell density across high-dimensional database tables.',
+    tags: ['data-sparsity', 'sparse-matrix', 'csr-encoding', 'cell-density', 'dimensional-tables'],
+    aspectRatio: 'both',
+    defaultProps: {
+          totalCellsMillion: 120,
+          nonZeroDensityPercent: 4.2,
+          compressionGain: '8.4x (CSR / COO Sparse Storage)'
+    },
+  },
+  {
+    id: 'outlier-box-plot',
+    name: 'OutlierBoxPlot',
+    category: 'database',
+    description: 'Column numerical distribution box-and-whisker plot displaying min, Q1, median, Q3, max, and anomalous outliers.',
+    tags: ['box-plot', 'outlier-detection', 'iqr', 'median-distribution', 'numerical-spread'],
+    aspectRatio: 'both',
+    defaultProps: {
+          columnName: 'session_duration_sec',
+          medianVal: 180,
+          outliersCount: 28
+    },
+  },
+  {
+    id: 'categorical-frequency-pie',
+    name: 'CategoricalFrequencyPie',
+    category: 'database',
+    description: 'Donut chart displaying top distinct categorical value distribution in a database column.',
+    tags: ['categorical-frequency', 'donut-chart', 'pie-chart', 'column-breakdown', 'top-categories'],
+    aspectRatio: 'both',
+    defaultProps: {
+          columnName: 'payment_method'
+    },
+  },
+  {
+    id: 'data-lineage-flow-diagram',
+    name: 'DataLineageFlowDiagram',
+    category: 'database',
+    description: 'ETL/ELT data lineage flow showing source raw tables transforming into staging views and aggregated marts.',
+    tags: ['data-lineage', 'dag', 'etl-flow', 'staging-marts', 'dbt-pipeline'],
+    aspectRatio: 'both',
+    defaultProps: {
+          pipelineEngine: 'dbt Core + DuckDB'
+    },
+  },
+  {
+    id: 'json-nested-tree-viewer',
+    name: 'JSONNestedTreeViewer',
+    category: 'database',
+    description: 'Visual tree inspector for semi-structured JSONB and document hierarchies displaying nested key-value nodes.',
+    tags: ['jsonb-tree', 'nested-document', 'json-inspector', 'gin-index', 'semi-structured'],
+    aspectRatio: 'both',
+    defaultProps: {
+          rootKey: 'payload (JSONB)'
+    },
+  },
+  {
+    id: 'time-series-metrics-graph',
+    name: 'TimeSeriesMetricsGraph',
+    category: 'database',
+    description: 'Multi-series time-series performance graph displaying queries per second, latency, and memory utilization.',
+    tags: ['metrics-graph', 'time-series-chart', 'qps-graph', 'latency-trend', 'resource-monitor'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentQps: 18450,
+          avgLatencyMs: 2.1,
+          memoryUsedGB: 24.8
+    },
+  },
+  {
+    id: 'partition-data-distribution',
+    name: 'PartitionDataDistribution',
+    category: 'database',
+    description: 'Database table partition data balance chart highlighting partition size balance and skew detection.',
+    tags: ['partition-balance', 'shard-distribution', 'partition-skew', 'data-rebalance', 'partition-sizes'],
+    aspectRatio: 'both',
+    defaultProps: {},
+  },
+  {
+    id: 'data-type-storage-footprint',
+    name: 'DataTypeStorageFootprint',
+    category: 'database',
+    description: 'Storage bytes consumed across SQL data types (UUID, VARCHAR, TIMESTAMP, INT, JSONB) breakdown.',
+    tags: ['data-type-storage', 'sql-types-footprint', 'bytes-consumed', 'storage-profiling', 'schema-tuning'],
+    aspectRatio: 'both',
+    defaultProps: {},
+  },
+  {
+    id: 'database-connection-topology',
+    name: 'DatabaseConnectionTopology',
+    category: 'database',
+    description: 'Database connection topology map displaying application pods, PgBouncer poolers, and primary/standby DB nodes.',
+    tags: ['connection-topology', 'network-mesh', 'pgbouncer-topology', 'primary-standby', 'cluster-map'],
+    aspectRatio: 'both',
+    defaultProps: {
+          appPodsCount: 48,
+          poolersCount: 4,
+          dbNodesCount: 3
+    },
+  },
+  {
+    id: 'slow-query-pareto-chart',
+    name: 'SlowQueryParetoChart',
+    category: 'database',
+    description: 'Pareto principle 80/20 analysis chart showing the top query fingerprints generating 80% of database load.',
+    tags: ['pareto-chart', '80-20-rule', 'query-load-concentration', 'slow-query-impact', 'resource-hogs'],
+    aspectRatio: 'both',
+    defaultProps: {
+          topQueriesPercent: 4.2,
+          totalLoadGeneratedPercent: 78.4
+    },
+  },
+  {
+    id: 'wal-generation-velocity',
+    name: 'WALGenerationVelocity',
+    category: 'database',
+    description: 'Write-Ahead Log generation velocity stream displaying WAL throughput spikes in MB/s during peak write periods.',
+    tags: ['wal-velocity', 'log-generation-rate', 'write-spikes', 'wal-throughput', 'io-burst'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentWalMBps: 48.2,
+          peakWalMBps: 124.5,
+          checkpointIntervalMin: 15
+    },
+  },
+  {
+    id: 'cache-eviction-waterfall',
+    name: 'CacheEvictionWaterfall',
+    category: 'database',
+    description: 'Cache key eviction waterfall diagram showing memory tier reclamation across LRU and LFU eviction cascades.',
+    tags: ['eviction-waterfall', 'lru-cascade', 'cache-reclamation', 'memory-pressure', 'volatile-lru'],
+    aspectRatio: 'both',
+    defaultProps: {
+          memoryUsagePercent: 94.2,
+          evictedKeysCount: 48200,
+          reclaimedMemoryMB: 850
+    },
+  },
   },
   },
   },
