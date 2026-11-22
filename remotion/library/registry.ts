@@ -14014,6 +14014,393 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
+  },\n  {
+    id: 'flight-radar-tracker',
+    name: 'FlightRadarTracker',
+    category: 'transportation',
+    description: 'Commercial flight tracker showing flight path arc, airspeed knots, altitude, and arrival ETA',
+    defaultProps: {
+      "title": "Flight BA 178 Tracking",
+      "origin": "JFK (New York)",
+      "destination": "LHR (London Heathrow)",
+      "altitude": "38,000 ft",
+      "groundSpeed": "520 kts (963 km/h)",
+      "aircraft": "Boeing 777-300ER",
+      "flightStatus": "En Route • On Time",
+      "eta": "06:45 GMT",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'airport-departure-board',
+    name: 'AirportDepartureBoard',
+    category: 'transportation',
+    description: 'Split-flap mechanical airport departure board with flashing gate status and flight numbers',
+    defaultProps: {
+      "title": "INTERNATIONAL DEPARTURES",
+      "terminal": "Terminal 3 Concourse B",
+      "flights": [
+            {
+                  "time": "14:20",
+                  "flight": "AF 023",
+                  "dest": "PARIS CDG",
+                  "gate": "B12",
+                  "status": "BOARDING",
+                  "color": "#10B981"
+            },
+            {
+                  "time": "14:35",
+                  "flight": "LH 401",
+                  "dest": "FRANKFURT",
+                  "gate": "B18",
+                  "status": "ON TIME",
+                  "color": "#38BDF8"
+            },
+            {
+                  "time": "14:50",
+                  "flight": "EK 202",
+                  "dest": "DUBAI DXB",
+                  "gate": "B24",
+                  "status": "DELAYED",
+                  "color": "#EF4444"
+            },
+            {
+                  "time": "15:10",
+                  "flight": "SQ 025",
+                  "dest": "SINGAPORE",
+                  "gate": "B08",
+                  "status": "GATE OPEN",
+                  "color": "#F59E0B"
+            }
+      ],
+      "accentColor": "#F59E0B",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'metro-subway-line-map',
+    name: 'MetroSubwayLineMap',
+    category: 'transportation',
+    description: 'Urban rapid transit subway line schematic with glowing active train position and transfer nodes',
+    defaultProps: {
+      "title": "Metropolitan Rapid Transit",
+      "lineName": "Blue Line (Express Service)",
+      "currentStation": "Grand Central Terminal",
+      "nextStation": "Times Square — 42nd St",
+      "stations": [
+            {
+                  "name": "Financial District",
+                  "passed": true
+            },
+            {
+                  "name": "Canal St",
+                  "passed": true
+            },
+            {
+                  "name": "Union Square",
+                  "passed": true
+            },
+            {
+                  "name": "Grand Central",
+                  "current": true
+            },
+            {
+                  "name": "Times Square",
+                  "next": true
+            },
+            {
+                  "name": "Columbus Circle",
+                  "queued": true
+            }
+      ],
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'gps-navigation-turn-by-turn',
+    name: 'GPSNavigationTurnByTurn',
+    category: 'transportation',
+    description: 'Automotive GPS HUD navigation with turning arrow maneuver, distance in meters, and road banner',
+    defaultProps: {
+      "title": "GPS Turn-By-Turn HUD",
+      "distanceMeters": "250 m",
+      "instruction": "In 250m, Turn Right onto Broadway Ave",
+      "nextRoad": "Broadway Ave",
+      "currentSpeed": "48 km/h",
+      "speedLimit": "50",
+      "etaTime": "12 min (6.4 km)",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'high-speed-train-speedometer',
+    name: 'HighSpeedTrainSpeedometer',
+    category: 'transportation',
+    description: 'High-speed bullet train cockpit gauge showing 320 km/h velocity, pantograph power, and signal codes',
+    defaultProps: {
+      "title": "Bullet Train Cockpit Telemetry",
+      "speedKmh": 320,
+      "tractionPowerKw": "9,600 kW",
+      "lineVoltage": "25 kV AC 50Hz",
+      "cabSignal": "CAB 320 OK",
+      "trainModel": "Shinkansen N700S",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'cargo-container-ship-tracker',
+    name: 'CargoContainerShipTracker',
+    category: 'transportation',
+    description: 'Maritime vessel AIS positioning tracking TEU container cargo capacity, draft, and nautical speed',
+    defaultProps: {
+      "title": "AIS Vessel Tracker — Ever Golden",
+      "mmsi": "235102940",
+      "speedKnots": "19.4 kts",
+      "courseDeg": "142° SE",
+      "destination": "Rotterdam Port (NLD)",
+      "capacityTEU": "20,124 TEU",
+      "draftDepth": "15.8 m",
+      "accentColor": "#0EA5E9",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'bus-transit-live-eta',
+    name: 'BusTransitLiveETA',
+    category: 'transportation',
+    description: 'City bus transit station arrival board with route number, stop ETA, and passenger crowdedness',
+    defaultProps: {
+      "title": "Stop #4812 — City Center Plaza",
+      "routes": [
+            {
+                  "route": "M15-SBS",
+                  "dest": "South Ferry",
+                  "eta": "3 min",
+                  "crowded": "Low Seats Avail",
+                  "color": "#3B82F6"
+            },
+            {
+                  "route": "M101",
+                  "dest": "Harlem 125th St",
+                  "eta": "8 min",
+                  "crowded": "Standing Room Only",
+                  "color": "#10B981"
+            },
+            {
+                  "route": "M42",
+                  "dest": "Crosstown Pier",
+                  "eta": "14 min",
+                  "crowded": "Many Seats",
+                  "color": "#F59E0B"
+            }
+      ],
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'ev-charging-station-hub',
+    name: 'EVChargingStationHub',
+    category: 'transportation',
+    description: 'Ultra-fast DC electric vehicle charging hub showing charging power kW, battery SoC, and kWh',
+    defaultProps: {
+      "title": "Ultra-Fast DC Supercharger",
+      "stallId": "Stall 4B (350 kW CCS)",
+      "batteryPercent": 78,
+      "chargingRateKw": "240 kW",
+      "energyDeliveredKwh": "52.4 kWh",
+      "sessionDuration": "18 min 40 sec",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'ride-hailing-dispatch-card',
+    name: 'RideHailingDispatchCard',
+    category: 'transportation',
+    description: 'On-demand taxi driver matching card with driver car icon, license plate, and pickup ETA',
+    defaultProps: {
+      "title": "Driver Confirmed & En Route",
+      "driverName": "Michael K.",
+      "carModel": "Toyota Camry Hybrid (Silver)",
+      "licensePlate": "7XYZ412",
+      "pickupETA": "4 mins away",
+      "rating": "4.96 ★ (2,410 trips)",
+      "fareEstimate": "$18.50",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'traffic-intersection-signal',
+    name: 'TrafficIntersectionSignal',
+    category: 'transportation',
+    description: '4-way traffic light controller with countdown timers and active green phase sequence',
+    defaultProps: {
+      "title": "Traffic Signal Controller #IT-901",
+      "intersection": "Main St & 5th Avenue",
+      "activePhase": "North-South Green",
+      "secondsRemaining": 18,
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'fleet-truck-telemetry',
+    name: 'FleetTruckTelemetry',
+    category: 'transportation',
+    description: 'Commercial trucking ELD telematics displaying engine RPM, diesel fuel level, and hours of service',
+    defaultProps: {
+      "title": "Freight Telematics Unit #TR-408",
+      "driver": "Marcus Kane (CDL-A)",
+      "hoursOfService": "6h 45m / 11h Max Driving",
+      "dieselFuel": "84% (820 km Range)",
+      "engineRpm": "1,420 RPM",
+      "tirePressure": "105 PSI (All Green)",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'parking-garage-vacancy-meter',
+    name: 'ParkingGarageVacancyMeter',
+    category: 'transportation',
+    description: 'Multi-level smart parking garage vacancy display with spot counts per floor',
+    defaultProps: {
+      "title": "City Center Parking Garage",
+      "totalAvailable": 148,
+      "floors": [
+            {
+                  "floor": "P1 (Ground)",
+                  "spots": 12,
+                  "status": "Nearly Full",
+                  "color": "#EF4444"
+            },
+            {
+                  "floor": "P2 (Level 2)",
+                  "spots": 48,
+                  "status": "Spots Available",
+                  "color": "#10B981"
+            },
+            {
+                  "floor": "P3 (Rooftop)",
+                  "spots": 88,
+                  "status": "Wide Open",
+                  "color": "#10B981"
+            }
+      ],
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'air-traffic-control-scope',
+    name: 'AirTrafficControlScope',
+    category: 'transportation',
+    description: 'Circular air traffic control cathode radar scope with 360-degree radar sweep line',
+    defaultProps: {
+      "title": "Sector 4 ATC Radar Scope",
+      "frequency": "121.5 MHz VHF",
+      "activeTargets": 6,
+      "sweepRadius": "60 Nautical Miles",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'highway-toll-plaza-gate',
+    name: 'HighwayTollPlazaGate',
+    category: 'transportation',
+    description: 'Electronic toll collection RFID barrier gate with balance deduction and green lane status',
+    defaultProps: {
+      "title": "Electronic Toll Collection (ETC)",
+      "plazaName": "Expressway Gateway Plaza",
+      "tagId": "TAG-8840-X1",
+      "tollFee": "$4.50",
+      "accountBalance": "$82.50",
+      "gateStatus": "BARRIER OPEN — PROCEED",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'micromobility-scooter-lock',
+    name: 'MicromobilityScooterLock',
+    category: 'transportation',
+    description: 'Shared electric scooter lock interface with battery range in km, unlock QR, and pricing',
+    defaultProps: {
+      "title": "Shared E-Scooter Unlock",
+      "scooterId": "#SCOOT-410",
+      "batteryRange": "28 km Range (85%)",
+      "rate": "$1.00 unlock + $0.25/min",
+      "maxSpeed": "25 km/h",
+      "status": "Ready to Ride",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'harbor-ferry-schedule',
+    name: 'HarborFerrySchedule',
+    category: 'transportation',
+    description: 'Harbor ferry terminal schedule with vehicle lane capacity, tides, and crossing times',
+    defaultProps: {
+      "title": "Harbor Ferry Pier 11",
+      "route": "Downtown Manhattan ↔ Staten Island",
+      "nextDeparture": "14:30 (In 8 mins)",
+      "vessel": "MV Spirit of New York",
+      "capacity": "450 Passengers / 60 Cars",
+      "crossingTime": "22 Minutes",
+      "accentColor": "#0284C7",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'autonomous-lidar-vision',
+    name: 'AutonomousLidarVision',
+    category: 'transportation',
+    description: 'Autonomous vehicle point-cloud LIDAR perception HUD tracking lanes, obstacles, and pedestrians',
+    defaultProps: {
+      "title": "Autonomous Vehicle Perception",
+      "system": "LIDAR + Camera Sensor Fusion",
+      "detectedObjects": "3 Vehicles, 2 Pedestrians",
+      "confidence": "99.4%",
+      "driveMode": "Full Self-Driving Active",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'drone-delivery-corridor',
+    name: 'DroneDeliveryCorridor',
+    category: 'transportation',
+    description: 'Last-mile automated delivery drone flight corridor HUD with altitude AGL and delivery payload',
+    defaultProps: {
+      "title": "Automated Drone Flight Corridor",
+      "droneId": "UAV-DELIVER-08",
+      "altitudeAGL": "120 m AGL",
+      "batteryLevel": "91%",
+      "payloadWeight": "1.8 kg Medical Kit",
+      "corridorStatus": "Airspace Cleared",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'mountain-cable-car-gondola',
+    name: 'MountainCableCarGondola',
+    category: 'transportation',
+    description: 'Alpine aerial ropeway tram and gondola elevation profile with summit meter climb',
+    defaultProps: {
+      "title": "Alpine Aerial Cable Car",
+      "resort": "Matterhorn Glacier Paradise",
+      "altitudeGain": "1,620 m → 3,883 m",
+      "cabinSpeed": "7.5 m/s",
+      "cableTension": "Optimal (620 kN)",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'spacecraft-launch-trajectory',
+    name: 'SpacecraftLaunchTrajectory',
+    category: 'transportation',
+    description: 'Orbital spacecraft rocket launch telemetry HUD tracking altitude, velocity, and stage separation',
+    defaultProps: {
+      "title": "Orbital Launch Telemetry",
+      "mission": "Artemis Heavy Orbital Insertion",
+      "velocityKmh": "28,450 km/h",
+      "altitudeKm": "185 km",
+      "stage": "Stage 2 Burn Active",
+      "downrangeDistance": "420 km",
+      "accentColor": "#F59E0B",
+      "theme": "dark"
+}
   },
   },
   },
