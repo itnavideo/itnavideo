@@ -175,5 +175,8 @@ export * from './facilities';
 // 8o. Hand-Drawn & Sketch Animation Suite
 export * from './handdrawn';
 
+// 8p. Database Architecture & Schema Structure Suite
+export * from './database';
+
 // 9. Component Registry & Metadata
 export * from './registry';
