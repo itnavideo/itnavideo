@@ -67,3 +67,25 @@ export type { WaveSpectrogramProps } from './WaveSpectrogram';
 
 export { GeometricProof } from './GeometricProof';
 export type { GeometricProofProps } from './GeometricProof';
+
+export { HumanMuscle } from './HumanMuscle';
+export type { HumanMuscleProps } from './HumanMuscle';
+
+export { DigestiveSystem } from './DigestiveSystem';
+export type { DigestiveSystemProps } from './DigestiveSystem';
+
+export { RNAVisualization } from './RNAVisualization';
+export type { RNAVisualizationProps } from './RNAVisualization';
+
+export { ElectronOrbit } from './ElectronOrbit';
+export type { ElectronOrbitProps } from './ElectronOrbit';
+
+export { ElectricField } from './ElectricField';
+export type { ElectricFieldProps } from './ElectricField';
+
+export { PlanetOrbit } from './PlanetOrbit';
+export type { PlanetOrbitProps } from './PlanetOrbit';
+
+export { BlackHoleVisualization } from './BlackHoleVisualization';
+export type { BlackHoleVisualizationProps } from './BlackHoleVisualization';
+
