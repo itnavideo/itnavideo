@@ -11,6 +11,7 @@ export type ComponentCategory =
   | 'diagrams'
   | 'timelines'
   | 'comparisons'
+  | 'radial'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -263,6 +264,40 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Ranked leaderboard stack with gold, silver, and bronze podium medal badges.',
     tags: ['ranking', 'leaderboard', 'top-tier', 'podium', 'medal'],
+  },
+
+  // ── Animated Radial Graphics Suite ──
+  {
+    id: 'radial-chart',
+    name: 'RadialChart',
+    category: 'radial',
+    aspectRatio: 'both',
+    description: 'Concentric multi-ring activity chart with progressive animated stroke arcs.',
+    tags: ['radial', 'rings', 'activity', 'concentric', 'apple-watch'],
+  },
+  {
+    id: 'circular-progress',
+    name: 'CircularProgress',
+    category: 'radial',
+    aspectRatio: 'both',
+    description: 'Circular percentage gauge meter with glowing stroke and center counter.',
+    tags: ['circular-progress', 'gauge', 'meter', 'percentage', 'score'],
+  },
+  {
+    id: 'donut-progress',
+    name: 'DonutProgress',
+    category: 'radial',
+    aspectRatio: 'both',
+    description: 'Multi-segment status donut with center goal text and quota allocation.',
+    tags: ['donut-progress', 'quota', 'allocation', 'segments', 'goals'],
+  },
+  {
+    id: 'radial-diagram',
+    name: 'RadialDiagram',
+    category: 'radial',
+    aspectRatio: 'both',
+    description: 'Hub and spoke radial architecture with central core and radiating capabilities.',
+    tags: ['radial-diagram', 'spokes', 'hub-and-spoke', 'central-core'],
   },
 
   // ── Graphics & Frames ──

@@ -34,6 +34,9 @@ export * from './timelines';
 // 2e. Animated Comparisons Suite (ComparisonTable, BeforeAfter, ProsCons, Splitscreen, RankingList)
 export * from './comparisons';
 
+// 2f. Animated Radial Graphics Suite (RadialChart, CircularProgress, DonutProgress, RadialDiagram)
+export * from './radial';
+
 // 3. Infographics
 export * from './infographics';
 
