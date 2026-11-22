@@ -82,6 +82,9 @@ export * from './engineering';
 // 2u. E-Commerce & Retail Suite (ProductShowcase, ProductComparison, PriceTag, ProductFeatures, ShoppingInterface, FlashSaleCountdown)
 export * from './ecommerce';
 
+// 2v. Advanced Motion Graphics & VFX Suite (LiquidMorph, BlobAnimation, GlitchEffect, GlitchTransition, NeonGlow, LightSweep, ParticleSystem, NoiseTexture, GradientMesh, LiquidTransition, DistortionEffect, ChromaticAberration, ScanlineEffect, PixelSorting, WaveDistortion, ShatterEffect, DisplacementMap, LightLeak, FilmGrain, LensFlare)
+export * from './vfx';
+
 // 3. Infographics
 export * from './infographics';
 
