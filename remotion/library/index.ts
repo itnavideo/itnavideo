@@ -169,5 +169,8 @@ export * from './annotation';
 // 8m. Digital Marketing & Growth Suite
 export * from './marketing';
 
+// 8n. Physical Facilities, Shops & Buildings Suite
+export * from './facilities';
+
 // 9. Component Registry & Metadata
 export * from './registry';
