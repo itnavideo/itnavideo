@@ -76,6 +76,9 @@ export * from './editorial';
 // 2s. Mathematics Suite (MathEquation, GeometryShapes, GraphPlotter, MathProof, NumberLine, VennDiagram)
 export * from './mathematics';
 
+// 2t. Engineering & CAD Suite (ExplodedView, CrossSection, Blueprint, TechnicalDrawing, AssemblyDiagram, DimensionCallout)
+export * from './engineering';
+
 // 3. Infographics
 export * from './infographics';
 

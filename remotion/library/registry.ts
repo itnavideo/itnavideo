@@ -25,6 +25,7 @@ export type ComponentCategory =
   | 'geography'
   | 'editorial'
   | 'mathematics'
+  | 'engineering'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -1161,6 +1162,56 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Set theory Venn diagram with intersecting shaded circles, labels, and cardinality counts.',
     tags: ['math', 'venn-diagram', 'sets', 'intersection', 'union', 'logic'],
+  },
+
+  // ── Engineering & CAD Suite ──
+  {
+    id: 'exploded-view',
+    name: 'ExplodedView',
+    category: 'engineering',
+    aspectRatio: 'both',
+    description: 'Hardware assembly exploded view separating along axial guides with part tags and spring physics.',
+    tags: ['engineering', 'cad', 'exploded-view', 'assembly', 'hardware', 'mechanics'],
+  },
+  {
+    id: 'cross-section',
+    name: 'CrossSection',
+    category: 'engineering',
+    aspectRatio: 'both',
+    description: 'Mechanical cutaway cross-section view with ANSI 45-degree hatching pattern and bore dimensions.',
+    tags: ['engineering', 'cross-section', 'cutaway', 'hatching', 'bore', 'dimensions'],
+  },
+  {
+    id: 'blueprint',
+    name: 'Blueprint',
+    category: 'engineering',
+    aspectRatio: 'both',
+    description: 'Architectural millimeter grid blueprint canvas with CAD title block box and drafting lines.',
+    tags: ['engineering', 'blueprint', 'cad', 'drafting', 'grid', 'architecture'],
+  },
+  {
+    id: 'technical-drawing',
+    name: 'TechnicalDrawing',
+    category: 'engineering',
+    aspectRatio: 'both',
+    description: 'Standard 3-view orthographic CAD projection (Top, Front, Right) with dimension arrows and tolerances.',
+    tags: ['engineering', 'orthographic', 'drawing', 'top-view', 'front-view', 'tolerances'],
+  },
+  {
+    id: 'assembly-diagram',
+    name: 'AssemblyDiagram',
+    category: 'engineering',
+    aspectRatio: 'both',
+    description: 'Step-by-step manufacturing assembly instruction card with fastener callouts and torque specs.',
+    tags: ['engineering', 'assembly', 'instructions', 'fasteners', 'torque', 'manufacturing'],
+  },
+  {
+    id: 'dimension-callout',
+    name: 'DimensionCallout',
+    category: 'engineering',
+    aspectRatio: 'both',
+    description: 'Precision engineering CAD dimension measurement tool with dual arrowheads and tolerance tags.',
+    tags: ['engineering', 'dimension', 'callout', 'measurement', 'tolerance', 'cad'],
   },
 
   // ── Graphics & Frames ──
