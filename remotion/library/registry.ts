@@ -9407,6 +9407,266 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           backupSizeBytesGB: 142.5,
           encryptionKeyType: 'KMS Customer-Managed Key (CMK)'
     },
+  {
+    id: 'point-in-time-recovery',
+    name: 'PointInTimeRecovery',
+    category: 'database',
+    description: 'Point-In-Time Recovery (PITR) scrubber allowing precise restoration to an exact millisecond or LSN before a catastrophic drop.',
+    tags: ['pitr', 'point-in-time-recovery', 'wal-replay', 'lsn-scrubber', 'database-restore'],
+    aspectRatio: 'both',
+    defaultProps: {
+          targetTimestamp: '2026-11-22 14:28:45.102 UTC',
+          targetLSN: '0/16B3F48',
+          replayedWALCount: 84
+    },
+  },
+  {
+    id: 'full-database-dump',
+    name: 'FullDatabaseDump',
+    category: 'database',
+    description: 'Full logical database dump progress card displaying tables exported, total rows, compression ratio, and export throughput.',
+    tags: ['full-backup', 'pg-dump', 'mysqldump', 'compression', 'dump-throughput'],
+    aspectRatio: 'both',
+    defaultProps: {
+          databaseName: 'production_cluster_db',
+          totalTables: 184,
+          totalRowsMillion: 42.8
+    },
+  },
+  {
+    id: 'incremental-backup-diff',
+    name: 'IncrementalBackupDiff',
+    category: 'database',
+    description: 'Block-level differential backup visualizer showing base backup size vs incremental delta pages with disk space savings.',
+    tags: ['incremental-backup', 'differential-backup', 'block-level-diff', 'delta-pages', 'storage-savings'],
+    aspectRatio: 'both',
+    defaultProps: {
+          baseBackupSizeGB: 480,
+          deltaDiffSizeGB: 14.2,
+          savingsPercent: 97.04
+    },
+  },
+  {
+    id: 'wal-archiving-stream',
+    name: 'WALArchivingStream',
+    category: 'database',
+    description: 'Continuous Write-Ahead Log archive stream pipeline pushing 16MB segment files to object storage with current LSN.',
+    tags: ['wal-archive', 'continuous-archiving', 'archive-command', 's3-wal-stream', 'lsn-tracking'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentSegment: '000000010000016B000000F4',
+          archivedCount: 1420,
+          currentLSN: '16B/F4000028'
+    },
+  },
+  {
+    id: 'disaster-recovery-failover',
+    name: 'DisasterRecoveryFailover',
+    category: 'database',
+    description: 'Cross-region disaster recovery failover dashboard displaying primary outage, standby promotion, and DNS switchover.',
+    tags: ['disaster-recovery', 'failover', 'standby-promotion', 'cross-region', 'dns-switchover'],
+    aspectRatio: 'both',
+    defaultProps: {
+          primaryRegion: 'us-east-1 (Outage Detected)',
+          standbyRegion: 'us-west-2 (Promoted Primary)',
+          failoverDurationSec: 18.4
+    },
+  },
+  {
+    id: 'rpo-recovery-point-objective',
+    name: 'RPORecoveryPointObjective',
+    category: 'database',
+    description: 'Recovery Point Objective (RPO) SLA metric gauge displaying real-time data loss gap against threshold.',
+    tags: ['rpo', 'recovery-point-objective', 'data-loss-sla', 'zero-data-loss', 'sla-gauge'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentRpoSec: 0.45,
+          slaTargetSec: 5,
+          unreplicatedTransactions: 0
+    },
+  },
+  {
+    id: 'rto-recovery-time-objective',
+    name: 'RTORecoveryTimeObjective',
+    category: 'database',
+    description: 'Recovery Time Objective (RTO) countdown card comparing restoration elapsed time against business downtime SLA.',
+    tags: ['rto', 'recovery-time-objective', 'downtime-sla', 'restore-countdown', 'business-continuity'],
+    aspectRatio: 'both',
+    defaultProps: {
+          elapsedRestoreMin: 8.2,
+          slaTargetMin: 30,
+          restoredDataGB: 480
+    },
+  },
+  {
+    id: 'cold-storage-tiering',
+    name: 'ColdStorageTiering',
+    category: 'database',
+    description: 'Cloud lifecycle tiering visualizer showing snapshot migration from hot S3 Standard to S3 Glacier Deep Archive.',
+    tags: ['cold-storage', 'glacier-deep-archive', 'lifecycle-rule', 'cost-reduction', 's3-tiering'],
+    aspectRatio: 'both',
+    defaultProps: {
+          hotStorageGB: 850,
+          coldStorageTB: 24.8,
+          monthlySavingsPercent: 89.2
+    },
+  },
+  {
+    id: 'corrupted-block-repair',
+    name: 'CorruptedBlockRepair',
+    category: 'database',
+    description: 'Block-level disk media corruption detector repairing bad checksum database pages live from a healthy standby replica.',
+    tags: ['block-repair', 'checksum-repair', 'corrupted-page', 'live-repair', 'media-recovery'],
+    aspectRatio: 'both',
+    defaultProps: {
+          corruptedBlockNumber: 984120,
+          relationName: 'public.financial_ledgers',
+          sourceReplica: 'db-standby-node-02'
+    },
+  },
+  {
+    id: 'database-clone-copy',
+    name: 'DatabaseCloneCopy',
+    category: 'database',
+    description: 'Instant Copy-on-Write (CoW) thin clone generator creating isolated multi-terabyte test databases in seconds.',
+    tags: ['thin-clone', 'copy-on-write', 'instant-clone', 'staging-clone', 'aurora-clone'],
+    aspectRatio: 'both',
+    defaultProps: {
+          sourceDb: 'production_aurora_cluster',
+          cloneDb: 'staging_qa_clone_preview',
+          sourceSizeGB: 1200
+    },
+  },
+  {
+    id: 'automated-restore-verification',
+    name: 'AutomatedRestoreVerification',
+    category: 'database',
+    description: 'Automated daily backup restore verification pipeline testing integrity in an isolated sandbox cluster.',
+    tags: ['restore-verification', 'synthetic-restore', 'backup-test', 'sandbox-restore', 'automated-dr'],
+    aspectRatio: 'both',
+    defaultProps: {
+          lastBackupDate: '2026-11-22 04:00:00 UTC',
+          sandboxNode: 'restore-sandbox-ephemeral-42',
+          integrityChecksPassed: 24
+    },
+  },
+  {
+    id: 'retention-policy-pruning',
+    name: 'RetentionPolicyPruning',
+    category: 'database',
+    description: 'Grandfather-Father-Son (GFS) backup lifecycle pruner displaying active daily, weekly, and monthly snapshots.',
+    tags: ['retention-policy', 'gfs-pruning', 'backup-lifecycle', 'daily-weekly-monthly', 'snapshot-prune'],
+    aspectRatio: 'both',
+    defaultProps: {
+          dailySnapshotsCount: 7,
+          weeklySnapshotsCount: 4,
+          monthlySnapshotsCount: 12
+    },
+  },
+  {
+    id: 'active-passive-standby',
+    name: 'ActivePassiveStandby',
+    category: 'database',
+    description: 'Active-passive hot standby high-availability cluster monitor displaying replication sync status and promotion trigger.',
+    tags: ['active-passive', 'hot-standby', 'high-availability', 'synchronous-replication', 'read-replica'],
+    aspectRatio: 'both',
+    defaultProps: {
+          primaryNode: 'db-node-primary-01',
+          standbyNode: 'db-node-standby-02',
+          replicationLagMs: 12
+    },
+  },
+  {
+    id: 'transaction-log-replay',
+    name: 'TransactionLogReplay',
+    category: 'database',
+    description: 'Database crash recovery REDO/UNDO transaction log replay progress bar scanning records from last valid checkpoint.',
+    tags: ['crash-recovery', 'redo-undo', 'log-replay', 'checkpoint-recovery', 'wal-scan'],
+    aspectRatio: 'both',
+    defaultProps: {
+          lastCheckpointLSN: '0/14B9200',
+          crashBoundaryLSN: '0/14C1800',
+          replayedRecordsCount: 48500
+    },
+  },
+  {
+    id: 'split-brain-prevention',
+    name: 'SplitBrainPrevention',
+    category: 'database',
+    description: 'Quorum consensus and fencing mechanism (STONITH) visualizer preventing split-brain dual primary writes.',
+    tags: ['split-brain', 'stonith', 'quorum-fencing', 'raft-consensus', 'dual-primary-prevention'],
+    aspectRatio: 'both',
+    defaultProps: {
+          quorumNodesTotal: 3,
+          quorumNodesActive: 2,
+          fencedNode: 'db-node-03 (STONITH Fenced)'
+    },
+  },
+  {
+    id: 'multi-cloud-backup-mirror',
+    name: 'MultiCloudBackupMirror',
+    category: 'database',
+    description: 'Simultaneous multi-cloud backup mirroring streaming snapshot data to both AWS S3 and Google Cloud Storage.',
+    tags: ['multi-cloud', 'backup-mirroring', 's3-gcs-sync', 'geo-redundancy', 'disaster-preparedness'],
+    aspectRatio: 'both',
+    defaultProps: {
+          primaryCloud: 'AWS S3 (us-east-1)',
+          mirrorCloud: 'Google Cloud Storage (us-central1)',
+          syncedSnapshotsCount: 148
+    },
+  },
+  {
+    id: 'database-decompression-pipeline',
+    name: 'DatabaseDecompressionPipeline',
+    category: 'database',
+    description: 'High-speed multi-threaded zstandard decompression benchmark card demonstrating rapid backup unpacking.',
+    tags: ['decompression', 'zstd', 'multi-threaded-unpack', 'restore-speed', 'pipeline-benchmark'],
+    aspectRatio: 'both',
+    defaultProps: {
+          algorithm: 'Zstandard (zstd -T8)',
+          threadsCount: 8,
+          decompressionSpeedMBps: 680.4
+    },
+  },
+  {
+    id: 'consistent-snapshot-lock',
+    name: 'ConsistentSnapshotLock',
+    category: 'database',
+    description: 'Database consistent global read lock (FLUSH TABLES WITH READ LOCK) visualizer measuring freeze duration.',
+    tags: ['consistent-snapshot', 'read-lock', 'flush-tables', 'transactional-freeze', 'atomic-boundary'],
+    aspectRatio: 'both',
+    defaultProps: {
+          lockScope: 'GLOBAL READ LOCK (FLUSH TABLES WITH READ LOCK)',
+          lockDurationMs: 184,
+          snapshotLSN: '0/18A4200'
+    },
+  },
+  {
+    id: 'bare-metal-restoration',
+    name: 'BareMetalRestoration',
+    category: 'database',
+    description: 'Bare-metal database node rebuild visualizer displaying AMI base initialization, cloud-init scripts, and S3 restore.',
+    tags: ['bare-metal', 'node-rebuild', 'cloud-init', 'ami-restore', 'infrastructure-as-code'],
+    aspectRatio: 'both',
+    defaultProps: {
+          targetNode: 'db-node-primary-rebuild-01',
+          osImage: 'Ubuntu 24.04 LTS (Kernel 6.8)',
+          provisioningSec: 142
+    },
+  },
+  {
+    id: 'disaster-drill-simulator',
+    name: 'DisasterDrillSimulator',
+    category: 'database',
+    description: 'Chaos engineering simulated disaster drill monitor tracking simulated availability zone outage and automated recovery.',
+    tags: ['disaster-drill', 'chaos-engineering', 'game-day', 'az-outage-drill', 'resilience-testing'],
+    aspectRatio: 'both',
+    defaultProps: {
+          drillScenario: 'SCENARIO_AZ_TOTAL_POWER_LOSS',
+          automatedRecoverySuccess: true,
+          scorePercent: 98.5
+    },
+  },
   },
   },
   },
