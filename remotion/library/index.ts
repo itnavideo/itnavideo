@@ -49,6 +49,9 @@ export * from './statistics';
 // 2j. Animated UI Mockups Suite (Browser, Mobile, Dashboard, CodeEditor, Terminal, Notification, ChatBubble, SearchBar, PricingCard, LoginForm, CursorPoint, Tooltip)
 export * from './ui-mockups';
 
+// 2k. Animated Motion & Animation VFX Suite (Fade, Slide, Scale, Rotate, Spring, Stagger, Reveal, Mask, Typewriter, WordHighlight, TextScramble, PathDraw, Morph, Parallax, CameraZoom, CameraPan)
+export * from './motion';
+
 // 3. Infographics
 export * from './infographics';
 

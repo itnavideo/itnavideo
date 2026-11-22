@@ -16,6 +16,7 @@ export type ComponentCategory =
   | 'network'
   | 'statistics'
   | 'ui-mockups'
+  | 'motion'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -510,6 +511,136 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Contextual hover callout speech bubble with highlighted keyword tag.',
     tags: ['tooltip', 'callout', 'hover', 'badge', 'speech-bubble'],
+  },
+
+  // ── Animated Motion & VFX Suite ──
+  {
+    id: 'fade-transition',
+    name: 'FadeTransition',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Smooth opacity interpolation wrapper with customizable in/out durations and ease curves.',
+    tags: ['fade', 'fade-in', 'fade-out', 'opacity', 'transition'],
+  },
+  {
+    id: 'slide-transition',
+    name: 'SlideTransition',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Physics-based directional spring sliding wrapper (up, down, left, right) with overshoot damping.',
+    tags: ['slide', 'slide-in', 'slide-out', 'spring', 'directional'],
+  },
+  {
+    id: 'scale-transition',
+    name: 'ScaleTransition',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Elastic pop-in scaling transition with configurable bounce and spring stiffness.',
+    tags: ['scale', 'scale-in', 'scale-out', 'pop', 'elastic'],
+  },
+  {
+    id: 'rotate-animation',
+    name: 'RotateAnimation',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Continuous smooth spin rotation or spring settle rotation around customizable anchor points.',
+    tags: ['rotate', 'spin', 'orientation', 'loop', 'angle'],
+  },
+  {
+    id: 'spring-animation',
+    name: 'SpringAnimation',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Universal Remotion spring wrapper applying physics to translate, scale, and opacity simultaneously.',
+    tags: ['spring', 'physics', 'damping', 'mass', 'stiffness'],
+  },
+  {
+    id: 'stagger-animation',
+    name: 'StaggerAnimation',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Sequential cascade animation staggering arrays of child elements with millisecond delays.',
+    tags: ['stagger', 'cascade', 'sequential', 'delay', 'batch'],
+  },
+  {
+    id: 'reveal-animation',
+    name: 'RevealAnimation',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Cinematic curtain wipe reveal using progressive clip-path masks in any 4-way direction.',
+    tags: ['reveal', 'curtain', 'wipe', 'clip-path', 'mask'],
+  },
+  {
+    id: 'mask-reveal',
+    name: 'MaskReveal',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Advanced geometric mask reveals including circular iris zoom, diagonal wipe, and polygonal shapes.',
+    tags: ['mask', 'iris', 'diagonal', 'circle', 'svg-mask'],
+  },
+  {
+    id: 'typewriter',
+    name: 'Typewriter',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Word-by-word or character-by-character mechanical typewriter text reveal with blinking cursor.',
+    tags: ['typewriter', 'typing', 'cursor', 'text-effect', 'characters'],
+  },
+  {
+    id: 'word-highlight',
+    name: 'WordHighlight',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Organic fluorescent marker pen stroke highlight expanding behind key phrases.',
+    tags: ['highlight', 'marker', 'callout', 'emphasis', 'text'],
+  },
+  {
+    id: 'text-scramble',
+    name: 'TextScramble',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Matrix and cyberpunk style hacker decrypting glyph scramble resolving into final copy.',
+    tags: ['scramble', 'matrix', 'decrypt', 'glitch', 'cyberpunk'],
+  },
+  {
+    id: 'path-draw',
+    name: 'PathDraw',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Progressive SVG stroke outline drawing effect powered by strokeDasharray and strokeDashoffset.',
+    tags: ['path-draw', 'svg-stroke', 'drawing', 'vector', 'line-art'],
+  },
+  {
+    id: 'morph-animation',
+    name: 'MorphAnimation',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Smooth state morphing crossfade with synchronous scale, blur, and opacity interpolation.',
+    tags: ['morph', 'state-change', 'crossfade', 'transform', 'interpolate'],
+  },
+  {
+    id: 'parallax',
+    name: 'Parallax',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Multi-layer depth parallax wrapper simulating optical camera travel across foreground and background.',
+    tags: ['parallax', 'depth', 'multi-layer', 'spatial', '3d-feel'],
+  },
+  {
+    id: 'camera-zoom',
+    name: 'CameraZoom',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Ken Burns documentary continuous zoom or high-energy rapid punch-in pattern interrupt.',
+    tags: ['camera-zoom', 'ken-burns', 'punch-in', 'pattern-interrupt', 'lens'],
+  },
+  {
+    id: 'camera-pan',
+    name: 'CameraPan',
+    category: 'motion',
+    aspectRatio: 'both',
+    description: 'Cinematic horizontal and vertical camera panning drift across wide or tall canvases.',
+    tags: ['camera-pan', 'camera-tilt', 'drift', 'travel', 'cinematic'],
   },
 
   // ── Graphics & Frames ──
