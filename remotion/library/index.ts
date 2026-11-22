@@ -109,6 +109,9 @@ export * from './gaming';
 // 2ad. Sports, Fitness & Health Tracking Suite (HeartRateMonitor, CalorieBurnCounter, RepetitionCounter, ScoreboardWidget, SpeedPaceTracker, WorkoutIntervalTimer, WaterIntakeTracker, StepGoalRing, LeaderboardRank, RestTimer, BPMVisualizer, MatchTimer, WeightProgressChart, MacroNutrientBar, GymSetTracker, ActivityRingsThreeWay)
 export * from './fitness';
 
+// 2ae. Broadcast, News & Media Lower Thirds Suite (BreakingNewsBanner, BroadcastLowerThird, FinancialTickerTape, SplitScreenInterview, LiveLocationBug, TopicDiscussionCard, FactCheckStamp, WeatherForecastBadge, PressReleaseHeader, AudiencePollOverlay, QuoteCalloutFrame, CountdownBug, ViewerWarning, SourceAttributionPill, StudioCameraRecBug, UpcomingSegmentTeaser)
+export * from './broadcast';
+
 // 3. Infographics
 export * from './infographics';
 
