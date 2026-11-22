@@ -6,6 +6,7 @@
  */
 
 export type ComponentCategory =
+  | 'jewelry-gems'
   | 'google-ecosystem'
   | 'workflow-productivity'
   | 'primitives'
@@ -13607,6 +13608,410 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "convValue": "$19,034.40",
       "status": "Target Exceeded (+82%)",
       "accentColor": "#34A853",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'diamond-four-cs-grading',
+    name: 'DiamondFourCsGrading',
+    category: 'jewelry-gems',
+    description: 'GIA 4Cs diamond appraisal card detailing Carat weight, Cut grade, Color rating, and Clarity level',
+    defaultProps: {
+      "title": "GIA Diamond 4Cs Certification",
+      "carat": "1.54 ct",
+      "cut": "Excellent",
+      "color": "F (Colorless)",
+      "clarity": "VVS1",
+      "reportNumber": "GIA-221849012",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'gold-purity-karat-card',
+    name: 'GoldPurityKaratCard',
+    category: 'jewelry-gems',
+    description: 'Gold karat purity breakdown (24K, 22K, 18K, 14K) with BIS hallmark certification stamp',
+    defaultProps: {
+      "title": "Gold Karat Purity Standards",
+      "karats": [
+            {
+                  "karat": "24K",
+                  "purity": "99.9%",
+                  "fineness": "999",
+                  "use": "Bullion & Coins",
+                  "color": "#F59E0B"
+            },
+            {
+                  "karat": "22K",
+                  "purity": "91.6%",
+                  "fineness": "916",
+                  "use": "Traditional Jewelry",
+                  "color": "#EAB308"
+            },
+            {
+                  "karat": "18K",
+                  "purity": "75.0%",
+                  "fineness": "750",
+                  "use": "Diamond Jewelry",
+                  "color": "#FBBF24"
+            },
+            {
+                  "karat": "14K",
+                  "purity": "58.5%",
+                  "fineness": "585",
+                  "use": "Daily Wear Bands",
+                  "color": "#FDE047"
+            }
+      ],
+      "hallmark": "BIS 916 Certified",
+      "accentColor": "#F59E0B",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'sterling-silver-hallmark',
+    name: 'SterlingSilverHallmark',
+    category: 'jewelry-gems',
+    description: '925 Sterling Silver authenticity hallmark badge with assay office marks and alloy ratios',
+    defaultProps: {
+      "title": "925 Sterling Silver Hallmark",
+      "alloyRatio": "92.5% Pure Silver + 7.5% Copper",
+      "assayOffice": "London Assay Office (Leopard Head)",
+      "stampMark": "925",
+      "weightGrams": "42.8g",
+      "finish": "Rhodium Anti-Tarnish Plated",
+      "accentColor": "#94A3B8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'gemstone-mohs-hardness-scale',
+    name: 'GemstoneMohsHardnessScale',
+    category: 'jewelry-gems',
+    description: 'Mohs mineral scratch hardness scale comparing Diamond (10), Sapphire (9), Emerald (8), and Quartz',
+    defaultProps: {
+      "title": "Mohs Mineral Hardness Scale",
+      "minerals": [
+            {
+                  "name": "Diamond",
+                  "hardness": 10,
+                  "color": "#38BDF8",
+                  "family": "Pure Carbon"
+            },
+            {
+                  "name": "Ruby & Sapphire",
+                  "hardness": 9,
+                  "color": "#EF4444",
+                  "family": "Corundum"
+            },
+            {
+                  "name": "Topaz",
+                  "hardness": 8,
+                  "color": "#F59E0B",
+                  "family": "Silicate"
+            },
+            {
+                  "name": "Emerald",
+                  "hardness": 7.5,
+                  "color": "#10B981",
+                  "family": "Beryl"
+            },
+            {
+                  "name": "Quartz / Amethyst",
+                  "hardness": 7,
+                  "color": "#8B5CF6",
+                  "family": "Silicon Dioxide"
+            }
+      ],
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'rough-uncut-crystal-geode',
+    name: 'RoughUncutCrystalGeode',
+    category: 'jewelry-gems',
+    description: 'Raw unpolished mineral specimen with geode cavity crystal formation and facet yield estimation',
+    defaultProps: {
+      "title": "Natural Rough Crystal Geode",
+      "mineral": "Royal Purple Amethyst with Quartz Matrix",
+      "weightCarats": "348.5 ct",
+      "origin": "Rio Grande do Sul, Brazil",
+      "estimatedYield": "42% Gem-Quality Facet Cut",
+      "accentColor": "#8B5CF6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'solitaire-ring-showcase',
+    name: 'SolitaireRingShowcase',
+    category: 'jewelry-gems',
+    description: 'Classic 6-prong platinum solitaire engagement ring showcase with light reflection flare',
+    defaultProps: {
+      "title": "Platinum Solitaire Diamond Ring",
+      "diamondShape": "Round Brilliant Cut",
+      "centerStoneWeight": "2.01 ct",
+      "bandMetal": "Platinum 950 (PT950)",
+      "settingType": "6-Prong Tiffany Knife-Edge",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'eternity-band-ring',
+    name: 'EternityBandRing',
+    category: 'jewelry-gems',
+    description: 'Continuous pavé diamond eternity band wedding ring with rotating glint shimmer',
+    defaultProps: {
+      "title": "Full Eternity Diamond Band",
+      "stonesCount": "24 Diamonds",
+      "totalCaratWeight": "3.60 TCW",
+      "metal": "18K White Gold",
+      "setting": "Shared French Prong Pavé",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'diamond-tennis-bracelet',
+    name: 'DiamondTennisBracelet',
+    category: 'jewelry-gems',
+    description: 'Articulated diamond line tennis bracelet with safety clasp lock and total carat weight metric',
+    defaultProps: {
+      "title": "Classic Diamond Tennis Bracelet",
+      "totalCaratWeight": "5.00 ctw",
+      "diamondCount": "58 Round Brilliants",
+      "metal": "14K Yellow Gold",
+      "clasp": "Double Figure-8 Safety Lock",
+      "accentColor": "#F59E0B",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'gold-bangle-stacker',
+    name: 'GoldBangleStacker',
+    category: 'jewelry-gems',
+    description: 'Stacked 22K yellow gold filigree bridal bangles with ornate engraved floral carvings',
+    defaultProps: {
+      "title": "22K Kundan Gold Bangles",
+      "bangleCount": 4,
+      "totalWeightGrams": "68.4 g",
+      "craftsmanship": "Handcrafted Meenakari & Filigree",
+      "metal": "22K Solid Gold (916)",
+      "accentColor": "#EAB308",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'chandelier-earrings-dangle',
+    name: 'ChandelierEarringsDangle',
+    category: 'jewelry-gems',
+    description: 'Cascading gemstone chandelier teardrop earrings with kinetic pendulum swing and pavé halos',
+    defaultProps: {
+      "title": "Emerald Chandelier Earrings",
+      "gemstone": "Zambian Emerald & Diamonds",
+      "dropLength": "62 mm",
+      "totalWeight": "18.4 ctw",
+      "metal": "18K White Gold",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'diamond-stud-earrings',
+    name: 'DiamondStudEarrings',
+    category: 'jewelry-gems',
+    description: 'Round brilliant diamond stud earrings with 4-prong basket mounts and brilliance dispersion',
+    defaultProps: {
+      "title": "Round Brilliant Diamond Studs",
+      "totalWeight": "2.00 TCW (1.00 ct each)",
+      "metal": "Platinum 950",
+      "closure": "Screw-Back Locking Post",
+      "colorClarity": "E Color / VS1 Clarity",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'pearl-strand-necklace',
+    name: 'PearlStrandNecklace',
+    category: 'jewelry-gems',
+    description: 'Graduated South Sea cultured pearl necklace strand with individual silk knots and gold clasp',
+    defaultProps: {
+      "title": "South Sea Cultured Pearl Strand",
+      "pearlSize": "10.0 - 13.5 mm Graduated",
+      "pearlGrade": "AAA Luster (Flawless Nacre)",
+      "claspMetal": "18K Yellow Gold Ball Clasp",
+      "strandLength": "18 inches (Princess Length)",
+      "accentColor": "#F59E0B",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'gemstone-pendant-necklace',
+    name: 'GemstonePendantNecklace',
+    category: 'jewelry-gems',
+    description: 'Cushion-cut sapphire or ruby pendant with diamond halo on 18K cable link chain',
+    defaultProps: {
+      "title": "Royal Ceylon Sapphire Pendant",
+      "caratWeight": "4.20 ct Center Sapphire",
+      "haloDiamonds": "0.45 ctw Pavé Surround",
+      "chain": "18K White Gold 1.2mm Cable Chain",
+      "accentColor": "#3B82F6",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'jewelry-loupe-magnifier',
+    name: 'JewelryLoupeMagnifier',
+    category: 'jewelry-gems',
+    description: '10x triplet jeweler magnifier reticle inspecting diamond facet angles and natural inclusions',
+    defaultProps: {
+      "title": "10x Triplet Loupe Inspection",
+      "magnification": "10X Achromatic / Aplanatic",
+      "inclusionType": "Feather & Pinpoint Inclusions",
+      "clarityVerdict": "VS2 Grade Verified",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'precious-metal-spot-price',
+    name: 'PreciousMetalSpotPrice',
+    category: 'jewelry-gems',
+    description: 'Live commodity exchange spot ticker for Gold (XAU), Silver (XAG), and Platinum per oz',
+    defaultProps: {
+      "title": "Global Precious Metals Ticker",
+      "metals": [
+            {
+                  "code": "XAU (Gold)",
+                  "price": "$2,748.20",
+                  "change": "+1.42%",
+                  "color": "#F59E0B"
+            },
+            {
+                  "code": "XAG (Silver)",
+                  "price": "$31.85",
+                  "change": "+2.15%",
+                  "color": "#94A3B8"
+            },
+            {
+                  "code": "XPT (Platinum)",
+                  "price": "$986.50",
+                  "change": "+0.85%",
+                  "color": "#38BDF8"
+            }
+      ],
+      "unit": "USD per Troy Ounce (oz)",
+      "accentColor": "#F59E0B",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'custom-jewelry-cad-viewer',
+    name: 'CustomJewelryCADViewer',
+    category: 'jewelry-gems',
+    description: 'Jewelry CAD 3D wireframe modeling viewport showing prong tolerances and casting volume',
+    defaultProps: {
+      "title": "Custom Ring CAD Modeling",
+      "software": "RhinoJewel 3D / MatrixGold",
+      "prongTolerance": "0.85 mm Clasp Height",
+      "castWeight": "5.4 g 18K Yellow Gold",
+      "meshDensity": "128K Polygonal Faces",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'birthstone-calendar-chart',
+    name: 'BirthstoneCalendarChart',
+    category: 'jewelry-gems',
+    description: '12-month traditional birthstone wheel display with gemstone associations and astrological signs',
+    defaultProps: {
+      "title": "Traditional 12-Month Birthstones",
+      "birthstones": [
+            {
+                  "month": "Jan",
+                  "stone": "Garnet",
+                  "color": "#DC2626"
+            },
+            {
+                  "month": "Feb",
+                  "stone": "Amethyst",
+                  "color": "#9333EA"
+            },
+            {
+                  "month": "Mar",
+                  "stone": "Aquamarine",
+                  "color": "#38BDF8"
+            },
+            {
+                  "month": "Apr",
+                  "stone": "Diamond",
+                  "color": "#E2E8F0"
+            },
+            {
+                  "month": "May",
+                  "stone": "Emerald",
+                  "color": "#10B981"
+            },
+            {
+                  "month": "Jun",
+                  "stone": "Pearl",
+                  "color": "#F8FAFC"
+            }
+      ],
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'igi-jewelry-certificate',
+    name: 'IGIJewelryCertificate',
+    category: 'jewelry-gems',
+    description: 'Official gemological laboratory certificate with QR seal authenticity and proportion measurements',
+    defaultProps: {
+      "title": "IGI Gemological Report",
+      "certId": "IGI-594201884",
+      "identification": "Natural Colombian Emerald",
+      "shapeCut": "Emerald Cut",
+      "weight": "3.15 ct",
+      "origin": "Muzo, Colombia",
+      "accentColor": "#10B981",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'ring-sizer-measurement',
+    name: 'RingSizerMeasurement',
+    category: 'jewelry-gems',
+    description: 'International finger ring sizing comparison tool (US, UK, EU) with millimeter inner circumference',
+    defaultProps: {
+      "title": "Ring Size Conversion Chart",
+      "sizes": [
+            {
+                  "us": "6",
+                  "uk": "L 1/2",
+                  "eu": "52",
+                  "mm": "16.5 mm"
+            },
+            {
+                  "us": "7",
+                  "uk": "N 1/2",
+                  "eu": "54",
+                  "mm": "17.3 mm"
+            },
+            {
+                  "us": "8",
+                  "uk": "P 1/2",
+                  "eu": "57",
+                  "mm": "18.1 mm"
+            },
+            {
+                  "us": "9",
+                  "uk": "R 1/2",
+                  "eu": "60",
+                  "mm": "18.9 mm"
+            }
+      ],
+      "selectedSize": "US 7 (17.3 mm)",
+      "accentColor": "#38BDF8",
+      "theme": "dark"
+}
+  },\n  {
+    id: 'jewelry-box-velvet-display',
+    name: 'JewelryBoxVelvetDisplay',
+    category: 'jewelry-gems',
+    description: 'Plush velvet presentation jewelry case with hinged lid, LED spotlight illumination, and satin lining',
+    defaultProps: {
+      "title": "Velvet Presentation Box",
+      "velvetColor": "Midnight Navy Blue",
+      "interior": "Champagne Silk Satin Lining",
+      "itemPresented": "3.02 ct Solitaire Diamond Ring",
+      "spotlight": "Warm LED Illuminator Active",
+      "accentColor": "#F59E0B",
       "theme": "dark"
 }
   },
