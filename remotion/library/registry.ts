@@ -43,7 +43,8 @@ export type ComponentCategory =
   | 'camera'
   | 'environment'
   | 'character'
-  | 'storytelling-assets';
+  | 'storytelling-assets'
+  | 'editing';
 
 export type AspectRatioSupport = '16:9' | '9:16' | 'both';
 
@@ -4846,6 +4847,271 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     description: 'Ken Burns slow push-in, subtle breathing drift, and dynamic camera punch-in.',
     tags: ['camera', 'ken-burns', 'punch-in', 'motion'],
   },
+
+  // ─── Video Editing and Footage Components (Batch 45) ────────────────────────────
+  {
+    id: 'jump-cut',
+    name: 'JumpCut',
+    category: 'editing',
+    description: 'Energetic jump cut simulation with micro punch-ins, stutter flashes, and cut sequence indicators.',
+    tags: ['editing', 'jump-cut', 'vlog', 'fast-paced', 'montage', 'punch-in'],
+    aspectRatio: 'both',
+    defaultProps: {
+      cutInterval: 20,
+      showStutterIndicator: true,
+      accentColor: '#f97316',
+    },
+  },
+  {
+    id: 'match-cut',
+    name: 'MatchCut',
+    category: 'editing',
+    description: 'Thematic and graphical match cut alignment between incoming and outgoing shots sharing geometric shapes.',
+    tags: ['editing', 'match-cut', 'cinematic', 'composition', 'alignment', 'transition'],
+    aspectRatio: 'both',
+    defaultProps: {
+      shape: 'circle',
+      firstSceneLabel: 'Coffee Cup (Morning)',
+      secondSceneLabel: 'Ferris Wheel (Evening)',
+      transitionFrame: 45,
+      guideColor: '#38bdf8',
+    },
+  },
+  {
+    id: 'j-cut',
+    name: 'JCut',
+    category: 'editing',
+    description: 'Audio-leads-video split edit container where incoming scene audio precedes the video cut.',
+    tags: ['editing', 'j-cut', 'split-edit', 'audio-lead', 'dialogue', 'storytelling'],
+    aspectRatio: 'both',
+    defaultProps: {
+      audioLeadFrames: 25,
+      videoCutFrame: 60,
+      clipAName: 'Scene A: Office Dialogue',
+      clipBName: 'Scene B: Exterior Traffic',
+      accentColor: '#10b981',
+    },
+  },
+  {
+    id: 'l-cut',
+    name: 'LCut',
+    category: 'editing',
+    description: 'Video-leads-audio split edit container where outgoing character audio lingers over the incoming reaction shot.',
+    tags: ['editing', 'l-cut', 'split-edit', 'audio-linger', 'reaction-shot', 'continuity'],
+    aspectRatio: 'both',
+    defaultProps: {
+      audioLingerFrames: 25,
+      videoCutFrame: 45,
+      clipAName: 'Scene A: Character Speaks',
+      clipBName: 'Scene B: Listener Reaction',
+      accentColor: '#8b5cf6',
+    },
+  },
+  {
+    id: 'speed-ramp',
+    name: 'SpeedRamp',
+    category: 'editing',
+    description: 'Dynamic time ramping curve with normal, slow-motion impact, and snap acceleration motion blur velocity.',
+    tags: ['editing', 'speed-ramp', 'time-warp', 'acceleration', 'action', 'motion-blur'],
+    aspectRatio: 'both',
+    defaultProps: {
+      startSpeed: 1.0,
+      slowSpeed: 0.2,
+      snapSpeed: 3.5,
+      rampInFrame: 30,
+      rampOutFrame: 65,
+      accentColor: '#f59e0b',
+    },
+  },
+  {
+    id: 'time-remapping',
+    name: 'TimeRemapping',
+    category: 'editing',
+    description: 'Keyframe-based non-linear time warping visualizer with frame index scrubber and curve timeline.',
+    tags: ['editing', 'time-remapping', 'keyframes', 'curve-editor', 'variable-speed'],
+    aspectRatio: 'both',
+    defaultProps: {
+      accentColor: '#06b6d4',
+    },
+  },
+  {
+    id: 'freeze-frame',
+    name: 'FreezeFrame',
+    category: 'editing',
+    description: 'Action freeze effect with stylized slow zoom, polaroid title card punch-in, and desaturated background.',
+    tags: ['editing', 'freeze-frame', 'stop-motion', 'action-pause', 'title-card', 'polaroid'],
+    aspectRatio: 'both',
+    defaultProps: {
+      freezeAtFrame: 40,
+      title: 'THE MOMENT HE KNEW',
+      subtitle: 'Target Locked • Error 404 Found',
+      stampColor: '#ef4444',
+    },
+  },
+  {
+    id: 'frame-hold',
+    name: 'FrameHold',
+    category: 'editing',
+    description: 'Dramatic still frame hold with pulsating accent border and record-scratch audio pause cue.',
+    tags: ['editing', 'frame-hold', 'still-frame', 'dramatic-pause', 'emphasis', 'beat-drop'],
+    aspectRatio: 'both',
+    defaultProps: {
+      holdStartFrame: 30,
+      holdDuration: 45,
+      label: 'DRAMATIC PAUSE / RECORD SCRATCH',
+      accentColor: '#e11d48',
+    },
+  },
+  {
+    id: 'reverse-playback',
+    name: 'ReversePlayback',
+    category: 'editing',
+    description: 'Vintage VHS / tape rewind effect with CRT scanlines, reverse timecode counter, and inverted motion cues.',
+    tags: ['editing', 'reverse-playback', 'rewind', 'vhs', 'retro', 'inverted-time'],
+    aspectRatio: 'both',
+    defaultProps: {
+      totalFrames: 90,
+      showScanlines: true,
+      accentColor: '#f43f5e',
+    },
+  },
+  {
+    id: 'slow-motion',
+    name: 'SlowMotion',
+    category: 'editing',
+    description: 'High-frame-rate 120fps slow-motion capture simulation with optical flow frame blending visual cues.',
+    tags: ['editing', 'slow-motion', '120fps', 'cinematic', 'high-speed', 'graceful'],
+    aspectRatio: 'both',
+    defaultProps: {
+      speedRate: 0.25,
+      title: 'CINEMATIC 120 FPS CAPTURE',
+      accentColor: '#3b82f6',
+    },
+  },
+  {
+    id: 'fast-motion',
+    name: 'FastMotion',
+    category: 'editing',
+    description: 'Hyperlapse / timelapse fast-forward effect with rapid time accumulator and speed multiplier badge.',
+    tags: ['editing', 'fast-motion', 'hyperlapse', 'timelapse', 'fast-forward', 'energy'],
+    aspectRatio: 'both',
+    defaultProps: {
+      speedMultiplier: 8,
+      title: 'TIMELAPSE SEQUENCE',
+      accentColor: '#eab308',
+    },
+  },
+  {
+    id: 'frame-interpolation',
+    name: 'FrameInterpolation',
+    category: 'editing',
+    description: 'AI frame rate upscaler and optical intermediate subframe synthesis visualizer (24fps to 60fps).',
+    tags: ['editing', 'interpolation', 'ai-frames', '60fps', 'smoothing', 'subframe'],
+    aspectRatio: 'both',
+    defaultProps: {
+      inputFps: 24,
+      outputFps: 60,
+      mode: 'flow',
+    },
+  },
+  {
+    id: 'optical-flow',
+    name: 'OpticalFlow',
+    category: 'editing',
+    description: 'Dense Lucas-Kanade optical flow motion vector field with real-time directional vector arrows.',
+    tags: ['editing', 'optical-flow', 'motion-vectors', 'lucas-kanade', 'tracking', 'analysis'],
+    aspectRatio: 'both',
+    defaultProps: {
+      gridSize: 6,
+      arrowColor: '#10b981',
+    },
+  },
+  {
+    id: 'video-stabilizer',
+    name: 'VideoStabilizer',
+    category: 'editing',
+    description: 'Warp stabilizer 2.0 multi-axis camera shake reduction with horizon lock and crop boundary visualizer.',
+    tags: ['editing', 'stabilizer', 'warp-stabilizer', 'gyro', 'shake-reduction', 'horizon-lock'],
+    aspectRatio: 'both',
+    defaultProps: {
+      jitterAmount: 8,
+    },
+  },
+  {
+    id: 'shot-comparison',
+    name: 'ShotComparison',
+    category: 'editing',
+    description: 'A/B split slider shot comparison of raw ungraded log footage vs. finished ACES color graded master.',
+    tags: ['editing', 'comparison', 'color-grading', 'lut', 'raw-log', 'before-after'],
+    aspectRatio: 'both',
+    defaultProps: {
+      leftLabel: 'RAW S-LOG3 UNGRADED',
+      rightLabel: 'ACES COLOR GRADED',
+      splitPercent: 50,
+    },
+  },
+  {
+    id: 'multi-camera-view',
+    name: 'MultiCameraView',
+    category: 'editing',
+    description: 'Director 4-up quad multi-camera monitoring grid with active tally light and live shot switching.',
+    tags: ['editing', 'multicam', 'director-monitor', 'tally-light', 'quad-view', 'broadcasting'],
+    aspectRatio: 'both',
+    defaultProps: {
+      activeCamera: 1,
+    },
+  },
+  {
+    id: 'picture-in-picture',
+    name: 'PictureInPicture',
+    category: 'editing',
+    description: 'Broadcast-quality picture-in-picture (PiP) inset overlay with customizable corner alignment and presenter border.',
+    tags: ['editing', 'picture-in-picture', 'pip', 'webcam-inset', 'streamer', 'tutorial'],
+    aspectRatio: 'both',
+    defaultProps: {
+      position: 'bottom-right',
+      pipWidthPercent: 30,
+    },
+  },
+  {
+    id: 'split-screen-wipe',
+    name: 'SplitScreenWipe',
+    category: 'editing',
+    description: 'Dynamic directional split screen wipe transition revealing incoming clip footage behind a razor divider.',
+    tags: ['editing', 'split-screen', 'wipe', 'transition', 'divider', 'reveal'],
+    aspectRatio: 'both',
+    defaultProps: {
+      direction: 'horizontal',
+      dividerColor: '#38bdf8',
+    },
+  },
+  {
+    id: 'footage-loop',
+    name: 'FootageLoop',
+    category: 'editing',
+    description: 'Gapless video footage loop engine supporting forward and ping-pong loop cycles with crossfade buffering.',
+    tags: ['editing', 'footage-loop', 'b-roll', 'ambient', 'ping-pong', 'seamless'],
+    aspectRatio: 'both',
+    defaultProps: {
+      loopCycleFrames: 30,
+      mode: 'forward',
+      label: 'B-ROLL AMBIENT BACKGROUND',
+    },
+  },
+  {
+    id: 'seamless-loop',
+    name: 'SeamlessLoop',
+    category: 'editing',
+    description: 'Infinite reel and TikTok seamless loop motif with matched end-to-start phase rotation for maximum retention.',
+    tags: ['editing', 'seamless-loop', 'infinite-loop', 'tiktok', 'reels', 'retention'],
+    aspectRatio: 'both',
+    defaultProps: {
+      durationInFrames: 60,
+      label: 'INFINITE REEL SEAMLESS MOTIF',
+      accentColor: '#a855f7',
+    },
+  },
+
 ];
 
 /**
