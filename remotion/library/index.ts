@@ -85,6 +85,9 @@ export * from './ecommerce';
 // 2v. Advanced Motion Graphics & VFX Suite (LiquidMorph, BlobAnimation, GlitchEffect, GlitchTransition, NeonGlow, LightSweep, ParticleSystem, NoiseTexture, GradientMesh, LiquidTransition, DistortionEffect, ChromaticAberration, ScanlineEffect, PixelSorting, WaveDistortion, ShatterEffect, DisplacementMap, LightLeak, FilmGrain, LensFlare)
 export * from './vfx';
 
+// 2w. Cinematic Documentary Suite (DocumentaryTitle, ChapterIntroduction, LocationIntroduction, EvidenceBoard, CaseFile, ArchivalPhoto, HistoricalFootageFrame, InvestigationBoard, NewspaperClipping, PhotoZoom, DateStamp, LocationCoordinates, DocumentaryTimeline, SourceCitation, InterviewFrame, DocumentaryLowerThird, CinematicCredits, MapJourney, EventReconstruction, SplitNarrative)
+export * from './documentary';
+
 // 3. Infographics
 export * from './infographics';
 
