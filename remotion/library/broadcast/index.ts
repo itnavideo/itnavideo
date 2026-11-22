@@ -20,8 +20,8 @@
  * - UpcomingSegmentTeaser: "COMING UP NEXT" broadcast teaser banner with segment preview
  */
 
-export { BreakingNewsBanner } from './BreakingNewsBanner';
-export type { BreakingNewsBannerProps } from './BreakingNewsBanner';
+export { UrgentNewsTicker } from './UrgentNewsTicker';
+export type { UrgentNewsTickerProps } from './UrgentNewsTicker';
 
 export { BroadcastLowerThird } from './BroadcastLowerThird';
 export type { BroadcastLowerThirdProps } from './BroadcastLowerThird';

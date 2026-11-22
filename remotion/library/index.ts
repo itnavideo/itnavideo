@@ -109,7 +109,7 @@ export * from './gaming';
 // 2ad. Sports, Fitness & Health Tracking Suite (HeartRateMonitor, CalorieBurnCounter, RepetitionCounter, ScoreboardWidget, SpeedPaceTracker, WorkoutIntervalTimer, WaterIntakeTracker, StepGoalRing, LeaderboardRank, RestTimer, BPMVisualizer, MatchTimer, WeightProgressChart, MacroNutrientBar, GymSetTracker, ActivityRingsThreeWay)
 export * from './fitness';
 
-// 2ae. Broadcast, News & Media Lower Thirds Suite (BreakingNewsBanner, BroadcastLowerThird, FinancialTickerTape, SplitScreenInterview, LiveLocationBug, TopicDiscussionCard, FactCheckStamp, WeatherForecastBadge, PressReleaseHeader, AudiencePollOverlay, QuoteCalloutFrame, CountdownBug, ViewerWarning, SourceAttributionPill, StudioCameraRecBug, UpcomingSegmentTeaser)
+// 2ae. Broadcast, News & Media Lower Thirds Suite (UrgentNewsTicker, BroadcastLowerThird, FinancialTickerTape, SplitScreenInterview, LiveLocationBug, TopicDiscussionCard, FactCheckStamp, WeatherForecastBadge, PressReleaseHeader, AudiencePollOverlay, QuoteCalloutFrame, CountdownBug, ViewerWarning, SourceAttributionPill, StudioCameraRecBug, UpcomingSegmentTeaser)
 export * from './broadcast';
 
 // 2af. Education, STEM & Anatomy Laboratory Suite (DNAHelix, AtomModel, PeriodicTableCard, MicroscopeView, SolarSystemOrbit, TectonicPlates, WaterCycleDiagram, ChemicalReactionEquation, HumanSkeleton, LungsRespiratory, HeartCirculation, NeuronSynapse, PhotosynthesisDiagram, MagneticFieldLines, WaveSpectrogram, GeometricProof)

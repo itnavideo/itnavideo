@@ -1,14 +1,14 @@
 import React from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
-export interface BreakingNewsBannerProps {
+export interface UrgentNewsTickerProps {
   headline?: string;
   tickerText?: string;
   channelName?: string;
   className?: string;
 }
 
-export const BreakingNewsBanner: React.FC<BreakingNewsBannerProps> = ({
+export const UrgentNewsTicker: React.FC<UrgentNewsTickerProps> = ({
   headline = 'MAJOR BREAKTHROUGH ANNOUNCED IN AUTONOMOUS AI VIDEO GENERATION',
   tickerText = 'MARKETS SURGE AS TECH GIANTS ADOPT PROGRAMMATIC VIDEO PIPELINES • VENTURE CAPITAL FLOWS INTO GENERATIVE MEDIA • LIVE UPDATES EVERY 15 MINUTES',
   channelName = 'GLOBAL NEWS 24',
@@ -34,7 +34,7 @@ export const BreakingNewsBanner: React.FC<BreakingNewsBannerProps> = ({
           {/* Flashing Red Bug */}
           <div className="bg-red-600 px-5 py-3 flex items-center justify-center flex-shrink-0">
             <span className="text-white font-black text-sm uppercase tracking-widest animate-pulse">
-              BREAKING NEWS
+              URGENT BULLETIN
             </span>
           </div>
 

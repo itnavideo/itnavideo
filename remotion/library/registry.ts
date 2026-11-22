@@ -2635,12 +2635,12 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
 
   // ── Broadcast, News & Media Lower Thirds Suite (16 Components) ──
   {
-    id: 'breaking-news-banner',
-    name: 'BreakingNewsBanner',
+    id: 'urgent-news-ticker',
+    name: 'UrgentNewsTicker',
     category: 'broadcast',
     aspectRatio: 'both',
-    description: 'Urgent breaking news banner with flashing red bug, headline bar, and lower crawl ticker tape.',
-    tags: ['broadcast', 'news', 'breaking-news', 'headline', 'ticker', 'television'],
+    description: 'Urgent news bulletin ticker with flashing red bug, headline bar, and lower crawl ticker tape.',
+    tags: ['broadcast', 'news', 'urgent', 'bulletin', 'headline', 'ticker', 'television'],
   },
   {
     id: 'broadcast-lower-third',
