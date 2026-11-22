@@ -19,6 +19,7 @@ export type ComponentCategory =
   | 'motion'
   | 'media'
   | 'svg'
+  | '3d-isometric'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -839,6 +840,64 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Flow connector between UI nodes with orthogonal elbows, bezier curves, and streaming data packets.',
     tags: ['svg', 'connector', 'flowchart', 'orthogonal', 'bezier', 'data-packets'],
+  },
+
+  // ── 3D & Isometric Suite ──
+  {
+    id: 'three-d-object',
+    name: 'ThreeDObject',
+    category: '3d-isometric',
+    aspectRatio: 'both',
+    description: 'Hardware-accelerated 3D isometric cube/prism with shaded faces, wireframe, and continuous rotation.',
+    tags: ['3d', 'cube', 'isometric', 'prism', 'wireframe', 'rotation'],
+  },
+  {
+    id: 'isometric-building',
+    name: 'IsometricBuilding',
+    category: '3d-isometric',
+    aspectRatio: 'both',
+    description: 'Multi-floor architectural isometric skyscraper / server rack with glowing windows and rooftop beacon.',
+    tags: ['isometric', 'building', 'skyscraper', 'server-rack', 'architecture'],
+  },
+  {
+    id: 'three-d-globe',
+    name: 'ThreeDGlobe',
+    category: '3d-isometric',
+    aspectRatio: 'both',
+    description: '3D rotating planetary wireframe globe with atmosphere halo, coordinate grid, and location markers.',
+    tags: ['3d', 'globe', 'earth', 'world', 'atmosphere', 'locations'],
+  },
+  {
+    id: 'three-d-device',
+    name: 'ThreeDDevice',
+    category: '3d-isometric',
+    aspectRatio: 'both',
+    description: '3D spatial device floating in real CSS perspective (iPhone, laptop) with specular glare and screen area.',
+    tags: ['3d', 'device', 'phone', 'laptop', 'perspective', 'floating'],
+  },
+  {
+    id: 'three-d-layers',
+    name: 'ThreeDLayers',
+    category: '3d-isometric',
+    aspectRatio: 'both',
+    description: 'Exploded 3D architectural stack separating tech tiers in Z-depth with glassmorphic cards and tags.',
+    tags: ['3d', 'layers', 'stack', 'architecture', 'exploded-view', 'tiers'],
+  },
+  {
+    id: 'isometric-grid',
+    name: 'IsometricGrid',
+    category: '3d-isometric',
+    aspectRatio: 'both',
+    description: '3D ground plane canvas with perspective tile grid, illuminated active tiles, and ground reflection.',
+    tags: ['isometric', 'grid', 'ground-plane', 'floor', 'tiles'],
+  },
+  {
+    id: 'three-d-card',
+    name: 'ThreeDCard',
+    category: '3d-isometric',
+    aspectRatio: 'both',
+    description: 'Spatial parallax card with specular shine highlight, dynamic tilt physics, and detached Z-space badges.',
+    tags: ['3d', 'card', 'parallax', 'tilt', 'specular', 'glare'],
   },
 
   // ── Graphics & Frames ──

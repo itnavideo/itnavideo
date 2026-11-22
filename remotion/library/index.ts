@@ -58,6 +58,9 @@ export * from './media';
 // 2m. SVG Vector Graphics Suite (SVGPath, SVGLine, SVGCircle, SVGPolygon, SVGGradient, SVGMask, SVGClipPath, SVGFilter, SVGPattern, SVGMarker, SVGArrow, SVGConnector)
 export * from './svg';
 
+// 2n. 3D & Isometric Suite (ThreeDObject, IsometricBuilding, ThreeDGlobe, ThreeDDevice, ThreeDLayers, IsometricGrid, ThreeDCard)
+export * from './isometric';
+
 // 3. Infographics
 export * from './infographics';
 
