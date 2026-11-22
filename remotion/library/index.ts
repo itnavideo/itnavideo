@@ -91,6 +91,9 @@ export * from './documentary';
 // 2x. PowerPoint & Presentation Graphics Suite (SmartArt, PresentationVenn, MatrixDiagram, SWOTAnalysis, FishboneDiagram, GanttChart, PERTChart, SankeyDiagram, Treemap, SunburstChart, BubbleChart, ScatterPlot, BoxPlot, Histogram, ParetoChart, FunnelDiagram, DecisionTree, LogicTree, PyramidDiagram, HierarchicalDiagram, WaterfallDiagram, BridgeChart, ClusterDiagram, ConceptMap)
 export * from './presentation';
 
+// 2y. Technology & Computer Graphics Suite (ServerRack, CloudInfrastructure, ERDiagram, APIArchitecture, MicroservicesDiagram, SystemArchitecture, NetworkTopology, DataPipeline, WorkflowAutomation, AuthenticationFlow, EncryptionVisualization, CybersecurityDashboard, CodeDiff, GitBranchGraph, TerminalAnimation, CommandLineSequence, BrowserDevTools, SoftwareStackDiagram, AIModelArchitecture)
+export * from './technology';
+
 // 3. Infographics
 export * from './infographics';
 
