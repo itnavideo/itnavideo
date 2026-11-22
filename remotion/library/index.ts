@@ -115,6 +115,9 @@ export * from './broadcast';
 // 2af. Education, STEM & Anatomy Laboratory Suite (DNAHelix, AtomModel, PeriodicTableCard, MicroscopeView, SolarSystemOrbit, TectonicPlates, WaterCycleDiagram, ChemicalReactionEquation, HumanSkeleton, LungsRespiratory, HeartCirculation, NeuronSynapse, PhotosynthesisDiagram, MagneticFieldLines, WaveSpectrogram, GeometricProof)
 export * from './education';
 
+// 2ag. Music, Audio & DJ Visualizer Suite (VinylTurntable, CircularAudioWaveform, CassetteTape, BoomboxGhettoBlaster, DJAudioMixer, FrequencySpectrumBars, BPMTapperMetronome, LofiVibePlayer, MicrophoneStudioBadge, GuitarChordsCard, AudioWaveformScrubber, SynthKeyboard, StereoPanMeter, SubwooferBassDrop, LoudnessLufsMeter, HeadphonesVisualizer)
+export * from './music';
+
 // 3. Infographics
 export * from './infographics';
 
