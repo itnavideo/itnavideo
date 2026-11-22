@@ -10165,6 +10165,250 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           evictedKeysCount: 48200,
           reclaimedMemoryMB: 850
     },
+  {
+    id: 'serverless-database-scaling',
+    name: 'ServerlessDatabaseScaling',
+    category: 'database',
+    description: 'Serverless cloud database auto-scaling gauge showing dynamic ACU scaling from min to max based on CPU and memory demand.',
+    tags: ['serverless-database', 'aurora-serverless', 'acu-scaling', 'auto-scaling', 'scale-to-zero'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentACU: 16,
+          minACU: 0.5,
+          maxACU: 64
+    },
+  },
+  {
+    id: 'multi-az-cluster-card',
+    name: 'MultiAZClusterCard',
+    category: 'database',
+    description: 'Multi-Availability Zone cloud cluster card showing synchronous cross-AZ storage replication and automated standby failover.',
+    tags: ['multi-az', 'high-availability', 'automated-failover', 'sync-standby', 'cloud-cluster'],
+    aspectRatio: 'both',
+    defaultProps: {
+          primaryAZ: 'us-east-1a (Active Primary)',
+          standbyAZ: 'us-east-1b (Sync Standby)'
+    },
+  },
+  {
+    id: 'cloud-read-replica-fleet',
+    name: 'CloudReadReplicaFleet',
+    category: 'database',
+    description: 'Auto-scaling cloud read replica fleet card showing horizontal query distribution across regional reader endpoints.',
+    tags: ['read-replicas', 'horizontal-scaling', 'reader-endpoint', 'replica-fleet', 'read-throughput'],
+    aspectRatio: 'both',
+    defaultProps: {
+          replicaNodesCount: 5,
+          totalReaderQPS: 48200,
+          avgReplicaLagMs: 8
+    },
+  },
+  {
+    id: 'global-database-replication',
+    name: 'GlobalDatabaseReplication',
+    category: 'database',
+    description: 'Multi-region global database replication visualizer showing cross-continent physical storage syncing under 1 second.',
+    tags: ['global-database', 'multi-region', 'cross-region-replication', 'aurora-global', 'sub-second-sync'],
+    aspectRatio: 'both',
+    defaultProps: {
+          primaryRegion: 'us-east-1 (N. Virginia - Writer)',
+          crossRegionLagSec: 0.85
+    },
+  },
+  {
+    id: 'storage-autoscaling-tier',
+    name: 'StorageAutoscalingTier',
+    category: 'database',
+    description: 'Cloud database storage auto-grow visualizer expanding volume seamlessly up to 128TB as data scales.',
+    tags: ['storage-autoscaling', 'auto-grow', 'elastic-storage', 'disk-expansion', 'storage-tier'],
+    aspectRatio: 'both',
+    defaultProps: {
+          allocatedStorageGB: 840,
+          maxStorageLimitTB: 64
+    },
+  },
+  {
+    id: 'database-proxy-endpoint',
+    name: 'DatabaseProxyEndpoint',
+    category: 'database',
+    description: 'Managed cloud database proxy (RDS Proxy) pooling connections, handling TLS termination, and mitigating client connection surges.',
+    tags: ['database-proxy', 'rds-proxy', 'connection-pooling', 'lambda-pooling', 'connection-surge'],
+    aspectRatio: 'both',
+    defaultProps: {
+          clientConnectionsCount: 3850,
+          backendServerConnectionsCount: 64
+    },
+  },
+  {
+    id: 'database-point-in-time-cloud',
+    name: 'DatabasePointInTimeCloud',
+    category: 'database',
+    description: 'Continuous cloud automated backup snapshot visualizer with a 35-day retention slider and instant restore point picker.',
+    tags: ['automated-backup', 'cloud-pitr', 'snapshot-window', '35-day-retention', 'continuous-backup'],
+    aspectRatio: 'both',
+    defaultProps: {
+          retentionDays: 35,
+          automatedSnapshotWindow: '03:00 - 04:00 UTC Daily'
+    },
+  },
+  {
+    id: 'database-iam-authentication',
+    name: 'DatabaseIAMAuthentication',
+    category: 'database',
+    description: 'Passwordless cloud IAM database authentication visualizer generating short-lived 15-minute security tokens.',
+    tags: ['iam-auth', 'passwordless-db', 'ephemeral-token', 'aws-iam', 'zero-static-passwords'],
+    aspectRatio: 'both',
+    defaultProps: {
+          dbUsername: 'app_iam_user',
+          tokenTtlMin: 15
+    },
+  },
+  {
+    id: 'cloud-cost-billing-gauge',
+    name: 'CloudCostBillingGauge',
+    category: 'database',
+    description: 'Managed cloud database monthly cost breakdown displaying compute, provisioned storage, IOPS, and Reserved Instance discounts.',
+    tags: ['cloud-cost', 'database-billing', 'finops', 'reserved-instances', 'cost-breakdown'],
+    aspectRatio: 'both',
+    defaultProps: {
+          monthlyEstimatedCostUSD: 840,
+          reservedSavingsUSD: 320
+    },
+  },
+  {
+    id: 'serverless-cold-start-meter',
+    name: 'ServerlessColdStartMeter',
+    category: 'database',
+    description: 'Serverless database wake-from-sleep latency indicator comparing cold start latency against warm cache response times.',
+    tags: ['cold-start', 'serverless-latency', 'wake-from-sleep', 'warm-execution', 'pause-resume'],
+    aspectRatio: 'both',
+    defaultProps: {
+          coldStartLatencyMs: 650,
+          warmLatencyMs: 2.4
+    },
+  },
+  {
+    id: 'performance-insights-dashboard',
+    name: 'PerformanceInsightsDashboard',
+    category: 'database',
+    description: 'Cloud database Performance Insights wait-state counter showing database load broken down by CPU and wait events.',
+    tags: ['performance-insights', 'aas-metric', 'wait-states', 'query-insights', 'db-load'],
+    aspectRatio: 'both',
+    defaultProps: {
+          maxvCPU: 8,
+          currentAAS: 4.2
+    },
+  },
+  {
+    id: 'cross-account-db-snapshot',
+    name: 'CrossAccountDBSnapshot',
+    category: 'database',
+    description: 'Cross-account cloud snapshot sharing card displaying secure resource access manager (AWS RAM) sharing with KMS re-encryption.',
+    tags: ['cross-account-snapshot', 'aws-ram', 'kms-reencrypt', 'snapshot-sharing', 'account-migration'],
+    aspectRatio: 'both',
+    defaultProps: {
+          sourceAccountId: '111122223333 (Prod)',
+          targetAccountId: '444455556666 (Staging)'
+    },
+  },
+  {
+    id: 'database-maintenance-window',
+    name: 'DatabaseMaintenanceWindow',
+    category: 'database',
+    description: 'Scheduled cloud database maintenance window indicator showing upcoming engine minor version patches and OS updates.',
+    tags: ['maintenance-window', 'scheduled-patching', 'engine-upgrade', 'minor-version', 'os-patch'],
+    aspectRatio: 'both',
+    defaultProps: {
+          maintenanceWindow: 'Sun: 04:00 - 04:30 UTC',
+          targetEngineVersion: 'PostgreSQL 16.4-R2 Patch'
+    },
+  },
+  {
+    id: 'privatelink-vpc-endpoint',
+    name: 'PrivateLinkVPCEndpoint',
+    category: 'database',
+    description: 'Secure cloud PrivateLink and VPC endpoint card ensuring internal private routing without internet exposure.',
+    tags: ['privatelink', 'vpc-endpoint', 'private-mesh', 'zero-internet', 'enclave-routing'],
+    aspectRatio: 'both',
+    defaultProps: {
+          vpcEndpointId: 'vpce-0a91fbc42d9182'
+    },
+  },
+  {
+    id: 'database-read-write-splitter',
+    name: 'DatabaseReadWriteSplitter',
+    category: 'database',
+    description: 'Application connection router visualizer directing SELECT reads to reader replicas and INSERT/UPDATE writes to primary.',
+    tags: ['rw-splitter', 'traffic-router', 'read-write-split', 'query-routing', 'replica-offload'],
+    aspectRatio: 'both',
+    defaultProps: {
+          writerQps: 3200,
+          readerQps: 28400,
+          offloadedPercentage: 89.8
+    },
+  },
+  {
+    id: 'edge-database-replica',
+    name: 'EdgeDatabaseReplica',
+    category: 'database',
+    description: 'Edge-replicated lightweight database node (Fly.io, Turso libSQL, Cloudflare D1) running close to global users.',
+    tags: ['edge-database', 'turso', 'libsql', 'cloudflare-d1', 'sub-millisecond-edge'],
+    aspectRatio: 'both',
+    defaultProps: {
+          edgeLocation: 'fra (Frankfurt Edge Region)',
+          readLatencyMs: 1.2
+    },
+  },
+  {
+    id: 'database-eventbridge-notification',
+    name: 'DatabaseEventBridgeNotification',
+    category: 'database',
+    description: 'Cloud event bus notification integration (AWS EventBridge) capturing database failovers, alerts, and schema changes.',
+    tags: ['eventbridge', 'cloud-notifications', 'failover-alert', 'pub-sub-bus', 'pagerduty-webhook'],
+    aspectRatio: 'both',
+    defaultProps: {
+          eventSource: 'aws.rds.cluster',
+          eventType: 'RDS-EVENT-0073 (Failover Completed)'
+    },
+  },
+  {
+    id: 'automated-minor-version-upgrade',
+    name: 'AutomatedMinorVersionUpgrade',
+    category: 'database',
+    description: 'Blue/Green deployment minor version upgrade card showing zero downtime database engine patch synchronization.',
+    tags: ['blue-green-upgrade', 'minor-version-patch', 'zero-downtime-upgrade', 'green-cluster', 'switchover'],
+    aspectRatio: 'both',
+    defaultProps: {
+          currentVersion: 'PostgreSQL 16.2 (Blue)',
+          targetVersion: 'PostgreSQL 16.4 (Green)'
+    },
+  },
+  {
+    id: 'dedicated-vcpu-instance',
+    name: 'DedicatedVCPUInstance',
+    category: 'database',
+    description: 'Cloud instance sizing picker showing vCPU cores, memory RAM ratio, and network bandwidth specs.',
+    tags: ['instance-class', 'vcpu-cores', 'memory-optimized', 'graviton', 'cloud-hardware'],
+    aspectRatio: 'both',
+    defaultProps: {
+          instanceClass: 'db.r6g.4xlarge (Graviton2)',
+          vCPUCount: 16,
+          memoryRAMGB: 128
+    },
+  },
+  {
+    id: 'cloud-storage-iops-provisioning',
+    name: 'CloudStorageIOPSProvisioning',
+    category: 'database',
+    description: 'Provisioned storage IOPS (io2 Block Express) throughput allocator showing IOPS vs capacity ratio.',
+    tags: ['provisioned-iops', 'io2-block-express', 'storage-throughput', 'ebs-performance', 'cloud-disk'],
+    aspectRatio: 'both',
+    defaultProps: {
+          storageType: 'AWS io2 Block Express',
+          provisionedIOPS: 25000,
+          throughputMBps: 1000
+    },
+  },
   },
   },
   },
