@@ -145,5 +145,8 @@ export * from './camera';
 // 8d. Weather & Environment Simulation Suite
 export * from './environment';
 
+// 8e. Character & Human Animation Suite
+export * from './character';
+
 // 9. Component Registry & Metadata
 export * from './registry';
