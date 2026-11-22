@@ -163,5 +163,8 @@ export * from './calendar';
 // 8k. Advanced Mechanical & Physical Simulations
 export * from './physics';
 
+// 8l. Specialized Presentation & Annotation Suite
+export * from './annotation';
+
 // 9. Component Registry & Metadata
 export * from './registry';
