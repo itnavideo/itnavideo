@@ -18,6 +18,7 @@ import { ALL_SVG_CONCEPT_IDS, resolveSvgFromMasterCatalog } from '@/lib/visuals/
 import { getAllLibraryImages } from './aiImageLibrary';
 import { directSentenceVisuals } from './sentenceSemanticDirector';
 import { buildContextualEmojiEvents } from './contextualEmojiEngine';
+import { matchComponentForScene } from './componentMatcher';
 
 export interface TranscriptChunk {
   text: string;
@@ -582,6 +583,42 @@ export function executeMusicDirector(bgmTrackId: string = 'parasail', customBgmU
 }
 
 // =========================================================================
+// SPECIALIST 13B: Autonomous Motion Graphic Library Director (1,282 Components)
+// =========================================================================
+export function executeMotionGraphicLibraryDirector(
+  scenes: SceneBlueprintItem[]
+): SceneBlueprintItem[] {
+  return scenes.map((scene, idx) => {
+    // Keep hook scene focused on hook branding
+    if (idx === 0) return scene;
+
+    const match = matchComponentForScene(
+      (scene as any).narrationText || scene.narrationSegment?.text || '',
+      scene.heading,
+      2.5
+    );
+
+    if (match) {
+      return {
+        ...scene,
+        layoutType: 'library_overlay',
+        overlayComponent: {
+          componentId: match.componentId,
+          name: match.name,
+          category: match.category,
+          props: match.props,
+          cinematic: true,
+          scale: 1.0,
+          placement: 'center',
+        },
+      };
+    }
+
+    return scene;
+  });
+}
+
+// =========================================================================
 // SPECIALIST 14: Smart Audio Ducking Specialist (Voice Clarity Balancer)
 // =========================================================================
 export function executeDuckingMaster(bgmVolume: number = 0.12) {
@@ -737,6 +774,17 @@ export async function runFacelessShortsProductionCrew(
     specialist: 'Vector & Illustration Artist',
     duty: '500+ Master SVG Concept Library',
     actionsTaken: 'Matched dynamic vector concepts with zero repetition across 500+ SVGs',
+  });
+
+  // 9B. Autonomous Motion Graphic Library Director (1,282 Components)
+  scenes = executeMotionGraphicLibraryDirector(scenes);
+  const matchedOverlayCount = scenes.filter((s) => s.layoutType === 'library_overlay').length;
+  auditLog.push({
+    specialist: 'Motion Graphic Library Director',
+    duty: '1,282 Remotion Component Library Auto-Matching',
+    actionsTaken: matchedOverlayCount > 0
+      ? `Auto-integrated ${matchedOverlayCount} cinematic 3D motion graphic overlays from 1,282 component library`
+      : 'Scanned 1,282 component library; standard vector visuals maintained',
   });
 
   // 10. Camera Zoom Master

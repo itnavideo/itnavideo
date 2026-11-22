@@ -60,6 +60,7 @@ export type VisualLayoutType =
   | 'table_of_contents'
   | 'mission_vision'
   | 'medical_infographic'
+  | 'library_overlay'
   | 'hook';
 
 export type FacelessGraphicKind = 'allocation' | 'comparison' | 'sequence' | 'metric' | 'concept' | 'growth';
@@ -210,6 +211,17 @@ export type SceneBlueprintItem = {
   typographyTreatment?: 'stat' | 'quote' | 'list' | 'headline' | 'short_sentence' | 'paragraph' | 'split';
   listItems?: string[];
   layoutMode?: string;
+
+  // Autonomous Motion Graphic Library Component Overlay
+  overlayComponent?: {
+    componentId: string;
+    name?: string;
+    category?: string;
+    props?: Record<string, any>;
+    cinematic?: boolean;
+    scale?: number;
+    placement?: 'center' | 'lower-third' | 'split-right' | 'split-left';
+  };
 };
 
 export type FullVideoSceneBlueprint = {

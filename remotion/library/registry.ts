@@ -5411,6 +5411,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       gain: 85,
       showReticule: true,
     },
+  },
 
   // ─── Advanced Visual Effects & Tracking (Batch 47) ───────────────────────────
   {
@@ -5675,6 +5676,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     defaultProps: {
       slices: 5,
     },
+  },
 
   // ─── Sound Design & Audio-Reactive Visualizers (Batch 48) ────────────────────
   {
@@ -5900,6 +5902,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       decayTimeSeconds: 2.4,
       roomSize: 'Concert Hall',
     },
+  },
 
   // ─── Broadcast, Live News & Event Overlays (Batch 49) ─────────────────────────
   {
@@ -6116,6 +6119,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     defaultProps: {
       viewerCount: '42.8K',
     },
+  },
 
   // ─── Calendar, Time & Temporal Storytelling Suite (Batch 50) ──────────────────
   {
@@ -6350,6 +6354,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       endDate: 'NOV 29',
       durationNights: 7,
     },
+  },
 
   // ─── Sound-Related Visual Components (Batch 51) ──────────────────────────────
   {
@@ -6511,6 +6516,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     tags: ['audio', 'camera-shake', 'audio-reactive', 'bass-impact', 'kick-shake', 'punch-in'],
     aspectRatio: 'both',
     defaultProps: {},
+  },
 
   // ─── Advanced Mechanical & Physical Simulations (Batch 52) ──────────────────
   {
@@ -6690,6 +6696,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     tags: ['physics', 'newton-cradle', 'conservation-momentum', 'desk-toy', 'elastic-impact'],
     aspectRatio: 'both',
     defaultProps: {},
+  },
   {
     id: 'annotated-screenshot',
     name: 'AnnotatedScreenshot',
@@ -6911,6 +6918,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       widthPx: 1080,
       heightPx: 1920,
     },
+  },
   {
     id: 'marketing-funnel-stage',
     name: 'MarketingFunnelStage',
@@ -7170,6 +7178,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     tags: ['trust-badges', 'checkout-security', 'stripe-verified', 'ssl-badge', 'buyer-confidence'],
     aspectRatio: 'both',
     defaultProps: {},
+  },
   {
     id: 'executive-summary-card',
     name: 'ExecutiveSummaryCard',
@@ -7438,6 +7447,9 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
         { label: 'Cloud Providers (AWS & GCP)', count: '2 Tier-1' },
         { label: 'AI Foundation Models (Gemini & Groq)', count: '4 Models' },
         { label: 'Agency Channel Resellers', count: '120+ Certified' },
+      ],
+    },
+  },
   {
     id: 'retail-storefront',
     name: 'RetailStorefront',
@@ -7699,6 +7711,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       vaultClass: 'Class 3 Heavy Reinforced Steel & Concrete',
       depositBoxes: 1200,
     },
+  },
   {
     id: 'hand-drawn-underline',
     name: 'HandDrawnUnderline',
@@ -7940,6 +7953,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       color: '#ef4444',
       size: 130,
     },
+  },
   {
     id: 'database-cylinder',
     name: 'DatabaseCylinder',
@@ -8197,6 +8211,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       eventTiming: 'AFTER UPDATE OF status ON render_jobs',
       functionCalled: 'EXECUTE FUNCTION notify_lambda_webhook()',
     },
+  },
   {
     id: 'primary-replica-cluster',
     name: 'PrimaryReplicaCluster',
@@ -8425,6 +8440,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       metric: 'Cosine Similarity',
       algorithm: 'HNSW (Hierarchical Navigable Small World)',
     },
+  },
   {
     id: 'sql-select-clause',
     name: 'SQLSelectClause',
@@ -8653,6 +8669,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       whereClause: "created_at < NOW() - INTERVAL '48 HOURS'",
       purgedRows: 428,
     },
+  },
   {
     id: 'database-migration',
     name: 'DatabaseMigration',
@@ -8893,6 +8910,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       workersCount: 3,
       tablesMonitored: 48,
     },
+  },
   {
     id: 'slow-query-log',
     name: 'SlowQueryLog',
@@ -8901,7 +8919,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     tags: ['slow-query', 'database-log', 'performance-tuning', 'execution-time', 'query-alert'],
     aspectRatio: 'both',
     defaultProps: {
-          query: 'SELECT * FROM orders WHERE status = 'pending' AND created_at >= NOW() - INTERVAL '7 days';',
+          query: "SELECT * FROM orders WHERE status = 'pending' AND created_at >= NOW() - INTERVAL '7 days';",
           durationMs: 4850,
           thresholdMs: 1000,
           rowsExamined: 1250400,
@@ -9164,6 +9182,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           rowsReturned: 14,
           queryTag: 'GET /api/v1/analytics/reports'
     },
+  },
   {
     id: 'sql-injection-shield',
     name: 'SQLInjectionShield',
@@ -9172,7 +9191,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     tags: ['sqli', 'sql-injection', 'parameterized-queries', 'waf', 'security-shield'],
     aspectRatio: 'both',
     defaultProps: {
-          maliciousPayload: 'SELECT * FROM users WHERE email = '' OR '1'='1' --',
+          maliciousPayload: "SELECT * FROM users WHERE email = '' OR '1'='1' --",
           parameterizedQuery: 'SELECT * FROM users WHERE email = $1',
           blockedStatus: 'ATTACK MITIGATED'
     },
@@ -9187,7 +9206,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     defaultProps: {
           policyName: 'tenant_isolation_policy',
           tableName: 'public.customer_orders',
-          condition: 'tenant_id = current_setting('app.current_tenant_id')::uuid'
+          condition: "tenant_id = current_setting('app.current_tenant_id')::uuid"
     },
   },
   {
@@ -9418,6 +9437,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           backupSizeBytesGB: 142.5,
           encryptionKeyType: 'KMS Customer-Managed Key (CMK)'
     },
+  },
   {
     id: 'point-in-time-recovery',
     name: 'PointInTimeRecovery',
@@ -9677,6 +9697,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           automatedRecoverySuccess: true,
           scorePercent: 98.5
     },
+  },
   {
     id: 'relational-rdbms-card',
     name: 'RelationalRDBMSCard',
@@ -9937,6 +9958,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           engineName: 'ObjectDB / db4o / GemStone',
           languageBinding: 'Native Java / C# / Python Objects'
     },
+  },
   {
     id: 'data-distribution-histogram',
     name: 'DataDistributionHistogram',
@@ -10176,6 +10198,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           evictedKeysCount: 48200,
           reclaimedMemoryMB: 850
     },
+  },
   {
     id: 'serverless-database-scaling',
     name: 'ServerlessDatabaseScaling',
@@ -10419,6 +10442,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
           provisionedIOPS: 25000,
           throughputMBps: 1000
     },
+  },
   {
     id: 'excel-formula-bar',
     name: 'ExcelFormulaBar',
@@ -10518,7 +10542,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     defaultProps: {
           sumRange: 'Sales[Amount]',
-          criteria1: 'Sales[Region] = 'APAC'',
+          criteria1: 'Sales[Region] = \'APAC\'',
           aggregatedTotal: '$1,450,800.00'
     },
   },
@@ -10599,7 +10623,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     tags: ['dynamic-array', 'filter-formula', 'spill-range', 'spill-error', 'modern-formulas'],
     aspectRatio: 'both',
     defaultProps: {
-          formula: '=FILTER(A2:D500, D2:D500 > 1000, 'None')',
+          formula: '=FILTER(A2:D500, D2:D500 > 1000, \'None\')',
           spillCount: 14
     },
   },
@@ -10643,7 +10667,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     tags: ['countifs', 'conditional-count', 'multi-criteria-count', 'statistical-formulas', 'frequency'],
     aspectRatio: 'both',
     defaultProps: {
-          range1: 'Deals[Stage] = 'Negotiation'',
+          range1: 'Deals[Stage] = \'Negotiation\'',
           countResult: 34,
           totalRecords: 180
     },
@@ -10658,6 +10682,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     defaultProps: {
           rowsProcessedCount: 48500
     },
+  },
   {
     id: 'word-ribbon-toolbar',
     name: 'WordRibbonToolbar',
@@ -10944,6 +10969,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       hyperlinkUrl: 'https://security.itnavideo.com/audit-v4',
       screenTipText: 'Click to navigate directly to Appendix Section 4.2 findings.',
     },
+  },
   {
     id: 'outlook-email-composer',
     name: 'OutlookEmailComposer',
@@ -11220,6 +11246,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       snoozeOption: 'Tomorrow Morning',
       resurfaceTime: 'Tomorrow at 08:00 AM',
     },
+  },
   {
     id: 'teams-video-call-grid',
     name: 'TeamsVideoCallGrid',
@@ -11480,6 +11507,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       channelName: 'Field Engineering Dispatch',
       isTransmitting: true,
     },
+  },
   {
     id: 'access-table-designer-view',
     name: 'AccessTableDesignerView',
@@ -11738,6 +11766,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       encryptionStandard: 'AES 256-bit Block Cipher (FIPS 140-2)',
       isExclusiveModeRequired: true,
     },
+  },
   {
     id: 'power-bi-dax-measure-card',
     name: 'PowerBIDAXMeasureCard',
@@ -11992,6 +12021,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       daxFilterExpression: '[SalesTerritoryCountry] = USERPRINCIPALNAME()',
       previewUser: 'sarah.connor@itnavideo.com (APAC)',
     },
+  },
   {
     id: 'google-docs-collaboration',
     name: 'GoogleDocsCollaboration',
@@ -12015,7 +12045,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     defaultProps: {
       sheetTitle: 'Q4_Cloud_Rendering_Costs.gsheet',
-      formulaQuery: '=QUERY(A1:E, "SELECT B, SUM(C) GROUP BY B LABEL SUM(C) 'Total'")',
+      formulaQuery: '=QUERY(A1:E, "SELECT B, SUM(C) GROUP BY B LABEL SUM(C) \'Total\'")',
       totalSum: '$124,580.00',
       themeColor: '#0F9D58',
     },
@@ -12233,6 +12263,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     defaultProps: {
       promptText: 'Help me draft an executive summary for our Q4 Cloud Run video rendering migration',
     },
+  },
   {
     id: 'pdf-document-reader',
     name: 'PDFDocumentReader',
@@ -12480,7 +12511,9 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     defaultProps: {
       printerName: 'HP LaserJet Enterprise MFP M635',
       queuedJobs: 2,
-    },\n  {
+    },
+  },
+  {
     id: 'kanban-workflow-board',
     name: 'KanbanWorkflowBoard',
     category: 'workflow-productivity',
@@ -12516,7 +12549,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'gantt-project-timeline',
     name: 'GanttProjectTimeline',
     category: 'workflow-productivity',
@@ -12557,7 +12591,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'pomodoro-timer-card',
     name: 'PomodoroTimerCard',
     category: 'workflow-productivity',
@@ -12571,7 +12606,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#EF4444",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'eisenhower-matrix-card',
     name: 'EisenhowerMatrixCard',
     category: 'workflow-productivity',
@@ -12620,7 +12656,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'daily-standup-meeting',
     name: 'DailyStandupMeeting',
     category: 'workflow-productivity',
@@ -12642,7 +12679,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'approval-route-workflow',
     name: 'ApprovalRouteWorkflow',
     category: 'workflow-productivity',
@@ -12680,7 +12718,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#8B5CF6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'sprint-burndown-chart',
     name: 'SprintBurndownChart',
     category: 'workflow-productivity',
@@ -12708,7 +12747,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#06B6D4",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'timesheet-tracker-card',
     name: 'TimesheetTrackerCard',
     category: 'workflow-productivity',
@@ -12748,7 +12788,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'task-checklist-progress',
     name: 'TaskChecklistProgress',
     category: 'workflow-productivity',
@@ -12781,7 +12822,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#6366F1",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'milestone-roadmap-tracker',
     name: 'MilestoneRoadmapTracker',
     category: 'workflow-productivity',
@@ -12818,7 +12860,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'timebox-schedule-calendar',
     name: 'TimeboxScheduleCalendar',
     category: 'workflow-productivity',
@@ -12856,7 +12899,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'habit-streak-tracker',
     name: 'HabitStreakTracker',
     category: 'workflow-productivity',
@@ -12870,7 +12914,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'expense-reimbursement-flow',
     name: 'ExpenseReimbursementFlow',
     category: 'workflow-productivity',
@@ -12901,7 +12946,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'workload-capacity-balancer',
     name: 'WorkloadCapacityBalancer',
     category: 'workflow-productivity',
@@ -12934,7 +12980,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'meeting-action-item-log',
     name: 'MeetingActionItemLog',
     category: 'workflow-productivity',
@@ -12962,7 +13009,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#8B5CF6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'sla-escalation-tracker',
     name: 'SLAEscalationTracker',
     category: 'workflow-productivity',
@@ -12977,7 +13025,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#EF4444",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'focus-time-blocker',
     name: 'FocusTimeBlocker',
     category: 'workflow-productivity',
@@ -12990,7 +13039,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'priority-backlog-scoring',
     name: 'PriorityBacklogScoring',
     category: 'workflow-productivity',
@@ -13026,7 +13076,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'employee-onboarding-checklist',
     name: 'EmployeeOnboardingChecklist',
     category: 'workflow-productivity',
@@ -13061,7 +13112,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'productivity-metrics-score',
     name: 'ProductivityMetricsScore',
     category: 'workflow-productivity',
@@ -13076,7 +13128,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#8B5CF6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-search-serp-result',
     name: 'GoogleSearchSERPResult',
     category: 'google-ecosystem',
@@ -13097,7 +13150,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-search-knowledge-panel',
     name: 'GoogleSearchKnowledgePanel',
     category: 'google-ecosystem',
@@ -13130,7 +13184,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-search-autocomplete',
     name: 'GoogleSearchAutocomplete',
     category: 'google-ecosystem',
@@ -13147,7 +13202,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#4285F4",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-search-people-also-ask',
     name: 'GoogleSearchPeopleAlsoAsk',
     category: 'google-ecosystem',
@@ -13176,7 +13232,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-analytics-4-realtime',
     name: 'GoogleAnalytics4Realtime',
     category: 'google-ecosystem',
@@ -13211,7 +13268,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F57C00",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-analytics-user-funnel',
     name: 'GoogleAnalyticsUserFunnel',
     category: 'google-ecosystem',
@@ -13244,7 +13302,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#4285F4",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-analytics-traffic-acquisition',
     name: 'GoogleAnalyticsTrafficAcquisition',
     category: 'google-ecosystem',
@@ -13281,7 +13340,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#4285F4",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-analytics-retention-cohort',
     name: 'GoogleAnalyticsRetentionCohort',
     category: 'google-ecosystem',
@@ -13317,7 +13377,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#34A853",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'search-console-performance-clicks',
     name: 'SearchConsolePerformanceClicks',
     category: 'google-ecosystem',
@@ -13331,7 +13392,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#4285F4",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'search-console-query-rankings',
     name: 'SearchConsoleQueryRankings',
     category: 'google-ecosystem',
@@ -13367,7 +13429,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'search-console-page-indexing',
     name: 'SearchConsolePageIndexing',
     category: 'google-ecosystem',
@@ -13393,7 +13456,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#34A853",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'search-console-core-web-vitals',
     name: 'SearchConsoleCoreWebVitals',
     category: 'google-ecosystem',
@@ -13425,7 +13489,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#34A853",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'tag-manager-trigger-tag-flow',
     name: 'TagManagerTriggerTagFlow',
     category: 'google-ecosystem',
@@ -13451,7 +13516,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'tag-manager-data-layer-inspector',
     name: 'TagManagerDataLayerInspector',
     category: 'google-ecosystem',
@@ -13474,7 +13540,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'tag-manager-preview-debugger',
     name: 'TagManagerPreviewDebugger',
     category: 'google-ecosystem',
@@ -13496,7 +13563,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-ads-campaign-overview',
     name: 'GoogleAdsCampaignOverview',
     category: 'google-ecosystem',
@@ -13513,7 +13581,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-ads-quality-score-metric',
     name: 'GoogleAdsQualityScoreMetric',
     category: 'google-ecosystem',
@@ -13542,7 +13611,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#34A853",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-ads-auction-insights',
     name: 'GoogleAdsAuctionInsights',
     category: 'google-ecosystem',
@@ -13575,7 +13645,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-ads-responsive-search-ad',
     name: 'GoogleAdsResponsiveSearchAd',
     category: 'google-ecosystem',
@@ -13595,7 +13666,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#1A73E8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'google-ads-roas-tracker',
     name: 'GoogleAdsROASTracker',
     category: 'google-ecosystem',
@@ -13610,7 +13682,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#34A853",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'diamond-four-cs-grading',
     name: 'DiamondFourCsGrading',
     category: 'jewelry-gems',
@@ -13625,7 +13698,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'gold-purity-karat-card',
     name: 'GoldPurityKaratCard',
     category: 'jewelry-gems',
@@ -13666,7 +13740,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'sterling-silver-hallmark',
     name: 'SterlingSilverHallmark',
     category: 'jewelry-gems',
@@ -13681,7 +13756,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#94A3B8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'gemstone-mohs-hardness-scale',
     name: 'GemstoneMohsHardnessScale',
     category: 'jewelry-gems',
@@ -13723,7 +13799,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'rough-uncut-crystal-geode',
     name: 'RoughUncutCrystalGeode',
     category: 'jewelry-gems',
@@ -13737,7 +13814,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#8B5CF6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'solitaire-ring-showcase',
     name: 'SolitaireRingShowcase',
     category: 'jewelry-gems',
@@ -13751,7 +13829,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'eternity-band-ring',
     name: 'EternityBandRing',
     category: 'jewelry-gems',
@@ -13765,7 +13844,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'diamond-tennis-bracelet',
     name: 'DiamondTennisBracelet',
     category: 'jewelry-gems',
@@ -13779,7 +13859,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'gold-bangle-stacker',
     name: 'GoldBangleStacker',
     category: 'jewelry-gems',
@@ -13793,7 +13874,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#EAB308",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'chandelier-earrings-dangle',
     name: 'ChandelierEarringsDangle',
     category: 'jewelry-gems',
@@ -13807,7 +13889,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'diamond-stud-earrings',
     name: 'DiamondStudEarrings',
     category: 'jewelry-gems',
@@ -13821,7 +13904,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'pearl-strand-necklace',
     name: 'PearlStrandNecklace',
     category: 'jewelry-gems',
@@ -13835,7 +13919,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'gemstone-pendant-necklace',
     name: 'GemstonePendantNecklace',
     category: 'jewelry-gems',
@@ -13848,7 +13933,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'jewelry-loupe-magnifier',
     name: 'JewelryLoupeMagnifier',
     category: 'jewelry-gems',
@@ -13861,7 +13947,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'precious-metal-spot-price',
     name: 'PreciousMetalSpotPrice',
     category: 'jewelry-gems',
@@ -13892,7 +13979,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'custom-jewelry-cad-viewer',
     name: 'CustomJewelryCADViewer',
     category: 'jewelry-gems',
@@ -13906,7 +13994,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'birthstone-calendar-chart',
     name: 'BirthstoneCalendarChart',
     category: 'jewelry-gems',
@@ -13948,7 +14037,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'igi-jewelry-certificate',
     name: 'IGIJewelryCertificate',
     category: 'jewelry-gems',
@@ -13963,7 +14053,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'ring-sizer-measurement',
     name: 'RingSizerMeasurement',
     category: 'jewelry-gems',
@@ -14000,7 +14091,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'jewelry-box-velvet-display',
     name: 'JewelryBoxVelvetDisplay',
     category: 'jewelry-gems',
@@ -14014,7 +14106,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'flight-radar-tracker',
     name: 'FlightRadarTracker',
     category: 'transportation',
@@ -14031,7 +14124,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'airport-departure-board',
     name: 'AirportDepartureBoard',
     category: 'transportation',
@@ -14076,7 +14170,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'metro-subway-line-map',
     name: 'MetroSubwayLineMap',
     category: 'transportation',
@@ -14115,7 +14210,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'gps-navigation-turn-by-turn',
     name: 'GPSNavigationTurnByTurn',
     category: 'transportation',
@@ -14131,7 +14227,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'high-speed-train-speedometer',
     name: 'HighSpeedTrainSpeedometer',
     category: 'transportation',
@@ -14146,7 +14243,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'cargo-container-ship-tracker',
     name: 'CargoContainerShipTracker',
     category: 'transportation',
@@ -14162,7 +14260,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#0EA5E9",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'bus-transit-live-eta',
     name: 'BusTransitLiveETA',
     category: 'transportation',
@@ -14195,7 +14294,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#3B82F6",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'ev-charging-station-hub',
     name: 'EVChargingStationHub',
     category: 'transportation',
@@ -14210,7 +14310,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'ride-hailing-dispatch-card',
     name: 'RideHailingDispatchCard',
     category: 'transportation',
@@ -14226,7 +14327,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'traffic-intersection-signal',
     name: 'TrafficIntersectionSignal',
     category: 'transportation',
@@ -14239,7 +14341,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'fleet-truck-telemetry',
     name: 'FleetTruckTelemetry',
     category: 'transportation',
@@ -14254,7 +14357,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'parking-garage-vacancy-meter',
     name: 'ParkingGarageVacancyMeter',
     category: 'transportation',
@@ -14285,7 +14389,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'air-traffic-control-scope',
     name: 'AirTrafficControlScope',
     category: 'transportation',
@@ -14298,7 +14403,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'highway-toll-plaza-gate',
     name: 'HighwayTollPlazaGate',
     category: 'transportation',
@@ -14313,7 +14419,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'micromobility-scooter-lock',
     name: 'MicromobilityScooterLock',
     category: 'transportation',
@@ -14328,7 +14435,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#10B981",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'harbor-ferry-schedule',
     name: 'HarborFerrySchedule',
     category: 'transportation',
@@ -14343,7 +14451,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#0284C7",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'autonomous-lidar-vision',
     name: 'AutonomousLidarVision',
     category: 'transportation',
@@ -14357,7 +14466,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'drone-delivery-corridor',
     name: 'DroneDeliveryCorridor',
     category: 'transportation',
@@ -14372,7 +14482,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'mountain-cable-car-gondola',
     name: 'MountainCableCarGondola',
     category: 'transportation',
@@ -14386,7 +14497,8 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#38BDF8",
       "theme": "dark"
 }
-  },\n  {
+  },
+  {
     id: 'spacecraft-launch-trajectory',
     name: 'SpacecraftLaunchTrajectory',
     category: 'transportation',
@@ -14401,55 +14513,7 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       "accentColor": "#F59E0B",
       "theme": "dark"
 }
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-  },
-
-  },
-
-  },
-
-  },
-
-  },
-
-  },
-
-      ],
-    },
-  },
-
-  },
-
-  },
-
-  },
-
-  },
-
-  },
-
-  },
-
-  },
-
-  },
-
-  },
-
+  }
 ];
 
 /**

@@ -68,6 +68,7 @@ import { ScriptBubbleScene } from './scenes/ScriptBubbleScene';
 import { FACELESS_DESIGN_TOKENS } from './facelessTokens';
 import { BrandWatermark } from '../../components/BrandWatermark';
 import { getFacelessFontAssetPath } from '../../../lib/fonts/facelessFontCatalog';
+import { DynamicLibraryHost } from '../../components/DynamicLibraryHost';
 import {
   AdaptiveCard,
   AnimatedBarChart,
@@ -614,6 +615,25 @@ export function FacelessShortsTemplate(props: FacelessShortsProps) {
           palette={palette}
         />
       );
+    }
+
+    if (scene.overlayComponent?.componentId || layout === 'library_overlay') {
+      const compId = scene.overlayComponent?.componentId;
+      if (compId) {
+        return (
+          <DynamicLibraryHost
+            key={sceneKey}
+            componentId={compId}
+            props={scene.overlayComponent?.props || {}}
+            cinematic={scene.overlayComponent?.cinematic ?? true}
+            sceneFrame={framesSinceSceneStart}
+            sceneDurationFrames={Math.round((scene.duration || 5) * fps)}
+            palette={palette}
+            scale={scene.overlayComponent?.scale || 1.0}
+            placement={scene.overlayComponent?.placement || 'center'}
+          />
+        );
+      }
     }
 
     if (

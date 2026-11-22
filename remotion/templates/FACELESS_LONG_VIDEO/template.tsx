@@ -77,6 +77,7 @@ import { InfographicScene } from './scenes/InfographicScene';
 import { FACELESS_DESIGN_TOKENS } from './facelessTokens';
 import { BrandWatermark } from '../../components/BrandWatermark';
 import { getFacelessFontAssetPath } from '../../../lib/fonts/facelessFontCatalog';
+import { DynamicLibraryHost } from '../../components/DynamicLibraryHost';
 import {
   AdaptiveCard,
   AnimatedBarChart,
@@ -589,6 +590,26 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     const stype = scene.sceneType || 'main_point';
     const resolvedAssetUrl = matchedBrollUrl ? safeResolveMediaSrc(matchedBrollUrl) : undefined;
     const sceneKey = `scene-${scene.sceneNumber || 0}`;
+
+    // ── Autonomous Motion Graphic Library Component Overlay (1,282 Components) ──
+    if (scene.overlayComponent?.componentId || layout === 'library_overlay') {
+      const compId = scene.overlayComponent?.componentId;
+      if (compId) {
+        return (
+          <DynamicLibraryHost
+            key={sceneKey}
+            componentId={compId}
+            props={scene.overlayComponent?.props || {}}
+            cinematic={scene.overlayComponent?.cinematic ?? true}
+            sceneFrame={framesSinceSceneStart}
+            sceneDurationFrames={Math.round((scene.duration || 5) * fps)}
+            palette={palette}
+            scale={scene.overlayComponent?.scale || 1.0}
+            placement={scene.overlayComponent?.placement || 'center'}
+          />
+        );
+      }
+    }
 
     // ── High-Impact 16:9 Widescreen Narrative Archetypes (Priority Dispatch) ──
     if (layout === 'story_character_desk' || layout === 'creator_desk' || layout === 'character_desk') {

@@ -20,6 +20,7 @@ import {
 import {
   buildDeterministicSentenceTimeline,
 } from './sentenceTimelineBuilder';
+import { matchComponentForScene } from './componentMatcher';
 
 export type TranscriptChunk = {
   text: string;
@@ -657,6 +658,7 @@ export const VisualLayoutTypeSchema = z.enum([
   'table_of_contents',
   'mission_vision',
   'medical_infographic',
+  'library_overlay',
   'hook',
 ]);
 
@@ -728,6 +730,17 @@ const SceneBlueprintItemSchema = z.object({
   })).optional(),
   searchQuery: z.string().optional(),
   vectorDrawingId: z.string().optional(),
+
+  // Autonomous Motion Graphic Library Component Overlay
+  overlayComponent: z.object({
+    componentId: z.string(),
+    name: z.string().optional(),
+    category: z.string().optional(),
+    props: z.record(z.any()).optional(),
+    cinematic: z.boolean().optional(),
+    scale: z.number().optional(),
+    placement: z.enum(['center', 'lower-third', 'split-right', 'split-left']).optional(),
+  }).optional(),
 });
 
 export const FullVideoBlueprintSchema = z.object({
@@ -822,6 +835,23 @@ export function enforceEditorialPacingRules(
       const noteLength = (scene.supportingText || scene.heading || '').split(/\s+/).length;
       if (noteLength > 25) {
         scene.layoutType = 'supporting_note';
+      }
+    }
+
+    // 3B. Autonomous Motion Graphic Library Component Matcher (1,282 Components)
+    if (i > 0 && i < blueprint.scenes.length - 1 && !scene.overlayComponent) {
+      const match = matchComponentForScene(text, scene.heading, 3.0);
+      if (match) {
+        scene.overlayComponent = {
+          componentId: match.componentId,
+          name: match.name,
+          category: match.category,
+          props: match.props,
+          cinematic: true,
+          scale: 1.0,
+          placement: 'center',
+        };
+        scene.layoutType = 'library_overlay';
       }
     }
 
@@ -1042,6 +1072,22 @@ export function buildDeterministicSceneBlueprint(
       sfx = 'woosh';
     }
 
+    // Autonomous Motion Graphic Library Matching (1,282 Components)
+    const compMatch = i > 0 ? matchComponentForScene(text, undefined, 3.0) : null;
+    const overlayComponent = compMatch ? {
+      componentId: compMatch.componentId,
+      name: compMatch.name,
+      category: compMatch.category,
+      props: compMatch.props,
+      cinematic: true,
+      scale: 1.0,
+      placement: 'center' as const,
+    } : undefined;
+
+    if (overlayComponent) {
+      layoutType = 'library_overlay';
+    }
+
     const keywords =
       assetPlan.highlightedWords && assetPlan.highlightedWords.length > 0
         ? assetPlan.highlightedWords
@@ -1135,6 +1181,7 @@ export function buildDeterministicSceneBlueprint(
       assetTitle: deterministicAssetTitle,
       assetStyle: deterministicAssetStyle,
       composition: deterministicComposition,
+      overlayComponent,
       statValue:
         hasRealMetric && typographyAnalysis.statData?.value
           ? typographyAnalysis.statData.value
