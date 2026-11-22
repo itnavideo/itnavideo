@@ -136,5 +136,8 @@ export * from './overlays';
 // 8. Storytelling Deck Assets (88 Assets)
 export * from './assets';
 
+// 8b. Advanced Compositing Suite
+export * from './compositing';
+
 // 9. Component Registry & Metadata
 export * from './registry';
