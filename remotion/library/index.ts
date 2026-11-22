@@ -139,5 +139,8 @@ export * from './assets';
 // 8b. Advanced Compositing Suite
 export * from './compositing';
 
+// 8c. Camera & Cinematics Suite
+export * from './camera';
+
 // 9. Component Registry & Metadata
 export * from './registry';
