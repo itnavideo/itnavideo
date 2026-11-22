@@ -2104,6 +2104,14 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     description: 'Simulated orbital reconnaissance satellite viewport with sensor crosshair reticle and optical zoom.',
     tags: ['transportation', 'satellite', 'reconnaissance', 'orbital', 'crosshair', 'surveillance'],
   },
+  {
+    id: 'map-pin-cluster',
+    name: 'MapPinCluster',
+    category: 'transportation',
+    aspectRatio: 'both',
+    description: 'Dynamic geospatial map pin cluster aggregating facility density with pulsing ripple rings and facility counts.',
+    tags: ['transportation', 'map', 'pin', 'cluster', 'density', 'geospatial', 'facilities'],
+  },
 
   // ── Human Psychology & Business Explanation Suite (17 Components) ──
   {

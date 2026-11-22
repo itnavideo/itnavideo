@@ -79,3 +79,7 @@ export type { LatitudeLongitudeProps } from './LatitudeLongitude';
 
 export { SatelliteView } from './SatelliteView';
 export type { SatelliteViewProps } from './SatelliteView';
+
+export { MapPinCluster } from './MapPinCluster';
+export type { MapPinClusterProps, PinClusterItem } from './MapPinCluster';
+
