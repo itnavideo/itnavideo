@@ -67,6 +67,9 @@ export * from './scientific';
 // 2p. Finance & Trading Suite (StockTicker, CandlestickChart, TradingDashboard, PortfolioChart, FinancialReport, CryptoCard)
 export * from './finance';
 
+// 2q. Geography & Cartography Suite (WorldMap, CountryMap, RouteMap, LocationPins, TerritoryMap, CompassRose)
+export * from './geography';
+
 // 3. Infographics
 export * from './infographics';
 

@@ -22,6 +22,7 @@ export type ComponentCategory =
   | '3d-isometric'
   | 'scientific'
   | 'finance'
+  | 'geography'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -1008,6 +1009,56 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Cryptocurrency token showcase card with live price, 24h change pill, mini vector sparkline, and market cap.',
     tags: ['crypto', 'bitcoin', 'token', 'sparkline', 'card', 'market-cap'],
+  },
+
+  // ── Geography & Cartography Suite ──
+  {
+    id: 'world-map',
+    name: 'WorldMap',
+    category: 'geography',
+    aspectRatio: 'both',
+    description: 'Global continental projection with active edge hub pings, flight cables, and network statistics.',
+    tags: ['geography', 'world-map', 'globe', 'continents', 'pings', 'global'],
+  },
+  {
+    id: 'country-map',
+    name: 'CountryMap',
+    category: 'geography',
+    aspectRatio: 'both',
+    description: 'Regional country spotlight map with administrative boundary outline, capital pin, and GDP stats.',
+    tags: ['geography', 'country', 'nation', 'map', 'capital', 'demographics'],
+  },
+  {
+    id: 'route-map',
+    name: 'RouteMap',
+    category: 'geography',
+    aspectRatio: 'both',
+    description: 'Great-circle flight and logistics route tracker with animated aircraft icon, distance, and waypoints.',
+    tags: ['geography', 'flight', 'route', 'travel', 'transit', 'waypoints'],
+  },
+  {
+    id: 'location-pins',
+    name: 'LocationPins',
+    category: 'geography',
+    aspectRatio: 'both',
+    description: 'Multi-style pin marker suite (drop pin, radar pulse, numbered step, glassmorphic card).',
+    tags: ['geography', 'pins', 'marker', 'location', 'gps', 'radar'],
+  },
+  {
+    id: 'territory-map',
+    name: 'TerritoryMap',
+    category: 'geography',
+    aspectRatio: 'both',
+    description: 'Sales and operations territory coverage zones with market share percentages and regional HQs.',
+    tags: ['geography', 'territory', 'market-share', 'zones', 'regions', 'sales'],
+  },
+  {
+    id: 'compass-rose',
+    name: 'CompassRose',
+    category: 'geography',
+    aspectRatio: 'both',
+    description: 'Navigational cartography compass rose with rotating magnetic needle, cardinal points, and coordinates.',
+    tags: ['geography', 'compass', 'navigation', 'cardinal', 'bearing', 'gps'],
   },
 
   // ── Graphics & Frames ──
