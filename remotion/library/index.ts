@@ -191,3 +191,4 @@ export * from './outlook';
 export * from './teams';
 export * from './access';
 export * from './powerbi';
+export * from './google';

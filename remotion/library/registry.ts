@@ -52,7 +52,8 @@ export type ComponentCategory =
   | 'outlook'
   | 'teams'
   | 'access'
-  | 'power-bi';
+  | 'power-bi'
+  | 'google-workspace';
 
 export type AspectRatioSupport = '16:9' | '9:16' | 'both';
 
@@ -11987,6 +11988,248 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       daxFilterExpression: '[SalesTerritoryCountry] = USERPRINCIPALNAME()',
       previewUser: 'sarah.connor@itnavideo.com (APAC)',
     },
+  {
+    id: 'google-docs-collaboration',
+    name: 'GoogleDocsCollaboration',
+    category: 'google-workspace',
+    description: 'Google Docs multi-user live editing canvas with colored user cursor tags, sharing pills, and document formatting.',
+    tags: ['google-docs', 'live-collaboration', 'multi-cursor', 'google-workspace', 'document-editor'],
+    aspectRatio: 'both',
+    defaultProps: {
+      documentTitle: 'Engineering System Architecture RFC.gdoc',
+      activeCollaborator1: 'Sarah Connor',
+      activeCollaborator2: 'Marcus Vance',
+      themeColor: '#1A73E8',
+    },
+  },
+  {
+    id: 'google-sheets-pivot-summary',
+    name: 'GoogleSheetsPivotSummary',
+    category: 'google-workspace',
+    description: 'Google Sheets green spreadsheet visual showing QUERY formula bar, alternating row colors, and aggregate totals.',
+    tags: ['google-sheets', 'spreadsheet', 'query-formula', 'pivot-summary', 'cloud-grid'],
+    aspectRatio: 'both',
+    defaultProps: {
+      sheetTitle: 'Q4_Cloud_Rendering_Costs.gsheet',
+      formulaQuery: '=QUERY(A1:E, "SELECT B, SUM(C) GROUP BY B LABEL SUM(C) 'Total'")',
+      totalSum: '$124,580.00',
+      themeColor: '#0F9D58',
+    },
+  },
+  {
+    id: 'google-slides-presentation-deck',
+    name: 'GoogleSlidesPresentationDeck',
+    category: 'google-workspace',
+    description: 'Google Slides presentation editor showing filmstrip thumbnail sidebar, 16:9 active slide, and slideshow presenter controls.',
+    tags: ['google-slides', 'presentation-deck', 'filmstrip', 'pitch-deck', 'slideshow'],
+    aspectRatio: 'both',
+    defaultProps: {
+      presentationTitle: 'Itnavideo Investor Pitch Deck Q4',
+      slideNumber: 4,
+      totalSlides: 18,
+      themeColor: '#F4B400',
+    },
+  },
+  {
+    id: 'google-drive-storage-tier',
+    name: 'GoogleDriveStorageTier',
+    category: 'google-workspace',
+    description: 'Google Drive storage quota meter detailing multi-color breakdowns across Drive, Gmail, and Google Photos.',
+    tags: ['google-drive', 'cloud-storage', 'storage-tier', 'google-one', 'shared-drives'],
+    aspectRatio: 'both',
+    defaultProps: {
+      usedGB: 1420,
+      totalGB: 2048,
+      planName: 'Google One 2 TB Business Standard',
+    },
+  },
+  {
+    id: 'google-meet-video-conference',
+    name: 'GoogleMeetVideoConference',
+    category: 'google-workspace',
+    description: 'Google Meet video call interface featuring participant tiles and bottom floating pill toolbar.',
+    tags: ['google-meet', 'video-conference', 'meet-call', 'control-bar', 'virtual-meeting'],
+    aspectRatio: 'both',
+    defaultProps: {
+      meetingCode: 'meet.google.com/abc-itna-xyz',
+      participantsCount: 8,
+    },
+  },
+  {
+    id: 'google-calendar-time-grid',
+    name: 'GoogleCalendarTimeGrid',
+    category: 'google-workspace',
+    description: 'Google Calendar time block grid showing color-coded scheduled meetings and instant Meet links.',
+    tags: ['google-calendar', 'time-grid', 'schedule-events', 'calendar-invite', 'agenda'],
+    aspectRatio: 'both',
+    defaultProps: {
+      currentDay: 'Thursday, Nov 26',
+      activeEventTitle: 'Production Architecture Review',
+      eventTimeRange: '2:00 PM - 3:30 PM',
+    },
+  },
+  {
+    id: 'gmail-inbox-thread',
+    name: 'GmailInboxThread',
+    category: 'google-workspace',
+    description: 'Gmail inbox conversation row showing Primary category tab, star indicator, label badges, and snippet preview.',
+    tags: ['gmail', 'inbox-thread', 'email-list', 'starred-mail', 'mail-label'],
+    aspectRatio: 'both',
+    defaultProps: {
+      sender: 'Google Cloud Platform Alert',
+      subject: 'Container deployment itnavideo-web:v4.2 healthy in us-central1',
+      label: 'Production',
+    },
+  },
+  {
+    id: 'google-forms-quiz-survey',
+    name: 'GoogleFormsQuizSurvey',
+    category: 'google-workspace',
+    description: 'Google Forms survey card with purple brand header, required fields, radio buttons, and submit action.',
+    tags: ['google-forms', 'survey', 'questionnaire', 'feedback-form', 'quiz'],
+    aspectRatio: 'both',
+    defaultProps: {
+      formTitle: 'Creator Feedback: Remotion Auto Caption Generator',
+      questionText: 'Which subtitle kinetic style provides the highest viewer retention on TikTok & Reels?',
+    },
+  },
+  {
+    id: 'google-keep-sticky-notes',
+    name: 'GoogleKeepStickyNotes',
+    category: 'google-workspace',
+    description: 'Masonry cards of colorful Google Keep sticky notes with checklist items and pinned status.',
+    tags: ['google-keep', 'sticky-notes', 'checklists', 'quick-notes', 'pinned-notes'],
+    aspectRatio: 'both',
+    defaultProps: {
+      noteCount: 3,
+    },
+  },
+  {
+    id: 'google-chat-space-thread',
+    name: 'GoogleChatSpaceThread',
+    category: 'google-workspace',
+    description: 'Google Chat Spaces group conversation thread showing author avatar, timestamps, and threaded messages.',
+    tags: ['google-chat', 'spaces', 'team-messaging', 'chat-room', 'workspace-chat'],
+    aspectRatio: 'both',
+    defaultProps: {
+      spaceName: 'Engineering Core Platform',
+      latestMessage: 'PR #512 merged: Remotion library crossed 1,160 verified components!',
+    },
+  },
+  {
+    id: 'google-admin-console-users',
+    name: 'GoogleAdminConsoleUsers',
+    category: 'google-workspace',
+    description: 'Google Workspace Admin console dashboard monitoring active domain users and 2-step verification compliance.',
+    tags: ['admin-console', 'user-management', '2fa-compliance', 'security-dashboard', 'it-admin'],
+    aspectRatio: 'both',
+    defaultProps: {
+      activeUsers: 340,
+      twoStepVerificationPct: 100,
+    },
+  },
+  {
+    id: 'google-vault-retention-audit',
+    name: 'GoogleVaultRetentionAudit',
+    category: 'google-workspace',
+    description: 'Google Vault eDiscovery compliance card tracking legal holds, data retention policies, and export packages.',
+    tags: ['google-vault', 'ediscovery', 'legal-hold', 'retention-policy', 'compliance-audit'],
+    aspectRatio: 'both',
+    defaultProps: {
+      matterName: 'Litigation Matter #8942 - Patent Protection',
+      holdPolicy: 'Indefinite Legal Hold (Gmail & Drive Data)',
+    },
+  },
+  {
+    id: 'google-apps-script-trigger',
+    name: 'GoogleAppsScriptTrigger',
+    category: 'google-workspace',
+    description: 'Google Apps Script (GAS) code editor window showcasing automated spreadsheet event triggers and webhooks.',
+    tags: ['apps-script', 'gas', 'javascript-automation', 'spreadsheet-macro', 'event-trigger'],
+    aspectRatio: 'both',
+    defaultProps: {
+      functionName: 'onFormSubmit(e)',
+      triggerType: 'Event: On form submission ➔ Dispatch Slack Notification',
+    },
+  },
+  {
+    id: 'google-cloud-search-enterprise',
+    name: 'GoogleCloudSearchEnterprise',
+    category: 'google-workspace',
+    description: 'Google Cloud Search enterprise unified search bar querying across Gmail, Docs, Drive, and Sites.',
+    tags: ['cloud-search', 'enterprise-search', 'unified-search', 'cross-workspace', 'search-box'],
+    aspectRatio: 'both',
+    defaultProps: {
+      searchQuery: 'Remotion rendering quota AWS Lambda',
+    },
+  },
+  {
+    id: 'google-jamboard-canvas',
+    name: 'GoogleJamboardCanvas',
+    category: 'google-workspace',
+    description: 'Interactive digital sticky note jam canvas with neon sticky notes, pen strokes, and whiteboard frames.',
+    tags: ['jamboard', 'whiteboard-jam', 'digital-canvas', 'brainstorming', 'sketch-board'],
+    aspectRatio: 'both',
+    defaultProps: {
+      jamTitle: 'Interactive UI Architecture Jam',
+    },
+  },
+  {
+    id: 'google-sites-page-builder',
+    name: 'GoogleSitesPageBuilder',
+    category: 'google-workspace',
+    description: 'Google Sites internal knowledge base page layout featuring customizable banners and embedded Drive assets.',
+    tags: ['google-sites', 'intranet-portal', 'knowledge-base', 'wiki-page', 'internal-website'],
+    aspectRatio: 'both',
+    defaultProps: {
+      siteTitle: 'Itnavideo Internal Knowledge Base',
+    },
+  },
+  {
+    id: 'google-tasks-sync-list',
+    name: 'GoogleTasksSyncList',
+    category: 'google-workspace',
+    description: 'Google Tasks side panel displaying synchronized to-do items, circular checkboxes, and Calendar deadlines.',
+    tags: ['google-tasks', 'to-do-list', 'checklist', 'calendar-tasks', 'task-management'],
+    aspectRatio: 'both',
+    defaultProps: {
+      tasksCount: 3,
+    },
+  },
+  {
+    id: 'google-contacts-directory',
+    name: 'GoogleContactsDirectory',
+    category: 'google-workspace',
+    description: 'Company Global Address List profile card showing employee department, email, and direct communication buttons.',
+    tags: ['google-contacts', 'people-directory', 'gal-directory', 'employee-card', 'contact-card'],
+    aspectRatio: 'both',
+    defaultProps: {
+      personName: 'Elena Rostova',
+      roleTitle: 'Principal Video UX Engineer',
+    },
+  },
+  {
+    id: 'google-workspace-security-alert',
+    name: 'GoogleWorkspaceSecurityAlert',
+    category: 'google-workspace',
+    description: 'Google Workspace Alert Center notification card flagging critical security anomalies and 2FA verification.',
+    tags: ['security-alert', 'alert-center', 'suspicious-login', '2fa-prompt', 'security-incident'],
+    aspectRatio: 'both',
+    defaultProps: {
+      alertDescription: 'Suspicious login prevented: Account credentials validated via Google Prompt 2FA.',
+    },
+  },
+  {
+    id: 'google-gemini-workspace-copilot',
+    name: 'GoogleGeminiWorkspaceCopilot',
+    category: 'google-workspace',
+    description: 'Gemini for Google Workspace side panel offering generative drafting, document summarization, and AI help.',
+    tags: ['gemini-workspace', 'help-me-write', 'workspace-ai', 'copilot', 'generative-ai'],
+    aspectRatio: 'both',
+    defaultProps: {
+      promptText: 'Help me draft an executive summary for our Q4 Cloud Run video rendering migration',
+    },
+  },
   },
   },
   },
