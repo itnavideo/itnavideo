@@ -9,14 +9,7 @@ export interface SpacecraftLaunchTrajectoryProps {
 export const SpacecraftLaunchTrajectory: React.FC<SpacecraftLaunchTrajectoryProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Orbital Launch Telemetry","mission":"Artemis Heavy Orbital Insertion","velocityKmh":"28,450 km/h","altitudeKm":"185 km","stage":"Stage 2 Burn Active","downrangeDistance":"420 km","accentColor":"#F59E0B","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, mission, velocityKmh, altitudeKm, stage, downrangeDistance, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface TagManagerTriggerTagFlowProps {
 export const TagManagerTriggerTagFlow: React.FC<TagManagerTriggerTagFlowProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"GTM Event Pipeline","trigger":"Click — Video Render CTA","variable":"{{Click ID}} = \"render-btn\"","tagsFired":[{"name":"GA4 Event — video_render_started","type":"Google Analytics"},{"name":"Google Ads Conversion — Render Initiated","type":"Google Ads"},{"name":"Meta Pixel — Lead Event","type":"Custom HTML"}],"accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, trigger, variable, tagsFired, accentColor, theme } = merged;
 
 

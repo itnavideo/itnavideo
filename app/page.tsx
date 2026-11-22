@@ -1,10 +1,6 @@
 import type { Metadata } from 'next';
 import nextDynamic from 'next/dynamic';
 import Hero from '@/components/landing/Hero';
-import BusyBusinessShowcase from '@/components/landing/BusyBusinessShowcase';
-import PlatformMarqueeTicker from '@/components/landing/PlatformMarqueeTicker';
-import TenStudiosHubArchitecture from '@/components/landing/TenStudiosHubArchitecture';
-import TestimonialSection from '@/components/landing/TestimonialSection';
 import {
   HomepageFinalCta,
   HomepageTrustStrip,
@@ -12,7 +8,13 @@ import {
 import StickyMobileActionBar from '@/components/landing/StickyMobileActionBar';
 import { pricingPlans } from '@/lib/billing/plans';
 import { PLATFORM_MODE_CONFIG } from '@/lib/config/platformMode';
-import HomepageFeedbackBanner from '@/components/feedback/HomepageFeedbackBanner';
+
+// Code-split below-the-fold sections for sub-2s mobile Speed Index
+const BusyBusinessShowcase = nextDynamic(() => import('@/components/landing/BusyBusinessShowcase'), { ssr: true });
+const PlatformMarqueeTicker = nextDynamic(() => import('@/components/landing/PlatformMarqueeTicker'), { ssr: true });
+const TenStudiosHubArchitecture = nextDynamic(() => import('@/components/landing/TenStudiosHubArchitecture'), { ssr: true });
+const TestimonialSection = nextDynamic(() => import('@/components/landing/TestimonialSection'), { ssr: true });
+const HomepageFeedbackBanner = nextDynamic(() => import('@/components/feedback/HomepageFeedbackBanner'), { ssr: true });
 const HomepagePricing = nextDynamic(() => import('@/components/landing/PricingSection'), { ssr: true });
 const FAQSection = nextDynamic(() => import('@/components/FAQSection'), { ssr: true });
 

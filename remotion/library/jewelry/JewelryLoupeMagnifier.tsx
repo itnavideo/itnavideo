@@ -9,14 +9,7 @@ export interface JewelryLoupeMagnifierProps {
 export const JewelryLoupeMagnifier: React.FC<JewelryLoupeMagnifierProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"10x Triplet Loupe Inspection","magnification":"10X Achromatic / Aplanatic","inclusionType":"Feather & Pinpoint Inclusions","clarityVerdict":"VS2 Grade Verified","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, magnification, inclusionType, clarityVerdict, accentColor, theme } = merged;
 
 

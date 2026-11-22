@@ -9,14 +9,7 @@ export interface DiamondStudEarringsProps {
 export const DiamondStudEarrings: React.FC<DiamondStudEarringsProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Round Brilliant Diamond Studs","totalWeight":"2.00 TCW (1.00 ct each)","metal":"Platinum 950","closure":"Screw-Back Locking Post","colorClarity":"E Color / VS1 Clarity","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, totalWeight, metal, closure, colorClarity, accentColor, theme } = merged;
 
 

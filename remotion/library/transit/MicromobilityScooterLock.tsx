@@ -9,14 +9,7 @@ export interface MicromobilityScooterLockProps {
 export const MicromobilityScooterLock: React.FC<MicromobilityScooterLockProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Shared E-Scooter Unlock","scooterId":"#SCOOT-410","batteryRange":"28 km Range (85%)","rate":"$1.00 unlock + $0.25/min","maxSpeed":"25 km/h","status":"Ready to Ride","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, scooterId, batteryRange, rate, maxSpeed, status, accentColor, theme } = merged;
 
 

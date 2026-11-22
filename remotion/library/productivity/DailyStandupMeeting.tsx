@@ -9,14 +9,7 @@ export interface DailyStandupMeetingProps {
 export const DailyStandupMeeting: React.FC<DailyStandupMeetingProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Engineering Daily Standup","currentSpeaker":"Sarah Connor (Lead Dev)","yesterdayTasks":["Merged PR #412 for Lambda video engine","Resolved S3 CORS upload issue"],"todayTasks":["Implement Remotion player caching","Review Batch 76 PR"],"blockers":["Waiting on Cloud Run IAM secret permissions"],"accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, currentSpeaker, yesterdayTasks, todayTasks, blockers, accentColor, theme } = merged;
 
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { getOptimizedCloudinaryUrl } from '@/lib/utils';
 
 const HERO_SHOWCASE_IMAGE_URL =
   'https://res.cloudinary.com/dhouh9idx/image/upload/v1794739932/Professional_Woman_Working_on_Laptop_xijtb0.png';
@@ -52,7 +53,7 @@ export default function BusyBusinessShowcase() {
             </span>
           </div>
 
-          <p className="text-xs sm:text-sm text-zinc-400 font-sans max-w-xl mx-auto pt-1">
+          <p className="text-xs sm:text-sm text-slate-600 font-sans max-w-xl mx-auto pt-1 font-medium">
             Scene direction, B-roll visuals, kinetic typography, and soundtrack — completed while you work.
           </p>
         </div>
@@ -62,10 +63,13 @@ export default function BusyBusinessShowcase() {
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="mt-8 sm:mt-10 pb-4 mx-auto flex items-center justify-center">
           <img
-            src={HERO_SHOWCASE_IMAGE_URL}
+            src={getOptimizedCloudinaryUrl(HERO_SHOWCASE_IMAGE_URL, 900, 'good')}
             alt="Professional business executive creating videos in 10 minutes"
+            width={900}
+            height={600}
             className="w-full h-auto max-w-2xl sm:max-w-3xl lg:max-w-4xl object-contain select-none"
-            loading="eager"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>

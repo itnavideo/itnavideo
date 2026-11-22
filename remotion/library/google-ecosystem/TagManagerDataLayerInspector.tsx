@@ -9,14 +9,7 @@ export interface TagManagerDataLayerInspectorProps {
 export const TagManagerDataLayerInspector: React.FC<TagManagerDataLayerInspectorProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"dataLayer.push Monitor","eventName":"purchase","payload":{"transaction_id":"ORD_9410","value":49,"currency":"USD","items":[{"item_name":"Pro Creator 100 Credits","price":49}]},"timestamp":"14:22:08.412","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, eventName, payload, timestamp, accentColor, theme } = merged;
 
 

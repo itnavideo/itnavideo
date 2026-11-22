@@ -9,14 +9,7 @@ export interface BusTransitLiveETAProps {
 export const BusTransitLiveETA: React.FC<BusTransitLiveETAProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Stop #4812 — City Center Plaza","routes":[{"route":"M15-SBS","dest":"South Ferry","eta":"3 min","crowded":"Low Seats Avail","color":"#3B82F6"},{"route":"M101","dest":"Harlem 125th St","eta":"8 min","crowded":"Standing Room Only","color":"#10B981"},{"route":"M42","dest":"Crosstown Pier","eta":"14 min","crowded":"Many Seats","color":"#F59E0B"}],"accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, routes, accentColor, theme } = merged;
 
 

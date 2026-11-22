@@ -9,14 +9,7 @@ export interface AirportDepartureBoardProps {
 export const AirportDepartureBoard: React.FC<AirportDepartureBoardProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"INTERNATIONAL DEPARTURES","terminal":"Terminal 3 Concourse B","flights":[{"time":"14:20","flight":"AF 023","dest":"PARIS CDG","gate":"B12","status":"BOARDING","color":"#10B981"},{"time":"14:35","flight":"LH 401","dest":"FRANKFURT","gate":"B18","status":"ON TIME","color":"#38BDF8"},{"time":"14:50","flight":"EK 202","dest":"DUBAI DXB","gate":"B24","status":"DELAYED","color":"#EF4444"},{"time":"15:10","flight":"SQ 025","dest":"SINGAPORE","gate":"B08","status":"GATE OPEN","color":"#F59E0B"}],"accentColor":"#F59E0B","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, terminal, flights, accentColor, theme } = merged;
 
 

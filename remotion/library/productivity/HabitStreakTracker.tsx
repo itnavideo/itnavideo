@@ -9,14 +9,7 @@ export interface HabitStreakTrackerProps {
 export const HabitStreakTracker: React.FC<HabitStreakTrackerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Daily Coding & Shipping Streak","habitName":"Production Commit","streakDays":47,"gridWeeks":8,"bestStreak":65,"accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, habitName, streakDays, gridWeeks, bestStreak, accentColor, theme } = merged;
 
 

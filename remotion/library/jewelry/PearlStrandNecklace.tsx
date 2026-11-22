@@ -9,14 +9,7 @@ export interface PearlStrandNecklaceProps {
 export const PearlStrandNecklace: React.FC<PearlStrandNecklaceProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"South Sea Cultured Pearl Strand","pearlSize":"10.0 - 13.5 mm Graduated","pearlGrade":"AAA Luster (Flawless Nacre)","claspMetal":"18K Yellow Gold Ball Clasp","strandLength":"18 inches (Princess Length)","accentColor":"#F59E0B","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, pearlSize, pearlGrade, claspMetal, strandLength, accentColor, theme } = merged;
 
 

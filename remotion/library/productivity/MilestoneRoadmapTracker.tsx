@@ -9,14 +9,7 @@ export interface MilestoneRoadmapTrackerProps {
 export const MilestoneRoadmapTracker: React.FC<MilestoneRoadmapTrackerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"2026 Product Milestone Roadmap","quarters":[{"quarter":"Q1","goal":"Core Remotion Engine","status":"Completed","color":"#10B981"},{"quarter":"Q2","goal":"AI Reel Automations","status":"In Progress","color":"#3B82F6"},{"quarter":"Q3","goal":"Multi-User Teams","status":"Planned","color":"#8B5CF6"},{"quarter":"Q4","goal":"Enterprise APIs","status":"Planned","color":"#64748B"}],"currentQuarter":"Q2","accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, quarters, currentQuarter, accentColor, theme } = merged;
 
 

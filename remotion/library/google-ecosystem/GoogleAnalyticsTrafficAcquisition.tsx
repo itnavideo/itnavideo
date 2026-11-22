@@ -9,14 +9,7 @@ export interface GoogleAnalyticsTrafficAcquisitionProps {
 export const GoogleAnalyticsTrafficAcquisition: React.FC<GoogleAnalyticsTrafficAcquisitionProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Traffic Acquisition Channels","channels":[{"channel":"Organic Search","sessions":48200,"users":39100,"convRate":"4.8%"},{"channel":"Direct","sessions":22400,"users":18200,"convRate":"3.9%"},{"channel":"Paid Search (Ads)","sessions":19100,"users":16400,"convRate":"6.2%"},{"channel":"Organic Social","sessions":8500,"users":7100,"convRate":"2.1%"}],"totalSessions":98200,"accentColor":"#4285F4","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, channels, totalSessions, accentColor, theme } = merged;
 
 

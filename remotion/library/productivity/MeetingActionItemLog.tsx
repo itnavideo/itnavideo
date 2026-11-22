@@ -9,14 +9,7 @@ export interface MeetingActionItemLogProps {
 export const MeetingActionItemLog: React.FC<MeetingActionItemLogProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Executive Sync Action Items","meetingTitle":"Architecture Review Meeting","actionItems":[{"task":"Provision AWS Lambda rendering concurrency","owner":"Carlos","due":"Nov 26"},{"task":"Optimize Remotion audio waveform generator","owner":"Elena","due":"Nov 27"},{"task":"Refactor Supabase RLS policies for quotas","owner":"Dave","due":"Nov 29"}],"accentColor":"#8B5CF6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, meetingTitle, actionItems, accentColor, theme } = merged;
 
 

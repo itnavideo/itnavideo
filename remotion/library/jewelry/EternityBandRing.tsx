@@ -9,14 +9,7 @@ export interface EternityBandRingProps {
 export const EternityBandRing: React.FC<EternityBandRingProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Full Eternity Diamond Band","stonesCount":"24 Diamonds","totalCaratWeight":"3.60 TCW","metal":"18K White Gold","setting":"Shared French Prong Pavé","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, stonesCount, totalCaratWeight, metal, setting, accentColor, theme } = merged;
 
 

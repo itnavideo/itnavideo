@@ -9,14 +9,7 @@ export interface RideHailingDispatchCardProps {
 export const RideHailingDispatchCard: React.FC<RideHailingDispatchCardProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Driver Confirmed & En Route","driverName":"Michael K.","carModel":"Toyota Camry Hybrid (Silver)","licensePlate":"7XYZ412","pickupETA":"4 mins away","rating":"4.96 ★ (2,410 trips)","fareEstimate":"$18.50","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, driverName, carModel, licensePlate, pickupETA, rating, fareEstimate, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface SearchConsolePageIndexingProps {
 export const SearchConsolePageIndexing: React.FC<SearchConsolePageIndexingProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Page Indexing Coverage","indexedPages":1420,"notIndexedPages":84,"reasons":[{"reason":"Crawled - currently not indexed","count":42},{"reason":"Page with redirect","count":26},{"reason":"Excluded by noindex tag","count":16}],"accentColor":"#34A853","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, indexedPages, notIndexedPages, reasons, accentColor, theme } = merged;
 
 

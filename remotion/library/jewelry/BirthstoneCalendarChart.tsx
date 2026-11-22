@@ -9,14 +9,7 @@ export interface BirthstoneCalendarChartProps {
 export const BirthstoneCalendarChart: React.FC<BirthstoneCalendarChartProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Traditional 12-Month Birthstones","birthstones":[{"month":"Jan","stone":"Garnet","color":"#DC2626"},{"month":"Feb","stone":"Amethyst","color":"#9333EA"},{"month":"Mar","stone":"Aquamarine","color":"#38BDF8"},{"month":"Apr","stone":"Diamond","color":"#E2E8F0"},{"month":"May","stone":"Emerald","color":"#10B981"},{"month":"Jun","stone":"Pearl","color":"#F8FAFC"}],"accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, birthstones, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface SolitaireRingShowcaseProps {
 export const SolitaireRingShowcase: React.FC<SolitaireRingShowcaseProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Platinum Solitaire Diamond Ring","diamondShape":"Round Brilliant Cut","centerStoneWeight":"2.01 ct","bandMetal":"Platinum 950 (PT950)","settingType":"6-Prong Tiffany Knife-Edge","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, diamondShape, centerStoneWeight, bandMetal, settingType, accentColor, theme } = merged;
 
 

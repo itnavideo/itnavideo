@@ -9,14 +9,7 @@ export interface SprintBurndownChartProps {
 export const SprintBurndownChart: React.FC<SprintBurndownChartProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Sprint 14 Burndown Velocity","sprintName":"Mobile Core V2","idealPoints":[100,80,60,40,20,0],"actualPoints":[100,88,72,48,30],"currentDay":4,"totalDays":5,"accentColor":"#06B6D4","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, sprintName, idealPoints, actualPoints, currentDay, totalDays, accentColor, theme } = merged;
 
 

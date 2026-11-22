@@ -9,14 +9,7 @@ export interface GemstoneMohsHardnessScaleProps {
 export const GemstoneMohsHardnessScale: React.FC<GemstoneMohsHardnessScaleProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Mohs Mineral Hardness Scale","minerals":[{"name":"Diamond","hardness":10,"color":"#38BDF8","family":"Pure Carbon"},{"name":"Ruby & Sapphire","hardness":9,"color":"#EF4444","family":"Corundum"},{"name":"Topaz","hardness":8,"color":"#F59E0B","family":"Silicate"},{"name":"Emerald","hardness":7.5,"color":"#10B981","family":"Beryl"},{"name":"Quartz / Amethyst","hardness":7,"color":"#8B5CF6","family":"Silicon Dioxide"}],"accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, minerals, accentColor, theme } = merged;
 
 

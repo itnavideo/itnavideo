@@ -9,14 +9,7 @@ export interface GoogleAdsResponsiveSearchAdProps {
 export const GoogleAdsResponsiveSearchAd: React.FC<GoogleAdsResponsiveSearchAdProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Responsive Search Ad Preview","headlines":["AI Video Creator 1080p","Auto Subtitles In 30 Seconds","Render Fast on Cloud Lambda"],"descriptions":["Turn audio and voiceovers into high-retention vertical reels automatically. 100% cloud rendering.","No manual editing required. Try our free auto caption generator today."],"adStrength":"Excellent","accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, headlines, descriptions, adStrength, accentColor, theme } = merged;
 
 

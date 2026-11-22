@@ -9,14 +9,7 @@ export interface AutonomousLidarVisionProps {
 export const AutonomousLidarVision: React.FC<AutonomousLidarVisionProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Autonomous Vehicle Perception","system":"LIDAR + Camera Sensor Fusion","detectedObjects":"3 Vehicles, 2 Pedestrians","confidence":"99.4%","driveMode":"Full Self-Driving Active","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, system, detectedObjects, confidence, driveMode, accentColor, theme } = merged;
 
 

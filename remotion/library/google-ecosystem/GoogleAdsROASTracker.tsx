@@ -9,14 +9,7 @@ export interface GoogleAdsROASTrackerProps {
 export const GoogleAdsROASTracker: React.FC<GoogleAdsROASTrackerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Target ROAS Performance","targetROAS":"380%","actualROAS":"462%","totalCost":"$4,120.00","convValue":"$19,034.40","status":"Target Exceeded (+82%)","accentColor":"#34A853","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, targetROAS, actualROAS, totalCost, convValue, status, accentColor, theme } = merged;
 
 

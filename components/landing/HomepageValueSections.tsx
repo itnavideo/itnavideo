@@ -309,7 +309,7 @@ export function HomepageFinalCta() {
             </Link>
           </div>
 
-          <p className="mt-4 text-[11px] sm:text-xs text-zinc-400 font-medium">
+          <p className="mt-4 text-[11px] sm:text-xs text-slate-600 font-medium">
             Free Trial on Signup • No Credit Card Required • No Watermark on Paid Plans
           </p>
         </div>

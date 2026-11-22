@@ -9,14 +9,7 @@ export interface GoogleSearchAutocompleteProps {
 export const GoogleSearchAutocomplete: React.FC<GoogleSearchAutocompleteProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Google Search Bar","typedQuery":"how to create ai viral shorts","suggestions":["how to create ai viral shorts with captions","how to create ai viral shorts free without watermark","how to create ai viral shorts on remotion lambda","how to create ai viral shorts for youtube and tiktok"],"accentColor":"#4285F4","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, typedQuery, suggestions, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface TimeboxScheduleCalendarProps {
 export const TimeboxScheduleCalendar: React.FC<TimeboxScheduleCalendarProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Daily Timebox Schedule","date":"Tuesday, Nov 24","timeblocks":[{"time":"09:00 - 11:30","name":"Deep Work: Core Engine","tag":"Deep Focus","color":"#3B82F6"},{"time":"11:30 - 12:30","name":"Sprint Standup & Triage","tag":"Team Sync","color":"#10B981"},{"time":"13:30 - 15:30","name":"Client Demo & Architecture","tag":"Meeting","color":"#8B5CF6"},{"time":"15:30 - 17:00","name":"Async Code Reviews","tag":"Admin","color":"#F59E0B"}],"currentTime":"10:45 AM","accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, date, timeblocks, currentTime, accentColor, theme } = merged;
 
 

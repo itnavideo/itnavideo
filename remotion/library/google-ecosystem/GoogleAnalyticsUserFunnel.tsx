@@ -9,14 +9,7 @@ export interface GoogleAnalyticsUserFunnelProps {
 export const GoogleAnalyticsUserFunnel: React.FC<GoogleAnalyticsUserFunnelProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"E-commerce Purchase Funnel","steps":[{"name":"1. Session Start","users":12500,"drop":"0%"},{"name":"2. View Product","users":7800,"drop":"-37.6%"},{"name":"3. Add to Cart","users":3400,"drop":"-56.4%"},{"name":"4. Completed Purchase","users":1120,"drop":"-67.1%"}],"conversionRate":"8.96%","accentColor":"#4285F4","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, steps, conversionRate, accentColor, theme } = merged;
 
 

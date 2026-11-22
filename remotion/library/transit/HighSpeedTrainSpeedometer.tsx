@@ -9,14 +9,7 @@ export interface HighSpeedTrainSpeedometerProps {
 export const HighSpeedTrainSpeedometer: React.FC<HighSpeedTrainSpeedometerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Bullet Train Cockpit Telemetry","speedKmh":320,"tractionPowerKw":"9,600 kW","lineVoltage":"25 kV AC 50Hz","cabSignal":"CAB 320 OK","trainModel":"Shinkansen N700S","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, speedKmh, tractionPowerKw, lineVoltage, cabSignal, trainModel, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface GoogleAdsAuctionInsightsProps {
 export const GoogleAdsAuctionInsights: React.FC<GoogleAdsAuctionInsightsProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Auction Insights Report","competitors":[{"domain":"You (Itnavideo)","imprShare":"64.2%","overlapRate":"-","outrankShare":"-","topOfPage":"88.4%"},{"domain":"CompetitorA.io","imprShare":"42.1%","overlapRate":"58.4%","outrankShare":"72.1%","topOfPage":"74.2%"},{"domain":"CompetitorB.com","imprShare":"31.5%","overlapRate":"41.2%","outrankShare":"84.6%","topOfPage":"61.0%"}],"accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, competitors, accentColor, theme } = merged;
 
 

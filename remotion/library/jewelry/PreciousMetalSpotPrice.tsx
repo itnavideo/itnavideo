@@ -9,14 +9,7 @@ export interface PreciousMetalSpotPriceProps {
 export const PreciousMetalSpotPrice: React.FC<PreciousMetalSpotPriceProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Global Precious Metals Ticker","metals":[{"code":"XAU (Gold)","price":"$2,748.20","change":"+1.42%","color":"#F59E0B"},{"code":"XAG (Silver)","price":"$31.85","change":"+2.15%","color":"#94A3B8"},{"code":"XPT (Platinum)","price":"$986.50","change":"+0.85%","color":"#38BDF8"}],"unit":"USD per Troy Ounce (oz)","accentColor":"#F59E0B","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, metals, unit, accentColor, theme } = merged;
 
 

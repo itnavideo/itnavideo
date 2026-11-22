@@ -9,14 +9,7 @@ export interface TimesheetTrackerCardProps {
 export const TimesheetTrackerCard: React.FC<TimesheetTrackerCardProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Weekly Billable Hours","employeeName":"Julian Vance","days":[{"day":"Mon","hours":8.5,"billable":7.5},{"day":"Tue","hours":9,"billable":8},{"day":"Wed","hours":8,"billable":8},{"day":"Thu","hours":7.5,"billable":6.5},{"day":"Fri","hours":6,"billable":5}],"totalHours":39,"billableRate":"$140/hr","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, employeeName, days, totalHours, billableRate, accentColor, theme } = merged;
 
 

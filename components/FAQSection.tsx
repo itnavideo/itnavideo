@@ -219,7 +219,7 @@ export default function FAQSection() {
           <div className="flex h-10 w-10 mx-auto items-center justify-center rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-600 mb-2">
             <MessageCircle size={18} />
           </div>
-          <h4 className="text-sm font-bold text-slate-900">Have another question?</h4>
+          <h3 className="text-sm font-bold text-slate-900">Have another question?</h3>
           <p className="mt-1 text-xs text-slate-600">Contact us for product, billing, or workflow questions.</p>
           <div className="mt-4">
             <Link

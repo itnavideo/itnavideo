@@ -9,14 +9,7 @@ export interface JewelryBoxVelvetDisplayProps {
 export const JewelryBoxVelvetDisplay: React.FC<JewelryBoxVelvetDisplayProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Velvet Presentation Box","velvetColor":"Midnight Navy Blue","interior":"Champagne Silk Satin Lining","itemPresented":"3.02 ct Solitaire Diamond Ring","spotlight":"Warm LED Illuminator Active","accentColor":"#F59E0B","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, velvetColor, interior, itemPresented, spotlight, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface GoogleAdsCampaignOverviewProps {
 export const GoogleAdsCampaignOverview: React.FC<GoogleAdsCampaignOverviewProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Search — High Intent Reels SaaS","budget":"$150.00 / day","impressions":"42,800","clicks":"2,640","cpc":"$0.84","cost":"$2,217.60","conversions":218,"costPerConv":"$10.17","accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, budget, impressions, clicks, cpc, cost, conversions, costPerConv, accentColor, theme } = merged;
 
 

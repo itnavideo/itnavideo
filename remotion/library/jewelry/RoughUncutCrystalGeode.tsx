@@ -9,14 +9,7 @@ export interface RoughUncutCrystalGeodeProps {
 export const RoughUncutCrystalGeode: React.FC<RoughUncutCrystalGeodeProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Natural Rough Crystal Geode","mineral":"Royal Purple Amethyst with Quartz Matrix","weightCarats":"348.5 ct","origin":"Rio Grande do Sul, Brazil","estimatedYield":"42% Gem-Quality Facet Cut","accentColor":"#8B5CF6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, mineral, weightCarats, origin, estimatedYield, accentColor, theme } = merged;
 
 

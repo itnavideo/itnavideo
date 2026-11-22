@@ -9,14 +9,7 @@ export interface GemstonePendantNecklaceProps {
 export const GemstonePendantNecklace: React.FC<GemstonePendantNecklaceProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Royal Ceylon Sapphire Pendant","caratWeight":"4.20 ct Center Sapphire","haloDiamonds":"0.45 ctw Pavé Surround","chain":"18K White Gold 1.2mm Cable Chain","accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, caratWeight, haloDiamonds, chain, accentColor, theme } = merged;
 
 

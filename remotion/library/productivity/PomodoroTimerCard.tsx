@@ -9,14 +9,7 @@ export interface PomodoroTimerCardProps {
 export const PomodoroTimerCard: React.FC<PomodoroTimerCardProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Deep Focus Sprint","currentMinutes":24,"totalMinutes":25,"sessionsCompleted":3,"mode":"Focus Session","accentColor":"#EF4444","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, currentMinutes, totalMinutes, sessionsCompleted, mode, accentColor, theme } = merged;
 
 

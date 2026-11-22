@@ -9,14 +9,7 @@ export interface ApprovalRouteWorkflowProps {
 export const ApprovalRouteWorkflow: React.FC<ApprovalRouteWorkflowProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Capital Expenditure Approval","stages":[{"name":"Submission","actor":"Alex Chen","status":"approved","time":"10:14 AM"},{"name":"Tech Lead Review","actor":"Marcus Vance","status":"approved","time":"11:30 AM"},{"name":"VP Finance","actor":"Elena Rostova","status":"in-review","time":"Pending"},{"name":"Executive Sign-off","actor":"CEO Office","status":"pending","time":"Queued"}],"currentStageIndex":2,"approverName":"Elena Rostova","accentColor":"#8B5CF6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, stages, currentStageIndex, approverName, accentColor, theme } = merged;
 
 

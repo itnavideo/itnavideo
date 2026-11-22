@@ -9,14 +9,7 @@ export interface FocusTimeBlockerProps {
 export const FocusTimeBlocker: React.FC<FocusTimeBlockerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Deep Work Shield","focusDurationMinutes":90,"blockedNotifications":24,"soundscape":"Binaural Alpha Waves","accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, focusDurationMinutes, blockedNotifications, soundscape, accentColor, theme } = merged;
 
 

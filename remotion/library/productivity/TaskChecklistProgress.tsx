@@ -9,14 +9,7 @@ export interface TaskChecklistProgressProps {
 export const TaskChecklistProgress: React.FC<TaskChecklistProgressProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Launch Readiness Checklist","items":[{"text":"Finalize Remotion 30fps configs","done":true},{"text":"Deploy Lambda rendering worker","done":true},{"text":"Set S3 asset lifecycle retention","done":true},{"text":"Review Stripe webhook keys","done":false},{"text":"Run live end-to-end user test","done":false}],"completedCount":3,"accentColor":"#6366F1","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, items, completedCount, accentColor, theme } = merged;
 
 

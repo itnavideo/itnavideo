@@ -9,14 +9,7 @@ export interface DroneDeliveryCorridorProps {
 export const DroneDeliveryCorridor: React.FC<DroneDeliveryCorridorProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Automated Drone Flight Corridor","droneId":"UAV-DELIVER-08","altitudeAGL":"120 m AGL","batteryLevel":"91%","payloadWeight":"1.8 kg Medical Kit","corridorStatus":"Airspace Cleared","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, droneId, altitudeAGL, batteryLevel, payloadWeight, corridorStatus, accentColor, theme } = merged;
 
 

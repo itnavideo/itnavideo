@@ -9,14 +9,7 @@ export interface IGIJewelryCertificateProps {
 export const IGIJewelryCertificate: React.FC<IGIJewelryCertificateProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"IGI Gemological Report","certId":"IGI-594201884","identification":"Natural Colombian Emerald","shapeCut":"Emerald Cut","weight":"3.15 ct","origin":"Muzo, Colombia","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, certId, identification, shapeCut, weight, origin, accentColor, theme } = merged;
 
 

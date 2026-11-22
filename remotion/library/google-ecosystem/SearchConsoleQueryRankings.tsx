@@ -9,14 +9,7 @@ export interface SearchConsoleQueryRankingsProps {
 export const SearchConsoleQueryRankings: React.FC<SearchConsoleQueryRankingsProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Top Organic Queries","queries":[{"query":"ai auto caption video generator","clicks":18400,"impr":142000,"pos":2.1},{"query":"faceless shorts maker","clicks":12900,"impr":98000,"pos":3.4},{"query":"remotion lambda cloud render","clicks":9400,"impr":61000,"pos":1.8},{"query":"youtube subtitle generator free","clicks":8200,"impr":85000,"pos":4.2}],"accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, queries, accentColor, theme } = merged;
 
 

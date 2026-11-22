@@ -9,14 +9,7 @@ export interface CargoContainerShipTrackerProps {
 export const CargoContainerShipTracker: React.FC<CargoContainerShipTrackerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"AIS Vessel Tracker — Ever Golden","mmsi":"235102940","speedKnots":"19.4 kts","courseDeg":"142° SE","destination":"Rotterdam Port (NLD)","capacityTEU":"20,124 TEU","draftDepth":"15.8 m","accentColor":"#0EA5E9","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, mmsi, speedKnots, courseDeg, destination, capacityTEU, draftDepth, accentColor, theme } = merged;
 
 

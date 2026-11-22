@@ -9,14 +9,7 @@ export interface DiamondFourCsGradingProps {
 export const DiamondFourCsGrading: React.FC<DiamondFourCsGradingProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"GIA Diamond 4Cs Certification","carat":"1.54 ct","cut":"Excellent","color":"F (Colorless)","clarity":"VVS1","reportNumber":"GIA-221849012","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, carat, cut, color, clarity, reportNumber, accentColor, theme } = merged;
 
 

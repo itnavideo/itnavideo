@@ -9,14 +9,7 @@ export interface GoldBangleStackerProps {
 export const GoldBangleStacker: React.FC<GoldBangleStackerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"22K Kundan Gold Bangles","bangleCount":4,"totalWeightGrams":"68.4 g","craftsmanship":"Handcrafted Meenakari & Filigree","metal":"22K Solid Gold (916)","accentColor":"#EAB308","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, bangleCount, totalWeightGrams, craftsmanship, metal, accentColor, theme } = merged;
 
 

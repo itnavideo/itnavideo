@@ -9,14 +9,7 @@ export interface MountainCableCarGondolaProps {
 export const MountainCableCarGondola: React.FC<MountainCableCarGondolaProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Alpine Aerial Cable Car","resort":"Matterhorn Glacier Paradise","altitudeGain":"1,620 m → 3,883 m","cabinSpeed":"7.5 m/s","cableTension":"Optimal (620 kN)","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, resort, altitudeGain, cabinSpeed, cableTension, accentColor, theme } = merged;
 
 

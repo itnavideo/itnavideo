@@ -9,14 +9,7 @@ export interface ExpenseReimbursementFlowProps {
 export const ExpenseReimbursementFlow: React.FC<ExpenseReimbursementFlowProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Expense Claim #EXP-8841","claimId":"EXP-8841","totalAmount":"$1,248.50","currency":"USD","items":[{"desc":"AWS Lambda Render Credits","amount":"$540.00","cat":"Cloud Infra"},{"desc":"Flight to Tech Summit NYC","amount":"$480.00","cat":"Travel"},{"desc":"Groq Whisper API Quota","amount":"$228.50","cat":"AI Compute"}],"status":"Approved & Reimbursed","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, claimId, totalAmount, currency, items, status, accentColor, theme } = merged;
 
 

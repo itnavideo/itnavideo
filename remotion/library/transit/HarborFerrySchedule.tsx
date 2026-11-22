@@ -9,14 +9,7 @@ export interface HarborFerryScheduleProps {
 export const HarborFerrySchedule: React.FC<HarborFerryScheduleProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Harbor Ferry Pier 11","route":"Downtown Manhattan ↔ Staten Island","nextDeparture":"14:30 (In 8 mins)","vessel":"MV Spirit of New York","capacity":"450 Passengers / 60 Cars","crossingTime":"22 Minutes","accentColor":"#0284C7","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, route, nextDeparture, vessel, capacity, crossingTime, accentColor, theme } = merged;
 
 

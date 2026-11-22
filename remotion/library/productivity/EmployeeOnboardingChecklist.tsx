@@ -9,14 +9,7 @@ export interface EmployeeOnboardingChecklistProps {
 export const EmployeeOnboardingChecklist: React.FC<EmployeeOnboardingChecklistProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Developer Ramp-Up Journey","employeeName":"Aisha Malik","roleTitle":"Senior Video Engineer","phases":[{"phase":"Day 1","task":"Dev environment & GitHub access","status":"done"},{"phase":"Week 1","task":"First Remotion template deployed","status":"done"},{"phase":"Month 1","task":"Full ownership of Lambda pipeline","status":"in-progress"},{"phase":"Month 3","task":"Lead architecture review","status":"queued"}],"overallProgress":60,"accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, employeeName, roleTitle, phases, overallProgress, accentColor, theme } = merged;
 
 

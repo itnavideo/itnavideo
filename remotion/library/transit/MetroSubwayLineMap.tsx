@@ -9,14 +9,7 @@ export interface MetroSubwayLineMapProps {
 export const MetroSubwayLineMap: React.FC<MetroSubwayLineMapProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Metropolitan Rapid Transit","lineName":"Blue Line (Express Service)","currentStation":"Grand Central Terminal","nextStation":"Times Square — 42nd St","stations":[{"name":"Financial District","passed":true},{"name":"Canal St","passed":true},{"name":"Union Square","passed":true},{"name":"Grand Central","current":true},{"name":"Times Square","next":true},{"name":"Columbus Circle","queued":true}],"accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, lineName, currentStation, nextStation, stations, accentColor, theme } = merged;
 
 

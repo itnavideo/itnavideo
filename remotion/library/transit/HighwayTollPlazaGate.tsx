@@ -9,14 +9,7 @@ export interface HighwayTollPlazaGateProps {
 export const HighwayTollPlazaGate: React.FC<HighwayTollPlazaGateProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Electronic Toll Collection (ETC)","plazaName":"Expressway Gateway Plaza","tagId":"TAG-8840-X1","tollFee":"$4.50","accountBalance":"$82.50","gateStatus":"BARRIER OPEN — PROCEED","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, plazaName, tagId, tollFee, accountBalance, gateStatus, accentColor, theme } = merged;
 
 

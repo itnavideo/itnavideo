@@ -9,14 +9,7 @@ export interface WorkloadCapacityBalancerProps {
 export const WorkloadCapacityBalancer: React.FC<WorkloadCapacityBalancerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Engineering Team Workload","teamMembers":[{"name":"Dave Miller","allocation":92,"role":"Backend Lead"},{"name":"Elena Zhou","allocation":115,"role":"Frontend Architect"},{"name":"Carlos Gomez","allocation":70,"role":"DevOps / SRE"},{"name":"Maya Patel","allocation":85,"role":"AI / Remotion"}],"thresholdWarning":100,"accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, teamMembers, thresholdWarning, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface ProductivityMetricsScoreProps {
 export const ProductivityMetricsScore: React.FC<ProductivityMetricsScoreProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Weekly Productivity Pulse","score":94,"focusHours":28.5,"meetingHours":6.2,"efficiencyTrend":"+14% vs last week","benchmarkPercentile":"Top 5%","accentColor":"#8B5CF6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, score, focusHours, meetingHours, efficiencyTrend, benchmarkPercentile, accentColor, theme } = merged;
 
 

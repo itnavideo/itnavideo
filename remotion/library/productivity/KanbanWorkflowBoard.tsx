@@ -9,14 +9,7 @@ export interface KanbanWorkflowBoardProps {
 export const KanbanWorkflowBoard: React.FC<KanbanWorkflowBoardProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Sprint Workflow Board","columns":[{"name":"To Do","limit":5,"cards":["Refactor Auth API","Design Style Guide"]},{"name":"In Progress","limit":3,"cards":["Remotion Player v2","Webhook Handler"]},{"name":"Done","limit":10,"cards":["Setup Cloud Run","Tailwind Config"]}],"accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, columns, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface TagManagerPreviewDebuggerProps {
 export const TagManagerPreviewDebugger: React.FC<TagManagerPreviewDebuggerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Tag Assistant Debugger","selectedEvent":"4: Link Click","tagsFiredCount":3,"tagsNotFiredCount":2,"firedTags":["Google Ads Remarketing","GA4 Form Submit","LinkedIn Insight Tag"],"notFiredTags":["TikTok Pixel Lead","Hotjar Heatmap Init"],"accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, selectedEvent, tagsFiredCount, tagsNotFiredCount, firedTags, notFiredTags, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface CustomJewelryCADViewerProps {
 export const CustomJewelryCADViewer: React.FC<CustomJewelryCADViewerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Custom Ring CAD Modeling","software":"RhinoJewel 3D / MatrixGold","prongTolerance":"0.85 mm Clasp Height","castWeight":"5.4 g 18K Yellow Gold","meshDensity":"128K Polygonal Faces","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, software, prongTolerance, castWeight, meshDensity, accentColor, theme } = merged;
 
 

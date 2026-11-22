@@ -9,14 +9,7 @@ export interface GanttProjectTimelineProps {
 export const GanttProjectTimeline: React.FC<GanttProjectTimelineProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Product Launch Timeline","tasks":[{"name":"Architecture Design","start":5,"duration":25,"progress":100,"color":"#3B82F6"},{"name":"Core Engine Build","start":20,"duration":40,"progress":75,"color":"#8B5CF6"},{"name":"UI / UX Integration","start":45,"duration":30,"progress":40,"color":"#10B981"},{"name":"Security & QA Audit","start":65,"duration":25,"progress":10,"color":"#F59E0B"}],"todayMarker":55,"accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, tasks, todayMarker, accentColor, theme } = merged;
 
 

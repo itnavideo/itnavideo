@@ -9,14 +9,7 @@ export interface FlightRadarTrackerProps {
 export const FlightRadarTracker: React.FC<FlightRadarTrackerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Flight BA 178 Tracking","origin":"JFK (New York)","destination":"LHR (London Heathrow)","altitude":"38,000 ft","groundSpeed":"520 kts (963 km/h)","aircraft":"Boeing 777-300ER","flightStatus":"En Route • On Time","eta":"06:45 GMT","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, origin, destination, altitude, groundSpeed, aircraft, flightStatus, eta, accentColor, theme } = merged;
 
 

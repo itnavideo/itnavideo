@@ -9,14 +9,7 @@ export interface GPSNavigationTurnByTurnProps {
 export const GPSNavigationTurnByTurn: React.FC<GPSNavigationTurnByTurnProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"GPS Turn-By-Turn HUD","distanceMeters":"250 m","instruction":"In 250m, Turn Right onto Broadway Ave","nextRoad":"Broadway Ave","currentSpeed":"48 km/h","speedLimit":"50","etaTime":"12 min (6.4 km)","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, distanceMeters, instruction, nextRoad, currentSpeed, speedLimit, etaTime, accentColor, theme } = merged;
 
 

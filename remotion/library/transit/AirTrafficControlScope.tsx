@@ -9,14 +9,7 @@ export interface AirTrafficControlScopeProps {
 export const AirTrafficControlScope: React.FC<AirTrafficControlScopeProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Sector 4 ATC Radar Scope","frequency":"121.5 MHz VHF","activeTargets":6,"sweepRadius":"60 Nautical Miles","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, frequency, activeTargets, sweepRadius, accentColor, theme } = merged;
 
 

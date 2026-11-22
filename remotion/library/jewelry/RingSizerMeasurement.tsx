@@ -9,14 +9,7 @@ export interface RingSizerMeasurementProps {
 export const RingSizerMeasurement: React.FC<RingSizerMeasurementProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Ring Size Conversion Chart","sizes":[{"us":"6","uk":"L 1/2","eu":"52","mm":"16.5 mm"},{"us":"7","uk":"N 1/2","eu":"54","mm":"17.3 mm"},{"us":"8","uk":"P 1/2","eu":"57","mm":"18.1 mm"},{"us":"9","uk":"R 1/2","eu":"60","mm":"18.9 mm"}],"selectedSize":"US 7 (17.3 mm)","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, sizes, selectedSize, accentColor, theme } = merged;
 
 

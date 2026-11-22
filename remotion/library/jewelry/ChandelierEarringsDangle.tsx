@@ -9,14 +9,7 @@ export interface ChandelierEarringsDangleProps {
 export const ChandelierEarringsDangle: React.FC<ChandelierEarringsDangleProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Emerald Chandelier Earrings","gemstone":"Zambian Emerald & Diamonds","dropLength":"62 mm","totalWeight":"18.4 ctw","metal":"18K White Gold","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, gemstone, dropLength, totalWeight, metal, accentColor, theme } = merged;
 
 

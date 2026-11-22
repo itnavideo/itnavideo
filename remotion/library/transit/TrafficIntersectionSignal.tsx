@@ -9,14 +9,7 @@ export interface TrafficIntersectionSignalProps {
 export const TrafficIntersectionSignal: React.FC<TrafficIntersectionSignalProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Traffic Signal Controller #IT-901","intersection":"Main St & 5th Avenue","activePhase":"North-South Green","secondsRemaining":18,"accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, intersection, activePhase, secondsRemaining, accentColor, theme } = merged;
 
 

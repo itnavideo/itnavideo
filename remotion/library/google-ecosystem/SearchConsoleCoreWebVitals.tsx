@@ -9,14 +9,7 @@ export interface SearchConsoleCoreWebVitalsProps {
 export const SearchConsoleCoreWebVitals: React.FC<SearchConsoleCoreWebVitalsProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Core Web Vitals Assessment","device":"Mobile","metrics":[{"name":"LCP (Largest Contentful Paint)","val":"1.4s","status":"Good","color":"#34A853"},{"name":"INP (Interaction to Next Paint)","val":"85ms","status":"Good","color":"#34A853"},{"name":"CLS (Cumulative Layout Shift)","val":"0.02","status":"Good","color":"#34A853"}],"overallStatus":"Passed","accentColor":"#34A853","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, device, metrics, overallStatus, accentColor, theme } = merged;
 
 

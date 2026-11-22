@@ -9,14 +9,7 @@ export interface SterlingSilverHallmarkProps {
 export const SterlingSilverHallmark: React.FC<SterlingSilverHallmarkProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"925 Sterling Silver Hallmark","alloyRatio":"92.5% Pure Silver + 7.5% Copper","assayOffice":"London Assay Office (Leopard Head)","stampMark":"925","weightGrams":"42.8g","finish":"Rhodium Anti-Tarnish Plated","accentColor":"#94A3B8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, alloyRatio, assayOffice, stampMark, weightGrams, finish, accentColor, theme } = merged;
 
 

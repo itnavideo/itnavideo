@@ -291,36 +291,40 @@ export default function TestimonialSection() {
 
               {/* Slider Navigation Controls */}
               <div className="flex items-center justify-between pt-2">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   {CREATOR_STORIES.map((_, i) => (
                     <button
                       key={i}
                       type="button"
                       onClick={() => setActiveIndex(i)}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        activeIndex === i ? 'w-6 bg-orange-600' : 'w-1.5 bg-zinc-200 hover:bg-zinc-300'
-                      }`}
+                      className="h-11 min-w-[28px] px-1 flex items-center justify-center cursor-pointer group"
                       aria-label={`Go to story ${i + 1}`}
-                    />
+                    >
+                      <span
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          activeIndex === i ? 'w-6 bg-orange-600' : 'w-2 bg-zinc-300 group-hover:bg-zinc-400'
+                        }`}
+                      />
+                    </button>
                   ))}
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={handlePrev}
                     aria-label="Previous story"
-                    className="h-7 w-7 rounded-full border border-zinc-200 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
+                    className="h-11 w-11 rounded-full border border-zinc-200 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
                   >
-                    <ChevronLeft size={14} />
+                    <ChevronLeft size={16} />
                   </button>
                   <button
                     type="button"
                     onClick={handleNext}
                     aria-label="Next story"
-                    className="h-7 w-7 rounded-full border border-zinc-200 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
+                    className="h-11 w-11 rounded-full border border-zinc-200 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex items-center justify-center transition-colors cursor-pointer"
                   >
-                    <ChevronRight size={14} />
+                    <ChevronRight size={16} />
                   </button>
                 </div>
               </div>

@@ -9,14 +9,7 @@ export interface SearchConsolePerformanceClicksProps {
 export const SearchConsolePerformanceClicks: React.FC<SearchConsolePerformanceClicksProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"GSC Search Performance","totalClicks":"148K","totalImpressions":"3.2M","averageCTR":"4.6%","averagePosition":"8.4","accentColor":"#4285F4","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, totalClicks, totalImpressions, averageCTR, averagePosition, accentColor, theme } = merged;
 
 

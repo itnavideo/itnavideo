@@ -9,14 +9,7 @@ export interface EisenhowerMatrixCardProps {
 export const EisenhowerMatrixCard: React.FC<EisenhowerMatrixCardProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Priority Decision Matrix","quadrants":[{"name":"Do First","subtitle":"Urgent & Important","color":"#EF4444","tasks":["Server Crash Patch","Client Pitch"]},{"name":"Schedule","subtitle":"Not Urgent & Important","color":"#3B82F6","tasks":["Q3 Product Strategy","Workout Routine"]},{"name":"Delegate","subtitle":"Urgent & Not Important","color":"#F59E0B","tasks":["Weekly Report Gen","Inbox Sorting"]},{"name":"Delete","subtitle":"Not Urgent & Not Important","color":"#6B7280","tasks":["Random Browsing","Unsorted Spam"]}],"activeQuadrant":0,"accentColor":"#3B82F6","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, quadrants, activeQuadrant, accentColor, theme } = merged;
 
 

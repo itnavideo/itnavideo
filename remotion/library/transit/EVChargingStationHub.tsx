@@ -9,14 +9,7 @@ export interface EVChargingStationHubProps {
 export const EVChargingStationHub: React.FC<EVChargingStationHubProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Ultra-Fast DC Supercharger","stallId":"Stall 4B (350 kW CCS)","batteryPercent":78,"chargingRateKw":"240 kW","energyDeliveredKwh":"52.4 kWh","sessionDuration":"18 min 40 sec","accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, stallId, batteryPercent, chargingRateKw, energyDeliveredKwh, sessionDuration, accentColor, theme } = merged;
 
 

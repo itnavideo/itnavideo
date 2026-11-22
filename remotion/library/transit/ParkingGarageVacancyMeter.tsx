@@ -9,14 +9,7 @@ export interface ParkingGarageVacancyMeterProps {
 export const ParkingGarageVacancyMeter: React.FC<ParkingGarageVacancyMeterProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"City Center Parking Garage","totalAvailable":148,"floors":[{"floor":"P1 (Ground)","spots":12,"status":"Nearly Full","color":"#EF4444"},{"floor":"P2 (Level 2)","spots":48,"status":"Spots Available","color":"#10B981"},{"floor":"P3 (Rooftop)","spots":88,"status":"Wide Open","color":"#10B981"}],"accentColor":"#10B981","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, totalAvailable, floors, accentColor, theme } = merged;
 
 

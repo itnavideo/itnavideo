@@ -9,14 +9,7 @@ export interface GoogleAdsQualityScoreMetricProps {
 export const GoogleAdsQualityScoreMetric: React.FC<GoogleAdsQualityScoreMetricProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Keyword Quality Score: 9/10","keyword":"\"ai video creation software\"","factors":[{"name":"Expected CTR","grade":"Above Average","color":"#34A853"},{"name":"Ad Relevance","grade":"Above Average","color":"#34A853"},{"name":"Landing Page Experience","grade":"Average","color":"#FBBC05"}],"score":9,"accentColor":"#34A853","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, keyword, factors, score, accentColor, theme } = merged;
 
 

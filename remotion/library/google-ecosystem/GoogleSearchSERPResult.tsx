@@ -9,14 +9,7 @@ export interface GoogleSearchSERPResultProps {
 export const GoogleSearchSERPResult: React.FC<GoogleSearchSERPResultProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Itnavideo — AI Video Creation & Subtitle Engine","url":"https://itnavideo.com","breadcrumb":"itnavideo.com > tools > auto-caption","snippet":"Generate studio-quality vertical reels and subtitles in seconds. Automated Groq Whisper transcription with cloud 30fps rendering.","rating":4.9,"reviewsCount":1420,"sitelinks":["Auto Caption Reel","Compare Explainer","Pricing Plans","Remotion Cloud"],"accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, url, breadcrumb, snippet, rating, reviewsCount, sitelinks, accentColor, theme } = merged;
 
 

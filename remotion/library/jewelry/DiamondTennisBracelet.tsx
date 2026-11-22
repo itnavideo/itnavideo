@@ -9,14 +9,7 @@ export interface DiamondTennisBraceletProps {
 export const DiamondTennisBracelet: React.FC<DiamondTennisBraceletProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Classic Diamond Tennis Bracelet","totalCaratWeight":"5.00 ctw","diamondCount":"58 Round Brilliants","metal":"14K Yellow Gold","clasp":"Double Figure-8 Safety Lock","accentColor":"#F59E0B","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, totalCaratWeight, diamondCount, metal, clasp, accentColor, theme } = merged;
 
 

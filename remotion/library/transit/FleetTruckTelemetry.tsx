@@ -9,14 +9,7 @@ export interface FleetTruckTelemetryProps {
 export const FleetTruckTelemetry: React.FC<FleetTruckTelemetryProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Freight Telematics Unit #TR-408","driver":"Marcus Kane (CDL-A)","hoursOfService":"6h 45m / 11h Max Driving","dieselFuel":"84% (820 km Range)","engineRpm":"1,420 RPM","tirePressure":"105 PSI (All Green)","accentColor":"#38BDF8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, driver, hoursOfService, dieselFuel, engineRpm, tirePressure, accentColor, theme } = merged;
 
 

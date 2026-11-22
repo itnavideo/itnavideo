@@ -9,14 +9,7 @@ export interface GoogleAnalytics4RealtimeProps {
 export const GoogleAnalytics4Realtime: React.FC<GoogleAnalytics4RealtimeProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Realtime Overview (GA4)","activeUsers":842,"minutesWindow":30,"devices":[{"type":"Mobile","pct":68,"color":"#4285F4"},{"type":"Desktop","pct":28,"color":"#34A853"},{"type":"Tablet","pct":4,"color":"#FBBC05"}],"topCountries":["United States (310)","India (215)","United Kingdom (84)","Germany (52)"],"accentColor":"#F57C00","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, activeUsers, minutesWindow, devices, topCountries, accentColor, theme } = merged;
 
 

@@ -9,14 +9,7 @@ export interface GoogleSearchPeopleAlsoAskProps {
 export const GoogleSearchPeopleAlsoAsk: React.FC<GoogleSearchPeopleAlsoAskProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"People also ask","questions":[{"q":"How long does it take to render a 60s video with Remotion Lambda?","open":true,"ans":"Typically 15 to 30 seconds across distributed headless Chromium containers running on AWS Lambda."},{"q":"What is the best subtitle style for viral reels?","open":false},{"q":"Can I generate faceless videos from audio scripts?","open":false},{"q":"How does Groq Whisper achieve millisecond transcription accuracy?","open":false}],"accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, questions, accentColor, theme } = merged;
 
 

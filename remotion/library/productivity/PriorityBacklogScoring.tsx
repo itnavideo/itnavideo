@@ -9,14 +9,7 @@ export interface PriorityBacklogScoringProps {
 export const PriorityBacklogScoring: React.FC<PriorityBacklogScoringProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"RICE Prioritization Matrix","features":[{"name":"Lambda Cloud Render v2","reach":80,"impact":90,"conf":85,"effort":30,"score":204},{"name":"Auto-Subtitles Dual Tab","reach":95,"impact":85,"conf":90,"effort":40,"score":182},{"name":"AI Voice Cloning Studio","reach":60,"impact":75,"conf":70,"effort":50,"score":63}],"accentColor":"#F59E0B","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, features, accentColor, theme } = merged;
 
 

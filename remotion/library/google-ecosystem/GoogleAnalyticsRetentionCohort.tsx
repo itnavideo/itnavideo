@@ -9,14 +9,7 @@ export interface GoogleAnalyticsRetentionCohortProps {
 export const GoogleAnalyticsRetentionCohort: React.FC<GoogleAnalyticsRetentionCohortProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Weekly Retention Cohorts","cohorts":[{"week":"Oct 06 - Oct 12","size":"2,400","w0":"100%","w1":"42%","w2":"31%","w3":"26%"},{"week":"Oct 13 - Oct 19","size":"2,850","w0":"100%","w1":"45%","w2":"34%","w3":"29%"},{"week":"Oct 20 - Oct 26","size":"3,100","w0":"100%","w1":"48%","w2":"36%","w3":"-"}],"accentColor":"#34A853","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, cohorts, accentColor, theme } = merged;
 
 

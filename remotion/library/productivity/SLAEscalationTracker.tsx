@@ -9,14 +9,7 @@ export interface SLAEscalationTrackerProps {
 export const SLAEscalationTracker: React.FC<SLAEscalationTrackerProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Incident SLA Tracker","ticketId":"INC-9042","timeRemaining":"18m 42s","slaTarget":"45m 00s","escalationLevel":"Tier 2 Escalated","priority":"P1 - Critical","accentColor":"#EF4444","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#3B82F6',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, ticketId, timeRemaining, slaTarget, escalationLevel, priority, accentColor, theme } = merged;
 
 

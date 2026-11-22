@@ -9,14 +9,7 @@ export interface GoogleSearchKnowledgePanelProps {
 export const GoogleSearchKnowledgePanel: React.FC<GoogleSearchKnowledgePanelProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Itnavideo Platform","entityType":"Software company","verified":true,"description":"Itnavideo is an enterprise cloud video automation suite utilizing serverless AWS Lambda Remotion rendering and speech transcription.","attributes":[{"label":"Founded","value":"2024"},{"label":"Headquarters","value":"San Francisco, CA"},{"label":"Engine","value":"AWS Lambda Remotion 30fps"}],"socials":["YouTube","X (Twitter)","GitHub","LinkedIn"],"accentColor":"#1A73E8","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#1A73E8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, entityType, verified, description, attributes, socials, accentColor, theme } = merged;
 
 

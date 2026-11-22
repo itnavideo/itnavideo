@@ -262,18 +262,18 @@ export default function PlatformMarqueeTicker() {
             </div>
 
             {/* Title with sleek gradient accent */}
-            <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight font-sans flex flex-wrap items-center gap-2.5">
+            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight font-sans flex flex-wrap items-center gap-2.5">
               <span>
                 Viral Shorts{' '}
-                <span className="bg-gradient-to-r from-[#1D70F5] via-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 bg-clip-text text-transparent">
                   &amp; Reels
                 </span>
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-[#1D70F5] text-xs font-bold font-sans">
-                <Clock className="w-3.5 h-3.5 text-[#1D70F5]" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold font-sans">
+                <Clock className="w-3.5 h-3.5 text-blue-700" />
                 Up to 90 seconds
               </span>
-            </h3>
+            </h2>
           </div>
 
           {/* Right: Ecosystem Chips + Pricing + CTA */}

@@ -9,14 +9,7 @@ export interface GoldPurityKaratCardProps {
 export const GoldPurityKaratCard: React.FC<GoldPurityKaratCardProps> = (props) => {
   const frame = useCurrentFrame();
   const defaultValues = {"title":"Gold Karat Purity Standards","karats":[{"karat":"24K","purity":"99.9%","fineness":"999","use":"Bullion & Coins","color":"#F59E0B"},{"karat":"22K","purity":"91.6%","fineness":"916","use":"Traditional Jewelry","color":"#EAB308"},{"karat":"18K","purity":"75.0%","fineness":"750","use":"Diamond Jewelry","color":"#FBBF24"},{"karat":"14K","purity":"58.5%","fineness":"585","use":"Daily Wear Bands","color":"#FDE047"}],"hallmark":"BIS 916 Certified","accentColor":"#F59E0B","theme":"dark"};
-  const {
-    title = defaultValues.title,
-    accentColor = defaultValues.accentColor || '#38BDF8',
-    theme = defaultValues.theme || 'dark',
-    ...rest
-  } = props;
-  
-  const merged = { ...defaultValues, ...rest, title, accentColor, theme };
+  const merged = { ...defaultValues, ...props };
   const { title, karats, hallmark, accentColor, theme } = merged;
 
 
