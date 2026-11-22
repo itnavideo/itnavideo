@@ -21,6 +21,7 @@ export type ComponentCategory =
   | 'svg'
   | '3d-isometric'
   | 'scientific'
+  | 'finance'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -957,6 +958,56 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Electrical engineering schematic with DC voltage source, load resistor, and animated current packets.',
     tags: ['electronics', 'circuit', 'schematic', 'ohms-law', 'engineering', 'stem'],
+  },
+
+  // ── Finance & Trading Suite ──
+  {
+    id: 'stock-ticker',
+    name: 'StockTicker',
+    category: 'finance',
+    aspectRatio: 'both',
+    description: 'Continuous horizontal stock and crypto ticker tape with live price deltas and market status.',
+    tags: ['finance', 'stocks', 'crypto', 'ticker', 'marquee', 'tape'],
+  },
+  {
+    id: 'candlestick-chart',
+    name: 'CandlestickChart',
+    category: 'finance',
+    aspectRatio: 'both',
+    description: 'Financial candlestick chart with green/red wicks, MA-20 moving average line, and volume bars.',
+    tags: ['finance', 'candlestick', 'trading', 'chart', 'stocks', 'crypto', 'volume'],
+  },
+  {
+    id: 'trading-dashboard',
+    name: 'TradingDashboard',
+    category: 'finance',
+    aspectRatio: 'both',
+    description: 'High-frequency trading terminal UI with live order book, unrealized PnL, leverage, and buy/sell buttons.',
+    tags: ['finance', 'trading', 'terminal', 'order-book', 'pnl', 'leverage'],
+  },
+  {
+    id: 'portfolio-chart',
+    name: 'PortfolioChart',
+    category: 'finance',
+    aspectRatio: 'both',
+    description: 'Total net worth counter with multi-color SVG asset allocation donut ring and category breakdown.',
+    tags: ['finance', 'portfolio', 'net-worth', 'wealth', 'asset-allocation', 'donut'],
+  },
+  {
+    id: 'financial-report',
+    name: 'FinancialReport',
+    category: 'finance',
+    aspectRatio: 'both',
+    description: 'Executive quarterly earnings report card with revenue, EBITDA, net margin, and YoY growth benchmark.',
+    tags: ['finance', 'earnings', 'revenue', 'ebitda', 'report', 'margin'],
+  },
+  {
+    id: 'crypto-card',
+    name: 'CryptoCard',
+    category: 'finance',
+    aspectRatio: 'both',
+    description: 'Cryptocurrency token showcase card with live price, 24h change pill, mini vector sparkline, and market cap.',
+    tags: ['crypto', 'bitcoin', 'token', 'sparkline', 'card', 'market-cap'],
   },
 
   // ── Graphics & Frames ──

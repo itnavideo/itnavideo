@@ -64,6 +64,9 @@ export * from './isometric';
 // 2o. Scientific & STEM Suite (MoleculeModel, AtomDiagram, DNAStructure, HumanAnatomy, PhysicsDiagram, CellDiagram, CircuitDiagram)
 export * from './scientific';
 
+// 2p. Finance & Trading Suite (StockTicker, CandlestickChart, TradingDashboard, PortfolioChart, FinancialReport, CryptoCard)
+export * from './finance';
+
 // 3. Infographics
 export * from './infographics';
 
