@@ -9,7 +9,7 @@ export interface SQLSubqueryCardProps {
 
 export const SQLSubqueryCard: React.FC<SQLSubqueryCardProps> = ({
   outerQuery = 'SELECT * FROM users WHERE id IN (...)',
-  innerQuery = 'SELECT DISTINCT user_id FROM render_jobs WHERE status = 'FAILED'',
+  innerQuery = "SELECT DISTINCT user_id FROM render_jobs WHERE status = 'FAILED'",
   className = '',
 }) => {
   const frame = useCurrentFrame();

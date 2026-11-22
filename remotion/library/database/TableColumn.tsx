@@ -11,7 +11,7 @@ export interface TableColumnProps {
 export const TableColumn: React.FC<TableColumnProps> = ({
   columnName = 'aspect_ratio',
   dataType = 'VARCHAR(16)',
-  constraint = 'CHECK (aspect_ratio IN ('16:9', '9:16'))',
+  constraint = "CHECK (aspect_ratio IN ('16:9', '9:16'))",
   className = '',
 }) => {
   const frame = useCurrentFrame();

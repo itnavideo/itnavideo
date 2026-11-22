@@ -111,3 +111,5 @@ export const ChevronStepArrow: React.FC<ChevronStepArrowProps> = ({
   );
 };
 
+export const ModernInfographicTags = ChevronStepArrow;
+

@@ -361,4 +361,6 @@ export function DecodingCardMockup({
   );
 }
 
+export const MockupFrames = PromptWindowFrame;
+
 export default DecodingCardMockup;

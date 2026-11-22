@@ -1079,3 +1079,5 @@ export const SupportingNoteCard: React.FC<SupportingNoteCardProps> = ({
   );
 };
 
+export const ViralMotionCards = VsBattleCard;
+

@@ -413,3 +413,5 @@ export const DonutBreakdown: React.FC<DonutBreakdownProps> = ({
     </div>
   );
 };
+
+export const DataCharts = AnimatedBarChart;

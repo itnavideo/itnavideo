@@ -10,10 +10,10 @@ export interface RetentionPolicyPruningProps {
 }
 
 export const RetentionPolicyPruning: React.FC<RetentionPolicyPruningProps> = ({
-  dailySnapshotsCount: 7,
-  weeklySnapshotsCount: 4,
-  monthlySnapshotsCount: 12,
-  prunedExpiredCount: 38,
+  dailySnapshotsCount = 7,
+  weeklySnapshotsCount = 4,
+  monthlySnapshotsCount = 12,
+  prunedExpiredCount = 38,
   className = ""
 }) => {
   const frame = useCurrentFrame();

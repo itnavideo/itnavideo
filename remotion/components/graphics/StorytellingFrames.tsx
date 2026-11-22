@@ -238,3 +238,5 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
     </div>
   );
 };
+
+export const StorytellingFrames = ChatConversation;

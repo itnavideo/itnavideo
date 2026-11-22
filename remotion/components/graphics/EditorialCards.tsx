@@ -360,3 +360,5 @@ export const NumberedStepsCard: React.FC<NumberedStepsCardProps> = ({
     </div>
   );
 };
+
+export const EditorialCards = EditorialQuoteCard;

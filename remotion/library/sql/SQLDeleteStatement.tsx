@@ -10,7 +10,7 @@ export interface SQLDeleteStatementProps {
 
 export const SQLDeleteStatement: React.FC<SQLDeleteStatementProps> = ({
   tableName = 'temp_renders',
-  whereClause = 'created_at < NOW() - INTERVAL '48 HOURS'',
+  whereClause = "created_at < NOW() - INTERVAL '48 HOURS'",
   purgedRows = 428,
   className = '',
 }) => {

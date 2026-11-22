@@ -132,7 +132,7 @@ export default function TestimonialSection() {
 
   return (
     <section className="relative overflow-hidden bg-white py-16 sm:py-24 border-t border-slate-100">
-      
+
       {/* Soft Ambient Radial Halo */}
       <div
         aria-hidden="true"
@@ -144,7 +144,7 @@ export default function TestimonialSection() {
       />
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
-        
+
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <h2 className="text-3xl sm:text-5xl font-black text-zinc-950 tracking-tight leading-[1.15] font-sans">
@@ -171,11 +171,10 @@ export default function TestimonialSection() {
                 key={story.id}
                 type="button"
                 onClick={() => setActiveIndex(idx)}
-                className={`group flex items-center gap-2.5 px-3.5 py-2 rounded-full border transition-all duration-200 cursor-pointer shrink-0 ${
-                  isActive
+                className={`group flex items-center gap-2.5 px-3.5 py-2 rounded-full border transition-all duration-200 cursor-pointer shrink-0 ${isActive
                     ? 'bg-zinc-950 text-white border-zinc-900 shadow-sm scale-102'
                     : 'bg-white hover:bg-zinc-50 text-zinc-700 border-zinc-200/80 hover:border-zinc-300'
-                }`}
+                  }`}
               >
                 <div className="relative h-6 w-6 rounded-full overflow-hidden border border-white/30 shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -205,10 +204,10 @@ export default function TestimonialSection() {
           className="relative overflow-hidden rounded-3xl border border-zinc-200/90 bg-gradient-to-br from-white via-zinc-50/40 to-orange-50/20 p-6 sm:p-10 shadow-[0_12px_40px_-15px_rgba(0,0,0,0.06)]"
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
+
             {/* Left: Pull Quote & Creator Details (8 cols) */}
             <div className="lg:col-span-8 space-y-6">
-              
+
               {/* Stars & Metric Badge */}
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-1">
@@ -301,9 +300,8 @@ export default function TestimonialSection() {
                       aria-label={`Go to story ${i + 1}`}
                     >
                       <span
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          activeIndex === i ? 'w-6 bg-orange-600' : 'w-2 bg-zinc-300 group-hover:bg-zinc-400'
-                        }`}
+                        className={`h-2 rounded-full transition-all duration-300 ${activeIndex === i ? 'w-6 bg-orange-600' : 'w-2 bg-zinc-300 group-hover:bg-zinc-400'
+                          }`}
                       />
                     </button>
                   ))}
@@ -338,7 +336,7 @@ export default function TestimonialSection() {
         {/* 3 DISTINCT VALUE PROOF PILLARS (ZERO DUPLICATION)             */}
         {/* ───────────────────────────────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          
+
           <div className="rounded-2xl border border-zinc-200/90 bg-white p-6 shadow-xs space-y-2.5 text-left">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-600 border border-orange-500/20">
               <Clock size={18} />
