@@ -142,5 +142,8 @@ export * from './compositing';
 // 8c. Camera & Cinematics Suite
 export * from './camera';
 
+// 8d. Weather & Environment Simulation Suite
+export * from './environment';
+
 // 9. Component Registry & Metadata
 export * from './registry';
