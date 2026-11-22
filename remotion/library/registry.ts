@@ -24,6 +24,7 @@ export type ComponentCategory =
   | 'finance'
   | 'geography'
   | 'editorial'
+  | 'mathematics'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -1110,6 +1111,56 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Broadcast news lower-third banner with flashing live badge, location tag, and crawling ticker.',
     tags: ['editorial', 'breaking-news', 'broadcast', 'lower-third', 'news-ticker', 'crawler'],
+  },
+
+  // ── Mathematics Suite ──
+  {
+    id: 'math-equation',
+    name: 'MathEquation',
+    category: 'mathematics',
+    aspectRatio: 'both',
+    description: 'Mathematical formula presenter with LaTeX typography, derivation stages, and focus boxes.',
+    tags: ['math', 'equation', 'formula', 'latex', 'algebra', 'derivation'],
+  },
+  {
+    id: 'geometry-shapes',
+    name: 'GeometryShapes',
+    category: 'mathematics',
+    aspectRatio: 'both',
+    description: 'Euclidean geometry triangles with Pythagorean theorem values, angle arcs, and hypotenuse.',
+    tags: ['math', 'geometry', 'triangle', 'pythagorean', 'trigonometry', 'angles'],
+  },
+  {
+    id: 'graph-plotter',
+    name: 'GraphPlotter',
+    category: 'mathematics',
+    aspectRatio: 'both',
+    description: '2D Cartesian coordinate function graph plotter (sine, x², eˣ) with animated curve trace.',
+    tags: ['math', 'graph', 'plotter', 'function', 'cartesian', 'calculus'],
+  },
+  {
+    id: 'math-proof',
+    name: 'MathProof',
+    category: 'mathematics',
+    aspectRatio: 'both',
+    description: 'Formal theorem proof presenter with numbered deduction rows, justification lemmas, and Q.E.D.',
+    tags: ['math', 'proof', 'theorem', 'deduction', 'qed', 'logic'],
+  },
+  {
+    id: 'number-line',
+    name: 'NumberLine',
+    category: 'mathematics',
+    aspectRatio: 'both',
+    description: 'Real number axis with integer ticks, highlighted range interval, and bouncing jumping arcs.',
+    tags: ['math', 'number-line', 'axis', 'interval', 'integers', 'arithmetic'],
+  },
+  {
+    id: 'venn-diagram',
+    name: 'VennDiagram',
+    category: 'mathematics',
+    aspectRatio: 'both',
+    description: 'Set theory Venn diagram with intersecting shaded circles, labels, and cardinality counts.',
+    tags: ['math', 'venn-diagram', 'sets', 'intersection', 'union', 'logic'],
   },
 
   // ── Graphics & Frames ──

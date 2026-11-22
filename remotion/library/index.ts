@@ -73,6 +73,9 @@ export * from './geography';
 // 2r. Editorial & Publishing Suite (Newspaper, MagazineLayout, ArticleCards, QuoteLayout, HeadlineAnimation, BreakingNewsBanner)
 export * from './editorial';
 
+// 2s. Mathematics Suite (MathEquation, GeometryShapes, GraphPlotter, MathProof, NumberLine, VennDiagram)
+export * from './mathematics';
+
 // 3. Infographics
 export * from './infographics';
 
