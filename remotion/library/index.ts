@@ -151,8 +151,8 @@ export * from './character';
 // 8f. Video Editing and Footage Components
 export * from './editing';
 
-// 8g. Color Grading & Image Processing
-export * from './color';
+// 8h. Advanced Visual Effects & Tracking
+export * from './advanced-vfx';
 
 // 9. Component Registry & Metadata
 export * from './registry';

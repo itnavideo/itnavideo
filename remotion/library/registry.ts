@@ -45,7 +45,8 @@ export type ComponentCategory =
   | 'character'
   | 'storytelling-assets'
   | 'editing'
-  | 'color';
+  | 'color'
+  | 'advanced-vfx';
 
 export type AspectRatioSupport = '16:9' | '9:16' | 'both';
 
@@ -5399,6 +5400,272 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
       gain: 85,
       showReticule: true,
     },
+
+  // ─── Advanced Visual Effects & Tracking (Batch 47) ───────────────────────────
+  {
+    id: 'rotoscope',
+    name: 'Rotoscope',
+    category: 'advanced-vfx',
+    description: 'Animated rotoscoping spline mask with bezier control points, matte transparency, and edge strokes.',
+    tags: ['vfx', 'rotoscope', 'matte', 'spline', 'masking', 'isolation'],
+    aspectRatio: 'both',
+    defaultProps: {
+      strokeColor: '#38bdf8',
+      fillOpacity: 0.25,
+      label: 'AI ROTOSCOPE MATTE',
+    },
+  },
+  {
+    id: 'motion-tracker',
+    name: 'MotionTracker',
+    category: 'advanced-vfx',
+    description: 'Point motion tracking crosshair with search window, tracking path trail, and sub-pixel coordinates.',
+    tags: ['vfx', 'motion-tracker', 'point-track', 'search-window', 'stabilization', 'hud'],
+    aspectRatio: 'both',
+    defaultProps: {
+      targetLabel: 'SUBJECT_HEAD_01',
+      trackerColor: '#10b981',
+    },
+  },
+  {
+    id: 'planar-tracker',
+    name: 'PlanarTracker',
+    category: 'advanced-vfx',
+    description: 'Mocha-style 2.5D perspective surface planar mesh with 4-corner perspective warping and homography solve.',
+    tags: ['vfx', 'planar-tracker', 'corner-pin', 'mocha', 'perspective', 'surface-track'],
+    aspectRatio: 'both',
+    defaultProps: {
+      surfaceLabel: 'PERSPECTIVE PLANAR SURFACE',
+      gridColor: '#f59e0b',
+    },
+  },
+  {
+    id: 'point-tracker',
+    name: 'PointTracker',
+    category: 'advanced-vfx',
+    description: 'Multi-point KLT feature tracking crosshairs displaying optical velocity vectors and residual errors.',
+    tags: ['vfx', 'point-tracker', 'klt', 'optical-flow', 'features', 'multi-point'],
+    aspectRatio: 'both',
+    defaultProps: {
+      numPoints: 4,
+    },
+  },
+  {
+    id: 'object-tracker',
+    name: 'ObjectTracker',
+    category: 'advanced-vfx',
+    description: 'Deep learning bounding box object detection and trajectory tracking with confidence percentages.',
+    tags: ['vfx', 'object-tracker', 'yolo', 'detection', 'bounding-box', 'ai-vision'],
+    aspectRatio: 'both',
+    defaultProps: {
+      objectName: 'Sports Car',
+      confidence: 97.8,
+    },
+  },
+  {
+    id: 'face-tracker',
+    name: 'FaceTracker',
+    category: 'advanced-vfx',
+    description: '68-point 3D facial landmark mesh tracker showing eye blink, head pitch, yaw, and contour lines.',
+    tags: ['vfx', 'face-tracker', 'landmarks', 'mesh', 'facial-capture', 'blink-detection'],
+    aspectRatio: 'both',
+    defaultProps: {
+      landmarksCount: 68,
+    },
+  },
+  {
+    id: 'body-tracker',
+    name: 'BodyTracker',
+    category: 'advanced-vfx',
+    description: 'Full-body pose estimation skeleton displaying 17 anatomical keypoints and kinetic limb lines.',
+    tags: ['vfx', 'body-tracker', 'pose-estimation', 'skeleton', 'mocap', 'kinematics'],
+    aspectRatio: 'both',
+    defaultProps: {
+      keypoints: 17,
+    },
+  },
+  {
+    id: 'wire-removal',
+    name: 'WireRemoval',
+    category: 'advanced-vfx',
+    description: 'Clean plate rig and stunt wire removal inpainting visualizer with edge feathering.',
+    tags: ['vfx', 'wire-removal', 'clean-plate', 'rig-removal', 'stunt-wire', 'inpainting'],
+    aspectRatio: 'both',
+    defaultProps: {
+      label: 'STUNT RIG WIRE ERASED',
+    },
+  },
+  {
+    id: 'object-removal',
+    name: 'ObjectRemoval',
+    category: 'advanced-vfx',
+    description: 'AI-guided unwanted object erasure with generative background restoration patch.',
+    tags: ['vfx', 'object-removal', 'erase', 'magic-eraser', 'diffusion-inpaint', 'cleanup'],
+    aspectRatio: 'both',
+    defaultProps: {
+      targetObject: 'Microphone Boom / Rig',
+    },
+  },
+  {
+    id: 'content-aware-fill',
+    name: 'ContentAwareFill',
+    category: 'advanced-vfx',
+    description: 'Video temporal content-aware fill engine synthesizing pixel patches across surrounding frames.',
+    tags: ['vfx', 'content-aware-fill', 'video-inpaint', 'temporal-patch', 'photoshop', 'optical-flow'],
+    aspectRatio: 'both',
+    defaultProps: {
+      fillProgress: 100,
+    },
+  },
+  {
+    id: 'motion-trail',
+    name: 'MotionTrail',
+    category: 'advanced-vfx',
+    description: 'Kinetic multi-frame trailing streak compositor with exponential opacity falloff.',
+    tags: ['vfx', 'motion-trail', 'echo-trail', 'kinetic', 'speed-streak', 'after-image'],
+    aspectRatio: 'both',
+    defaultProps: {
+      trailColor: '#38bdf8',
+    },
+  },
+  {
+    id: 'echo-effect',
+    name: 'EchoEffect',
+    category: 'advanced-vfx',
+    description: 'Temporal video echo accumulator stacking delayed motion instances with screen blending.',
+    tags: ['vfx', 'echo', 'temporal-delay', 'ghosting', 'frame-stack', 'composite'],
+    aspectRatio: 'both',
+    defaultProps: {
+      numEchoes: 4,
+    },
+  },
+  {
+    id: 'feedback-loop',
+    name: 'FeedbackLoop',
+    category: 'advanced-vfx',
+    description: 'Infinite video feedback loop with recursive scale expansion, rotational drift, and psychedelic trail.',
+    tags: ['vfx', 'feedback-loop', 'recursive', 'video-feedback', 'psychedelic', 'infinite'],
+    aspectRatio: 'both',
+    defaultProps: {},
+  },
+  {
+    id: 'kaleidoscope',
+    name: 'Kaleidoscope',
+    category: 'advanced-vfx',
+    description: 'Symmetric radial kaleidoscope mirror generator with rotational prism phase angles.',
+    tags: ['vfx', 'kaleidoscope', 'radial-mirror', 'symmetry', 'prism', 'mandala'],
+    aspectRatio: 'both',
+    defaultProps: {
+      segments: 8,
+    },
+  },
+  {
+    id: 'mirror-effect',
+    name: 'MirrorEffect',
+    category: 'advanced-vfx',
+    description: 'Bilateral horizontal or vertical axis reflection creating seamless mirror duplication.',
+    tags: ['vfx', 'mirror', 'bilateral', 'reflection', 'symmetry', 'duplication'],
+    aspectRatio: 'both',
+    defaultProps: {
+      axis: 'vertical',
+    },
+  },
+  {
+    id: 'tunnel-effect',
+    name: 'TunnelEffect',
+    category: 'advanced-vfx',
+    description: 'Hypnotic concentric infinite zoom tunnel with depth vanishing point and kinetic speed.',
+    tags: ['vfx', 'tunnel', 'infinite-zoom', 'vanishing-point', 'warp', 'depth'],
+    aspectRatio: 'both',
+    defaultProps: {},
+  },
+  {
+    id: 'pixelation',
+    name: 'Pixelation',
+    category: 'advanced-vfx',
+    description: 'Dynamic retro mosaic pixelation grid downscaling image chunks into 8-bit chunky blocks.',
+    tags: ['vfx', 'pixelation', 'pixel-art', '8-bit', 'mosaic', 'censor', 'retro-arcade'],
+    aspectRatio: 'both',
+    defaultProps: {
+      pixelSize: 16,
+    },
+  },
+  {
+    id: 'mosaic-effect',
+    name: 'MosaicEffect',
+    category: 'advanced-vfx',
+    description: 'Stained glass mosaic tessellation with frosted glass refraction borders and beveled highlights.',
+    tags: ['vfx', 'mosaic', 'stained-glass', 'tessellation', 'tiles', 'refraction'],
+    aspectRatio: 'both',
+    defaultProps: {
+      tiles: 64,
+    },
+  },
+  {
+    id: 'rgb-split',
+    name: 'RGBSplit',
+    category: 'advanced-vfx',
+    description: 'Chromatic RGB color channel splitting with horizontal offset fringes and additive screen blending.',
+    tags: ['vfx', 'rgb-split', 'chromatic-split', 'color-fringing', 'glitch', 'offset'],
+    aspectRatio: 'both',
+    defaultProps: {
+      offset: 8,
+    },
+  },
+  {
+    id: 'vhs-overlay',
+    name: 'VHSOverlay',
+    category: 'advanced-vfx',
+    description: 'Authentic 1980s VHS tape aesthetic with PLAY icon, tracking noise bar, timestamp OSD, and magnetic jitter.',
+    tags: ['vfx', 'vhs', 'retro-tape', 'camcorder-osd', 'analog-noise', 'tracking-glitch'],
+    aspectRatio: 'both',
+    defaultProps: {
+      timestamp: 'SP  0:00:14  PM 11:42',
+    },
+  },
+  {
+    id: 'crt-display',
+    name: 'CRTDisplay',
+    category: 'advanced-vfx',
+    description: 'Vintage CRT television monitor simulation with barrel curvature distortion and phosphor scanlines.',
+    tags: ['vfx', 'crt', 'scanlines', 'trinitron', 'phosphor', 'tube-tv', 'retro-monitor'],
+    aspectRatio: 'both',
+    defaultProps: {},
+  },
+  {
+    id: 'film-burn',
+    name: 'FilmBurn',
+    category: 'advanced-vfx',
+    description: 'Organic 16mm/35mm analog film leader burn flash with scorching amber/orange emulsion bleed.',
+    tags: ['vfx', 'film-burn', 'leader-flash', 'scorch', 'analog-film', 'light-leak'],
+    aspectRatio: 'both',
+    defaultProps: {
+      burnIntensity: 90,
+    },
+  },
+  {
+    id: 'film-gateweave',
+    name: 'FilmGateweave',
+    category: 'advanced-vfx',
+    description: 'Cinema projector gate weave jitter simulating mechanical claw wobble and pressure plate drift.',
+    tags: ['vfx', 'gateweave', 'projector-jitter', 'cinema-shake', 'film-drift', 'analog'],
+    aspectRatio: 'both',
+    defaultProps: {
+      jitter: 1.8,
+    },
+  },
+  {
+    id: 'glitch-displacement',
+    name: 'GlitchDisplacement',
+    category: 'advanced-vfx',
+    description: 'Digital video datamoshing glitch with blocky displacement map slices and tearing horizontal artifacts.',
+    tags: ['vfx', 'glitch-displacement', 'datamosh', 'tearing', 'compression-artifacts', 'displacement'],
+    aspectRatio: 'both',
+    defaultProps: {
+      slices: 5,
+    },
+  },
+
   },
 
 ];
