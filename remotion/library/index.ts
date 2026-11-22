@@ -37,6 +37,9 @@ export * from './comparisons';
 // 2f. Animated Radial Graphics Suite (RadialChart, CircularProgress, DonutProgress, RadialDiagram)
 export * from './radial';
 
+// 2g. Animated Business Graphics Suite (FunnelChart, PyramidChart, WaterfallChart, GaugeChart)
+export * from './business';
+
 // 3. Infographics
 export * from './infographics';
 

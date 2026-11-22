@@ -12,6 +12,7 @@ export type ComponentCategory =
   | 'timelines'
   | 'comparisons'
   | 'radial'
+  | 'business'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -298,6 +299,40 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Hub and spoke radial architecture with central core and radiating capabilities.',
     tags: ['radial-diagram', 'spokes', 'hub-and-spoke', 'central-core'],
+  },
+
+  // ── Animated Business Graphics Suite ──
+  {
+    id: 'funnel-chart',
+    name: 'FunnelChart',
+    category: 'business',
+    aspectRatio: 'both',
+    description: 'Tapered audience conversion funnel with drop-off percentages and count tags.',
+    tags: ['funnel', 'conversion', 'leads', 'sales', 'drop-off'],
+  },
+  {
+    id: 'pyramid-chart',
+    name: 'PyramidChart',
+    category: 'business',
+    aspectRatio: 'both',
+    description: 'Hierarchical stacked pyramid tiers from broad foundation to apex monopoly.',
+    tags: ['pyramid', 'hierarchy', 'maslow', 'levels', 'apex'],
+  },
+  {
+    id: 'waterfall-chart',
+    name: 'WaterfallChart',
+    category: 'business',
+    aspectRatio: 'both',
+    description: 'Financial variance waterfall breakdown showing positive gains, expenses, and net profit.',
+    tags: ['waterfall', 'financial', 'variance', 'revenue', 'profit'],
+  },
+  {
+    id: 'gauge-chart',
+    name: 'GaugeChart',
+    category: 'business',
+    aspectRatio: 'both',
+    description: 'Half-circle speedometer gauge with color gradient zones and rotating indicator needle.',
+    tags: ['gauge', 'speedometer', 'velocity', 'meter', 'tachometer'],
   },
 
   // ── Graphics & Frames ──
