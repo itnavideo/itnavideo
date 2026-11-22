@@ -172,5 +172,8 @@ export * from './marketing';
 // 8n. Physical Facilities, Shops & Buildings Suite
 export * from './facilities';
 
+// 8o. Hand-Drawn & Sketch Animation Suite
+export * from './handdrawn';
+
 // 9. Component Registry & Metadata
 export * from './registry';
