@@ -70,6 +70,9 @@ export * from './finance';
 // 2q. Geography & Cartography Suite (WorldMap, CountryMap, RouteMap, LocationPins, TerritoryMap, CompassRose)
 export * from './geography';
 
+// 2r. Editorial & Publishing Suite (Newspaper, MagazineLayout, ArticleCards, QuoteLayout, HeadlineAnimation, BreakingNewsBanner)
+export * from './editorial';
+
 // 3. Infographics
 export * from './infographics';
 

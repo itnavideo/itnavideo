@@ -23,6 +23,7 @@ export type ComponentCategory =
   | 'scientific'
   | 'finance'
   | 'geography'
+  | 'editorial'
   | 'typography'
   | 'graphics'
   | 'infographics'
@@ -1059,6 +1060,56 @@ export const REMOTION_COMPONENT_REGISTRY: VideoComponentMeta[] = [
     aspectRatio: 'both',
     description: 'Navigational cartography compass rose with rotating magnetic needle, cardinal points, and coordinates.',
     tags: ['geography', 'compass', 'navigation', 'cardinal', 'bearing', 'gps'],
+  },
+
+  // ── Editorial & Publishing Suite ──
+  {
+    id: 'newspaper',
+    name: 'Newspaper',
+    category: 'editorial',
+    aspectRatio: 'both',
+    description: 'Broadsheet print layout with masthead, serif drop-cap, photo frame, and animated marker highlight.',
+    tags: ['editorial', 'newspaper', 'print', 'masthead', 'journalism', 'highlight'],
+  },
+  {
+    id: 'magazine-layout',
+    name: 'MagazineLayout',
+    category: 'editorial',
+    aspectRatio: 'both',
+    description: 'High-fashion editorial magazine spread with full-bleed hero photo, serif typography, and pull quotes.',
+    tags: ['editorial', 'magazine', 'fashion', 'spread', 'pull-quote', 'layout'],
+  },
+  {
+    id: 'article-cards',
+    name: 'ArticleCards',
+    category: 'editorial',
+    aspectRatio: 'both',
+    description: 'Modern publication article cards with reading time pill, author avatar, thumbnail, and claps.',
+    tags: ['editorial', 'articles', 'cards', 'medium', 'substack', 'reading-time'],
+  },
+  {
+    id: 'quote-layout',
+    name: 'QuoteLayout',
+    category: 'editorial',
+    aspectRatio: 'both',
+    description: 'Dramatic pull quote composition with giant decorative serif quotation marks and author portrait avatar.',
+    tags: ['editorial', 'quote', 'pull-quote', 'author', 'citation', 'wisdom'],
+  },
+  {
+    id: 'headline-animation',
+    name: 'HeadlineAnimation',
+    category: 'editorial',
+    aspectRatio: 'both',
+    description: 'Kinetic typography headline presenter with staggered word reveals, marker highlight, and impact styling.',
+    tags: ['editorial', 'headline', 'kinetic-typography', 'highlight', 'impact', 'title'],
+  },
+  {
+    id: 'breaking-news-banner',
+    name: 'BreakingNewsBanner',
+    category: 'editorial',
+    aspectRatio: 'both',
+    description: 'Broadcast news lower-third banner with flashing live badge, location tag, and crawling ticker.',
+    tags: ['editorial', 'breaking-news', 'broadcast', 'lower-third', 'news-ticker', 'crawler'],
   },
 
   // ── Graphics & Frames ──
