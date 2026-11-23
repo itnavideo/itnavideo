@@ -736,7 +736,7 @@ const SceneBlueprintItemSchema = z.object({
     componentId: z.string(),
     name: z.string().optional(),
     category: z.string().optional(),
-    props: z.record(z.any()).optional(),
+    props: z.record(z.string(), z.any()).optional(),
     cinematic: z.boolean().optional(),
     scale: z.number().optional(),
     placement: z.enum(['center', 'lower-third', 'split-right', 'split-left']).optional(),
@@ -1238,7 +1238,8 @@ export async function generateStructuredSceneBlueprint(
   }
 
   const geminiApiKey = process.env.GEMINI_API_KEY;
-  if (!geminiApiKey) {
+  const groqApiKey = process.env.GROQ_API_KEY;
+  if (!geminiApiKey && !groqApiKey) {
     return buildDeterministicSceneBlueprint(transcript, options);
   }
 
@@ -1384,31 +1385,70 @@ Return a strict JSON object with this EXACT structure:
   ]
 }`;
 
-      const modelName = (process.env.GEMINI_MODEL || 'gemini-flash-latest').trim();
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: 'application/json', temperature: 0.2 },
-          }),
-        }
-      );
+      let rawText: string | null = null;
 
-      if (response.ok) {
-        const data = await response.json();
-        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (rawText) {
-          const parsed = JSON.parse(rawText);
-          if (Array.isArray(parsed?.scenes)) {
-            parsed.scenes.forEach((sc: any) => {
-              if (sc?.segmentId) {
-                chunkDecisions.set(Number(sc.segmentId), sc);
-              }
-            });
+      // 1. Try Groq LLM (ultra-fast, JSON-native, high intelligence)
+      if (groqApiKey) {
+        try {
+          const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${groqApiKey}`,
+            },
+            body: JSON.stringify({
+              model: 'openai/gpt-oss-120b',
+              messages: [
+                { role: 'system', content: 'You are an elite YouTube documentary director and motion graphics planner. Always respond in valid JSON matching the exact schema requested.' },
+                { role: 'user', content: prompt },
+              ],
+              response_format: { type: 'json_object' },
+              temperature: 0.2,
+            }),
+          });
+          if (groqRes.ok) {
+            const groqData = await groqRes.json();
+            rawText = groqData?.choices?.[0]?.message?.content || null;
+          } else {
+            console.warn('[AIScenePlanner] Groq response status:', groqRes.status);
           }
+        } catch (groqErr) {
+          console.warn('[AIScenePlanner] Groq call failed, attempting Gemini:', groqErr);
+        }
+      }
+
+      // 2. Fallback to Gemini if Groq did not provide output
+      if (!rawText && geminiApiKey) {
+        try {
+          const modelName = (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim();
+          const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: 'application/json', temperature: 0.2 },
+              }),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+          }
+        } catch (geminiErr) {
+          console.warn('[AIScenePlanner] Gemini call failed:', geminiErr);
+        }
+      }
+
+      if (rawText) {
+        const parsed = JSON.parse(rawText);
+        if (Array.isArray(parsed?.scenes)) {
+          parsed.scenes.forEach((sc: any) => {
+            if (sc?.segmentId) {
+              chunkDecisions.set(Number(sc.segmentId), sc);
+            }
+          });
         }
       }
     } catch (chunkErr) {
