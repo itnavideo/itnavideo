@@ -209,7 +209,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     sfxEvents = [],
     chapterEvents = [],
     stickerEvents = [],
-    enableKineticEmojis = true,
+    enableKineticEmojis = false,
     emojiEvents = [],
     textLayers = [],
     imageLayers = [],
@@ -301,7 +301,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             fontLink.rel = 'stylesheet';
             fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;600;700;800;900&display=swap`;
             document.head.appendChild(fontLink);
-          } catch {}
+          } catch { }
         }
         return;
       }
@@ -318,7 +318,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             fontLink.rel = 'stylesheet';
             fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;600;700;800;900&display=swap`;
             document.head.appendChild(fontLink);
-          } catch {}
+          } catch { }
         }
       }
     }))
@@ -353,16 +353,24 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   const currentTimeSec = frame / fps;
 
   // ── Dynamic Background Music Auto-Ducking Engine ──
-  const musicTrackUrl = props.musicUrl || props.musicSrc || props.bgmUrl || '';
-  const resolvedMusicSrc = musicTrackUrl === 'none'
+  const isMusicEnabled = (props as any).bgmEnabled !== false && (props as any).musicEnabled !== false;
+  const rawMusicUrl = props.musicUrl || props.musicSrc || props.bgmUrl || '';
+  const musicTrackUrl = isMusicEnabled ? rawMusicUrl : 'none';
+  const resolvedMusicSrc = !isMusicEnabled || musicTrackUrl === 'none' || !musicTrackUrl
     ? ''
-    : safeResolveMediaSrc(musicTrackUrl || 'assets/reusable/music/parasail-silent-partner.mp3');
+    : safeResolveMediaSrc(musicTrackUrl);
 
   const dynamicMusicVolume = React.useMemo(() => {
-    // Default BGM volume strictly locked at 12% (user configurable)
-    const configuredVol = props.bgmVolume ?? props.musicVolume ?? 0.12;
-    if (props.autoDucking === false) return configuredVol;
-    const baseDuckedVolume = Math.min(0.35, Math.max(0.0, configuredVol));
+    // User configured volume level (e.g. 0.12 for 12%, 0.20 for 20%, 0.35 for 35%)
+    const configuredVol = typeof props.bgmVolume === 'number'
+      ? props.bgmVolume
+      : (typeof props.musicVolume === 'number' ? props.musicVolume : 0.12);
+
+    if (!isMusicEnabled || configuredVol <= 0 || !resolvedMusicSrc) return 0;
+    if (props.autoDucking === false) return Math.min(1.0, Math.max(0.0, configuredVol));
+
+    // Base volume during voiceover speech is strictly the user's configured volume
+    const baseDuckedVolume = Math.min(1.0, Math.max(0.0, configuredVol));
     if (!activeCaptions || activeCaptions.length === 0) return baseDuckedVolume;
 
     // Smooth 250ms (0.25s) ramp to prevent audio "pumping" artifacts
@@ -383,10 +391,11 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       }
     }
 
-    const swellVolume = Math.min(0.32, Math.max(baseDuckedVolume, 0.25));
+    // Swell volume during non-speaking pause scales proportionately with configured volume (up to 1.35x)
+    const swellVolume = Math.min(1.0, Math.max(baseDuckedVolume, baseDuckedVolume * 1.35));
 
     if (isSpeaking) {
-      return baseDuckedVolume; // Locked during speech
+      return baseDuckedVolume; // Locked strictly at user's configured volume during speech
     }
 
     // 250ms smooth transition ramp up to swell volume, and ramp down when speech approaches
@@ -396,7 +405,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     }
 
     return swellVolume;
-  }, [activeCaptions, currentTimeSec, props.musicVolume, props.bgmVolume, props.autoDucking]);
+  }, [activeCaptions, currentTimeSec, props.musicVolume, props.bgmVolume, props.autoDucking, isMusicEnabled, resolvedMusicSrc]);
 
   // Collect all speech words for contextual kinetic emoji pops & kinetic typography
   const allCaptionWords = React.useMemo(() => {
@@ -434,10 +443,10 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       return currentTimeSec >= start && currentTimeSec < end;
     }) ||
     sceneBlueprint[
-      Math.min(
-        Math.floor((currentTimeSec / Math.max(1, durationSeconds)) * sceneBlueprint.length),
-        sceneBlueprint.length - 1
-      )
+    Math.min(
+      Math.floor((currentTimeSec / Math.max(1, durationSeconds)) * sceneBlueprint.length),
+      sceneBlueprint.length - 1
+    )
     ] ||
     sceneBlueprint[0];
 
@@ -500,8 +509,8 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     (brollUrls && typeof brollUrls === 'object' && !Array.isArray(brollUrls)
       ? (brollUrls as Record<number, string>)[currentScene?.sceneNumber] || ''
       : Array.isArray(brollUrls) && brollUrls.length > 0 && currentSceneIdx === 0
-      ? brollUrls[0]
-      : '') ||
+        ? brollUrls[0]
+        : '') ||
     '') : '';
 
   // Faceless Video Master Canvas: Permanently Pure White (#FFFFFF)
@@ -1456,51 +1465,64 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   return (
     <VideoVisualThemeProvider theme={visualTheme}>
       <AbsoluteFill style={{ fontFamily: typographyFont, backgroundColor: palette.bg, color: palette.textPrimary }}>
-      {/* ── LAYER 1 (BOTTOM): Base Atmospheric Motion Canvas or Video ── */}
-      {hasBackgroundVideo && resolvedMediaSrc ? (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-          <Loop durationInFrames={150}>
-            <OffthreadVideo
-              src={resolvedMediaSrc}
-              startFrom={Math.round(mediaTrimStartSeconds * fps)}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              volume={audioSrc ? 0 : sourceAudioVolume}
-            />
-          </Loop>
-          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(2, 6, 23, 0.55)', backdropFilter: 'blur(3px)' }} />
-        </div>
-      ) : (
-        <MultiLayerBackgroundOverlay
-          layers={resolvedBackgroundLayers}
-          fallbackTheme={activeBackgroundTheme}
-          aspectRatio={props.aspectRatio}
-        />
-      )}
+        {/* ── LAYER 1 (BOTTOM): Base Atmospheric Motion Canvas or Video ── */}
+        {hasBackgroundVideo && resolvedMediaSrc ? (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
+            <Loop durationInFrames={150}>
+              <OffthreadVideo
+                src={resolvedMediaSrc}
+                startFrom={Math.round(mediaTrimStartSeconds * fps)}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                volume={audioSrc ? 0 : sourceAudioVolume}
+              />
+            </Loop>
+            <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(2, 6, 23, 0.55)', backdropFilter: 'blur(3px)' }} />
+          </div>
+        ) : (
+          <MultiLayerBackgroundOverlay
+            layers={resolvedBackgroundLayers}
+            fallbackTheme={activeBackgroundTheme}
+            aspectRatio={props.aspectRatio}
+          />
+        )}
 
-      {/* ── LAYER 2: Deep Ambient Media Underlay (For Dark/Atmospheric Card & Split Scenes) ── */}
-      {isModularCardScene &&
-        resolvedSceneBroll &&
-        palette.isDark &&
-        typeof activeBackgroundTheme === 'string' &&
-        !activeBackgroundTheme.startsWith('solid-') &&
-        activeBackgroundTheme !== 'studio-white' &&
-        activeBackgroundTheme !== 'solid-cream' &&
-        activeBackgroundTheme !== 'minimal-gray' && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              zIndex: 3,
-              overflow: 'hidden',
-              pointerEvents: 'none',
-              opacity: 0.55,
-            }}
-          >
-            {isVideoFile(resolvedSceneBroll) ? (
-              <Loop durationInFrames={180}>
-                <OffthreadVideo
+        {/* ── LAYER 2: Deep Ambient Media Underlay (For Dark/Atmospheric Card & Split Scenes) ── */}
+        {isModularCardScene &&
+          resolvedSceneBroll &&
+          palette.isDark &&
+          typeof activeBackgroundTheme === 'string' &&
+          !activeBackgroundTheme.startsWith('solid-') &&
+          activeBackgroundTheme !== 'studio-white' &&
+          activeBackgroundTheme !== 'solid-cream' &&
+          activeBackgroundTheme !== 'minimal-gray' && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 3,
+                overflow: 'hidden',
+                pointerEvents: 'none',
+                opacity: 0.55,
+              }}
+            >
+              {isVideoFile(resolvedSceneBroll) ? (
+                <Loop durationInFrames={180}>
+                  <OffthreadVideo
+                    src={resolvedSceneBroll}
+                    volume={0}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transform: 'scale(1.2)',
+                      filter: 'blur(38px) brightness(0.32) saturate(1.4)',
+                    }}
+                  />
+                </Loop>
+              ) : (
+                <Img
                   src={resolvedSceneBroll}
-                  volume={0}
+                  alt="Ambient underlay"
                   style={{
                     width: '100%',
                     height: '100%',
@@ -1509,46 +1531,46 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
                     filter: 'blur(38px) brightness(0.32) saturate(1.4)',
                   }}
                 />
-              </Loop>
-            ) : (
-              <Img
-                src={resolvedSceneBroll}
-                alt="Ambient underlay"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  transform: 'scale(1.2)',
-                  filter: 'blur(38px) brightness(0.32) saturate(1.4)',
-                }}
-              />
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
 
-      {/* ── LAYER 2.5: Ambient Canvas Motion Graphics (Particles & Kinetic Visual Energy) ── */}
-      <CanvasGraphicsLayer
-        width={1920}
-        height={1080}
-        zIndex={6}
-        effects={[
-          {
-            type: 'particles',
-            startFrame: 0,
-            endFrame: durationInFrames,
-            config: {
-              count: palette.isDark ? 28 : 0,
-              color: palette.isDark ? 'rgba(255, 160, 0, 0.40)' : 'transparent',
-              speed: 0.35,
-              maxRadius: 2.5,
+        {/* ── LAYER 2.5: Ambient Canvas Motion Graphics (Particles & Kinetic Visual Energy) ── */}
+        <CanvasGraphicsLayer
+          width={1920}
+          height={1080}
+          zIndex={6}
+          effects={[
+            {
+              type: 'particles',
+              startFrame: 0,
+              endFrame: durationInFrames,
+              config: {
+                count: palette.isDark ? 28 : 0,
+                color: palette.isDark ? 'rgba(255, 160, 0, 0.40)' : 'transparent',
+                speed: 0.35,
+                maxRadius: 2.5,
+              },
             },
-          },
-        ]}
-      />
+          ]}
+        />
 
-      {/* ── LAYER 3 (MIDDLE): Dynamic Modular Scene Engine & Transitions ── */}
-      {cameraConfig ? (
-        <VirtualCameraLayer config={cameraConfig}>
+        {/* ── LAYER 3 (MIDDLE): Dynamic Modular Scene Engine & Transitions ── */}
+        {cameraConfig ? (
+          <VirtualCameraLayer config={cameraConfig}>
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 15,
+                opacity: transitionStyles.opacity,
+                transform: transitionStyles.transform,
+              }}
+            >
+              {currentScene && renderModularScene(currentScene)}
+            </div>
+          </VirtualCameraLayer>
+        ) : (
           <div
             style={{
               position: 'absolute',
@@ -1560,354 +1582,293 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           >
             {currentScene && renderModularScene(currentScene)}
           </div>
-        </VirtualCameraLayer>
-      ) : (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 15,
-            opacity: transitionStyles.opacity,
-            transform: transitionStyles.transform,
-          }}
-        >
-          {currentScene && renderModularScene(currentScene)}
-        </div>
-      )}
+        )}
 
-      {/* ── LAYER 3.0: Reusable Dynamic Pattern & Texture Engine (Halftone, Noise, Hatch, Waves, Mesh) ── */}
-      {patternLayers && patternLayers.length > 0 ? (
-        <MultiLayerPatternOverlay patterns={patternLayers} />
-      ) : null}
+        {/* ── LAYER 3.0: Reusable Dynamic Pattern & Texture Engine (Halftone, Noise, Hatch, Waves, Mesh) ── */}
+        {patternLayers && patternLayers.length > 0 ? (
+          <MultiLayerPatternOverlay patterns={patternLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.2: Reusable Dynamic Multi-Layer Media Engine (Unlimited Image & Video Clips) ── */}
-      {resolvedMediaLayers && resolvedMediaLayers.length > 0 ? (
-        <MultiLayerImageOverlay layers={resolvedMediaLayers} />
-      ) : null}
+        {/* ── LAYER 3.2: Reusable Dynamic Multi-Layer Media Engine (Unlimited Image & Video Clips) ── */}
+        {resolvedMediaLayers && resolvedMediaLayers.length > 0 ? (
+          <MultiLayerImageOverlay layers={resolvedMediaLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.3: Reusable Dynamic Multi-Layer SVG Engine (Unlimited Vector Archetypes) ── */}
-      {resolvedSvgLayers && resolvedSvgLayers.length > 0 ? (
-        <MultiLayerSvgOverlay layers={resolvedSvgLayers} />
-      ) : null}
+        {/* ── LAYER 3.3: Reusable Dynamic Multi-Layer SVG Engine (Unlimited Vector Archetypes) ── */}
+        {resolvedSvgLayers && resolvedSvgLayers.length > 0 ? (
+          <MultiLayerSvgOverlay layers={resolvedSvgLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.3B: Reusable 2.5D Isometric Engine (Cubes, Platforms, 3D Mockups) ── */}
-      {isometricLayers && isometricLayers.length > 0 ? (
-        <IsometricPerspectiveOverlay layers={isometricLayers} />
-      ) : null}
+        {/* ── LAYER 3.3B: Reusable 2.5D Isometric Engine (Cubes, Platforms, 3D Mockups) ── */}
+        {isometricLayers && isometricLayers.length > 0 ? (
+          <IsometricPerspectiveOverlay layers={isometricLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.3C: Reusable Gauge & Progress Engine (Rings, Speedometers, Counters) ── */}
-      {gaugeLayers && gaugeLayers.length > 0 ? (
-        <MultiLayerGaugeOverlay gauges={gaugeLayers} />
-      ) : null}
+        {/* ── LAYER 3.3C: Reusable Gauge & Progress Engine (Rings, Speedometers, Counters) ── */}
+        {gaugeLayers && gaugeLayers.length > 0 ? (
+          <MultiLayerGaugeOverlay gauges={gaugeLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.3D: Reusable Audio Visualizer Engine (Equalizer Bars, Waves, Audiograms) ── */}
-      {audioVisualizerLayers && audioVisualizerLayers.length > 0 ? (
-        <MultiLayerAudioVisualizerOverlay visualizers={audioVisualizerLayers} />
-      ) : null}
+        {/* ── LAYER 3.3D: Reusable Audio Visualizer Engine (Equalizer Bars, Waves, Audiograms) ── */}
+        {audioVisualizerLayers && audioVisualizerLayers.length > 0 ? (
+          <MultiLayerAudioVisualizerOverlay visualizers={audioVisualizerLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.4: Reusable Dynamic Multi-Layer Mask Engine (Scrims & Cutouts) ── */}
-      {maskLayers && maskLayers.length > 0 ? (
-        <MultiLayerMaskOverlay masks={maskLayers} />
-      ) : null}
+        {/* ── LAYER 3.4: Reusable Dynamic Multi-Layer Mask Engine (Scrims & Cutouts) ── */}
+        {maskLayers && maskLayers.length > 0 ? (
+          <MultiLayerMaskOverlay masks={maskLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.5: Reusable Dynamic Adjustment Layer (Color Grading & LUTs) ── */}
-      {adjustmentLayers && adjustmentLayers.length > 0 ? (
-        <MultiLayerAdjustmentOverlay layers={adjustmentLayers} />
-      ) : null}
+        {/* ── LAYER 3.5: Reusable Dynamic Adjustment Layer (Color Grading & LUTs) ── */}
+        {adjustmentLayers && adjustmentLayers.length > 0 ? (
+          <MultiLayerAdjustmentOverlay layers={adjustmentLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.6: Reusable Dynamic Effects Engine (Grain, Leaks, Vignette) ── */}
-      {effectsLayers && effectsLayers.length > 0 ? (
-        <MultiLayerEffectsOverlay effects={effectsLayers} />
-      ) : null}
+        {/* ── LAYER 3.6: Reusable Dynamic Effects Engine (Grain, Leaks, Vignette) ── */}
+        {effectsLayers && effectsLayers.length > 0 ? (
+          <MultiLayerEffectsOverlay effects={effectsLayers} />
+        ) : null}
 
-      {/* ── LAYER 3.7: Reusable Dynamic Transitions Engine (Whips, Snaps, Glitches) ── */}
-      {transitionEvents && transitionEvents.length > 0 ? (
-        <MultiLayerTransitionOverlay transitions={transitionEvents} />
-      ) : null}
+        {/* ── LAYER 3.7: Reusable Dynamic Transitions Engine (Whips, Snaps, Glitches) ── */}
+        {transitionEvents && transitionEvents.length > 0 ? (
+          <MultiLayerTransitionOverlay transitions={transitionEvents} />
+        ) : null}
 
-      {/* Fade to Black Transition Overlay */}
-      {transitionStyles.isFadeToBlack && (transitionStyles.blackOverlayOpacity || 0) > 0 && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 25,
-            backgroundColor: '#000000',
-            opacity: transitionStyles.blackOverlayOpacity,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-
-      {/* ── LAYER 4: Subject Cutout Mask & Floating Stickers ── */}
-      {hasSubjectCutout && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 30, pointerEvents: 'none' }}>
-          <OffthreadVideo
-            src={resolvedCutoutSrc}
-            startFrom={Math.round(mediaTrimStartSeconds * fps)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            volume={0}
+        {/* Fade to Black Transition Overlay */}
+        {transitionStyles.isFadeToBlack && (transitionStyles.blackOverlayOpacity || 0) > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 25,
+              backgroundColor: '#000000',
+              opacity: transitionStyles.blackOverlayOpacity,
+              pointerEvents: 'none',
+            }}
           />
-        </div>
-      )}
+        )}
 
-      {/* ── Multi-Track Audio Engine (Background Music & Audio Layers) ── */}
-      {resolvedAudioLayers && resolvedAudioLayers.length > 0 ? (
-        <MultiLayerAudioOverlay
-          layers={resolvedAudioLayers}
-          speechActiveIntervals={speechActiveIntervals}
-        />
-      ) : (
-        <>
-          {resolvedMusicSrc && (
-            <Audio
-              src={resolvedMusicSrc}
-              volume={dynamicMusicVolume}
+        {/* ── LAYER 4: Subject Cutout Mask & Floating Stickers ── */}
+        {hasSubjectCutout && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 30, pointerEvents: 'none' }}>
+            <OffthreadVideo
+              src={resolvedCutoutSrc}
+              startFrom={Math.round(mediaTrimStartSeconds * fps)}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              volume={0}
             />
-          )}
-        </>
-      )}
+          </div>
+        )}
 
-      {/* Voiceover Audio Stream (Always active when not handled by audioLayers) */}
-      {resolvedAudioSrc && (!resolvedAudioLayers || resolvedAudioLayers.length === 0) && (
-        <Audio
-          src={resolvedAudioSrc}
-          startFrom={Math.round(mediaTrimStartSeconds * fps)}
-          volume={sourceAudioVolume}
-        />
-      )}
-
-      {/* ── Timed Sound Effects Layer (Beat-synced impacts, whooshes, chimes, pops) ── */}
-      {resolvedSfxEvents
-        .filter((sfx) => Boolean(sfx?.sfxUrl) && sfx.startFrame >= 0 && sfx.startFrame < durationInFrames)
-        .map((sfx) => (
-          <Sequence
-            key={sfx.id}
-            from={sfx.startFrame}
-            durationInFrames={Math.min(Math.round(2.5 * fps), Math.max(1, durationInFrames - sfx.startFrame))}
-          >
-            <Audio src={safeResolveMediaSrc(sfx.sfxUrl)} volume={sfx.volume} />
-          </Sequence>
-        ))}
-
-      {/* Sticker Layer */}
-      {templateConfig.stickerPackId && templateConfig.stickerPackId !== 'none' && resolvedStickerEvents.length > 0 ? (
-        <UniversalStickerLayer stickerEvents={resolvedStickerEvents} stickerPackId={templateConfig.stickerPackId} />
-      ) : null}
-
-      {/* ── Dynamic Kinetic Emoji / Sticker Engine (MrBeast & Hormozi Contextual Pops) ── */}
-      {enableKineticEmojis && (
-        <KineticEmojiLayer
-          events={emojiEvents}
-          words={allCaptionWords}
-          enabled={enableKineticEmojis}
-          position="above-caption"
-        />
-      )}
-
-      {/* ── LAYER 4.5: Reusable Dynamic Multi-Layer Text Engine (Unlimited Independent Text Layers) ── */}
-      {resolvedTextLayers && resolvedTextLayers.length > 0 ? (
-        <MultiLayerTextOverlay layers={resolvedTextLayers} defaultHeadingFont={headingFont} />
-      ) : null}
-
-      {/* ── LAYER 4.6: Reusable Dynamic Callout & Label Engine (Speech Bubbles, Infocards, Pointers) ── */}
-      {calloutLayers && calloutLayers.length > 0 ? (
-        <MultiLayerCalloutOverlay callouts={calloutLayers} />
-      ) : null}
-
-      {/* ── LAYER 5: Broadcast HUD & Chapter Progress Bar ── */}
-      {/* Top Edge Flame Orange Progress Indicator */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: `${Math.min(100, Math.max(0, (currentTimeSec / Math.max(1, durationSeconds)) * 100))}%`,
-          height: '6px',
-          background: 'linear-gradient(90deg, #FF5722, #FF7043, #FFA000)',
-          zIndex: 40,
-          boxShadow: '0 0 12px rgba(255, 87, 34, 0.85)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Floating Topic Kicker Badge */}
-      {title && !/generated[-_]?audio|audio[-_]?rec|recording|voice[-_]?memo|\.mp[34]|\.wav|\.m4a|\b(nov|dec|jan|feb|mar|apr|may|jun|jul|aug|sep|oct)\b|\b\d{1,2}[-_]\d{1,2}(?:am|pm)\b|^faceless\s+video$/i.test(title.trim()) && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 28,
-            left: 48,
-            zIndex: 42,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 16px',
-            borderRadius: '9999px',
-            backgroundColor: palette.isDark ? 'rgba(7, 11, 20, 0.75)' : 'rgba(255, 255, 255, 0.92)',
-            backdropFilter: 'blur(16px)',
-            border: `1px solid ${palette.cardBorder}`,
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
-            pointerEvents: 'none',
-          }}
-        >
-          <span
-            style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: palette.accent,
-              boxShadow: `0 0 8px ${palette.accent}`,
-            }}
+        {/* ── Multi-Track Audio Engine (Background Music & Audio Layers) ── */}
+        {resolvedAudioLayers && resolvedAudioLayers.length > 0 ? (
+          <MultiLayerAudioOverlay
+            layers={resolvedAudioLayers}
+            speechActiveIntervals={speechActiveIntervals}
           />
-          <span
-            style={{
-              fontFamily: headingFont,
-              fontSize: '15px',
-              fontWeight: 800,
-              textTransform: 'uppercase',
-              letterSpacing: '0.08em',
-              color: palette.textPrimary,
-              maxWidth: '340px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {title}
-          </span>
-        </div>
-      )}
+        ) : (
+          <>
+            {resolvedMusicSrc && (
+              <Audio
+                src={resolvedMusicSrc}
+                volume={dynamicMusicVolume}
+              />
+            )}
+          </>
+        )}
 
-      {/* Floating Creator Handle / Brand Watermark Badge */}
-      {creatorHandle && (
+        {/* Voiceover Audio Stream (Always active when not handled by audioLayers) */}
+        {resolvedAudioSrc && (!resolvedAudioLayers || resolvedAudioLayers.length === 0) && (
+          <Audio
+            src={resolvedAudioSrc}
+            startFrom={Math.round(mediaTrimStartSeconds * fps)}
+            volume={sourceAudioVolume}
+          />
+        )}
+
+        {/* ── Timed Sound Effects Layer (Beat-synced impacts, whooshes, chimes, pops) ── */}
+        {resolvedSfxEvents
+          .filter((sfx) => Boolean(sfx?.sfxUrl) && sfx.startFrame >= 0 && sfx.startFrame < durationInFrames)
+          .map((sfx) => (
+            <Sequence
+              key={sfx.id}
+              from={sfx.startFrame}
+              durationInFrames={Math.min(Math.round(2.5 * fps), Math.max(1, durationInFrames - sfx.startFrame))}
+            >
+              <Audio src={safeResolveMediaSrc(sfx.sfxUrl)} volume={sfx.volume} />
+            </Sequence>
+          ))}
+
+        {/* Sticker Layer */}
+        {templateConfig.stickerPackId && templateConfig.stickerPackId !== 'none' && resolvedStickerEvents.length > 0 ? (
+          <UniversalStickerLayer stickerEvents={resolvedStickerEvents} stickerPackId={templateConfig.stickerPackId} />
+        ) : null}
+
+        {/* ── Dynamic Kinetic Emoji / Sticker Engine (MrBeast & Hormozi Contextual Pops) ── */}
+        {enableKineticEmojis && props.aspectRatio !== '16:9' && (
+          <KineticEmojiLayer
+            events={emojiEvents}
+            words={allCaptionWords}
+            enabled={enableKineticEmojis}
+            position="above-caption"
+          />
+        )}
+
+        {/* ── LAYER 4.5: Reusable Dynamic Multi-Layer Text Engine (Unlimited Independent Text Layers) ── */}
+        {resolvedTextLayers && resolvedTextLayers.length > 0 ? (
+          <MultiLayerTextOverlay layers={resolvedTextLayers} defaultHeadingFont={headingFont} />
+        ) : null}
+
+        {/* ── LAYER 4.6: Reusable Dynamic Callout & Label Engine (Speech Bubbles, Infocards, Pointers) ── */}
+        {calloutLayers && calloutLayers.length > 0 ? (
+          <MultiLayerCalloutOverlay callouts={calloutLayers} />
+        ) : null}
+
+        {/* ── LAYER 5: Broadcast HUD & Chapter Progress Bar ── */}
+        {/* Top Edge Flame Orange Progress Indicator */}
         <div
           style={{
             position: 'absolute',
-            top: 28,
-            right: 48,
-            zIndex: 42,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '6px 14px',
-            borderRadius: '9999px',
-            backgroundColor: palette.isDark ? 'rgba(7, 11, 20, 0.75)' : 'rgba(255, 255, 255, 0.92)',
-            backdropFilter: 'blur(16px)',
-            border: `1px solid ${palette.cardBorder}`,
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+            top: 0,
+            left: 0,
+            width: `${Math.min(100, Math.max(0, (currentTimeSec / Math.max(1, durationSeconds)) * 100))}%`,
+            height: '6px',
+            background: 'linear-gradient(90deg, #FF5722, #FF7043, #FFA000)',
+            zIndex: 40,
+            boxShadow: '0 0 12px rgba(255, 87, 34, 0.85)',
             pointerEvents: 'none',
           }}
-        >
-          <span
+        />
+
+        {/* Floating Creator Handle / Brand Watermark Badge */}
+        {creatorHandle && (
+          <div
             style={{
-              fontFamily: headingFont,
-              fontSize: '12px',
-              fontWeight: 800,
-              color: palette.accent,
-              letterSpacing: '0.04em',
+              position: 'absolute',
+              top: 28,
+              right: 48,
+              zIndex: 42,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '9999px',
+              backgroundColor: palette.isDark ? 'rgba(7, 11, 20, 0.75)' : 'rgba(255, 255, 255, 0.92)',
+              backdropFilter: 'blur(16px)',
+              border: `1px solid ${palette.cardBorder}`,
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+              pointerEvents: 'none',
             }}
           >
-            {typeof creatorHandle === 'string' && creatorHandle.startsWith('@') ? creatorHandle : `@${creatorHandle || ''}`}
-          </span>
-        </div>
-      )}
+            <span
+              style={{
+                fontFamily: headingFont,
+                fontSize: '12px',
+                fontWeight: 800,
+                color: palette.accent,
+                letterSpacing: '0.04em',
+              }}
+            >
+              {typeof creatorHandle === 'string' && creatorHandle.startsWith('@') ? creatorHandle : `@${creatorHandle || ''}`}
+            </span>
+          </div>
+        )}
 
-      {/* Chapter Lower Third Cards */}
-      <UniversalLowerThird chapterEvents={chapterEvents} lowerThirdId={templateConfig.lowerThirdId} />
+        {/* Chapter Lower Third Cards */}
+        <UniversalLowerThird chapterEvents={chapterEvents} lowerThirdId={templateConfig.lowerThirdId} />
 
-      {/* ── LAYER 6: Context-Aware Subtitles with Speech Adequacy Evaluation ── */}
-      {(() => {
-        if (showCaptions === false || activeCaptions.length === 0) return null;
+        {/* ── LAYER 6: Context-Aware Subtitles with Speech Adequacy Evaluation ── */}
+        {(() => {
+          if (showCaptions === false || activeCaptions.length === 0) return null;
 
-        // Find active spoken chunk at the current timestamp
-        const activeChunk = activeCaptions.find(
-          (c) => currentTimeSec >= c.start && currentTimeSec <= c.end
-        );
+          // Find active spoken chunk at the current timestamp
+          const activeChunk = activeCaptions.find(
+            (c) => currentTimeSec >= c.start && currentTimeSec <= c.end
+          );
 
-        // Check if on-screen text adequately represents current spoken words
-        let isAdequatelyRepresented = false;
-        if (currentScene && activeChunk?.text) {
-          const normalize = (str: string) => str.toLowerCase().replace(/[^\w\s]/g, '').trim();
-          const spoken = normalize(activeChunk.text);
-          if (spoken && spoken.length >= 5) {
-            const onScreenCandidates = [
-              currentScene.heading,
-              currentScene.supportingText,
-              currentScene.quoteAuthor ? `${currentScene.heading} ${currentScene.quoteAuthor}` : '',
-            ]
-              .filter(Boolean)
-              .map((t) => normalize(String(t)));
+          // Check if on-screen text adequately represents current spoken words
+          let isAdequatelyRepresented = false;
+          if (currentScene && activeChunk?.text) {
+            const normalize = (str: string) => str.toLowerCase().replace(/[^\w\s]/g, '').trim();
+            const spoken = normalize(activeChunk.text);
+            if (spoken && spoken.length >= 5) {
+              const onScreenCandidates = [
+                currentScene.heading,
+                currentScene.supportingText,
+                currentScene.quoteAuthor ? `${currentScene.heading} ${currentScene.quoteAuthor}` : '',
+              ]
+                .filter(Boolean)
+                .map((t) => normalize(String(t)));
 
-            for (const text of onScreenCandidates) {
-              if (!text) continue;
-              if (text.includes(spoken) || spoken.includes(text)) {
-                isAdequatelyRepresented = true;
-                break;
-              }
-              const words = spoken.split(/\s+/).filter((w) => w.length > 2);
-              if (words.length > 0) {
-                const matchCount = words.filter((w) => text.includes(w)).length;
-                if (matchCount / words.length >= 0.75) {
+              for (const text of onScreenCandidates) {
+                if (!text) continue;
+                if (text.includes(spoken) || spoken.includes(text)) {
                   isAdequatelyRepresented = true;
                   break;
+                }
+                const words = spoken.split(/\s+/).filter((w) => w.length > 2);
+                if (words.length > 0) {
+                  const matchCount = words.filter((w) => text.includes(w)).length;
+                  if (matchCount / words.length >= 0.75) {
+                    isAdequatelyRepresented = true;
+                    break;
+                  }
                 }
               }
             }
           }
-        }
 
-        // Suppress subtitle ONLY when on-screen text already conveys the spoken words
-        if (isAdequatelyRepresented) return null;
+          // Suppress subtitle ONLY when on-screen text already conveys the spoken words
+          if (isAdequatelyRepresented) return null;
 
-        const resolvedThemeId =
-          props.subtitleStyle && props.subtitleStyle !== 'bold_yellow' && props.subtitleStyle !== 'netflix-yellow'
-            ? props.subtitleStyle
-            : 'classic-clean';
+          const resolvedThemeId =
+            props.subtitleStyle && props.subtitleStyle !== 'bold_yellow' && props.subtitleStyle !== 'netflix-yellow'
+              ? props.subtitleStyle
+              : 'classic-clean';
 
-        return (
-          <UniversalCaptionLayer
-            chunks={activeCaptions}
-            themeId={resolvedThemeId}
-            animationStyle={props.captionAnimationStyle || 'smooth'}
-            position={props.captionPosition || 'bottom'}
-            emphasisWords={currentScene?.highlightedWords || []}
-            backgroundTheme="solid-white"
-            styleOverrides={{
-              fontSize: 40,
-            }}
-          />
-        );
-      })()}
+          return (
+            <UniversalCaptionLayer
+              chunks={activeCaptions}
+              themeId={resolvedThemeId}
+              animationStyle={props.captionAnimationStyle || 'smooth'}
+              position={props.captionPosition || 'bottom'}
+              emphasisWords={currentScene?.highlightedWords || []}
+              backgroundTheme="solid-white"
+              styleOverrides={{
+                fontSize: 40,
+              }}
+            />
+          );
+        })()}
 
-      {/* ── LAYER 7: Subtle Architectural Frame (Zero Dark Vignette) ── */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 55,
-          pointerEvents: 'none',
-        }}
-      />
-      <svg
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: 56,
-          opacity: 0.045,
-          pointerEvents: 'none',
-          mixBlendMode: 'overlay',
-        }}
-      >
-        <filter id="faceless-longvideo-film-grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#faceless-longvideo-film-grain)" />
-      </svg>
-      <BrandWatermark watermark={watermark} isLandscape />
+        {/* ── LAYER 7: Subtle Architectural Frame (Zero Dark Vignette) ── */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 55,
+            pointerEvents: 'none',
+          }}
+        />
+        <svg
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 56,
+            opacity: 0.045,
+            pointerEvents: 'none',
+            mixBlendMode: 'overlay',
+          }}
+        >
+          <filter id="faceless-longvideo-film-grain">
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#faceless-longvideo-film-grain)" />
+        </svg>
+        <BrandWatermark watermark={watermark} isLandscape />
       </AbsoluteFill>
     </VideoVisualThemeProvider>
   );

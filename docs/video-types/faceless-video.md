@@ -148,6 +148,56 @@ To match professional editing software (Premiere Pro, DaVinci Resolve) without r
 > [!IMPORTANT]
 > **Strict Layer Boundary**: Color adjustments (Layer 3) affect only B-Roll media and background plates below it. Typography (Layer 8) and SVG Graphics (Layer 5) render strictly above Layer 3 so text colors and brand logos are never distorted by video filters.
 
+### 5.1 Layer Ownership Architecture: AI vs. Code Division of Labor
+
+> [!CAUTION]
+> **Core Architectural Principle**: Layers are NOT managed by one single director. Each layer has exactly one owner, and most owners are **code, not AI**. Attempting to make one LLM manage visual positioning, ducking envelopes, caption timestamps, and asset budgets simultaneously is the primary cause of video generation failure.
+
+#### Layer Ownership Matrix
+
+| Layer | Owner | Decides |
+| :--- | :--- | :--- |
+| **Narration + Timing** | Groq Whisper (Data) | Exact word-level timestamps (millisecond precision) |
+| **Scene Structure, Component Choice, Text** | AI Director | What each scene says and shows (blueprint only) |
+| **Component Visuals (Cards, Hook, Stat)** | Component Code (Remotion TSX) | Size, color, position, spring physics animation |
+| **Captions** | Caption Module (Code) | Word chunking, kinetic highlight, bottom zone position |
+| **Background Music + Ducking** | Audio Mixer (Code) | Dynamic volume envelope derived from word timings |
+| **Sound Effects** | SFX Planner (Code) | Exactly one pop per card/icon entrance, from plan |
+| **Icons / Images** | Asset Picker (AI suggests, Code enforces rules) | Which asset, slot element budget, cooldown/no-repeat |
+| **Transitions** | Theme Config (Code) | Fixed 8-frame crossfade / wipe |
+
+*The AI Director only writes the small scene plan. It never touches music, captions, coordinates, or pixel sizes.*
+
+#### How Execution Stays Reliable
+
+1. **A Shared Contract**: Every layer follows strict contractual constraints: allowed safe zone, time range (word anchors), and priority. Captions own the bottom safe zone (`y: 860→1000px`), and no other layer may enter it.
+2. **A Coordinator Made of Code**: After all owners produce their output, the compiler merges everything into one timeline. If two layers collide, priority determines the hierarchy: `Heading > Main Visual > Icon > Decoration`. The loser is shrunk, delayed, or dropped.
+3. **Validators per Layer**: Each owner is checked separately: captions cover every spoken word, music never exceeds its volume envelope, icons stay within budget, and nothing leaves its safe zone. A failure points to exactly one layer.
+4. **Fix Only the Broken Piece**: If Scene 3 fails validation, the error is isolated and routed back to the AI for that scene only, with one retry, followed by a deterministic fallback component. The other scenes remain untouched.
+5. **Visual Check After Render**: Automated inspection checks 2–3 frames per scene for overlap or cut-off text (code analysis first; vision AI only for flagged scenes).
+
+#### The Planning vs. Execution Rule
+
+- **AI = Judgment** (*what, which, in what order*)
+- **Code = Precision** (*where, when, how big, how loud*)
+
+### 5.2 Factory Floor QA Supervisor & Inspection Gatekeeper (Audit Before Dispatch)
+
+> [!IMPORTANT]
+> **The Factory Gatekeeper Rule**: In a manufacturing plant, line workers say *"Kaam ho gaya (Done)"*, but products **never leave the factory floor** without the Floor Quality Supervisor stamping the inspection sheet.
+> 
+> Layer owners (captions, SFX, charts, music mixer) produce their assets, but the **Pre-Render QA Gatekeeper (Code)** runs a 7-point audit before Remotion Lambda renders a single frame:
+> 
+> 1. **Word Coverage Audit**: 100% of spoken words from Groq Whisper have a matching caption chunk; zero missing words, zero orphan silence gaps.
+> 2. **Safe-Zone Boundary Audit**: No card, chart, or text bleeds into the top 76px or bottom 128px subtitle reservation zone.
+> 3. **Asset Cooldown Audit**: No icon, stickman, or photo is repeated within the video (anti-monotony cooldown rule).
+> 4. **Audio Decibel Audit**: BGM ducks down smoothly to 0.06 during narration; master audio mix peaks cleanly below $-1.5\text{ dBFS}$ with zero distortion.
+> 5. **SFX Sync Audit**: Every SFX cue matches a real visual event frame; zero ghost sound cues in silent beats.
+> 6. **Typography Wrap Audit**: Headings never exceed 2 lines; zero single-word orphan overflow lines.
+> 7. **Contrast & Border Audit**: Text contrast ratio is $\ge 4.5:1$; zero PPT-style card borders or box wrappers on clean canvases.
+>
+> If any checkpoint fails, the defective layer is sent to the **Rework Station** (auto-clamped or 1 targeted retry) while unaffected layers remain untouched.
+
 ---
 
 ## 6. Director Crew Hierarchy & Video Manager

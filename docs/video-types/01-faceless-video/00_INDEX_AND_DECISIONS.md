@@ -101,6 +101,54 @@ Use **5 AI directors** and **code validators**:
 
 ---
 
+## 3.1 Layer Ownership Architecture: AI vs. Code Division of Labor
+
+> [!IMPORTANT]
+> **Core Principle**: Layers are NOT managed by one director. Each layer has exactly one owner, and most owners are **code, not AI**. One AI managing everything is guaranteed to fail.
+>
+> - **AI = Judgment**: What, which, and in what order.
+> - **Code = Precision**: Where, when, how big, and how loud.
+
+### Layer Ownership Matrix
+
+| Layer | Owner | Decides |
+| :--- | :--- | :--- |
+| **Narration + timing** | Groq (data) | Exact word times (millisecond precision) |
+| **Scene structure, component choice, text** | AI Director | What each scene says and shows (blueprint only) |
+| **Component visuals (cards, hook, stat)** | Component code | Size, color, position, animation |
+| **Captions** | Caption module (code) | Chunking, highlight, position (`y: 860→1000px`) |
+| **Background music + ducking** | Audio mixer (code) | Volume envelope dynamically derived from word timings |
+| **Sound effects** | SFX planner (code) | One pop per card or icon event, from the plan |
+| **Icons / images** | Asset picker (AI suggests, code enforces rules) | Which asset, slot budget, cooldown/no-repeat |
+| **Transitions** | Theme config | Fixed 8-frame crossfade |
+
+*The AI Director only writes the small scene plan. It never touches music, captions, positions, or sizes.*
+
+### How Execution Stays Reliable
+
+1. **A shared contract**: Every layer follows the same rules: allowed zone, time range (word anchors), and priority. For example, captions own the bottom zone and nothing else may enter it.
+2. **A coordinator made of code**: After all owners produce their output, the compiler merges everything into one timeline. If two layers collide, priority decides: `heading > main visual > icon > decoration`. The loser is shrunk, delayed, or dropped.
+3. **Validators per layer**: Each owner is checked separately: captions cover every word, music never exceeds its volume, icons stay within budget, and nothing leaves its zone. A failure points to exactly one layer.
+4. **Fix only the broken piece**: If Scene 3 fails validation, the error goes back to the AI for that scene only, with one retry, then a fallback component. The other scenes are untouched.
+5. **Visual check after render**: Take 2-3 frames per scene and check for overlap or cut-off text (code first, vision AI only for flagged scenes).
+
+### 3.2 The Factory QA Gatekeeper & Zero-Defect Inspection
+
+> [!IMPORTANT]
+> **Floor Manager Rule**: Just like factory line workers who finish assembly and say *"Done"*, no video scene is permitted to enter the render queue on trust alone. The **QA Gatekeeper (Code Supervisor)** runs a strict 7-point pre-render inspection before AWS Lambda Chromium workers spin up:
+>
+> 1. **Word Coverage**: 100% of spoken words from Groq Whisper are mapped to subtitle chunks without gaps.
+> 2. **Safe-Zone Clearance**: Content respects top 76px and bottom 128px subtitle reservation zones.
+> 3. **Asset Cooldown**: Zero reused images, icons, or stickmen across scenes.
+> 4. **Audio Decibel Envelope**: BGM ducked to 0.06 under voiceover; master mix below $-1.5\text{ dBFS}$.
+> 5. **SFX Sync**: Every SFX cue matches a real visual event frame; zero phantom cues.
+> 6. **Typography Discipline**: Max 2 lines per heading; zero orphan single-word lines.
+> 7. **Clean Borderless Canvas**: Zero PPT-style card borders or artificial box wrappers on clean canvases.
+>
+> *Defect Handling*: Flawed layers are quarantined to the Rework Station (deterministic code auto-clamping or 1 targeted AI retry). Pristine layers are never touched.
+
+---
+
 ## 4. Glossary (short)
 
 - **Beat:** a unit of narration (one idea) that gets one visual event.

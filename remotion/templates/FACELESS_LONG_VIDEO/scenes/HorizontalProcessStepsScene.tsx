@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 import { useVideoDesignSystem, type AccentTone } from '../designSystem';
@@ -60,56 +60,87 @@ const DEFAULT_5_STEPS: ProcessStepItem[] = [
 
 const STEP_TONES: AccentTone[] = ['sky', 'indigo', 'emerald', 'amber', 'coral'];
 
-function StepIcon({ type, size = 56 }: { type: ProcessStepItem['iconType']; size?: number }) {
+function StepIcon({
+  type,
+  color = '#0284C7',
+  size = 34,
+}: {
+  type: ProcessStepItem['iconType'];
+  color?: string;
+  size?: number;
+}) {
   switch (type) {
     case 'lightbulb':
       return (
-        <svg viewBox="0 0 80 80" width={size} height={size} style={{ overflow: 'visible' }}>
-          <path d="M 40 8 L 40 2 M 18 16 L 12 10 M 62 16 L 68 10 M 10 38 L 4 38 M 70 38 L 76 38" stroke="#F59E0B" strokeWidth="3.5" strokeLinecap="round" />
-          <path d="M 28 44 C 20 34 22 20 34 12 C 44 6 56 12 60 22 C 62 28 58 36 54 44 L 54 52 L 28 52 Z" fill="#FDE047" stroke="#0F172A" strokeWidth="3" strokeLinejoin="round" />
-          <path d="M 36 44 L 36 32 L 40 36 L 44 32 L 44 44" stroke="#D97706" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-          <rect x="33" y="54" width="16" height="5" rx="2" fill="#94A3B8" stroke="#0F172A" strokeWidth="2" />
+        <svg viewBox="0 0 48 48" width={size} height={size} fill="none">
+          <path
+            d="M24 6C16.268 6 10 12.268 10 20C10 24.8 12.5 28.9 16.5 31.4C17.5 32 18 33.2 18 34.4V36H30V34.4C30 33.2 30.5 32 31.5 31.4C35.5 28.9 38 24.8 38 20C38 12.268 31.732 6 24 6Z"
+            fill={`${color}16`}
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <path d="M19 36H29M21 40H27" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M24 13V19M21 16H27" stroke={color} strokeWidth="2" strokeLinecap="round" />
         </svg>
       );
     case 'plan':
       return (
-        <svg viewBox="0 0 80 80" width={size} height={size} style={{ overflow: 'visible' }}>
-          <rect x="18" y="10" width="44" height="60" rx="8" fill="#6366F1" stroke="#0F172A" strokeWidth="3" />
-          <rect x="24" y="16" width="32" height="48" rx="5" fill="#EEF2FF" />
-          <line x1="30" y1="26" x2="48" y2="26" stroke="#4F46E5" strokeWidth="3" strokeLinecap="round" />
-          <line x1="30" y1="36" x2="50" y2="36" stroke="#4F46E5" strokeWidth="3" strokeLinecap="round" />
-          <line x1="30" y1="46" x2="44" y2="46" stroke="#4F46E5" strokeWidth="3" strokeLinecap="round" />
+        <svg viewBox="0 0 48 48" width={size} height={size} fill="none">
+          <rect
+            x="10"
+            y="8"
+            width="28"
+            height="32"
+            rx="6"
+            fill={`${color}16`}
+            stroke={color}
+            strokeWidth="2.5"
+          />
+          <path d="M17 18H31M17 24H31M17 30H24" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+          <circle cx="29" cy="30" r="2.5" fill={color} />
         </svg>
       );
     case 'gear':
       return (
-        <svg viewBox="0 0 80 80" width={size} height={size} style={{ overflow: 'visible' }}>
+        <svg viewBox="0 0 48 48" width={size} height={size} fill="none">
+          <circle cx="24" cy="24" r="6" fill={`${color}20`} stroke={color} strokeWidth="2.5" />
           <path
-            d="M 40 16 L 43 22 L 50 20 L 53 26 L 60 27 L 60 34 L 66 37 L 63 43 L 67 48 L 62 53 L 64 60 L 57 62 L 56 68 L 49 67 L 46 72 L 40 69 L 34 72 L 31 67 L 24 68 L 23 62 L 16 60 L 18 53 L 13 48 L 17 43 L 14 37 L 20 34 L 20 27 L 27 26 L 30 20 L 37 22 Z"
-            fill="#10B981"
-            stroke="#0F172A"
-            strokeWidth="3"
-            strokeLinejoin="round"
+            d="M24 8V12M24 36V40M8 24H12M36 24H40M12.69 12.69L15.51 15.51M32.49 32.49L35.31 35.31M12.69 35.31L15.51 32.49M32.49 15.51L35.31 12.69"
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinecap="round"
           />
-          <circle cx="40" cy="45" r="10" fill="#FFFFFF" stroke="#0F172A" strokeWidth="3" />
         </svg>
       );
     case 'rocket':
       return (
-        <svg viewBox="0 0 80 80" width={size} height={size} style={{ overflow: 'visible' }}>
-          <path d="M 28 58 L 22 68 L 32 64 L 38 72 L 40 60" fill="#EF4444" stroke="#F97316" strokeWidth="2.5" />
-          <path d="M 32 54 C 28 40 38 22 56 12 C 60 30 52 48 38 54 Z" fill="#F8FAFC" stroke="#0F172A" strokeWidth="3" />
-          <circle cx="44" cy="30" r="5" fill="#38BDF8" stroke="#0F172A" strokeWidth="2" />
+        <svg viewBox="0 0 48 48" width={size} height={size} fill="none">
+          <path
+            d="M24 8C30 8 36 14 36 22C36 30 24 40 24 40C24 40 12 30 12 22C12 14 18 8 24 8Z"
+            fill={`${color}16`}
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          />
+          <circle cx="24" cy="20" r="4" fill={color} />
+          <path d="M17 32L12 37M31 32L36 37" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
         </svg>
       );
     case 'growth':
     default:
       return (
-        <svg viewBox="0 0 80 80" width={size} height={size} style={{ overflow: 'visible' }}>
-          <rect x="18" y="44" width="11" height="26" rx="3" fill="#A78BFA" stroke="#0F172A" strokeWidth="2.5" />
-          <rect x="34" y="32" width="11" height="38" rx="3" fill="#8B5CF6" stroke="#0F172A" strokeWidth="2.5" />
-          <rect x="50" y="18" width="11" height="52" rx="3" fill="#6D28D9" stroke="#0F172A" strokeWidth="2.5" />
-          <path d="M 16 48 Q 36 34 64 12 M 52 12 L 66 12 L 66 26" stroke="#EC4899" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <svg viewBox="0 0 48 48" width={size} height={size} fill="none">
+          <rect x="10" y="28" width="6" height="12" rx="2" fill={`${color}20`} stroke={color} strokeWidth="2" />
+          <rect x="21" y="20" width="6" height="20" rx="2" fill={`${color}30`} stroke={color} strokeWidth="2" />
+          <rect x="32" y="12" width="6" height="28" rx="2" fill={color} stroke={color} strokeWidth="2" />
+          <path
+            d="M10 22L22 14L34 8M34 8H26M34 8V16"
+            stroke={color}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       );
   }
@@ -117,7 +148,7 @@ function StepIcon({ type, size = 56 }: { type: ProcessStepItem['iconType']; size
 
 export function HorizontalProcessStepsScene({
   scene,
-  headingFont = 'Montserrat, Inter, system-ui, sans-serif',
+  headingFont = 'Lora, "Playfair Display", Georgia, "Times New Roman", serif',
   bodyFont = 'Plus Jakarta Sans, Inter, system-ui, sans-serif',
   sceneFrame,
   palette,
@@ -126,24 +157,25 @@ export function HorizontalProcessStepsScene({
     sceneFrame,
     durationSec: scene.duration || 5,
     palette,
-    headingFont,
-    bodyFont,
   });
 
   const { isVertical } = ds.layout;
   const headingText = scene.heading || 'Step-by-Step Execution Process';
   const supportingText = scene.supportingText || '';
 
-  const steps: ProcessStepItem[] = React.useMemo(() => {
+  const steps: ProcessStepItem[] = useMemo(() => {
     const iconTypes: Array<ProcessStepItem['iconType']> = ['lightbulb', 'plan', 'gear', 'rocket', 'growth'];
     if (scene.timelineSteps && scene.timelineSteps.length >= 3) {
-      return scene.timelineSteps.slice(0, isVertical ? 4 : 5).map((step, idx) => ({
-        number: `0${idx + 1}`,
-        title: step.title || `Step ${idx + 1}`,
-        description: step.description || step.label || 'Execute with structured focus.',
-        iconType: iconTypes[idx % iconTypes.length],
-        tone: STEP_TONES[idx % STEP_TONES.length],
-      }));
+      return scene.timelineSteps.slice(0, isVertical ? 4 : 5).map((rawStep: any, idx: number) => {
+        const stepObj = typeof rawStep === 'string' ? { title: rawStep, description: '' } : rawStep;
+        return {
+          number: `0${idx + 1}`,
+          title: stepObj?.title || `Step ${idx + 1}`,
+          description: stepObj?.description || stepObj?.label || 'Execute with structured focus.',
+          iconType: iconTypes[idx % iconTypes.length],
+          tone: STEP_TONES[idx % STEP_TONES.length],
+        };
+      });
     }
     if (scene.listItems && scene.listItems.length >= 3) {
       return scene.listItems.slice(0, isVertical ? 4 : 5).map((item, idx) => {
@@ -164,13 +196,17 @@ export function HorizontalProcessStepsScene({
 
   return (
     <SceneCanvas ds={ds}>
+      {/* ── Editorial Header: Clean, confident, broadcast-grade typography ── */}
       <SceneHeader
-        ds={ds}
-        eyebrow="STEP-BY-STEP PROCESS"
-        eyebrowTone="indigo"
-        title={headingText}
-        highlightWord={scene.highlightedWords?.[0]}
-        subtitle={supportingText}
+        categoryPill={scene.categoryPill || 'EXECUTION ROADMAP'}
+        heading={headingText}
+        supportingText={supportingText}
+        highlightedWords={scene.highlightedWords}
+        headingFont={headingFont}
+        bodyFont={bodyFont}
+        sceneFrame={sceneFrame || ds.localFrame}
+        palette={palette}
+        compact={!isVertical}
       />
 
       <div
@@ -179,9 +215,9 @@ export function HorizontalProcessStepsScene({
           maxWidth: ds.layout.maxContentWidth,
           display: 'flex',
           flexDirection: isVertical ? 'column' : 'row',
-          alignItems: 'center',
+          alignItems: 'stretch',
           justifyContent: 'center',
-          gap: isVertical ? '10px' : '10px',
+          gap: isVertical ? '14px' : '14px',
         }}
       >
         {steps.map((step, idx) => {
@@ -194,74 +230,90 @@ export function HorizontalProcessStepsScene({
               <StudioCard
                 ds={ds}
                 entranceProgress={itemSpring}
-                topAccentBar={accent.solid}
-                padding={isVertical ? '18px 22px' : '26px 18px'}
+                padding={isVertical ? '20px 22px' : '32px 24px'}
                 style={{
                   flex: 1,
                   width: isVertical ? '100%' : undefined,
+                  display: 'flex',
                   flexDirection: isVertical ? 'row' : 'column',
                   alignItems: 'center',
                   textAlign: isVertical ? 'left' : 'center',
-                  gap: isVertical ? 18 : 12,
+                  gap: isVertical ? 20 : 16,
+                  backgroundColor: ds.surface.isDark
+                    ? 'rgba(30, 41, 59, 0.5)'
+                    : 'rgba(241, 245, 249, 0.7)',
+                  border: 'none',
+                  borderRadius: '24px',
+                  boxShadow: 'none',
                 }}
               >
-                {/* Step Number Pill */}
+                {/* Modern Numeric Step Badge */}
                 <div
                   style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: '50%',
-                    backgroundColor: accent.solid,
-                    color: '#FFFFFF',
-                    display: 'flex',
+                    display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontFamily: ds.type.fontHeading,
-                    fontSize: 18,
+                    padding: '6px 16px',
+                    borderRadius: '9999px',
+                    backgroundColor: accent.SoftBg,
+                    color: accent.solid,
+                    fontFamily: headingFont,
+                    fontSize: 14,
                     fontWeight: 900,
+                    letterSpacing: '0.08em',
                     flexShrink: 0,
-                    boxShadow: `0 6px 16px ${accent.solid}35`,
                   }}
                 >
-                  {step.number}
+                  STEP {step.number}
                 </div>
 
-                {/* Vector Illustration */}
+                {/* Minimalist Duotone Vector Icon */}
                 <div
                   style={{
-                    width: isVertical ? 52 : 64,
-                    height: isVertical ? 52 : 64,
+                    width: isVertical ? 56 : 68,
+                    height: isVertical ? 56 : 68,
+                    borderRadius: '20px',
+                    backgroundColor: accent.SoftBg,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}
                 >
-                  <StepIcon type={step.iconType} size={isVertical ? 46 : 58} />
+                  <StepIcon type={step.iconType} color={accent.solid} size={isVertical ? 32 : 38} />
                 </div>
 
-                {/* Copy */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                {/* Typography Hierarchy */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 6,
+                    flex: 1,
+                    width: '100%',
+                  }}
+                >
                   <h3
                     style={{
-                      fontFamily: ds.type.fontHeading,
-                      fontSize: ds.type.cardTitle.fontSize,
-                      fontWeight: ds.type.cardTitle.fontWeight,
+                      fontFamily: headingFont,
+                      fontSize: 21,
+                      fontWeight: 800,
+                      letterSpacing: '-0.025em',
                       color: ds.surface.textPrimary,
                       margin: 0,
-                      lineHeight: ds.type.cardTitle.lineHeight,
+                      lineHeight: 1.25,
                     }}
                   >
                     {step.title}
                   </h3>
                   <p
                     style={{
-                      fontFamily: ds.type.fontBody,
-                      fontSize: ds.type.bodyMd.fontSize - 1,
+                      fontFamily: bodyFont,
+                      fontSize: 13.5,
                       fontWeight: 500,
                       color: ds.surface.textSecondary,
                       margin: 0,
-                      lineHeight: 1.4,
+                      lineHeight: 1.48,
                     }}
                   >
                     {step.description}
@@ -269,16 +321,25 @@ export function HorizontalProcessStepsScene({
                 </div>
               </StudioCard>
 
-              {/* Semantic Progression Arrow: Explains to viewer which step follows which */}
+              {/* Semantic Progression Arrow */}
               {!isLast && (
-                <RelationshipArrow
-                  type="sequence"
-                  direction={isVertical ? 'down' : 'right'}
-                  tone={step.tone}
-                  progress={itemSpring}
-                  sceneFrame={sceneFrame || ds.localFrame}
-                  size={isVertical ? 26 : 32}
-                />
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <RelationshipArrow
+                    type="sequence"
+                    direction={isVertical ? 'down' : 'right'}
+                    tone={step.tone}
+                    progress={itemSpring}
+                    sceneFrame={sceneFrame || ds.localFrame}
+                    size={isVertical ? 22 : 26}
+                  />
+                </div>
               )}
             </React.Fragment>
           );
@@ -287,4 +348,5 @@ export function HorizontalProcessStepsScene({
     </SceneCanvas>
   );
 }
+
 export default HorizontalProcessStepsScene;

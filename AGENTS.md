@@ -528,3 +528,84 @@ Itnavideo integrates a verified catalog of **1,282 modular broadcast motion grap
 - **Dynamic 3D Remotion Host**: `remotion/components/DynamicLibraryHost.tsx` renders matched components inside `FACELESS_SHORTS` (9:16) and `FACELESS_LONG_VIDEO` (16:9) with Vox-style 3D perspective tilt (`perspective(1000px) rotateX(4deg) rotateY(-3deg)`), subtle breathing float, and spring damping.
 - **Dedicated Specification**: [`docs/REMOTION_COMPONENT_LIBRARY.md`](file:///c:/Users/user/Downloads/itnavideo-project/docs/REMOTION_COMPONENT_LIBRARY.md)
 
+---
+
+## 22. Layer Ownership Architecture & Precise Code Coordination
+
+> [!IMPORTANT]
+> **Core Doctrine**: Layers are not managed by one director. Each layer has exactly one owner, and most owners are **code, not AI**. One AI managing everything is guaranteed to fail.
+>
+> - **AI = Judgment**: What, which, and in what order.
+> - **Code = Precision**: Where, when, how big, and how loud.
+
+### 22.1 Layer Ownership Matrix
+
+| Layer | Owner | Decides |
+| :--- | :--- | :--- |
+| **Narration + Timing** | Groq Whisper (Data) | Exact word-level timestamps (ms-accurate) |
+| **Scene Structure, Component Choice, Text** | AI Director (Gemini 2.0 Flash) | What each scene says and shows (blueprint only) |
+| **Component Visuals (Cards, Hook, Stat)** | Component Code (Remotion TSX) | Size, color, position, spring animation |
+| **Captions** | Caption Module (Code) | Word chunking, kinetic highlight, bottom zone position |
+| **Background Music + Ducking** | Audio Mixer (Code) | Envelope volume dynamically derived from word timings |
+| **Sound Effects** | SFX Planner (Code) | Exactly one pop per card/icon entrance, from plan |
+| **Icons / Images** | Asset Picker (AI suggests, Code enforces rules) | Which asset, slot budget, cooldown/no-repeat |
+| **Transitions** | Theme Config (Code) | Fixed 8-frame crossfade / wipe |
+
+*The AI Director only writes the small scene plan. It never touches music volumes, caption placements, coordinates, or pixel sizes.*
+
+### 22.2 Five Execution Reliability Safeguards
+
+1. **A Shared Contract**: Every layer follows strict contractual constraints: allowed safe zone, time range (word anchors), and z-index priority. Captions own the bottom safe zone (`y: 860→1000px` in 16:9; `bottom: 230px` in 9:16), and no other visual layer may enter it.
+2. **A Coordinator Made of Code**: After all owners produce their output, the Remotion compilation pipeline merges everything into a unified timeline. If two layers collide, priority determines the outcome: `Heading > Main Visual > Icon > Decoration`. The lower priority layer is shrunk, delayed, or dropped.
+3. **Validators per Layer**: Each owner is verified in isolation:
+   - Captions must cover 100% of spoken words without gaps.
+   - Music volume must never exceed safe ducking thresholds.
+   - Icons must stay within element density budgets.
+   - Visuals must never cross boundary safe zones. A validation failure points to exactly one layer.
+4. **Fix Only the Broken Piece**: If Scene 3 fails validation, the error is isolated and returned to the AI for that scene only with one retry, followed by a deterministic fallback component. Unaffected scenes are preserved untouched.
+5. **Visual Check After Render**: Automated validation extracts 2–3 frames per scene to inspect for text overlap or clipping (code-based pixel analysis first, with vision AI invoked only for flagged edge cases).
+
+### 22.3 The Factory Floor QA Supervisor & Inspection Gatekeeper (Audit Before Dispatch)
+
+> [!IMPORTANT]
+> **The Factory Gatekeeper Rule**: In a manufacturing plant, line workers may claim their task is finished, but goods **never ship to customers** without the Floor Quality Supervisor stamping the inspection sheet. Similarly, layer owners (caption module, SFX planner, component code) submit their output, but the **Pre-Render QA Gatekeeper (Code)** runs a 7-point audit before Remotion Lambda renders a single frame.
+
+#### The 7-Point Pre-Render Inspection Checklist
+
+```mermaid
+flowchart TD
+    Workers["🛠️ Layer Owners Finish Work<br/>(Captions, Assets, Charts, Audio)"] --> Gatekeeper["🔍 Factory QA Gatekeeper (Code Supervisor)"]
+    
+    subgraph Inspection ["7-Point Quality Audit Checklist"]
+        Gatekeeper --> C1["1. Word Coverage (100% words synced, no gaps)"]
+        Gatekeeper --> C2["2. Safe-Zone Clearance (No bleed into 76px top / 128px bottom)"]
+        Gatekeeper --> C3["3. Cooldown Audit (Zero reused assets or stickmen)"]
+        Gatekeeper --> C4["4. Audio Balance (BGM ducked to 0.06, zero clipping)"]
+        Gatekeeper --> C5["5. SFX Precision (Exact frame sync, no ghost cues)"]
+        Gatekeeper --> C6["6. Typography Wrap (Zero orphan words or line overflow)"]
+        Gatekeeper --> C7["7. Contrast Ratio (>= 4.5:1 text-to-canvas legibility)"]
+    end
+
+    Inspection --> Decision{"All 7 Checkpoints<br/>Passed?"}
+    Decision -->|✅ APPROVED| Ship["🚀 Dispatched to AWS Lambda (Fast 1080p Render)"]
+    Decision -->|❌ DEFECT FOUND| Rework["⚠️ Rework Station (Fix only the broken layer)"]
+    Rework -->|Auto-clamp or 1 targeted retry| Inspection
+```
+
+| Checkpoint | What Manager Checks | Failure Consequence & Auto-Fix |
+| :--- | :--- | :--- |
+| **1. Word Coverage Audit** | Every single word from Groq Whisper has a valid subtitle chunk and timestamp. | Subtitle gaps filled; orphan words auto-merged. |
+| **2. Safe-Zone Boundary Audit** | No visual, card, or heading enters top 76px or bottom 128px subtitle zone. | Element container automatically clamped to `maxContentWidth` (1620px) / `availableHeight` (876px). |
+| **3. Asset Cooldown Audit** | No icon, sticker, photo, or vector graphic is reused across consecutive scenes. | Duplicate asset ejected; deterministic fallback vector or procedural shape substituted. |
+| **4. Audio Decibel Audit** | BGM volume drops smoothly to ducking level (0.06) during narration; master audio stays below $-1.5\text{ dBFS}$. | Audio envelope curves re-clamped in code; zero audio distortion or voice drowning. |
+| **5. SFX Timing Audit** | Every SFX cue matches a real visual event frame; zero ghost SFX cues. | Unmatched SFX cues pruned from composition props. |
+| **6. Typography Wrap Audit** | Headings fit within 2 lines max; no single orphan word dropped onto line 3. | Font scale factor auto-reduced by 8% or text re-wrapped cleanly. |
+| **7. Contrast & Border Audit** | Text contrast ratio is $\ge 4.5:1$; zero PPT-style card borders on white canvas. | Border tokens stripped to `none`; high-contrast text color enforced. |
+
+#### Quarantine & Rework Protocol
+- **Zero Lambda Waste**: If a defect is discovered, rendering is paused before triggering expensive AWS Lambda Chromium workers.
+- **Micro-Repair**: Only the specific defective layer is repaired. If the SFX is misaligned, the scene text and narration are untouched.
+- **Fail-Safe Fallback**: If a complex custom component fails structural checks, the compiler swaps in a certified fallback component (`StudioCard` or `SceneHeader`) so the user receives a flawless, ready-to-publish video in under 2 minutes.
+
+
+

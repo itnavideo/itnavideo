@@ -309,6 +309,17 @@ export default function FacelessVideoPageClient() {
         }
       }
 
+      // Check if user uploaded a custom BGM audio file that needs staging to AWS S3
+      let customBgmKey: string | undefined = undefined;
+      const customBgmFile = activeStoryboard?.customBgmFile;
+      if (customBgmFile instanceof File && activeStoryboard?.bgmSourceMode === "custom" && activeStoryboard?.bgmEnabled !== false) {
+        setJobStatus({
+          state: "uploading",
+          message: "Staging custom background music to cloud...",
+        });
+        customBgmKey = await uploadFileViaPresign(customBgmFile, "facelessVideo", user.id);
+      }
+
       const plannedTitle =
         activeStoryboard?.topicTitle ||
         topicTitle.trim() ||
@@ -336,9 +347,12 @@ export default function FacelessVideoPageClient() {
           userId: user.id,
           userEmail: user.email || undefined,
           facelessBgmMood: activeStoryboard?.facelessBgmMood || facelessBgmMood,
-          facelessBgmVolume: activeStoryboard?.facelessBgmVolume ?? facelessBgmVolume,
-          bgmUrl: activeStoryboard?.bgmUrl || (facelessBgmMood === "none" ? "" : selectedBgmUrl),
-          bgmTrackId: activeStoryboard?.bgmTrackId || selectedBgmTrackId,
+          bgmKey: customBgmKey,
+          bgmEnabled: activeStoryboard?.bgmEnabled !== false,
+          bgmVolume: typeof activeStoryboard?.bgmVolume === "number" ? activeStoryboard.bgmVolume : (typeof activeStoryboard?.facelessBgmVolume === "number" ? activeStoryboard.facelessBgmVolume : facelessBgmVolume),
+          facelessBgmVolume: typeof activeStoryboard?.bgmVolume === "number" ? activeStoryboard.bgmVolume : (typeof activeStoryboard?.facelessBgmVolume === "number" ? activeStoryboard.facelessBgmVolume : facelessBgmVolume),
+          bgmUrl: customBgmKey ? undefined : (activeStoryboard?.bgmUrl || (facelessBgmMood === "none" ? "" : selectedBgmUrl)),
+          bgmTrackId: customBgmKey ? "custom" : (activeStoryboard?.bgmTrackId || selectedBgmTrackId),
           facelessPacingStyle: activeStoryboard?.facelessPacingStyle || facelessPacingStyle,
           pacingStyle: activeStoryboard?.facelessPacingStyle || facelessPacingStyle || "clean",
           autoDucking: activeStoryboard?.autoDucking !== false,
@@ -589,7 +603,6 @@ export default function FacelessVideoPageClient() {
       <StudioHeader
         studioName="Faceless Video"
         aspectRatioLabel="16:9 Cinema"
-        badgeLabel="YouTube Cinema"
         alternateFormat={{
           label: "Switch to 9:16 Shorts",
           href: "/dashboard/faceless-shorts",

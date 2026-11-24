@@ -77,16 +77,14 @@ export function ChartScene({
 
       <StudioCard
         tone="emerald"
-        topAccentBar
-        elevated
         palette={palette}
         progress={ds.motion.contentSpring}
         style={{
           width: '100%',
-          maxWidth: ds.layout.isVertical ? '920px' : '1280px',
+          maxWidth: ds.layout.isVertical ? '960px' : '1620px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '28px',
+          gap: '32px',
         }}
       >
         {/* Top Metric Summary Row */}
@@ -104,7 +102,7 @@ export function ChartScene({
           <div>
             <div
               style={{
-                fontSize: '12px',
+                fontSize: '14px',
                 fontWeight: 800,
                 letterSpacing: '0.1em',
                 color: ds.surface.textMuted,
@@ -117,9 +115,9 @@ export function ChartScene({
             <div
               style={{
                 fontFamily: headingFont,
-                fontSize: ds.layout.isVertical ? '44px' : '52px',
+                fontSize: ds.layout.isVertical ? '52px' : '64px',
                 fontWeight: 900,
-                letterSpacing: '-0.03em',
+                letterSpacing: '-0.035em',
                 color: ds.accents.emerald.solid,
                 lineHeight: 1.05,
               }}
@@ -128,18 +126,32 @@ export function ChartScene({
             </div>
           </div>
 
-          <EyebrowPill label="VERIFIED TREND" tone="emerald" palette={palette} />
+          <span
+            style={{
+              padding: '8px 20px',
+              borderRadius: '9999px',
+              backgroundColor: ds.accents.emerald.SoftBg,
+              border: `1.5px solid ${ds.accents.emerald.border}`,
+              color: ds.accents.emerald.solid,
+              fontSize: '14px',
+              fontWeight: 800,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+            }}
+          >
+            ● VERIFIED TRAJECTORY
+          </span>
         </div>
 
-        {/* Animated Bar Columns */}
+        {/* Animated Bar Columns — Broad Broadcast Canvas */}
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${chartItems.length}, minmax(0, 1fr))`,
-            gap: ds.layout.isVertical ? '16px' : '28px',
+            gap: ds.layout.isVertical ? '16px' : '36px',
             alignItems: 'end',
-            height: ds.layout.isVertical ? '260px' : '240px',
-            paddingTop: '16px',
+            height: ds.layout.isVertical ? '300px' : '360px',
+            paddingTop: '20px',
           }}
         >
           {chartItems.map((bar, idx) => {

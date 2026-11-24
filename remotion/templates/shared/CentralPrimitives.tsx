@@ -13,7 +13,7 @@ import {
 } from './CentralDesignSystem';
 
 export interface SceneCanvasProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   sceneFrame?: number;
   durationSec?: number;
   palette?: { isDark?: boolean } | null;
@@ -97,7 +97,7 @@ export function SceneCanvas({
           display: 'flex',
           flexDirection: 'column',
           alignItems: align === 'stretch' ? 'stretch' : 'center',
-          justifyContent,
+          justifyContent: justify,
           zIndex: 20,
           opacity: ds.motion.enterOpacity * ds.motion.exitOpacity,
           transform: enableDrift
@@ -118,34 +118,12 @@ export interface EyebrowPillProps {
   palette?: { isDark?: boolean } | null;
 }
 
-export function EyebrowPill({ text, accentTone = 'coral', icon, palette }: EyebrowPillProps) {
-  const ds = useVideoDesignSystem({ palette });
-  const accent = ds.accents[accentTone] || ds.accents.coral;
-
-  if (!text) return null;
-
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 18px',
-        borderRadius: '9999px',
-        backgroundColor: accent.SoftBg,
-        border: `1px solid ${accent.border}`,
-        color: accent.textOnSoft,
-        fontSize: `${ds.typeScale.eyebrow.fontSize}px`,
-        fontWeight: ds.typeScale.eyebrow.fontWeight,
-        letterSpacing: ds.typeScale.eyebrow.letterSpacing,
-        textTransform: 'uppercase',
-        boxShadow: ds.surface.shadowBadge,
-      }}
-    >
-      {icon && <span>{icon}</span>}
-      <span>{text}</span>
-    </div>
-  );
+/**
+ * EyebrowPill
+ * Zero Eyebrow Pill Badge Policy (Enterprise Standard): Never place small rounded-pill eyebrow tags in videos.
+ */
+export function EyebrowPill(_props: EyebrowPillProps) {
+  return null;
 }
 
 export interface SceneHeaderProps {
@@ -216,7 +194,7 @@ export function SceneHeader({
 }
 
 export interface StudioCardProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   accentTone?: AccentTone;
   palette?: { isDark?: boolean } | null;
   padding?: string;
@@ -231,30 +209,20 @@ export function StudioCard({
   elevated = false,
 }: StudioCardProps) {
   const ds = useVideoDesignSystem({ palette });
-  const accent = ds.accents[accentTone] || ds.accents.slate;
 
   return (
     <div
       style={{
-        backgroundColor: elevated ? ds.surface.cardBgElevated : ds.surface.cardBg,
-        border: `1px solid ${ds.surface.borderSubtle}`,
-        borderRadius: '24px',
-        padding: padding || (ds.layout.isVertical ? '28px 28px' : '36px 40px'),
-        boxShadow: elevated ? ds.surface.shadowElevated : ds.surface.shadowCard,
+        backgroundColor: 'transparent',
+        border: 'none',
+        borderRadius: 0,
+        padding: padding || 0,
+        boxShadow: 'none',
         position: 'relative',
-        overflow: 'hidden',
+        width: '100%',
+        boxSizing: 'border-box',
       }}
     >
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '4px',
-          backgroundColor: accent.solid,
-        }}
-      />
       {children}
     </div>
   );

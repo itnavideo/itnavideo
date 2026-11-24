@@ -87,7 +87,7 @@ export const SAMPLE_WIDESCREEN_BLUEPRINT: SceneBlueprintItem[] = [
       startSeconds: 10,
       endSeconds: 16,
     },
-    highlightedWords: ["idea", "reality", "simple", "steps", "goals"],
+    highlightedWords: ["Reality"],
     layoutType: "horizontal_process",
     listItems: [
       "Research: Understand your market, audience and opportunities.",
@@ -187,7 +187,7 @@ export default function WidescreenQualityPreviewClient() {
     title: "16:9 Widescreen Quality Preview",
     durationSeconds: totalDurationSeconds,
     backgroundTheme: "solid-white",
-    headingFont: "Montserrat",
+    headingFont: 'Lora, "Playfair Display", Georgia, serif',
     subheadingFont: "Plus Jakarta Sans",
     typographyFont: "Plus Jakarta Sans",
     sceneBlueprint: SAMPLE_WIDESCREEN_BLUEPRINT,
@@ -242,11 +242,10 @@ export default function WidescreenQualityPreviewClient() {
             <button
               key={idx}
               onClick={() => jumpToScene(idx)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                activeSceneIdx === idx
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${activeSceneIdx === idx
                   ? "bg-orange-600 text-white shadow-lg shadow-orange-600/30"
                   : "text-zinc-400 hover:text-white hover:bg-white/5"
-              }`}
+                }`}
             >
               <span>Scene {idx + 1}</span>
             </button>

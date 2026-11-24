@@ -69,35 +69,36 @@ export default function StudioHeader({
 
           <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
-          {/* Clean Studio Breadcrumb */}
-          <div className="hidden sm:flex items-center gap-2">
+          {/* Clean Studio Breadcrumb & Format Switcher */}
+          <div className="hidden sm:flex items-center gap-2.5">
             <Link
               href="/dashboard"
               className="text-xs font-bold text-slate-500 hover:text-slate-700 transition-colors"
             >
               Studios
             </Link>
-            <span className="text-slate-300 text-xs">/</span>
+            <span className="text-slate-300 text-xs font-bold">/</span>
             <span className="text-xs font-black text-slate-900 tracking-tight">{studioName}</span>
-            {aspectRatioLabel && (
-              <span className="ml-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/60">
-                {aspectRatioLabel}
-              </span>
-            )}
-            {badgeLabel && (
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 border border-orange-200/60">
-                {badgeLabel}
-              </span>
-            )}
-            {alternateFormat && (
-              <Link
-                href={alternateFormat.href}
-                className="ml-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/90 transition-colors shadow-2xs group"
-                title={alternateFormat.label}
-              >
-                <span>{alternateFormat.label}</span>
-                <ArrowUpRight size={12} className="text-orange-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </Link>
+
+            {/* Clear, Unified Format Switcher */}
+            {(aspectRatioLabel || alternateFormat) && (
+              <div className="ml-2 inline-flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200/90 shadow-2xs">
+                {aspectRatioLabel && (
+                  <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-white text-slate-900 shadow-xs border border-slate-200/60">
+                    {aspectRatioLabel}
+                  </span>
+                )}
+                {alternateFormat && (
+                  <Link
+                    href={alternateFormat.href}
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold text-slate-600 hover:text-orange-600 transition-colors rounded-md group"
+                    title={alternateFormat.label}
+                  >
+                    <span>{alternateFormat.label}</span>
+                    <ArrowUpRight size={11} className="text-orange-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </Link>
+                )}
+              </div>
             )}
           </div>
         </div>

@@ -16,7 +16,7 @@ import {
 } from '../designSystem';
 
 export interface SceneCanvasProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   sceneFrame?: number;
   durationSec?: number;
   palette?: { isDark?: boolean } | null;
@@ -133,57 +133,10 @@ export interface EyebrowPillProps {
 
 /**
  * EyebrowPill
- * Crisp geometric kicker badge with a glowing indicator dot and tracked uppercase typography.
+ * Zero Eyebrow Pill Badge Policy (Enterprise Standard): Never place small rounded-pill eyebrow tags in videos.
  */
-export function EyebrowPill({
-  label,
-  tone = 'coral',
-  palette,
-  progress = 1,
-}: EyebrowPillProps) {
-  const ds = useVideoDesignSystem({ palette });
-  const accent = ds.accents[tone] || ds.accents.coral;
-
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: '7px 18px',
-        borderRadius: '9999px',
-        backgroundColor: accent.SoftBg,
-        border: `1.5px solid ${accent.border}`,
-        boxShadow: ds.surface.shadowBadge,
-        opacity: progress,
-        transform: `translateY(${interpolate(progress, [0, 1], [-12, 0])}px)`,
-      }}
-    >
-      <span
-        style={{
-          width: '8px',
-          height: '8px',
-          borderRadius: '50%',
-          backgroundColor: accent.solid,
-          boxShadow: `0 0 8px ${accent.solid}`,
-          flexShrink: 0,
-        }}
-      />
-      <span
-        style={{
-          fontSize: `${ds.type.eyebrow.fontSize}px`,
-          fontWeight: ds.type.eyebrow.fontWeight,
-          letterSpacing: ds.type.eyebrow.letterSpacing,
-          lineHeight: ds.type.eyebrow.lineHeight,
-          color: accent.textOnSoft,
-          textTransform: 'uppercase',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {label}
-      </span>
-    </div>
-  );
+export function EyebrowPill(_props: EyebrowPillProps) {
+  return null;
 }
 
 export interface SceneHeaderProps {
@@ -251,29 +204,19 @@ export function SceneHeader({
         flexShrink: 0,
       }}
     >
-      {categoryPill && (
-        <div style={{ marginBottom: '14px' }}>
-          <EyebrowPill
-            label={categoryPill}
-            tone={tone}
-            palette={palette}
-            progress={ds.motion.eyebrowSpring}
-          />
-        </div>
-      )}
-
       <h1
         style={{
-          fontFamily: headingFont,
+          fontFamily: headingFont || 'Lora, "Playfair Display", Georgia, serif',
           fontSize: `${baseFontSize}px`,
-          fontWeight: ds.type.sceneTitle.fontWeight,
-          letterSpacing: ds.type.sceneTitle.letterSpacing,
-          lineHeight: ds.type.sceneTitle.lineHeight,
+          fontWeight: 700,
+          letterSpacing: '-0.025em',
+          lineHeight: 1.15,
           color: ds.surface.textPrimary,
           margin: 0,
-          maxWidth: ds.layout.isVertical ? '900px' : '1280px',
+          maxWidth: ds.layout.isVertical ? '900px' : '1360px',
           opacity: ds.motion.headerSpring,
           transform: `translateY(${interpolate(ds.motion.headerSpring, [0, 1], [18, 0])}px)`,
+          textShadow: ds.surface.isDark ? '0 4px 24px rgba(0,0,0,0.45)' : 'none',
         }}
       >
         {highlightIndex !== -1 ? (
@@ -281,16 +224,9 @@ export function SceneHeader({
             {cleanHeading.slice(0, highlightIndex)}
             <span
               style={{
-                position: 'relative',
-                display: 'inline-block',
-                margin: '0 6px',
-                padding: '2px 12px',
-                borderRadius: '6px',
-                backgroundColor: '#FFE600',
-                color: '#0F172A',
-                boxShadow: '0 4px 16px rgba(255, 230, 0, 0.45)',
-                transform: 'rotate(-1deg)',
-                verticalAlign: 'baseline',
+                color: ds.accents[tone]?.solid || '#EA580C',
+                fontWeight: 800,
+                display: 'inline',
               }}
             >
               {cleanHeading.slice(highlightIndex, highlightIndex + highlightWord.length)}
@@ -324,7 +260,7 @@ export function SceneHeader({
 }
 
 export interface StudioCardProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   tone?: AccentTone;
   topAccentBar?: boolean;
   elevated?: boolean;
@@ -339,8 +275,8 @@ export interface StudioCardProps {
 
 /**
  * StudioCard
- * Unified editorial surface container with refined 1.5px border, optional top accent bar,
- * and multi-layered studio shadow.
+ * Borderless, seamless editorial surface container for broadcast video scenes.
+ * Eliminates cheap PPT box wrappers, outer borders, and drop shadows so scenes sit cleanly on canvas.
  */
 export function StudioCard({
   children,
@@ -356,7 +292,6 @@ export function StudioCard({
   style,
 }: StudioCardProps) {
   const ds = useVideoDesignSystem({ palette });
-  const accent = ds.accents[tone] || ds.accents.coral;
 
   const ty = interpolate(progress, [0, 1], [translateYFrom, 0]);
   const tx = interpolate(progress, [0, 1], [translateXFrom, 0]);
@@ -366,34 +301,16 @@ export function StudioCard({
     <div
       style={{
         position: 'relative',
-        borderRadius: `${ds.layout.cardRadius}px`,
-        backgroundColor: muted
-          ? ds.surface.cardBgMuted
-          : elevated
-            ? ds.surface.cardBgElevated
-            : ds.surface.cardBg,
-        border: elevated ? `1.5px solid ${accent.border}` : ds.surface.borderSubtle,
-        boxShadow: elevated ? ds.surface.shadowElevated : ds.surface.shadowCard,
-        padding: ds.layout.cardPadding,
-        overflow: 'hidden',
+        backgroundColor: 'transparent',
+        border: 'none',
+        boxShadow: 'none',
+        padding: 0,
         opacity: progress,
         transform: `translate3d(${tx}px, ${ty}px, 0) scale(${sc})`,
         boxSizing: 'border-box',
         ...style,
       }}
     >
-      {topAccentBar && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '5px',
-            backgroundColor: accent.solid,
-          }}
-        />
-      )}
       {children}
     </div>
   );

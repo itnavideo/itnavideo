@@ -197,3 +197,4 @@ export * from './productivity';
 export * from './google-ecosystem';
 export * from './jewelry';
 export * from './transit';
+export * from './ui-micro';

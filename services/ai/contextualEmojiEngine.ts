@@ -178,9 +178,9 @@ export const CONTEXTUAL_EMOJI_RULES: ContextualEmojiRule[] = [
     emojis: ['🌿', '🌳', '🌍', '🌊', '🏔️', '🌸', '🌱', '☀️'],
     glow: 'rgba(34, 197, 94, 0.6)',
   },
-  // 25. Music, Sound & Rhythm
+  // 25. Music, Sound & Rhythm (avoid generic words like 'track' or 'sound' that trigger on 'on track')
   {
-    regex: /\b(music|song|sound|beat|rhythm|melody|audio|voice|sing|track|album|tune|note|instrument)\b/i,
+    regex: /\b(music|song|melody|audio|sing|album|tune|instrument|soundtrack)\b/i,
     emojis: ['🎵', '🎶', '🎤', '🎧', '🎸', '🎹', '🥁', '🔊'],
     glow: 'rgba(168, 85, 247, 0.6)',
   },
@@ -231,16 +231,14 @@ export const CONTEXTUAL_EMOJI_RULES: ContextualEmojiRule[] = [
 const EMOJI_DISPLAY_SECONDS = 1.4;
 
 /**
- * Pick a fresh emoji from a rule's variant pool, avoiding recently-used glyphs
- * so the same emoji never repeats back-to-back across the video.
+ * Pick a fresh emoji from a rule's variant pool deterministically based on seed (index/timestamp),
+ * avoiding recently-used glyphs so the same emoji never repeats back-to-back across the video.
  */
-function pickFreshEmoji(rule: ContextualEmojiRule, recentUsed: string[]): string {
+function pickFreshEmoji(rule: ContextualEmojiRule, recentUsed: string[], seed: number = 0): string {
   const available = rule.emojis.filter((e) => !recentUsed.includes(e));
-  if (available.length === 0) {
-    // All variants used recently — fall back to the full pool with rotation
-    return rule.emojis[recentUsed.length % rule.emojis.length] || rule.emojis[0];
-  }
-  return available[Math.floor(Math.random() * available.length)];
+  const pool = available.length > 0 ? available : rule.emojis;
+  const safeSeed = Math.abs(Math.round(seed));
+  return pool[safeSeed % pool.length] || pool[0];
 }
 
 /**
@@ -274,7 +272,7 @@ export function buildContextualEmojiEvents(
     // Match against contextual emoji dictionary (first matching category wins)
     const matchedRule = CONTEXTUAL_EMOJI_RULES.find((rule) => rule.regex.test(wordText));
     if (matchedRule) {
-      const chosenEmoji = pickFreshEmoji(matchedRule, recentUsed);
+      const chosenEmoji = pickFreshEmoji(matchedRule, recentUsed, i + Math.round(item.start * 10));
 
       // Update the rolling recently-used window
       recentUsed.push(chosenEmoji);

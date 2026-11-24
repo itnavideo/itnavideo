@@ -97,6 +97,22 @@ const RemotionRoot = () => (
         height={1080}
       />
     )}
+    {IS_DEV && (
+      <Composition
+        id="LIBRARY-EXPLORER"
+        component={require('./components/LibraryComponentExplorer').LibraryComponentExplorer}
+        durationInFrames={180}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={{
+          componentId: 'barchart-classic',
+          paletteTheme: 'dark',
+          scale: 1.0,
+          cinematic: true,
+        }}
+      />
+    )}
     {IS_DEV && DEFAULT_PREVIEW_BLUEPRINT.length > 0 && (
       <Composition
         id="WIDESCREEN-QUALITY-PREVIEW"

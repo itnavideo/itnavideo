@@ -2702,11 +2702,18 @@ export async function POST(request: Request) {
             captionPosition,
             autoDucking: body.autoDucking !== false,
             pacingStyle: readString(body.pacingStyle || body.facelessPacingStyle) || 'clean',
-            musicUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
-            musicSrc: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
-            musicVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
-            bgmUrl: customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || (readString(body.facelessBgmMood) === 'none' ? 'none' : 'assets/reusable/music/parasail-silent-partner.mp3'),
-            bgmVolume: typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : (typeof body.bgmVolume === 'number' ? body.bgmVolume : 0.12),
+            bgmEnabled: body.bgmEnabled !== false && body.musicEnabled !== false && readString(body.facelessBgmMood) !== 'none' && readString(body.bgmTrackId) !== 'none',
+            musicUrl: (body.bgmEnabled === false || body.musicEnabled === false || readString(body.facelessBgmMood) === 'none' || readString(body.bgmTrackId) === 'none')
+              ? 'none'
+              : (customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || 'assets/reusable/music/parasail-silent-partner.mp3'),
+            musicSrc: (body.bgmEnabled === false || body.musicEnabled === false || readString(body.facelessBgmMood) === 'none' || readString(body.bgmTrackId) === 'none')
+              ? 'none'
+              : (customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || 'assets/reusable/music/parasail-silent-partner.mp3'),
+            musicVolume: (body.bgmEnabled === false || body.musicEnabled === false) ? 0 : (typeof body.bgmVolume === 'number' ? body.bgmVolume : (typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : 0.12)),
+            bgmUrl: (body.bgmEnabled === false || body.musicEnabled === false || readString(body.facelessBgmMood) === 'none' || readString(body.bgmTrackId) === 'none')
+              ? 'none'
+              : (customBgmUrl || readString(body.bgmUrl) || readString(body.musicUrl) || 'assets/reusable/music/parasail-silent-partner.mp3'),
+            bgmVolume: (body.bgmEnabled === false || body.musicEnabled === false) ? 0 : (typeof body.bgmVolume === 'number' ? body.bgmVolume : (typeof body.facelessBgmVolume === 'number' ? body.facelessBgmVolume : 0.12)),
             sceneBlueprint: healedScenes,
             brollUrls: Object.fromEntries(
               Object.entries(healedBrollUrls).map(([k, v]) => [k, toAbsoluteS3AssetUrl(v)])

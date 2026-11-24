@@ -74,10 +74,10 @@ export function ListScene({
       <div
         style={{
           width: '100%',
-          maxWidth: ds.layout.isVertical ? '900px' : '1040px',
+          maxWidth: ds.layout.isVertical ? '960px' : '1480px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px',
+          gap: '18px',
         }}
       >
         {items.map((item, idx) => {
@@ -93,16 +93,20 @@ export function ListScene({
               translateXFrom={32}
               translateYFrom={0}
               style={{
-                padding: ds.layout.isVertical ? '20px 24px' : '22px 28px',
+                padding: ds.layout.isVertical ? '18px 24px' : '20px 32px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '20px',
+                gap: '24px',
+                backgroundColor: ds.surface.isDark
+                  ? 'rgba(30, 41, 59, 0.45)'
+                  : 'rgba(241, 245, 249, 0.65)',
+                borderRadius: '20px',
               }}
             >
               <StepNumberBadge
                 number={idx + 1}
                 tone={tone}
-                size={42}
+                size={52}
                 palette={palette}
               />
 
@@ -112,7 +116,7 @@ export function ListScene({
                   fontSize: `${ds.type.bodyLg.fontSize}px`,
                   fontWeight: 700,
                   color: ds.surface.textPrimary,
-                  lineHeight: 1.38,
+                  lineHeight: 1.4,
                 }}
               >
                 {item}

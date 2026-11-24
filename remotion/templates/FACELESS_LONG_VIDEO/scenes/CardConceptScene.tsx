@@ -93,7 +93,7 @@ export function CardConceptScene({
       <div
         style={{
           width: '100%',
-          maxWidth: ds.layout.isVertical ? '920px' : '1480px',
+          maxWidth: ds.layout.isVertical ? '960px' : '1620px',
           display: 'flex',
           flexDirection: ds.layout.isVertical
             ? 'column'
@@ -102,25 +102,27 @@ export function CardConceptScene({
               : 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: ds.layout.isVertical ? '28px' : '56px',
+          gap: ds.layout.isVertical ? '32px' : '64px',
         }}
       >
-        {/* Visual Showcase Frame: Size and placement controlled by composition layout */}
-        <StudioCard
-          tone="indigo"
-          elevated
-          palette={resolvedPalette}
-          progress={ds.motion.contentSpring}
+        {/* Visual Showcase Frame: High-retention cinematic frame */}
+        <div
           style={{
-            width: ds.layout.isVertical ? '100%' : (mediaWidthPx || '540px'),
-            maxWidth: ds.layout.isVertical ? '520px' : (mediaWidthPx || '540px'),
-            height: ds.layout.isVertical ? '360px' : (mediaHeightPx || '420px'),
-            padding: 0,
+            width: ds.layout.isVertical ? '100%' : (mediaWidthPx || '680px'),
+            maxWidth: ds.layout.isVertical ? '580px' : (mediaWidthPx || '680px'),
+            height: ds.layout.isVertical ? '400px' : (mediaHeightPx || '480px'),
+            borderRadius: '24px',
+            overflow: 'hidden',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            backgroundColor: ds.surface.cardBgMuted,
+            backgroundColor: ds.surface.isDark ? '#1E293B' : '#F1F5F9',
+            boxShadow: ds.surface.isDark
+              ? '0 24px 64px -16px rgba(0, 0, 0, 0.65)'
+              : '0 20px 48px -12px rgba(15, 23, 42, 0.12)',
+            transform: `scale(${ds.motion.contentSpring})`,
+            transformOrigin: 'center center',
           }}
         >
           {resolvedSrc ? (
@@ -147,14 +149,14 @@ export function CardConceptScene({
           ) : (
             <VectorDrawingIcon
               keyword={scene.vectorDrawingId || `${headline} ${supportingText}`}
-              size={ds.layout.isVertical ? 300 : 350}
-              strokeWidth={1.1}
+              size={ds.layout.isVertical ? 320 : 400}
+              strokeWidth={1.2}
               animated={true}
               frameOverride={ds.localFrame}
               theme={ds.surface.isDark ? 'dark' : 'light'}
             />
           )}
-        </StudioCard>
+        </div>
 
         {/* Editorial Typography Column */}
         <div

@@ -63,25 +63,29 @@ export const BarChart: React.FC<BarChartProps> = ({
     <div
       style={{
         width,
-        backgroundColor: bgColor,
-        border: `1px solid ${borderColor}`,
-        borderRadius: '24px',
-        padding: '28px 32px',
-        boxShadow: isDark ? '0 12px 36px rgba(0,0,0,0.45)' : '0 8px 30px rgba(0,0,0,0.08)',
+        height: '100%',
+        backgroundColor: 'transparent',
+        border: 'none',
+        borderRadius: 0,
+        padding: 0,
+        boxShadow: 'none',
         boxSizing: 'border-box',
-        fontFamily: 'Inter, system-ui, sans-serif',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
         ...style,
       }}
     >
       {/* Title Header */}
       {(title || subtitle) && (
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: '28px' }}>
           {title && (
             <h3
               style={{
                 margin: 0,
-                fontSize: '20px',
-                fontWeight: 800,
+                fontSize: '32px',
+                fontWeight: 900,
                 color: textColor,
                 letterSpacing: '-0.02em',
               }}
@@ -92,8 +96,8 @@ export const BarChart: React.FC<BarChartProps> = ({
           {subtitle && (
             <p
               style={{
-                margin: '4px 0 0 0',
-                fontSize: '13px',
+                margin: '6px 0 0 0',
+                fontSize: '18px',
                 fontWeight: 500,
                 color: textMuted,
               }}

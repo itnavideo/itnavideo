@@ -689,6 +689,27 @@ audio {
   }
 }
 
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ytFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    filter: drop-shadow(0 14px 32px rgba(255, 0, 0, 0.4));
+  }
+  50% {
+    transform: translateY(-6px) scale(1.025);
+    filter: drop-shadow(0 22px 44px rgba(255, 0, 0, 0.6));
+  }
+}
+
+.animate-yt-float {
+  animation: ytFloat 3.8s ease-in-out infinite;
+}
+
+
+
 @keyframes progress {
   0% {
     width: 5%;
@@ -825,6 +846,72 @@ audio {
 
 .render-caption-rise {
   animation: renderCaptionRise 1.7s ease-in-out infinite;
+}
+
+@keyframes timelineLiveScrub {
+  0% {
+    width: 2%;
+  }
+  80% {
+    width: 100%;
+  }
+  92% {
+    width: 100%;
+  }
+  100% {
+    width: 2%;
+  }
+}
+
+.animate-timeline-live-scrub {
+  animation: timelineLiveScrub 5s linear infinite;
+  will-change: width;
+}
+
+@keyframes timelineLineMove {
+  0% {
+    width: 0%;
+    opacity: 0.8;
+  }
+  65% {
+    width: 100%;
+    opacity: 1;
+  }
+  85%, 100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+.animate-timeline-line {
+  animation: timelineLineMove 5.5s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+@keyframes timelinePlayhead {
+  0% {
+    left: 0%;
+    opacity: 0.9;
+  }
+  75% {
+    left: 98%;
+    opacity: 1;
+  }
+  90% {
+    left: 98%;
+    opacity: 1;
+  }
+  98% {
+    left: 98%;
+    opacity: 0;
+  }
+  100% {
+    left: 0%;
+    opacity: 0;
+  }
+}
+
+.animate-timeline-playhead {
+  animation: timelinePlayhead 7s cubic-bezier(0.25, 1, 0.5, 1) infinite;
 }
 
 /* Material Design 3 Fluid Horizontal Marquee */
@@ -1286,3 +1373,35 @@ nextjs-portal,
   background-size: 200% 200%;
   animation: gradientShift 6s ease infinite;
 }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ytFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    filter: drop-shadow(0 14px 32px rgba(255, 0, 0, 0.4));
+  }
+  50% {
+    transform: translateY(-6px) scale(1.025);
+    filter: drop-shadow(0 22px 44px rgba(255, 0, 0, 0.6));
+  }
+}
+
+.animate-yt-float {
+  animation: ytFloat 3.8s ease-in-out infinite;
+}
+
+

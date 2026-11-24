@@ -73,14 +73,14 @@ export function StudioStepper({
               disabled={!isClickable}
               onClick={() => handleClick(s.step)}
               className={[
-                "flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0",
+                "flex items-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 py-1.5 rounded-xl text-xs transition-all shrink-0",
                 "outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1",
                 isClickable ? "cursor-pointer" : "cursor-default",
                 isActive
-                  ? "bg-white text-orange-600 shadow-sm border border-orange-200/70 ring-1 ring-orange-400/25"
+                  ? "bg-white text-orange-600 font-extrabold shadow-sm border border-orange-300 ring-2 ring-orange-500/20"
                   : isCompleted
-                  ? "text-emerald-700 hover:bg-emerald-50/60"
-                  : "text-slate-400",
+                  ? "bg-emerald-50/80 text-emerald-800 font-bold border border-emerald-200/80 hover:bg-emerald-100/70"
+                  : "text-slate-500 font-semibold hover:text-slate-800 hover:bg-slate-100/70",
               ].join(" ")}
             >
               {/* Circle indicator */}
@@ -88,10 +88,10 @@ export function StudioStepper({
                 className={[
                   "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-black transition-all",
                   isActive
-                    ? "bg-orange-500 text-white shadow-xs shadow-orange-400/40"
+                    ? "bg-orange-600 text-white shadow-xs shadow-orange-500/40"
                     : isCompleted
-                    ? "bg-emerald-500 text-white"
-                    : "bg-slate-200 text-slate-500",
+                    ? "bg-emerald-600 text-white"
+                    : "bg-slate-100 border border-slate-300 text-slate-600",
                 ].join(" ")}
                 aria-hidden="true"
               >
@@ -118,8 +118,8 @@ export function StudioStepper({
             {/* Chevron connector between steps (not after last) */}
             {!isLast && (
               <ChevronRight
-                size={12}
-                className={`shrink-0 ${isCompleted ? "text-emerald-400" : "text-slate-300"}`}
+                size={13}
+                className={`shrink-0 ${isCompleted ? "text-emerald-500" : "text-slate-300"}`}
                 aria-hidden="true"
               />
             )}

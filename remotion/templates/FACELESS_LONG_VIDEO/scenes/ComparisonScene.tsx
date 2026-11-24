@@ -102,19 +102,18 @@ export function ComparisonScene({
       <div
         style={{
           width: '100%',
-          maxWidth: ds.layout.isVertical ? '920px' : '1380px',
+          maxWidth: ds.layout.isVertical ? '960px' : '1620px',
           display: 'flex',
           flexDirection: ds.layout.splitDirection,
           alignItems: 'stretch',
           justifyContent: 'center',
-          gap: ds.layout.isVertical ? '20px' : '28px',
+          gap: ds.layout.isVertical ? '24px' : '48px',
           position: 'relative',
         }}
       >
-        {/* LEFT / TOP CARD: The Old or Contrast Way */}
+        {/* LEFT / TOP COLUMN: The Old or Contrast Way */}
         <StudioCard
           tone="rose"
-          topAccentBar
           palette={palette}
           progress={leftSpring}
           translateXFrom={ds.layout.isVertical ? 0 : -44}
@@ -132,10 +131,20 @@ export function ComparisonScene({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                marginBottom: '18px',
+                marginBottom: '16px',
               }}
             >
-              <EyebrowPill label="CONVENTIONAL WAY" tone="rose" palette={palette} />
+              <span
+                style={{
+                  fontSize: '15px',
+                  fontWeight: 800,
+                  color: ds.accents.rose.solid,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                ● CONVENTIONAL WAY
+              </span>
               <span
                 style={{
                   fontSize: `${ds.type.captionMeta.fontSize}px`,
@@ -163,31 +172,30 @@ export function ComparisonScene({
               {leftParsed.title}
             </h3>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {leftParsed.bullets.map((point, idx) => (
                 <div
                   key={idx}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
-                    padding: '10px 14px',
-                    borderRadius: '12px',
+                    gap: '14px',
+                    padding: '12px 16px',
+                    borderRadius: '14px',
                     backgroundColor: ds.accents.rose.SoftBg,
-                    border: `1px solid ${ds.accents.rose.border}`,
                   }}
                 >
                   <span
                     style={{
-                      width: '22px',
-                      height: '22px',
+                      width: '26px',
+                      height: '26px',
                       borderRadius: '50%',
                       backgroundColor: ds.accents.rose.solid,
                       color: '#FFFFFF',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '12px',
+                      fontSize: '13px',
                       fontWeight: 900,
                       flexShrink: 0,
                     }}
@@ -199,7 +207,7 @@ export function ComparisonScene({
                       fontSize: `${ds.type.bodyMd.fontSize}px`,
                       fontWeight: 600,
                       color: ds.surface.textPrimary,
-                      lineHeight: 1.35,
+                      lineHeight: 1.4,
                     }}
                   >
                     {point}
@@ -218,15 +226,15 @@ export function ComparisonScene({
             justifyContent: 'center',
             alignSelf: 'center',
             zIndex: 5,
-            margin: ds.layout.isVertical ? '-6px 0' : '0 -10px',
+            margin: ds.layout.isVertical ? '-6px 0' : '0 -16px',
             transform: `scale(${interpolate(vsSpring, [0, 1], [0.4, 1])})`,
             opacity: vsSpring,
           }}
         >
           <div
             style={{
-              width: '56px',
-              height: '56px',
+              width: '64px',
+              height: '64px',
               borderRadius: '50%',
               backgroundColor: ds.surface.textPrimary,
               color: ds.surface.textInverse,
@@ -236,7 +244,7 @@ export function ComparisonScene({
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: headingFont,
-              fontSize: '18px',
+              fontSize: '20px',
               fontWeight: 900,
               letterSpacing: '0.04em',
             }}
@@ -245,11 +253,9 @@ export function ComparisonScene({
           </div>
         </div>
 
-        {/* RIGHT / BOTTOM CARD: The High-Impact / New Way */}
+        {/* RIGHT / BOTTOM COLUMN: The High-Impact / New Way */}
         <StudioCard
           tone="emerald"
-          topAccentBar
-          elevated
           palette={palette}
           progress={rightSpring}
           translateXFrom={ds.layout.isVertical ? 0 : 44}
@@ -267,10 +273,20 @@ export function ComparisonScene({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                marginBottom: '18px',
+                marginBottom: '16px',
               }}
             >
-              <EyebrowPill label="RECOMMENDED PATH" tone="emerald" palette={palette} />
+              <span
+                style={{
+                  fontSize: '15px',
+                  fontWeight: 800,
+                  color: ds.accents.emerald.solid,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                ● RECOMMENDED PATH
+              </span>
               <span
                 style={{
                   fontSize: `${ds.type.captionMeta.fontSize}px`,

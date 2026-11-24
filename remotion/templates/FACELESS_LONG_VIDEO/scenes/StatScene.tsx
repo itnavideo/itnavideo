@@ -66,50 +66,39 @@ export function StatScene({
     >
       <StudioCard
         tone={trendTone}
-        topAccentBar
-        elevated
         palette={palette}
         progress={ds.motion.contentSpring}
         style={{
           width: '100%',
-          maxWidth: ds.layout.isVertical ? '900px' : '1240px',
-          padding: ds.layout.isVertical ? '44px 36px' : '56px 64px',
+          maxWidth: ds.layout.isVertical ? '960px' : '1620px',
           display: 'flex',
           flexDirection: ds.layout.splitDirection,
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: ds.layout.isVertical ? '32px' : '56px',
+          gap: ds.layout.isVertical ? '36px' : '72px',
         }}
       >
         {/* Left / Top Metric Column */}
         <div
           style={{
-            flex: 1.2,
+            flex: 1.3,
             display: 'flex',
             flexDirection: 'column',
             alignItems: ds.layout.isVertical ? 'center' : 'flex-start',
             textAlign: ds.layout.isVertical ? 'center' : 'left',
           }}
         >
-          <div style={{ marginBottom: '20px' }}>
-            <EyebrowPill
-              label={categoryPill}
-              tone={trendTone}
-              palette={palette}
-              progress={ds.motion.eyebrowSpring}
-            />
-          </div>
-
-          {/* Hero Stat Number */}
+          {/* Hero Stat Number — Bold Broadcast Scale */}
           <div
             style={{
               fontFamily: headingFont,
               fontSize: `${ds.type.metricHero.fontSize}px`,
-              fontWeight: ds.type.metricHero.fontWeight,
-              letterSpacing: ds.type.metricHero.letterSpacing,
-              lineHeight: ds.type.metricHero.lineHeight,
+              fontWeight: 900,
+              letterSpacing: '-0.035em',
+              lineHeight: 1.0,
               color: ds.accents[trendTone].solid,
-              marginBottom: '18px',
+              marginBottom: '20px',
+              textShadow: ds.surface.isDark ? '0 8px 32px rgba(0,0,0,0.5)' : 'none',
             }}
           >
             {statVal}
@@ -120,11 +109,11 @@ export function StatScene({
             style={{
               fontFamily: headingFont,
               fontSize: `${ds.type.sceneTitle.fontSize}px`,
-              fontWeight: ds.type.sceneTitle.fontWeight,
-              letterSpacing: ds.type.sceneTitle.letterSpacing,
+              fontWeight: 800,
+              letterSpacing: '-0.025em',
               lineHeight: 1.15,
               color: ds.surface.textPrimary,
-              margin: supporting ? '0 0 14px 0' : 0,
+              margin: supporting ? '0 0 16px 0' : 0,
             }}
           >
             {statTitle}
@@ -135,10 +124,10 @@ export function StatScene({
               style={{
                 fontSize: `${ds.type.bodyLg.fontSize}px`,
                 fontWeight: 500,
-                lineHeight: 1.48,
+                lineHeight: 1.5,
                 color: ds.surface.textSecondary,
                 margin: 0,
-                maxWidth: '680px',
+                maxWidth: '740px',
               }}
             >
               {supporting}
@@ -146,24 +135,22 @@ export function StatScene({
           )}
         </div>
 
-        {/* Right / Bottom Vector Visual Accent */}
+        {/* Right / Bottom Vector Visual Accent — Clean & Floating Without Card Boxes */}
         <div
           style={{
-            width: ds.layout.isVertical ? '260px' : '320px',
-            height: ds.layout.isVertical ? '260px' : '320px',
-            borderRadius: '28px',
-            backgroundColor: ds.surface.cardBgMuted,
-            border: ds.surface.borderSubtle,
+            width: ds.layout.isVertical ? '300px' : '380px',
+            height: ds.layout.isVertical ? '300px' : '380px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
+            position: 'relative',
           }}
         >
           <VectorDrawingIcon
             keyword={scene.vectorDrawingId || `${statTitle} ${supporting} chart metric`}
-            size={ds.layout.isVertical ? 210 : 250}
-            strokeWidth={4}
+            size={ds.layout.isVertical ? 260 : 340}
+            strokeWidth={3.5}
             animated={true}
             frameOverride={ds.localFrame}
             theme={ds.surface.isDark ? 'dark' : 'light'}

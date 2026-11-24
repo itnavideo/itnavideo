@@ -254,8 +254,7 @@ export function StudioWorkflowRoadmap({
                 </div>
                 {s.accentText && (
                   <span
-                    className={`text-[12px] sm:text-[13px] ${theme.accentText} leading-tight font-bold mt-1 tracking-wide truncate`}
-                    style={{ fontFamily: 'var(--font-caveat), Caveat, cursive, sans-serif' }}
+                    className={`text-[11px] sm:text-[11.5px] ${theme.accentText} leading-tight font-bold mt-1 tracking-tight truncate`}
                   >
                     {s.accentText}
                   </span>

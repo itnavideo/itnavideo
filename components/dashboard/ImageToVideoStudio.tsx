@@ -74,16 +74,16 @@ export interface CaptionTrackItem {
 
 // Master AWS S3 Media Library Background Music Tracks
 export const AWS_BGM_TRACKS: LibraryBgmTrack[] = [
-  { id: 'parasail', label: 'Calm Lofi (Recommended)', category: 'Lo-Fi', path: 'assets/reusable/music/parasail-silent-partner.mp3', desc: 'Warm acoustic lofi guitar' },
+  { id: 'parasail', label: 'Calm Lofi (Recommended)', category: 'Lo-Fi', path: 'assets/reusable/music/parasail-silent-partner.mp3', desc: 'Warm, relaxing lo-fi guitar' },
   { id: '19th-floor', label: 'Deep Focus & Ambient', category: 'Piano', path: 'assets/reusable/music/19th-floor-bobby-richards.mp3', desc: 'Inspiring subtle piano tone' },
-  { id: 'dutty-vibe', label: 'Optimistic Beat', category: 'Upbeat', path: 'assets/reusable/music/dutty-vibe-tracks.mp3', desc: 'Gentle positive acoustic rhythm' },
+  { id: 'dutty-vibe', label: 'Optimistic Beat', category: 'Upbeat', path: 'assets/reusable/music/dutty-vibe-tracks.mp3', desc: 'Gentle, positive guitar rhythm' },
   { id: 'book-rental', label: 'Energetic Storyteller', category: 'Narrative', path: 'assets/reusable/music/book-the-rental-wit-it-rage.mp3', desc: 'Dynamic narrative flow' },
   { id: 'crimson-fly', label: 'Cinematic Drama', category: 'Cinematic', path: 'assets/reusable/music/crimson-fly-huma-huma.mp3', desc: 'Emotional documentary drive' },
   { id: 'crock-pot', label: 'Funky Chill Groove', category: 'Chill', path: 'assets/reusable/music/crock-pot-diamond-ortiz.mp3', desc: 'Playful lofi pulse' },
   { id: 'illusions', label: 'Modern Swagger Beat', category: 'Beats', path: 'assets/reusable/music/illusions-anno-domini-beats.mp3', desc: 'Modern high-production beat' },
   { id: 'not-for-nothing', label: 'Lounge Instrumental', category: 'Lounge', path: 'assets/reusable/music/not-for-nothing-otis-mcdonald.mp3', desc: 'Smooth brass & relaxed tempo' },
   { id: 'something-going', label: 'Philosophical Mystery', category: 'Deep', path: 'assets/reusable/music/something-is-going-on-godmode.mp3', desc: 'Pensive intrigue & discovery' },
-  { id: 'bar-scene', label: 'Acoustic Folk', category: 'Acoustic', path: 'assets/reusable/music/that-one-bar-scene-rkvc.mp3', desc: 'Warm acoustic guitar storytelling' },
+  { id: 'bar-scene', label: 'Warm Guitar', category: 'Guitar', path: 'assets/reusable/music/that-one-bar-scene-rkvc.mp3', desc: 'Gentle, relaxing guitar storytelling' },
   { id: 'true-messiah', label: 'Victorious Inspiration', category: 'Epic', path: 'assets/reusable/music/true-messiah-dj-freedem.mp3', desc: 'Triumphant motivational melody' },
   { id: 'vishnu', label: 'Zen Reflection', category: 'Zen', path: 'assets/reusable/music/vishnu-patrick-patrikios.mp3', desc: 'Serene ambient meditation' },
   { id: 'what-it-is', label: 'Smooth Motown', category: 'Motown', path: 'assets/reusable/music/what-it-is-silent-partner.mp3', desc: 'Catchy positive baseline' },
@@ -1534,7 +1534,7 @@ export function ImageToVideoStudio({
   const captionCategories = ['All', 'Kinetic', 'Viral', 'Modern', 'Cinema', 'Editorial', 'Creative', 'Podcast'];
 
   // BGM Categories and search filtering
-  const bgmCategories = ['All', 'Lo-Fi', 'Piano', 'Upbeat', 'Narrative', 'Cinematic', 'Chill', 'Beats', 'Acoustic', 'Zen', 'Epic'];
+  const bgmCategories = ['All', 'Lo-Fi', 'Piano', 'Upbeat', 'Narrative', 'Cinematic', 'Chill', 'Beats', 'Guitar', 'Zen', 'Epic'];
 
   const filteredBgmTracks = useMemo(() => {
     return AWS_BGM_TRACKS.filter((t) => {
