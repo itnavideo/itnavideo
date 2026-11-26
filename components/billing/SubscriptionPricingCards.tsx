@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthContext";
 import { supabase } from "@/lib/supabase/client";
 import { pricingPlans, type PricingPlan } from "@/lib/billing/plans";
+import { trackEvent } from "@/components/analytics/PostHogProvider";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics/gtag";
 
 type RazorpayResponse = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
 type RazorpayInstance = { open: () => void; on: (event: "payment.failed", callback: (response: { error?: { description?: string } }) => void) => void };
@@ -125,6 +127,14 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
       if (!Razorpay) {
         throw new Error("Could not open secure checkout. Please refresh and try again.");
       }
+      trackBeginCheckout({
+        packId: plan.id,
+        packName: plan.name,
+        price: (payload.amount || 0) / 100,
+        currency: payload.currency || "USD",
+        credits: plan.credits,
+      });
+
       const checkout = new Razorpay({
         key: payload.key_id,
         order_id: payload.order_id,
@@ -135,6 +145,7 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
         theme: { color: "#EA580C" },
         modal: {
           ondismiss: () => {
+            trackEvent("checkout_cancelled", { planId: plan.id, planName: plan.name });
             setLoadingPlan(null);
             setMessage("Checkout cancelled. You can try again anytime.");
           },
@@ -148,21 +159,35 @@ export function SubscriptionPricingCards({ displayPrices }: { displayPrices: Rec
           const result = (await verification.json()) as { ok?: boolean; error?: string };
           setLoadingPlan(null);
           if (!verification.ok || !result.ok) {
-            setMessage(result.error || "We could not verify your payment.");
+            const errMsg = result.error || "We could not verify your payment.";
+            trackEvent("payment_failed", { planId: plan.id, stage: "verify", reason: errMsg });
+            setMessage(errMsg);
             return;
           }
+          trackPurchase({
+            transactionId: payment.razorpay_payment_id || payment.razorpay_order_id || `tx_${Date.now()}`,
+            packId: plan.id,
+            packName: plan.name,
+            price: (payload.amount || 0) / 100,
+            currency: payload.currency || "USD",
+            credits: plan.credits,
+          });
           setMessage("Payment verified! Your credits have been added.");
           router.push(`/dashboard?payment=success&plan=${encodeURIComponent(plan.id)}`);
         },
       });
       checkout.on("payment.failed", (event) => {
+        const reason = event.error?.description || "Payment failed. Please try again.";
+        trackEvent("payment_failed", { planId: plan.id, stage: "razorpay", reason });
         setLoadingPlan(null);
-        setMessage(event.error?.description || "Payment failed. Please try again.");
+        setMessage(reason);
       });
       checkout.open();
     } catch (error) {
+      const errMsg = error instanceof Error ? error.message : "Could not start checkout.";
+      trackEvent("payment_failed", { planId: plan.id, stage: "init", reason: errMsg });
       setLoadingPlan(null);
-      setMessage(error instanceof Error ? error.message : "Could not start checkout.");
+      setMessage(errMsg);
     }
   };
 

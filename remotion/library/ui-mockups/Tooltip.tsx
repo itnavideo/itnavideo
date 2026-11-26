@@ -20,7 +20,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#0F172A' : '#FFFFFF';
+  const bgColor = 'transparent';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const borderColor = isDark ? '#334155' : '#E2E8F0';
 
@@ -36,10 +36,10 @@ export const Tooltip: React.FC<TooltipProps> = ({
         display: 'inline-flex',
         alignItems: 'center',
         padding: '8px 14px',
-        backgroundColor: bgColor,
-        border: `1px solid ${borderColor}`,
+        backgroundColor: 'transparent',
+        border: 'none',
         borderRadius: '10px',
-        boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 4px 16px rgba(0,0,0,0.1)',
+        boxShadow: 'none',
         fontSize: '12px',
         fontWeight: 700,
         color: textColor,

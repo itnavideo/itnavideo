@@ -136,12 +136,161 @@ export function matchComponentForScene(
     return null;
   }
 
-  // Extract contextual numbers or metrics from text to customize props
-  const compWithDefaults = bestMatch.comp as VideoComponentMeta & { defaultProps?: Record<string, any> };
-  const customizedProps = { ...(compWithDefaults.defaultProps || {}) };
-  if (heading && customizedProps.title) {
-    customizedProps.title = heading;
+function extractDynamicClauses(text: string, heading?: string, maxItems = 4): Array<{ title: string; description: string }> {
+  const clean = String(text || '').trim();
+  const rawParts = clean
+    .split(/(?:\b(?:first|second|third|fourth|next|then|finally|step\s*\d+)\b[:,.-]?|[,;•]|(?:\s+and\s+)|(?:\s+while\s+)|(?:\s+because\s+))/i)
+    .map((p) => p.replace(/[.!?]+$/g, '').trim())
+    .filter((p) => p.split(/\s+/).length >= 2);
+
+  const phrases = rawParts.length >= 2
+    ? rawParts.slice(0, maxItems)
+    : (() => {
+        const words = clean.split(/\s+/).filter(Boolean);
+        if (words.length < 4) return [heading || clean || 'Key Insight'];
+        const count = Math.min(maxItems, Math.max(2, Math.ceil(words.length / 6)));
+        const step = Math.ceil(words.length / count);
+        const out: string[] = [];
+        for (let i = 0; i < words.length; i += step) {
+          out.push(words.slice(i, i + step).join(' ').replace(/[.!?]+$/g, ''));
+        }
+        return out.slice(0, maxItems);
+      })();
+
+  return phrases.map((phrase, idx) => {
+    const words = phrase.split(/\s+/).filter(Boolean);
+    const title = words.slice(0, 4).join(' ');
+    const description = words.slice(4).join(' ');
+    return {
+      title: title ? title.charAt(0).toUpperCase() + title.slice(1) : `${heading || 'Point'} ${idx + 1}`,
+      description,
+    };
+  });
+}
+
+function buildDynamicComponentProps(
+  comp: VideoComponentMeta,
+  text: string,
+  heading?: string
+): Record<string, any> {
+  const compWithDefaults = comp as VideoComponentMeta & { defaultProps?: Record<string, any> };
+  const props: Record<string, any> = { ...(compWithDefaults.defaultProps || {}) };
+  const id = comp.id.toLowerCase();
+  const cat = comp.category.toLowerCase();
+  const cleanHeading = (heading || '').trim();
+  const clauses = extractDynamicClauses(text, cleanHeading, 4);
+
+  if (cleanHeading) {
+    props.title = cleanHeading;
+    props.heading = cleanHeading;
   }
+  if (text) {
+    props.subtitle = text.length > 90 ? `${text.slice(0, 87).trim()}...` : text;
+  }
+
+  // Dynamic Steps / Timelines / Diagrams
+  if (cat === 'timelines' || id.includes('step') || id.includes('roadmap') || id.includes('timeline')) {
+    props.steps = clauses.map((c, idx) => ({
+      stepNumber: `0${idx + 1}`,
+      title: c.title,
+      description: c.description || c.title,
+      status: idx === 0 ? 'completed' : idx === 1 ? 'active' : 'upcoming',
+    }));
+    props.events = clauses.map((c, idx) => ({
+      timeOrDate: `Part ${idx + 1}`,
+      title: c.title,
+      description: c.description,
+    }));
+  }
+
+  if (cat === 'diagrams' || id.includes('flowchart') || id.includes('mindmap') || id.includes('tree')) {
+    props.nodes = clauses.map((c, idx) => ({
+      id: String(idx + 1),
+      type: idx === 0 ? 'start' : idx === clauses.length - 1 ? 'end' : 'process',
+      title: c.title,
+      description: c.description,
+    }));
+  }
+
+  // Dynamic Charts & Statistics
+  const numMatches = Array.from(String(text || '').matchAll(/(\$?\d+(?:[.,]\d+)?\s*(?:%|x|k|m|b)?)/gi)).map((m) => m[1]);
+  if (cat === 'charts' || cat === 'statistics' || cat === 'business' || cat === 'finance' || id.includes('chart') || id.includes('counter') || id.includes('kpi')) {
+    if (numMatches.length > 0) {
+      const numeric = parseFloat(numMatches[0].replace(/[^0-9.]/g, '')) || 75;
+      props.toValue = numeric;
+      props.value = numeric;
+      props.percentage = Math.min(100, Math.max(5, Math.round(numeric)));
+      props.label = cleanHeading || clauses[0]?.title || 'Key Metric';
+    }
+    props.data = clauses.map((c, idx) => ({
+      label: c.title.split(/\s+/).slice(0, 2).join(' '),
+      value: numMatches[idx] ? (parseFloat(numMatches[idx].replace(/[^0-9.]/g, '')) || (idx + 2) * 22) : (idx + 2) * 24,
+    }));
+  }
+
+  // Dynamic Comparisons (BeforeAfter, ComparisonTable, ProsCons, RankingList, Splitscreen)
+  if (cat === 'comparisons' || id.includes('before-after') || id.includes('pros-cons') || id.includes('comparison')) {
+    const mid = Math.max(1, Math.ceil(clauses.length / 2));
+    const leftClauses = clauses.slice(0, mid);
+    const rightClauses = clauses.slice(mid);
+    props.leftTitle = cleanHeading ? `${cleanHeading} — Before` : 'Before';
+    props.rightTitle = cleanHeading ? `${cleanHeading} — After` : 'After';
+    props.leftItems = leftClauses.map((c) => c.title);
+    props.rightItems = (rightClauses.length > 0 ? rightClauses : leftClauses).map((c) => c.description || c.title);
+    props.pros = leftClauses.map((c) => c.title);
+    props.cons = (rightClauses.length > 0 ? rightClauses : leftClauses).map((c) => c.description || c.title);
+    props.items = clauses.map((c, idx) => ({
+      id: String(idx + 1),
+      label: c.title,
+      title: c.title,
+      description: c.description || c.title,
+      value: numMatches[idx] || `${(idx + 1) * 25}%`,
+    }));
+  }
+
+  // Dynamic Editorial (BreakingNewsBanner, HeadlineAnimation, QuoteLayout, Newspaper, ArticleCards, MagazineLayout)
+  if (cat === 'editorial') {
+    props.headline = cleanHeading || clauses[0]?.title || 'Key Takeaway';
+    props.quote = text || cleanHeading;
+    props.tickerText = clauses.map((c) => c.title.toUpperCase()).join('  •  ');
+    props.location = 'STUDIO BRIEF';
+    props.articles = clauses.map((c, idx) => ({
+      id: String(idx + 1),
+      title: c.title,
+      summary: c.description || c.title,
+    }));
+    props.cards = props.articles;
+  }
+
+  // Dynamic Conceptual Graphics (IcebergDiagram, ProblemSolutionVisual, FunnelTransformation, StaircaseGrowth, etc.)
+  if (cat === 'graphics') {
+    props.headline = cleanHeading || clauses[0]?.title || 'Core Concept';
+    props.visibleTipText = cleanHeading || clauses[0]?.title || 'Surface Outcome';
+    props.submergedItems = clauses.map((c) => c.description || c.title);
+    props.items = clauses.map((c, idx) => ({
+      id: String(idx + 1),
+      label: c.title,
+      title: c.title,
+      description: c.description || c.title,
+    }));
+    props.steps = clauses.map((c, idx) => ({
+      step: idx + 1,
+      title: c.title,
+      description: c.description || c.title,
+    }));
+  }
+
+  // Dynamic UI Mockups (BrowserWindow, MobileMockup, ChatBubble, Notification, CodeEditor, Terminal, SearchBar)
+  if (cat === 'ui-mockups') {
+    props.query = cleanHeading || clauses[0]?.title || '';
+    props.message = text || cleanHeading;
+    props.lines = clauses.map((c) => `> ${c.title}${c.description ? `: ${c.description}` : ''}`);
+  }
+
+  return props;
+}
+
+  const customizedProps = buildDynamicComponentProps(bestMatch.comp, text, heading);
 
   return {
     componentId: bestMatch.comp.id,

@@ -49,7 +49,7 @@ export function MathProof({
         width,
         backgroundColor: '#09090b',
         borderRadius: 16,
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        border: 'none',
         padding: '24px 28px',
         display: 'flex',
         flexDirection: 'column',

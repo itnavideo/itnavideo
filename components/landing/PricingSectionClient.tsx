@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/auth/AuthContext';
 import { supabase } from '@/lib/supabase/client';
 import { trackViewPricing, trackBeginCheckout, trackPurchase } from '@/lib/analytics/gtag';
+import { trackEvent } from '@/components/analytics/PostHogProvider';
 
 type PricingSectionClientProps = {
   proPrice?: string;
@@ -279,6 +280,7 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
           notes: { source: "itnavideo-web-checkout", billingCycle },
           modal: {
             ondismiss: () => {
+              trackEvent("checkout_cancelled", { planId, billingCycle });
               setLoadingPlan(null);
               setMessage({ type: "info", text: "Payment cancelled. You can try again anytime." });
             },
@@ -318,9 +320,11 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
               });
               router.push(`/dashboard?payment=success&plan=${encodeURIComponent(planId)}`);
             } catch (error) {
+              const errMsg = error instanceof Error ? error.message : "Payment verification failed.";
+              trackEvent("payment_failed", { planId, billingCycle, stage: "verify", reason: errMsg });
               setMessage({
                 type: "error",
-                text: error instanceof Error ? error.message : "Payment verification failed.",
+                text: errMsg,
               });
             } finally {
               setLoadingPlan(null);
@@ -329,19 +333,23 @@ export function PricingSectionClient({ proPrice, businessPrice, enterprisePrice 
         });
 
         razorpay.on("payment.failed", (response: any) => {
+          const reason = response.error?.description || response.error?.reason || "Payment failed. Please try again.";
+          trackEvent("payment_failed", { planId, billingCycle, stage: "razorpay", reason });
           setLoadingPlan(null);
           setMessage({
             type: "error",
-            text: response.error?.description || response.error?.reason || "Payment failed. Please try again.",
+            text: reason,
           });
         });
 
         razorpay.open();
       } catch (error) {
+        const errMsg = error instanceof Error ? error.message : "Could not start Razorpay checkout.";
+        trackEvent("payment_failed", { planId, billingCycle, stage: "init", reason: errMsg });
         setLoadingPlan(null);
         setMessage({
           type: "error",
-          text: error instanceof Error ? error.message : "Could not start Razorpay checkout.",
+          text: errMsg,
         });
       }
     },

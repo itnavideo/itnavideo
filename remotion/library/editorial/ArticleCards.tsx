@@ -75,7 +75,7 @@ export function ArticleCards({
             style={{
               backgroundColor: '#09090b',
               borderRadius: 14,
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              border: 'none',
               padding: '16px 20px',
               display: 'flex',
               alignItems: 'center',
@@ -143,7 +143,7 @@ export function ArticleCards({
                   borderRadius: 10,
                   overflow: 'hidden',
                   flexShrink: 0,
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: 'none',
                 }}
               >
                 <Img

@@ -73,7 +73,7 @@ export function CryptoCard({
         width,
         backgroundColor: '#09090b',
         borderRadius: 16,
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        border: 'none',
         padding: '18px 20px',
         display: 'flex',
         flexDirection: 'column',

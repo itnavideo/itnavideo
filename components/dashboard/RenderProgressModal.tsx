@@ -79,7 +79,7 @@ export function RenderProgressModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl">
+      <div className="relative w-full max-w-6xl">
         <InteractiveRenderEngine
           mode={mode}
           status={safeStatus}

@@ -26,7 +26,7 @@ export const BrowserWindow: React.FC<BrowserWindowProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#FFFFFF';
+  const bgColor = 'transparent';
   const barBg = isDark ? '#090D16' : '#F1F5F9';
   const inputBg = isDark ? '#1F2937' : '#FFFFFF';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
@@ -44,11 +44,11 @@ export const BrowserWindow: React.FC<BrowserWindowProps> = ({
       style={{
         width,
         height,
-        backgroundColor: bgColor,
-        border: `1px solid ${borderColor}`,
+        backgroundColor: 'transparent',
+        border: 'none',
         borderRadius: '18px',
         overflow: 'hidden',
-        boxShadow: isDark ? '0 24px 60px rgba(0,0,0,0.6)' : '0 16px 40px rgba(0,0,0,0.12)',
+        boxShadow: 'none',
         boxSizing: 'border-box',
         fontFamily: 'Inter, system-ui, sans-serif',
         display: 'flex',
@@ -84,7 +84,7 @@ export const BrowserWindow: React.FC<BrowserWindowProps> = ({
             flex: 1,
             height: '28px',
             backgroundColor: inputBg,
-            border: `1px solid ${borderColor}`,
+            border: 'none',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',

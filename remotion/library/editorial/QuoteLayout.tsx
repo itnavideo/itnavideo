@@ -51,7 +51,7 @@ export function QuoteLayout({
         width,
         backgroundColor: '#09090b',
         borderRadius: 20,
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        border: 'none',
         padding: '36px 40px',
         display: 'flex',
         flexDirection: 'column',

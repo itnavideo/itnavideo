@@ -27,9 +27,10 @@ export function getAllS3CatalogAssets(): S3CatalogAsset[] {
   const list: S3CatalogAsset[] = [];
   const seenIds = new Set<string>();
 
-  // 1. Ingest curated stock assets from constants
+  // 1. Ingest curated raster/video stock assets from constants (exclude non-renderable .html widgets)
   for (const asset of RAW_ITNAVIDEO_STOCK_ASSETS) {
     if (!asset.id || seenIds.has(asset.id)) continue;
+    if (!/\.(jpe?g|png|webp|gif|mp4|webm|mov)(\?.*)?$/i.test(asset.url || '')) continue;
     seenIds.add(asset.id);
     list.push({
       id: asset.id,

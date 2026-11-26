@@ -2,6 +2,7 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 export type AdminUser = {
   id: string;
@@ -638,9 +639,70 @@ export async function getAdminVideos(search = "", template = "All") {
   return filtered;
 }
 
-// 8. Delete Render History Action
+// 8. Delete Render History Action (also removes the rendered MP4 from AWS S3)
+function extractS3Location(outputFile: string | null | undefined, fallbackBucket?: string | null) {
+  const defaultBucket = (
+    fallbackBucket ||
+    process.env.REMOTION_LAMBDA_BUCKET_NAME ||
+    process.env.AWS_ASSET_BUCKET ||
+    "remotionlambda-useast1-2zq6twaok1"
+  ).trim();
+  if (!outputFile) return null;
+
+  try {
+    if (outputFile.startsWith("http://") || outputFile.startsWith("https://")) {
+      const url = new URL(outputFile);
+      const hostParts = url.hostname.split(".");
+      // Format 1: <bucket>.s3.<region>.amazonaws.com/<key>
+      if (hostParts.length >= 4 && hostParts[1] === "s3") {
+        return {
+          bucket: hostParts[0] || defaultBucket,
+          key: decodeURIComponent(url.pathname.replace(/^\/+/, "")),
+        };
+      }
+      // Format 2: s3.<region>.amazonaws.com/<bucket>/<key>
+      const pathParts = url.pathname.replace(/^\/+/, "").split("/");
+      if (pathParts.length >= 2) {
+        return {
+          bucket: pathParts[0] || defaultBucket,
+          key: decodeURIComponent(pathParts.slice(1).join("/")),
+        };
+      }
+    }
+    return {
+      bucket: defaultBucket,
+      key: outputFile.replace(/^\/+/, ""),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function deleteRenderVideo(renderId: string) {
   const supabase = createSupabaseServerClient();
+
+  const { data: existing } = await supabase
+    .from("render_history")
+    .select("bucket_name, output_file")
+    .eq("render_id", renderId)
+    .maybeSingle();
+
+  const s3Location = extractS3Location(existing?.output_file, existing?.bucket_name);
+  if (s3Location?.key) {
+    try {
+      const region = (process.env.REMOTION_AWS_REGION || process.env.AWS_REGION || "us-east-1").trim();
+      const accessKeyId = process.env.AWS_ACCESS_KEY_ID?.trim();
+      const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.trim();
+      const s3 = new S3Client({
+        region,
+        credentials: accessKeyId && secretAccessKey ? { accessKeyId, secretAccessKey } : undefined,
+      });
+      await s3.send(new DeleteObjectCommand({ Bucket: s3Location.bucket, Key: s3Location.key }));
+    } catch (s3Err) {
+      console.warn("[admin] Failed to delete S3 render object:", s3Err);
+    }
+  }
+
   const { error } = await supabase
     .from("render_history")
     .delete()

@@ -45,7 +45,7 @@ export const RadarChart: React.FC<RadarChartProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#FFFFFF';
+  const bgColor = 'transparent';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const textMuted = isDark ? '#94A3B8' : '#64748B';
   const borderColor = isDark ? '#1E293B' : '#E2E8F0';

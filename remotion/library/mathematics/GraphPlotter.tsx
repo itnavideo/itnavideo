@@ -93,7 +93,7 @@ export function GraphPlotter({
         height,
         backgroundColor: '#09090b',
         borderRadius: 16,
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        border: 'none',
         padding: '20px 24px',
         display: 'flex',
         flexDirection: 'column',

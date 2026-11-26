@@ -38,7 +38,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#FFFFFF';
+  const bgColor = 'transparent';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const textMuted = isDark ? '#94A3B8' : '#64748B';
   const borderColor = isPopular ? '#0066FF' : isDark ? '#334155' : '#E2E8F0';
@@ -53,8 +53,8 @@ export const PricingCard: React.FC<PricingCardProps> = ({
     <div
       style={{
         width,
-        backgroundColor: bgColor,
-        border: `2px solid ${borderColor}`,
+        backgroundColor: 'transparent',
+        border: 'none',
         borderRadius: '24px',
         padding: '32px 28px',
         boxShadow: isPopular ? '0 16px 45px rgba(0, 102, 255, 0.25)' : '0 10px 30px rgba(0,0,0,0.08)',

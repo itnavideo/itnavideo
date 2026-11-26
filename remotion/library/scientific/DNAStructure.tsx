@@ -165,7 +165,7 @@ export function DNAStructure({
           padding: '6px 16px',
           borderRadius: 8,
           backgroundColor: 'rgba(9, 9, 11, 0.85)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: 'none',
         }}
       >
         <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: '0.06em' }}>

@@ -68,7 +68,7 @@ export function TradingDashboard({
         height,
         backgroundColor: '#09090b',
         borderRadius: 16,
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        border: 'none',
         padding: 18,
         display: 'flex',
         flexDirection: 'column',
@@ -128,7 +128,7 @@ export function TradingDashboard({
             backgroundColor: '#18181b',
             borderRadius: 10,
             padding: 10,
-            border: '1px solid rgba(255, 255, 255, 0.06)',
+            border: 'none',
           }}
         >
           <div
@@ -180,7 +180,7 @@ export function TradingDashboard({
             backgroundColor: '#18181b',
             borderRadius: 10,
             padding: 12,
-            border: '1px solid rgba(255, 255, 255, 0.06)',
+            border: 'none',
           }}
         >
           <div>

@@ -86,6 +86,10 @@ import { BrandWatermark } from '../../components/BrandWatermark';
 import { getFacelessFontAssetPath } from '../../../lib/fonts/facelessFontCatalog';
 import { DynamicLibraryHost } from '../../components/DynamicLibraryHost';
 import {
+  GithubRemotionCaption,
+  isGithubRemotionCaptionStyle,
+} from '../../captions/github-remotion-styles/GithubRemotionCaption';
+import {
   AdaptiveCard,
   AnimatedBarChart,
   DonutBreakdown,
@@ -282,40 +286,44 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       .filter(Boolean))];
 
     Promise.all(fontFamilies.map(async (family) => {
-      const assetPath = getFacelessFontAssetPath(family);
-      if (!assetPath || typeof FontFace === 'undefined' || typeof document === 'undefined') {
-        if (typeof document !== 'undefined') {
-          try {
-            const fontLink = document.createElement('link');
-            fontLink.rel = 'stylesheet';
-            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;500;600;700;800;900&display=swap`;
-            document.head.appendChild(fontLink);
-          } catch { }
-        }
-        return;
-      }
-      try {
-        const fontFace = new FontFace(family, 'url("' + staticFile(assetPath) + '")', {
-          style: 'normal',
-          weight: '100 900',
-        });
-        document.fonts.add(await fontFace.load());
-      } catch {
-        if (typeof document !== 'undefined') {
-          try {
-            const fontLink = document.createElement('link');
-            fontLink.rel = 'stylesheet';
-            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;500;600;700;800;900&display=swap`;
-            document.head.appendChild(fontLink);
-          } catch { }
-        }
-      }
       if (typeof document !== 'undefined') {
         try {
-          const fontLink = document.createElement('link');
-          fontLink.rel = 'stylesheet';
-          fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;500;600;700;800;900&display=swap`;
-          document.head.appendChild(fontLink);
+          const href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;500;600;700;800;900&display=swap`;
+          const alreadyLinked = Array.from(document.head.querySelectorAll('link[rel="stylesheet"]')).some(
+            (el) => (el as HTMLLinkElement).href === href
+          );
+          if (!alreadyLinked) {
+            await new Promise<void>((resolve) => {
+              const fontLink = document.createElement('link');
+              fontLink.rel = 'stylesheet';
+              fontLink.href = href;
+              const done = () => resolve();
+              fontLink.onload = done;
+              fontLink.onerror = done;
+              setTimeout(done, 2500);
+              document.head.appendChild(fontLink);
+            });
+          }
+        } catch { }
+      }
+
+      const assetPath = getFacelessFontAssetPath(family);
+      if (assetPath && typeof FontFace !== 'undefined' && typeof document !== 'undefined') {
+        try {
+          const fontFace = new FontFace(family, 'url("' + staticFile(assetPath) + '")', {
+            style: 'normal',
+            weight: '400',
+          });
+          document.fonts.add(await fontFace.load());
+        } catch { }
+      }
+
+      if (typeof document !== 'undefined' && document.fonts?.ready) {
+        try {
+          await Promise.race([
+            document.fonts.ready,
+            new Promise<void>((resolve) => setTimeout(resolve, 1500)),
+          ]);
         } catch { }
       }
     }))
@@ -327,7 +335,8 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
     return finish;
   }, [fontRenderHandle]);
-  const { fps, durationInFrames } = useVideoConfig();
+  const { fps, durationInFrames, width, height } = useVideoConfig();
+  const isVertical = height > width;
   const frame = useCurrentFrame();
 
   const rawAudio =
@@ -348,8 +357,13 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
   const rawActiveCaptions = showCaptions !== false ? (captions.length > 0 ? captions : subtitleChunks) : [];
   const activeCaptions = React.useMemo(
-    () => splitCaptionChunksToShortPills(rawActiveCaptions),
-    [rawActiveCaptions]
+    () =>
+      splitCaptionChunksToShortPills(rawActiveCaptions, {
+        maxWords: isVertical ? 5 : 7,
+        maxChars: isVertical ? 32 : 44,
+        minDurationSec: isVertical ? 0.95 : 1.15,
+      }),
+    [rawActiveCaptions, isVertical]
   );
   const currentTimeSec = frame / fps;
 
@@ -510,10 +524,16 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   // Resolve legacy asset props strictly within the 10% image budget (never recycle across scenes)
   const matchedBrollUrl = FACELESS_IMAGE_VISUALS_ENABLED ? (
     (brollUrls && typeof brollUrls === 'object' && !Array.isArray(brollUrls)
-      ? (currentScene?.sceneNumber ? (brollUrls as Record<number, string>)[currentScene.sceneNumber] || '' : '')
+      ? (currentScene?.sceneNumber
+          ? ((brollUrls as Record<number, string>)[currentScene.sceneNumber] ||
+              (brollUrls as Record<string, string>)[String(currentScene.sceneNumber)] ||
+              '')
+          : '')
       : Array.isArray(brollUrls) && brollUrls.length > 0 && currentSceneIdx === 0
         ? brollUrls[0]
         : '') ||
+    currentScene?.assetUrl ||
+    currentScene?.brollUrl ||
     '') : '';
 
   // Faceless Video Master Canvas: Permanently Pure White (#FFFFFF)
@@ -530,41 +550,66 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   const sceneStartFrame = Math.round(
     Number(currentScene?.narrationSegment?.startSeconds ?? (currentScene?.narrationSegment as any)?.start ?? 0) * fps
   );
+  const sceneEndFrame = Math.round(
+    Number(currentScene?.narrationSegment?.endSeconds ?? (currentScene?.narrationSegment as any)?.end ?? (sceneStartFrame / fps + (currentScene?.duration || 5))) * fps
+  );
+  const sceneTotalFrames = Math.max(24, sceneEndFrame - sceneStartFrame);
   const framesSinceSceneStart = Math.max(0, frame - sceneStartFrame);
-  const mappedGlobalTransition =
+  const framesUntilSceneEnd = Math.max(0, sceneEndFrame - frame);
+
+  // Rotate dynamic transitions across scenes unless user explicitly picked hard-cut / specific override
+  const TRANSITION_CYCLE = ['slide', 'zoom', 'dissolve', 'whip'] as const;
+  const cycleTransition = TRANSITION_CYCLE[currentSceneIdx % TRANSITION_CYCLE.length];
+  const explicitOverride =
     sceneTransitionStyle === 'hard-cut'
       ? 'cut'
       : sceneTransitionStyle === 'slide-push'
         ? 'slide'
         : sceneTransitionStyle === 'zoom-whip'
           ? 'zoom'
-          : 'dissolve';
-  const transitionType = (props.sceneTransitionStyle ? mappedGlobalTransition : (currentScene?.transition || 'dissolve')).toLowerCase();
+          : undefined;
+  const transitionType = (
+    currentSceneIdx === 0
+      ? 'zoom'
+      : explicitOverride || currentScene?.transition || cycleTransition
+  ).toLowerCase();
+
   const pacingMult =
     pacingStyle === 'dynamic'
-      ? 0.55
+      ? 0.75
       : pacingStyle === 'clean'
-        ? 1.4
+        ? 1.15
         : pacingStyle === 'documentary'
-          ? 1.15
+          ? 1.1
           : 1.0;
 
   const transitionStyles = React.useMemo(() => {
-    const f = (baseFrames: number) => Math.max(2, Math.round(baseFrames * pacingMult));
+    const f = (baseFrames: number) => Math.max(4, Math.round(baseFrames * pacingMult));
+    const exitFade = framesUntilSceneEnd < 6 && currentSceneIdx < sceneBlueprint.length - 1
+      ? interpolate(framesUntilSceneEnd, [0, 6], [0.25, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' })
+      : 1;
+
     if (transitionType === 'cut') {
-      return { opacity: 1, transform: 'none', isFadeToBlack: false, blackOverlayOpacity: 0 };
+      return { opacity: 1, transform: 'none', filter: 'none', isFadeToBlack: false, blackOverlayOpacity: 0 };
     }
     if (transitionType === 'slide' || transitionType === 'wipe') {
-      const slideX = interpolate(framesSinceSceneStart, [0, f(9)], [50, 0], { extrapolateRight: 'clamp' });
-      const op = interpolate(framesSinceSceneStart, [0, f(8)], [0, 1], { extrapolateRight: 'clamp' });
-      return { opacity: op, transform: `translateX(${slideX}px)`, isFadeToBlack: false, blackOverlayOpacity: 0 };
+      const slideX = interpolate(framesSinceSceneStart, [0, f(13)], [140, 0], { extrapolateRight: 'clamp' });
+      const sc = interpolate(framesSinceSceneStart, [0, f(13)], [0.96, 1], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, f(10)], [0, 1], { extrapolateRight: 'clamp' });
+      return {
+        opacity: op * exitFade,
+        transform: `translateX(${slideX}px) scale(${sc})`,
+        filter: 'none',
+        isFadeToBlack: false,
+        blackOverlayOpacity: 0,
+      };
     }
     if (transitionType === 'whip' || transitionType === 'whip_pan') {
-      const whipX = interpolate(framesSinceSceneStart, [0, f(8)], [120, 0], { extrapolateRight: 'clamp' });
-      const op = interpolate(framesSinceSceneStart, [0, f(6)], [0, 1], { extrapolateRight: 'clamp' });
-      const blurVal = interpolate(framesSinceSceneStart, [0, f(4), f(8)], [8, 3, 0], { extrapolateRight: 'clamp' });
+      const whipX = interpolate(framesSinceSceneStart, [0, f(11)], [220, 0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, f(8)], [0, 1], { extrapolateRight: 'clamp' });
+      const blurVal = interpolate(framesSinceSceneStart, [0, f(5), f(10)], [10, 4, 0], { extrapolateRight: 'clamp' });
       return {
-        opacity: op,
+        opacity: op * exitFade,
         transform: `translateX(${whipX}px)`,
         filter: blurVal > 0 ? `blur(${blurVal}px)` : 'none',
         isFadeToBlack: false,
@@ -572,19 +617,32 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       };
     }
     if (transitionType === 'zoom' || transitionType === 'zoom_blur') {
-      const scaleVal = interpolate(framesSinceSceneStart, [0, f(10)], [1.08, 1.0], { extrapolateRight: 'clamp' });
-      const op = interpolate(framesSinceSceneStart, [0, f(7)], [0, 1], { extrapolateRight: 'clamp' });
-      return { opacity: op, transform: `scale(${scaleVal})`, isFadeToBlack: false, blackOverlayOpacity: 0 };
+      const scaleVal = interpolate(framesSinceSceneStart, [0, f(14)], [1.14, 1.0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, f(9)], [0, 1], { extrapolateRight: 'clamp' });
+      return {
+        opacity: op * exitFade,
+        transform: `scale(${scaleVal})`,
+        filter: 'none',
+        isFadeToBlack: false,
+        blackOverlayOpacity: 0,
+      };
     }
     if (transitionType === 'fade_to_black' || transitionType === 'dip_to_black') {
-      const blackOpacity = interpolate(framesSinceSceneStart, [0, f(4), f(8)], [1, 0.75, 0], { extrapolateRight: 'clamp' });
-      const op = interpolate(framesSinceSceneStart, [Math.max(1, f(2)), f(8)], [0, 1], { extrapolateRight: 'clamp' });
-      return { opacity: op, transform: 'none', isFadeToBlack: true, blackOverlayOpacity: blackOpacity };
+      const blackOpacity = interpolate(framesSinceSceneStart, [0, f(6), f(12)], [0.9, 0.55, 0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [Math.max(1, f(3)), f(11)], [0, 1], { extrapolateRight: 'clamp' });
+      return { opacity: op * exitFade, transform: 'none', filter: 'none', isFadeToBlack: true, blackOverlayOpacity: blackOpacity };
     }
-    // Default: crossfade / dissolve
-    const dissolveOp = interpolate(framesSinceSceneStart, [0, f(10)], [0, 1], { extrapolateRight: 'clamp' });
-    return { opacity: dissolveOp, transform: 'none', isFadeToBlack: false, blackOverlayOpacity: 0 };
-  }, [transitionType, framesSinceSceneStart, pacingMult]);
+    // Crossfade / dissolve with subtle scale drift
+    const dissolveOp = interpolate(framesSinceSceneStart, [0, f(13)], [0, 1], { extrapolateRight: 'clamp' });
+    const dissolveScale = interpolate(framesSinceSceneStart, [0, f(13)], [1.04, 1.0], { extrapolateRight: 'clamp' });
+    return {
+      opacity: dissolveOp * exitFade,
+      transform: `scale(${dissolveScale})`,
+      filter: 'none',
+      isFadeToBlack: false,
+      blackOverlayOpacity: 0,
+    };
+  }, [transitionType, framesSinceSceneStart, framesUntilSceneEnd, currentSceneIdx, sceneBlueprint.length, pacingMult]);
 
   // Render Vox/Johnny Harris Style Modular Scene Layout
   const renderModularScene = (scene: SceneBlueprintItem) => {
@@ -732,8 +790,9 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
     if ((layout === 'hook' || stype === 'hook') && scene.sceneNumber <= 1) {
       return (
-        <HookTypographyScene
+        <HookScene
           scene={scene}
+          mediaUrl={resolvedAssetUrl}
           headingFont={headingFont}
           bodyFont={typographyFont}
           sceneFrame={framesSinceSceneStart}
@@ -1827,12 +1886,14 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           return cameraConfig ? (
             <VirtualCameraLayer config={cameraConfig}>
               <div
+                key={`scene-wrap-${currentScene?.sceneNumber || currentSceneIdx}`}
                 style={{
                   position: 'absolute',
                   inset: 0,
                   zIndex: 15,
                   opacity: transitionStyles.opacity,
                   transform: transitionStyles.transform,
+                  filter: transitionStyles.filter !== 'none' ? transitionStyles.filter : undefined,
                   boxSizing: 'border-box',
                   ...captionSafeZoneStyle,
                 }}
@@ -1842,12 +1903,14 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             </VirtualCameraLayer>
           ) : (
             <div
+              key={`scene-wrap-${currentScene?.sceneNumber || currentSceneIdx}`}
               style={{
                 position: 'absolute',
                 inset: 0,
                 zIndex: 15,
                 opacity: transitionStyles.opacity,
                 transform: transitionStyles.transform,
+                filter: transitionStyles.filter !== 'none' ? transitionStyles.filter : undefined,
                 boxSizing: 'border-box',
                 ...captionSafeZoneStyle,
               }}
@@ -2098,6 +2161,20 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             props.subtitleStyle && props.subtitleStyle !== 'bold_yellow' && props.subtitleStyle !== 'netflix-yellow'
               ? props.subtitleStyle
               : 'classic-clean';
+
+          if (isGithubRemotionCaptionStyle(props.subtitleStyle)) {
+            return (
+              <GithubRemotionCaption
+                captions={activeCaptions.map((c) => ({
+                  text: c.text,
+                  start: c.start,
+                  end: c.end,
+                }))}
+                styleName={props.subtitleStyle!}
+                position={props.captionPosition || 'bottom'}
+              />
+            );
+          }
 
           return (
             <UniversalCaptionLayer

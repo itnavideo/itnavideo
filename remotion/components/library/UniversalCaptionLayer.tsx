@@ -9,17 +9,27 @@ export interface CaptionChunk {
   words?: Array<{ word: string; start: number; end: number }>;
 }
 
+export interface SplitCaptionOptions {
+  maxWords?: number;
+  maxChars?: number;
+  minDurationSec?: number;
+}
+
 /**
- * Splits any oversized caption chunks (>5 words) into clean 3–5 word 1-line pills
- * using Groq word-level timestamps (or proportional word timings as fallback).
- * Breaks early on punctuation/speech pauses when >= 3 words, and hard-caps at 5 words.
+ * Splits oversized caption chunks into clean, readable 1-line pills
+ * using word-level timestamps (or proportional word timings as fallback).
+ * Ensures comfortable minimum hold duration and bridges tiny gaps to prevent flicker.
  */
-export function splitCaptionChunksToShortPills(chunks: CaptionChunk[]): CaptionChunk[] {
+export function splitCaptionChunksToShortPills(
+  chunks: CaptionChunk[],
+  options: SplitCaptionOptions = {}
+): CaptionChunk[] {
   if (!Array.isArray(chunks) || chunks.length === 0) return [];
   const result: CaptionChunk[] = [];
-  const MAX_WORDS = 5;
-  const MAX_CHARS = 30;
-  const PAUSE_GAP_SECONDS = 0.45;
+  const MAX_WORDS = options.maxWords ?? 6;
+  const MAX_CHARS = options.maxChars ?? 38;
+  const MIN_DURATION_SEC = options.minDurationSec ?? 1.05;
+  const PAUSE_GAP_SECONDS = 0.55;
 
   for (const chunk of chunks) {
     const rawText = String(chunk.text || '').trim();
@@ -32,12 +42,12 @@ export function splitCaptionChunksToShortPills(chunks: CaptionChunk[]): CaptionC
             .map((w) => ({
               word: String(w.word).trim(),
               start: Math.max(0, Number(w.start)),
-              end: Math.max(Number(w.start) + 0.08, Number(w.end)),
+              end: Math.max(Number(w.start) + 0.12, Number(w.end)),
             }))
         : (() => {
             const tokens = rawText.split(/\s+/).filter(Boolean);
             const cStart = Number(chunk.start ?? 0);
-            const cEnd = Math.max(cStart + 0.4, Number(chunk.end ?? cStart + 2.0));
+            const cEnd = Math.max(cStart + MIN_DURATION_SEC, Number(chunk.end ?? cStart + 2.4));
             const step = (cEnd - cStart) / Math.max(1, tokens.length);
             return tokens.map((word, idx) => ({
               word,
@@ -47,9 +57,11 @@ export function splitCaptionChunksToShortPills(chunks: CaptionChunk[]): CaptionC
           })();
 
     if (wordsList.length <= MAX_WORDS && rawText.length <= MAX_CHARS) {
+      const start = Number(chunk.start);
+      const end = Math.max(Number(chunk.end), start + MIN_DURATION_SEC);
       result.push({
-        start: Number(chunk.start),
-        end: Number(chunk.end),
+        start,
+        end,
         text: rawText,
         words: wordsList,
       });
@@ -59,9 +71,11 @@ export function splitCaptionChunksToShortPills(chunks: CaptionChunk[]): CaptionC
     let group: typeof wordsList = [];
     const flush = () => {
       if (group.length === 0) return;
+      const gStart = group[0].start;
+      const gEnd = Math.max(group[group.length - 1].end, gStart + MIN_DURATION_SEC);
       result.push({
-        start: Math.round(group[0].start * 100) / 100,
-        end: Math.round(Math.max(group[group.length - 1].end, group[0].start + 0.45) * 100) / 100,
+        start: Math.round(gStart * 100) / 100,
+        end: Math.round(gEnd * 100) / 100,
         text: group.map((w) => w.word).join(' '),
         words: group.map((w) => ({
           word: w.word,
@@ -82,13 +96,24 @@ export function splitCaptionChunksToShortPills(chunks: CaptionChunk[]): CaptionC
         const shouldBreak =
           group.length >= MAX_WORDS ||
           currentChars + w.word.length + 1 > MAX_CHARS ||
-          endsSentence ||
-          (group.length >= 3 && (endsClause || pause >= PAUSE_GAP_SECONDS));
+          (group.length >= 3 && endsSentence) ||
+          (group.length >= 4 && (endsClause || pause >= PAUSE_GAP_SECONDS));
         if (shouldBreak) flush();
       }
       group.push(w);
     }
     flush();
+  }
+
+  // Prevent overlaps and bridge tiny silent gaps (<0.35s) for smooth, unhurried reading
+  for (let i = 0; i < result.length - 1; i++) {
+    const curr = result[i];
+    const next = result[i + 1];
+    if (curr.end > next.start - 0.02) {
+      curr.end = Math.max(curr.start + 0.35, Math.round((next.start - 0.02) * 100) / 100);
+    } else if (next.start - curr.end <= 0.35) {
+      curr.end = Math.round((next.start - 0.02) * 100) / 100;
+    }
   }
 
   return result;
@@ -481,10 +506,10 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
   const enterSpring = spring({
     frame: Math.max(0, frame - Math.floor(activeChunk.start * fps)),
     fps,
-    config: { damping: 14, stiffness: 220 },
+    config: { damping: 20, stiffness: 120 },
   });
 
-  const scale = interpolate(enterSpring, [0, 1], [0.94, 1]);
+  const scale = interpolate(enterSpring, [0, 1], [0.96, 1]);
   const opacity = interpolate(enterSpring, [0, 1], [0, 1]);
 
   // Position calculation:
@@ -570,17 +595,17 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
           textShadow: isLightCanvas
             ? 'none'
             : '0 2px 5px rgba(0, 0, 0, 0.65)',
-          backgroundColor: shouldWrapPill ? 'rgba(15, 23, 42, 0.82)' : undefined,
-          backdropFilter: shouldWrapPill ? 'blur(14px)' : undefined,
-          border: shouldWrapPill ? '1px solid rgba(255, 255, 255, 0.12)' : undefined,
+          backgroundColor: shouldWrapPill ? 'rgba(15, 23, 42, 0.90)' : undefined,
+          border: shouldWrapPill ? '1px solid rgba(255, 255, 255, 0.14)' : undefined,
           borderRadius: shouldWrapPill ? '9999px' : undefined,
-          padding: shouldWrapPill ? '10px 30px' : undefined,
+          padding: shouldWrapPill ? (isLandscape ? '14px 40px' : '12px 32px') : undefined,
           display: 'inline-flex',
-          flexWrap: 'nowrap',       // ← never wrap: each chunk is already ≤5 words, must stay 1 line
+          flexWrap: 'nowrap',       // ← never wrap: each chunk is already ≤7 words, must stay 1 line
           justifyContent: 'center',
           alignItems: 'center',
-          gap: '10px',
-          maxWidth: '90%',
+          gap: isLandscape ? '18px' : '14px',
+          letterSpacing: '0.015em',
+          maxWidth: '92%',
           whiteSpace: 'nowrap',     // ← belt-and-suspenders: pill text never breaks across lines
           boxShadow: shouldWrapPill ? '0 10px 25px -5px rgba(0, 0, 0, 0.35)' : undefined,
           ...(isArabic
@@ -616,10 +641,10 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
             const wordSpring = spring({
               frame: Math.max(0, frame - Math.floor(w.start * fps)),
               fps,
-              config: { damping: 11, stiffness: 240 },
+              config: { damping: 18, stiffness: 140 },
             });
-            const targetScale = styleConfig.activeScale || 1.12;
-            wordScale = interpolate(wordSpring, [0, 1], [0.94, targetScale]);
+            const targetScale = Math.min(styleConfig.activeScale || 1.1, 1.14);
+            wordScale = interpolate(wordSpring, [0, 1], [0.97, targetScale]);
             wordRotation = styleConfig.activeRotation || 0;
           }
 
@@ -663,10 +688,9 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
                 borderBottom: wordUnderline,
                 fontStyle: styleConfig.italic ? 'italic' : 'normal',
                 transform: `scale(${wordScale}) rotate(${wordRotation}deg)`,
-                transition: 'transform 0.08s ease, color 0.08s ease',
                 textShadow: wordGlow || (isLightCanvas ? undefined : '0 1px 3px rgba(0, 0, 0, 0.4)'),
                 display: 'inline-block',
-                margin: isActive ? '0 10px' : '0 3px',
+                margin: 0,
               }}
             >
               {displayWord}

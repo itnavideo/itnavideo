@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { interpolate, spring } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 import { useVideoDesignSystem, type AccentTone } from '../designSystem';
@@ -146,6 +147,93 @@ function StepIcon({
   }
 }
 
+function parseStepHeadingAndDetail(raw: string, idx: number): { title: string; description: string } {
+  const cleaned = String(raw || '')
+    .replace(/^(?:step|stage|phase)\s*\d+\s*[:.\-–—]?\s*/i, '')
+    .replace(/^\d+\s*[.):\-–—]\s*/, '')
+    .trim();
+
+  if (!cleaned) {
+    return { title: `Key Action ${idx + 1}`, description: '' };
+  }
+
+  const sepMatch = cleaned.match(/^([^:•–—]{3,42})[:•–—]\s*(.+)$/);
+  if (sepMatch) {
+    return {
+      title: sepMatch[1].trim(),
+      description: sepMatch[2].trim(),
+    };
+  }
+
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (words.length <= 5) {
+    return { title: cleaned, description: '' };
+  }
+  return {
+    title: words.slice(0, 4).join(' '),
+    description: words.slice(4).join(' '),
+  };
+}
+
+function computeVoiceoverStepRevealFrames(
+  scene: SceneBlueprintItem,
+  stepCount: number,
+  totalFrames: number,
+  fps = 30,
+  stepTitles: string[] = []
+): number[] {
+  const seg = scene.narrationSegment as { startSeconds?: number; words?: Array<{ word?: string; start?: number }> } | undefined;
+  const words = Array.isArray(seg?.words) ? seg.words : [];
+  const sceneStartSec = Number(seg?.startSeconds ?? (words[0]?.start ?? 0));
+  const safeTotal = Math.max(45, totalFrames);
+
+  // Evenly spaced voiceover timeline fallback (Step 1 at ~0s, Step 2 at ~33%, Step 3 at ~65%)
+  const defaultFrames = Array.from({ length: stepCount }, (_, idx) =>
+    idx === 0 ? 4 : Math.round((idx / stepCount) * (safeTotal * 0.82))
+  );
+
+  if (words.length < 3 || stepCount <= 1) {
+    return defaultFrames;
+  }
+
+  const matched = [...defaultFrames];
+  let searchFromIdx = 0;
+
+  for (let i = 0; i < stepCount; i++) {
+    if (i === 0) {
+      matched[0] = 4;
+      continue;
+    }
+    const keywords = String(stepTitles[i] || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length >= 4);
+
+    let foundFrame: number | null = null;
+    for (let wIdx = searchFromIdx; wIdx < words.length; wIdx++) {
+      const spoken = String(words[wIdx]?.word || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (spoken && keywords.some((kw) => spoken.includes(kw) || kw.includes(spoken))) {
+        const relSec = Math.max(0, Number(words[wIdx].start) - sceneStartSec);
+        const candidateFrame = Math.round(relSec * fps);
+        if (candidateFrame > matched[i - 1] + 12 && candidateFrame < safeTotal - 10) {
+          foundFrame = candidateFrame;
+          searchFromIdx = wIdx + 1;
+          break;
+        }
+      }
+    }
+
+    if (foundFrame !== null) {
+      matched[i] = foundFrame;
+    } else {
+      matched[i] = Math.max(matched[i - 1] + 18, defaultFrames[i]);
+    }
+  }
+
+  return matched;
+}
+
 export function HorizontalProcessStepsScene({
   scene,
   headingFont = 'Lora, "Playfair Display", Georgia, "Times New Roman", serif',
@@ -165,38 +253,97 @@ export function HorizontalProcessStepsScene({
 
   const steps: ProcessStepItem[] = useMemo(() => {
     const iconTypes: Array<ProcessStepItem['iconType']> = ['lightbulb', 'plan', 'gear', 'rocket', 'growth'];
-    if (scene.timelineSteps && scene.timelineSteps.length >= 3) {
+    if (scene.timelineSteps && scene.timelineSteps.length >= 2) {
       return scene.timelineSteps.slice(0, isVertical ? 4 : 5).map((rawStep: any, idx: number) => {
-        const stepObj = typeof rawStep === 'string' ? { title: rawStep, description: '' } : rawStep;
+        if (typeof rawStep === 'string') {
+          const parsed = parseStepHeadingAndDetail(rawStep, idx);
+          return {
+            number: `0${idx + 1}`,
+            title: parsed.title,
+            description: parsed.description,
+            iconType: iconTypes[idx % iconTypes.length],
+            tone: STEP_TONES[idx % STEP_TONES.length],
+          };
+        }
+        const rawTitle = String(rawStep?.title || '').trim();
+        const rawDesc = String(rawStep?.description || rawStep?.detail || rawStep?.label || '').trim();
+        const isGenericTitle = /^(?:step|stage|phase)\s*\d*$/i.test(rawTitle);
+        const parsed = isGenericTitle && rawDesc
+          ? parseStepHeadingAndDetail(rawDesc, idx)
+          : parseStepHeadingAndDetail(rawTitle || rawDesc, idx);
         return {
           number: `0${idx + 1}`,
-          title: stepObj?.title || `Step ${idx + 1}`,
-          description: stepObj?.description || stepObj?.label || 'Execute with structured focus.',
+          title: parsed.title,
+          description: isGenericTitle ? parsed.description : (rawDesc && rawDesc !== parsed.title ? rawDesc : parsed.description),
           iconType: iconTypes[idx % iconTypes.length],
           tone: STEP_TONES[idx % STEP_TONES.length],
         };
       });
     }
-    if (scene.listItems && scene.listItems.length >= 3) {
+    if (scene.listItems && scene.listItems.length >= 2) {
       return scene.listItems.slice(0, isVertical ? 4 : 5).map((item, idx) => {
-        const parts = item.split(/[:•-]/);
-        const title = (parts[0] || `Step ${idx + 1}`).trim();
-        const description = (parts.slice(1).join(' ').trim() || parts[0] || 'Execute with precision.').trim();
+        const parsed = parseStepHeadingAndDetail(item, idx);
         return {
           number: `0${idx + 1}`,
-          title: title.length > 26 ? `${title.slice(0, 24)}…` : title,
-          description,
+          title: parsed.title,
+          description: parsed.description,
           iconType: iconTypes[idx % iconTypes.length],
           tone: STEP_TONES[idx % STEP_TONES.length],
         };
       });
     }
-    return isVertical ? DEFAULT_5_STEPS.slice(0, 4) : DEFAULT_5_STEPS;
-  }, [scene.timelineSteps, scene.listItems, isVertical]);
+    // Derive dynamic steps from actual narration / supporting text (never copy-paste static defaults)
+    const narrationSource = String(scene.narrationSegment?.text || scene.supportingText || scene.heading || '').trim();
+    if (narrationSource) {
+      const clauses = narrationSource
+        .split(/(?:\b(?:first|second|third|fourth|next|then|finally)\b[:,.-]?|[,;•]|(?:\s+and\s+))/i)
+        .map((p) => p.replace(/[.!?]+$/g, '').trim())
+        .filter((p) => p.split(/\s+/).length >= 2);
+      const dynamicList = clauses.length >= 2 ? clauses.slice(0, 4) : (() => {
+        const words = narrationSource.split(/\s+/).filter(Boolean);
+        const stepSize = Math.max(2, Math.ceil(words.length / 3));
+        const out: string[] = [];
+        for (let i = 0; i < words.length; i += stepSize) {
+          out.push(words.slice(i, i + stepSize).join(' ').replace(/[.!?]+$/g, ''));
+        }
+        return out.slice(0, 3);
+      })();
+      if (dynamicList.length >= 2) {
+        return dynamicList.map((item, idx) => {
+          const parsed = parseStepHeadingAndDetail(item, idx);
+          return {
+            number: `0${idx + 1}`,
+            title: parsed.title,
+            description: parsed.description,
+            iconType: iconTypes[idx % iconTypes.length],
+            tone: STEP_TONES[idx % STEP_TONES.length],
+          };
+        });
+      }
+    }
+    return DEFAULT_5_STEPS.slice(0, 3);
+  }, [scene.timelineSteps, scene.listItems, scene.narrationSegment?.text, scene.supportingText, scene.heading, isVertical]);
+
+  const revealFrames = useMemo(
+    () =>
+      computeVoiceoverStepRevealFrames(
+        scene,
+        steps.length,
+        ds.totalFrames,
+        ds.fps,
+        steps.map((s) => s.title)
+      ),
+    [scene, steps, ds.totalFrames, ds.fps]
+  );
 
   return (
-    <SceneCanvas ds={ds}>
-      {/* ── Editorial Header: Clean, confident, broadcast-grade typography ── */}
+    <SceneCanvas
+      sceneFrame={sceneFrame}
+      durationSec={scene.duration || 5}
+      palette={palette}
+      fontFamily={bodyFont}
+    >
+      {/* ── Editorial Header ── */}
       <SceneHeader
         categoryPill={scene.categoryPill || 'EXECUTION ROADMAP'}
         heading={headingText}
@@ -212,38 +359,64 @@ export function HorizontalProcessStepsScene({
       <div
         style={{
           width: '100%',
-          maxWidth: ds.layout.maxContentWidth,
+          maxWidth: isVertical ? '960px' : '1680px',
           display: 'flex',
           flexDirection: isVertical ? 'column' : 'row',
           alignItems: 'stretch',
           justifyContent: 'center',
-          gap: isVertical ? '14px' : '14px',
+          gap: isVertical ? '10px' : '8px',
         }}
       >
         {steps.map((step, idx) => {
-          const itemSpring = ds.motion.stagger(idx, 5, 7);
+          const revealFrame = revealFrames[idx] ?? 4;
+          const nextRevealFrame = revealFrames[idx + 1] ?? ds.totalFrames + 100;
+          const hasEntered = ds.localFrame >= revealFrame;
+          const isCurrent = hasEntered && ds.localFrame < nextRevealFrame;
+          const itemSpring = hasEntered
+            ? spring({
+                frame: Math.max(0, ds.localFrame - revealFrame),
+                fps: ds.fps || 30,
+                config: { damping: 16, stiffness: 120 },
+              })
+            : 0;
           const accent = ds.accents[step.tone];
           const isLast = idx === steps.length - 1;
+          const arrowRevealFrame = revealFrames[idx + 1] ? Math.max(revealFrame + 6, revealFrames[idx + 1] - 6) : revealFrame + 10;
+          const arrowSpring =
+            ds.localFrame >= arrowRevealFrame
+              ? spring({
+                  frame: Math.max(0, ds.localFrame - arrowRevealFrame),
+                  fps: ds.fps || 30,
+                  config: { damping: 16, stiffness: 120 },
+                })
+              : 0;
 
           return (
             <React.Fragment key={idx}>
               <StudioCard
-                ds={ds}
-                entranceProgress={itemSpring}
-                padding={isVertical ? '20px 22px' : '32px 24px'}
+                tone={step.tone}
+                palette={palette}
+                progress={itemSpring}
                 style={{
                   flex: 1,
                   width: isVertical ? '100%' : undefined,
+                  minHeight: isVertical ? undefined : '350px',
+                  padding: isVertical ? '24px 28px' : '40px 30px',
                   display: 'flex',
                   flexDirection: isVertical ? 'row' : 'column',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   textAlign: isVertical ? 'left' : 'center',
-                  gap: isVertical ? 20 : 16,
+                  gap: isVertical ? 20 : 20,
                   backgroundColor: ds.surface.isDark
-                    ? 'rgba(30, 41, 59, 0.5)'
-                    : 'rgba(241, 245, 249, 0.7)',
-                  border: 'none',
-                  borderRadius: '24px',
+                    ? isCurrent
+                      ? 'rgba(30, 41, 59, 0.72)'
+                      : 'rgba(30, 41, 59, 0.42)'
+                    : isCurrent
+                    ? 'rgba(241, 245, 249, 0.92)'
+                    : 'rgba(241, 245, 249, 0.65)',
+                  border: isCurrent ? `2px solid ${accent.border}` : 'none',
+                  borderRadius: '26px',
                   boxShadow: 'none',
                 }}
               >
@@ -253,13 +426,13 @@ export function HorizontalProcessStepsScene({
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '6px 16px',
+                    padding: '7px 18px',
                     borderRadius: '9999px',
                     backgroundColor: accent.SoftBg,
                     color: accent.solid,
                     fontFamily: headingFont,
-                    fontSize: 14,
-                    fontWeight: 900,
+                    fontSize: 15,
+                    fontWeight: 800,
                     letterSpacing: '0.08em',
                     flexShrink: 0,
                   }}
@@ -270,9 +443,9 @@ export function HorizontalProcessStepsScene({
                 {/* Minimalist Duotone Vector Icon */}
                 <div
                   style={{
-                    width: isVertical ? 56 : 68,
-                    height: isVertical ? 56 : 68,
-                    borderRadius: '20px',
+                    width: isVertical ? 68 : 84,
+                    height: isVertical ? 68 : 84,
+                    borderRadius: '22px',
                     backgroundColor: accent.SoftBg,
                     display: 'flex',
                     alignItems: 'center',
@@ -280,7 +453,7 @@ export function HorizontalProcessStepsScene({
                     flexShrink: 0,
                   }}
                 >
-                  <StepIcon type={step.iconType} color={accent.solid} size={isVertical ? 32 : 38} />
+                  <StepIcon type={step.iconType} color={accent.solid} size={isVertical ? 38 : 48} />
                 </div>
 
                 {/* Typography Hierarchy */}
@@ -288,40 +461,42 @@ export function HorizontalProcessStepsScene({
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 6,
-                    flex: 1,
+                    gap: 10,
+                    flex: isVertical ? 1 : undefined,
                     width: '100%',
                   }}
                 >
                   <h3
                     style={{
                       fontFamily: headingFont,
-                      fontSize: 21,
-                      fontWeight: 800,
-                      letterSpacing: '-0.025em',
+                      fontSize: isVertical ? 26 : 30,
+                      fontWeight: 700,
+                      letterSpacing: '-0.02em',
                       color: ds.surface.textPrimary,
                       margin: 0,
-                      lineHeight: 1.25,
+                      lineHeight: 1.2,
                     }}
                   >
                     {step.title}
                   </h3>
-                  <p
-                    style={{
-                      fontFamily: bodyFont,
-                      fontSize: 13.5,
-                      fontWeight: 500,
-                      color: ds.surface.textSecondary,
-                      margin: 0,
-                      lineHeight: 1.48,
-                    }}
-                  >
-                    {step.description}
-                  </p>
+                  {step.description && (
+                    <p
+                      style={{
+                        fontFamily: bodyFont,
+                        fontSize: isVertical ? 18 : 19,
+                        fontWeight: 400,
+                        color: ds.surface.textSecondary,
+                        margin: 0,
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {step.description}
+                    </p>
+                  )}
                 </div>
               </StudioCard>
 
-              {/* Semantic Progression Arrow */}
+              {/* Tight Progression Arrow */}
               {!isLast && (
                 <div
                   style={{
@@ -329,13 +504,15 @@ export function HorizontalProcessStepsScene({
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
+                    opacity: arrowSpring,
+                    transform: `scale(${interpolate(arrowSpring, [0, 1], [0.7, 1])})`,
                   }}
                 >
                   <RelationshipArrow
                     type="sequence"
                     direction={isVertical ? 'down' : 'right'}
                     tone={step.tone}
-                    progress={itemSpring}
+                    progress={arrowSpring}
                     sceneFrame={sceneFrame || ds.localFrame}
                     size={isVertical ? 22 : 26}
                   />

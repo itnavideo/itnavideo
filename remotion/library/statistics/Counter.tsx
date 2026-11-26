@@ -34,7 +34,7 @@ export const Counter: React.FC<CounterProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#FFFFFF';
+  const bgColor = 'transparent';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const textMuted = isDark ? '#94A3B8' : '#64748B';
   const borderColor = isDark ? '#334155' : '#E2E8F0';
@@ -56,11 +56,11 @@ export const Counter: React.FC<CounterProps> = ({
         display: 'inline-flex',
         flexDirection: 'column',
         alignItems: 'center',
-        backgroundColor: bgColor,
-        border: `1px solid ${borderColor}`,
+        backgroundColor: 'transparent',
+        border: 'none',
         borderRadius: '24px',
         padding: '28px 36px',
-        boxShadow: isDark ? '0 12px 36px rgba(0,0,0,0.45)' : '0 8px 30px rgba(0,0,0,0.08)',
+        boxShadow: 'none',
         boxSizing: 'border-box',
         fontFamily: 'Inter, system-ui, sans-serif',
         textAlign: 'center',

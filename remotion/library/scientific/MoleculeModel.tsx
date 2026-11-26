@@ -221,7 +221,7 @@ export function MoleculeModel({
           borderRadius: 12,
           backgroundColor: 'rgba(9, 9, 11, 0.85)',
           backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: 'none',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)',
         }}
       >

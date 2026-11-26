@@ -53,7 +53,7 @@ export const LineChart: React.FC<LineChartProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#0F172A' : '#FFFFFF';
+  const bgColor = 'transparent';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const textMuted = isDark ? '#94A3B8' : '#64748B';
   const borderColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.12)';

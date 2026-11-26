@@ -855,7 +855,8 @@ export function enforceEditorialPacingRules(
       !scene.overlayComponent &&
       (scene.layoutType === 'card_concept' || scene.layoutType === 'vector_concept')
     ) {
-      const match = matchComponentForScene(text, scene.heading, 4.2);
+      const semanticQuery = `${text} ${scene.englishMeaning || ''} ${scene.brollSearchQuery || ''} ${scene.visualIntent || ''}`.trim();
+      const match = matchComponentForScene(semanticQuery, scene.heading, 4.2);
       if (match) {
         scene.overlayComponent = {
           componentId: match.componentId,
@@ -1242,12 +1243,11 @@ async function callPlannerLLMJson(
   systemPrompt: string,
   groqApiKey?: string,
   // geminiApiKey is kept in signature for backward-compat but Gemini now routes through Vertex AI
-  _geminiApiKey?: string
+  _geminiApiKey?: string,
+  callOptions?: { preferGemini?: boolean }
 ): Promise<any | null> {
-  let rawText: string | null = null;
-
-  // — Provider 1: Groq (Key #1 → Key #2 failover handled inside fetchGroqWithFailover) —
-  if (groqApiKey || getGroqApiKeys().length > 0) {
+  const tryGroq = async (): Promise<string | null> => {
+    if (!groqApiKey && getGroqApiKeys().length === 0) return null;
     try {
       const groqRes = await fetchGroqWithFailover(
         'https://api.groq.com/openai/v1/chat/completions',
@@ -1271,19 +1271,16 @@ async function callPlannerLLMJson(
       );
       if (groqRes.ok) {
         const groqData = await groqRes.json();
-        rawText = groqData?.choices?.[0]?.message?.content || null;
-      } else {
-        console.warn('[AIScenePlanner] All Groq keys failed with status:', groqRes.status);
+        return groqData?.choices?.[0]?.message?.content || null;
       }
+      console.warn('[AIScenePlanner] All Groq keys failed with status:', groqRes.status);
     } catch (groqErr) {
-      console.warn('[AIScenePlanner] Groq failover exhausted, attempting Vertex AI Gemini:', groqErr);
+      console.warn('[AIScenePlanner] Groq failover exhausted:', groqErr);
     }
-  }
+    return null;
+  };
 
-  // — Provider 2: Vertex AI Gemini (uses Google Cloud Credits via service account / ADC) —
-  // This deliberately bypasses the AI Studio key (GEMINI_API_KEY) which has its own separate quota.
-  // Vertex AI charges against the GCP project (geometric-hull-501707-m2) where ~$402 credits remain.
-  if (!rawText) {
+  const tryVertexGemini = async (): Promise<string | null> => {
     const vertexModel = (process.env.GEMINI_MODEL || 'gemini-2.5-flash').trim();
     try {
       const vertexText = await callVertexGemini({
@@ -1293,25 +1290,30 @@ async function callPlannerLLMJson(
         temperature: 0.2,
         responseSchema: { type: 'object' },
       });
-      if (vertexText) {
-        rawText = vertexText;
-      } else {
-        // Try fallback Vertex model
-        const fallbackModel = (process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.0-flash').trim();
-        if (fallbackModel !== vertexModel) {
-          const fallbackText = await callVertexGemini({
-            prompt,
-            systemPrompt,
-            model: fallbackModel,
-            temperature: 0.2,
-            responseSchema: { type: 'object' },
-          });
-          if (fallbackText) rawText = fallbackText;
-        }
+      if (vertexText) return vertexText;
+
+      const fallbackModel = (process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.0-flash').trim();
+      if (fallbackModel !== vertexModel) {
+        const fallbackText = await callVertexGemini({
+          prompt,
+          systemPrompt,
+          model: fallbackModel,
+          temperature: 0.2,
+          responseSchema: { type: 'object' },
+        });
+        if (fallbackText) return fallbackText;
       }
     } catch (vertexErr) {
       console.warn('[AIScenePlanner] Vertex AI Gemini call failed:', vertexErr);
     }
+    return null;
+  };
+
+  let rawText: string | null = null;
+  if (callOptions?.preferGemini) {
+    rawText = (await tryVertexGemini()) || (await tryGroq());
+  } else {
+    rawText = (await tryGroq()) || (await tryVertexGemini());
   }
 
   // — All providers exhausted: throw structured error (never return boilerplate/null) —
@@ -1449,42 +1451,79 @@ export async function generateStructuredSceneBlueprint(
   const usedAssetIds = new Set<string>();
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // STAGE 1: LIGHTWEIGHT AI CONTENT STRUCTURE OUTLINE
-  // Decides layoutType, itemCount, and rhetoricalPurpose per scene before building JSON
+  // CHUNKED MULTI-PROVIDER SCENE PLANNING
+  // Splits the timeline into small 5-scene chunks and balances them across
+  // Groq and Vertex AI Gemini in parallel waves — avoiding both monolithic
+  // 5-minute prompts and 35+ tiny 1-scene API calls.
   // ═══════════════════════════════════════════════════════════════════════════
   const formatLabel = isShorts
     ? '9:16 Vertical Shorts (1080x1920, fast-paced vertical storytelling)'
     : '16:9 Widescreen YouTube Explainer (1920x1080, Vox / Johnny Harris style)';
 
-  const outlineMap = new Map<number, { layoutType: VisualLayoutType; itemCount: number; rhetoricalPurpose: string }>();
-
   const creatorDirective =
     options.creatorStyle === 'sara-finance'
-      ? `\nCREATOR STYLE (Sara Finance): Use punchy ALL-CAPS 2-4 word headlines, favor high-contrast stat_card, comparison, checklist, and card_concept layouts, and highlight exact dollar figures or key action phrases.`
+      ? `\nCREATOR STYLE (Sara Finance): Punchy ALL-CAPS headlines, favor stat_card, comparison, checklist, and card_concept layouts.`
       : options.creatorStyle === 'ali-abdaal'
-        ? `\nCREATOR STYLE (Ali Abdaal): Use warm, calm editorial phrasing, favor card_concept, numbered_steps, and horizontal_process layouts with clean breathing room.`
+        ? `\nCREATOR STYLE (Ali Abdaal): Warm, calm editorial phrasing, favor card_concept, numbered_steps, and horizontal_process layouts.`
         : '';
 
-  try {
-    const outlinePrompt = `You are an elite documentary video director for ${formatLabel}.${creatorDirective}
-For each narration segment below, decide ONLY the content structure — do NOT write full scene copy yet:
-1. "rhetoricalPurpose": What this segment communicates (e.g. "Contrasting old vs new", "Quantifying ROI", "3-step workflow", "Core mindset quote").
-2. "layoutType": Choose the BEST fitting template from:
-   - "hook" (ONLY segmentId 1)
-   - "chapter_title" (ONLY when isChapterStart is true and segmentId > 1)
-   - "stat_card" (1 hero number/metric)
-   - "comparison" or "before_after_transformation" (2 contrasting sides)
-   - "horizontal_process" | "workflow" | "curved_roadmap" (3-5 sequential steps/milestones)
-   - "scorecard_dashboard" | "data_visualization" (2-5 quantitative metrics/bars)
-   - "horizontal_shelves" | "circular_org_chart" | "checklist" (2-5 list items/pillars/tiers)
-   - "quote" (mindset axiom)
-   - "card_concept" | "drawing_story" (single visual concept)
-   RULE: NEVER pick the same layoutType twice in a row.
-3. "itemCount": How many items this scene's narration naturally contains (0 for hook/card_concept/quote/drawing_story, 1 for stat_card, 2 for comparison/before_after_transformation, 2-5 for checklist/horizontal_process/workflow/curved_roadmap/data_visualization/horizontal_shelves).
+  const CHUNK_SIZE = 5;
+  const CHUNK_CONCURRENCY = 2;
+  const INTER_WAVE_DELAY_MS = 200;
 
-Segments:
+  const sceneChunks: Array<{ chunkIndex: number; segments: typeof timelineSegments }> = [];
+  for (let i = 0; i < timelineSegments.length; i += CHUNK_SIZE) {
+    sceneChunks.push({
+      chunkIndex: sceneChunks.length,
+      segments: timelineSegments.slice(i, i + CHUNK_SIZE),
+    });
+  }
+
+  const plannedScenes: SceneBlueprintItem[] = [];
+  let prevLayouts: string[] = [];
+  let prevDrawingId: string | undefined;
+  let succeededChunksCount = 0;
+
+  for (let wStart = 0; wStart < sceneChunks.length; wStart += CHUNK_CONCURRENCY) {
+    if (wStart > 0) {
+      await new Promise((resolve) => setTimeout(resolve, INTER_WAVE_DELAY_MS));
+    }
+    const waveChunks = sceneChunks.slice(wStart, wStart + CHUNK_CONCURRENCY);
+
+    // Give each chunk in the wave a fresh slice of unused S3 assets so parallel chunks don't overlap
+    const unusedAssets = availableS3Assets.filter((a) => !usedAssetIds.has(a.id));
+
+    const waveResults = await Promise.all(
+      waveChunks.map(async ({ chunkIndex, segments: chunkSegments }, wavePos) => {
+        const chunkAssets = unusedAssets.slice(wavePos * 12, wavePos * 12 + 16);
+        const chunkAssetPromptText = formatAssetCatalogForPrompt(chunkAssets.length > 0 ? chunkAssets : unusedAssets.slice(0, 12));
+
+        const chunkPrompt = `You are planning Scenes #${chunkSegments[0].id}–#${chunkSegments[chunkSegments.length - 1].id} for ${formatLabel}.${creatorDirective}
+Understand what each narration segment naturally communicates and design a fitting visual scene for it.
+
+Available Layout Templates:
+- "hook" (for opening scene #1)
+- "chapter_title" (when isChapterStart is true and segmentId > 1)
+- "stat_card" (when a number, metric, or percentage stands out)
+- "comparison" or "before_after_transformation" (contrasting two ideas)
+- "horizontal_process" | "workflow" | "curved_roadmap" (sequential steps or milestones)
+- "scorecard_dashboard" | "data_visualization" (multiple metrics/bars — populate "chartItems")
+- "horizontal_shelves" | "circular_org_chart" | "checklist" (multiple points/items — populate "listItems")
+- "quote" (memorable statement)
+- "card_concept" | "drawing_story" | "image_text" (single visual concept)
+
+Selected Canvas Background: "${backgroundTheme}"
+
+Guidelines:
+- Give each scene a short, clear "heading" and a concise "supportingText" takeaway that adds value beyond repeating the narration verbatim.
+- Pick natural, subject-matched "accentColor" and "secondaryColor" hex codes with good contrast against "${backgroundTheme}".
+- Populate layout-specific fields when relevant ("statValue"/"statLabel", "comparisonItems", "listItems", "chartItems", or "assignedAssetId" from the unused assets below).
+- Avoid repeating the exact same "layoutType" on consecutive scenes.
+- LANGUAGE RULE: Keep "heading", "supportingText", "listItems", "statLabel", and "comparisonItems" in the EXACT same language as the narration segment. For ANY language (Hindi, French, German, Chinese, Spanish, Arabic, English, etc.), ALWAYS provide a concise English translation + 3-5 concrete English visual keywords in "englishMeaning" and "brollSearchQuery" for asset matching.
+
+Segments to Plan:
 ${JSON.stringify(
-  timelineSegments.map((s) => ({
+  chunkSegments.map((s) => ({
     segmentId: s.id,
     durationSeconds: s.duration,
     isChapterStart: s.isChapterStart,
@@ -1494,142 +1533,89 @@ ${JSON.stringify(
   2
 )}
 
+Available Unused Visual Assets:
+${chunkAssetPromptText}
+
 Return strict JSON:
 {
-  "outlines": [
-    { "segmentId": 1, "rhetoricalPurpose": "...", "layoutType": "hook", "itemCount": 0 }
+  "scenes": [
+    {
+      "segmentId": ${chunkSegments[0].id},
+      "rhetoricalPurpose": "Explain key point clearly",
+      "sceneType": "${chunkSegments[0].id === 1 ? 'hook' : 'main_point'}",
+      "layoutType": "card_concept",
+      "heading": "BUILD REAL LEVERAGE",
+      "supportingText": "Focus on scalable systems instead of trading hours.",
+      "englishMeaning": "",
+      "highlightedWords": ["LEVERAGE"],
+      "accentColor": "#15803D",
+      "secondaryColor": "#92400E",
+      "assignedAssetId": "",
+      "vectorDrawingId": "character_business_leader",
+      "comparisonItems": { "left": "", "right": "" },
+      "listItems": [],
+      "statValue": "",
+      "statLabel": "",
+      "statTrend": "up",
+      "chartItems": [],
+      "donutSlices": [],
+      "quoteAuthor": "",
+      "sfx": "whoosh",
+      "animation": "slow_zoom_in"
+    }
   ]
 }`;
 
-    const outlineParsed = await callPlannerLLMJson(
-      outlinePrompt,
-      'You are an expert video structure planner. Always respond in valid JSON.',
-      groqApiKey,
-      geminiApiKey
-    );
-
-    if (Array.isArray(outlineParsed?.outlines)) {
-      outlineParsed.outlines.forEach((o: any) => {
-        if (o?.segmentId) {
-          outlineMap.set(Number(o.segmentId), {
-            layoutType: normalizeVisualLayout(o.layoutType),
-            itemCount: Math.max(0, Math.min(6, Number(o.itemCount ?? 0) || 0)),
-            rhetoricalPurpose: String(o.rhetoricalPurpose || '').trim(),
-          });
+        // Distribute workload evenly across Groq (even chunks) & Vertex AI Gemini (odd chunks)
+        const preferGemini = chunkIndex % 2 === 1;
+        let parsed: any = null;
+        try {
+          parsed = await callPlannerLLMJson(
+            chunkPrompt,
+            'You are an expert motion graphics scene designer. Respond with valid JSON containing a "scenes" array.',
+            groqApiKey,
+            geminiApiKey,
+            { preferGemini }
+          );
+          if (parsed && Array.isArray(parsed.scenes)) {
+            succeededChunksCount += 1;
+          }
+        } catch (chunkErr) {
+          console.warn(`[AIScenePlanner] Chunk #${chunkIndex} failed, using deterministic fallback for its ${chunkSegments.length} scenes:`, chunkErr);
         }
-      });
-    }
-  } catch (outlineErr) {
-    console.warn('[AIScenePlanner] Stage 1 outline error, falling back to per-scene defaults:', outlineErr);
-  }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // STAGE 2: INDEPENDENT PER-SCENE VISUAL PLAN (Batched Parallel Execution)
-  // Each scene gets its own small, independent JSON call — never one massive monolithic JSON
-  // ═══════════════════════════════════════════════════════════════════════════
-  const BATCH_CONCURRENCY = 2;
-  const INTER_BATCH_DELAY_MS = 250;
-  const plannedScenes: SceneBlueprintItem[] = [];
-  let prevLayouts: string[] = [];
-  let prevDrawingId: string | undefined;
-  let aiSucceededScenesCount = 0;
+        const aiScenesList: any[] = Array.isArray(parsed?.scenes) ? parsed.scenes : [];
+        const bySegmentId = new Map<number, any>();
+        aiScenesList.forEach((item: any) => {
+          if (item && item.segmentId !== undefined) {
+            bySegmentId.set(Number(item.segmentId), item);
+          }
+        });
 
-  for (let bStart = 0; bStart < timelineSegments.length; bStart += BATCH_CONCURRENCY) {
-    if (bStart > 0) {
-      await new Promise((resolve) => setTimeout(resolve, INTER_BATCH_DELAY_MS));
-    }
-    const batchSegments = timelineSegments.slice(bStart, bStart + BATCH_CONCURRENCY);
-
-    // Filter unused S3 assets so parallel scenes in this batch don't duplicate visuals
-    const batchAssetSlice = availableS3Assets.filter((a) => !usedAssetIds.has(a.id)).slice(0, 18);
-    const batchAssetPromptText = formatAssetCatalogForPrompt(batchAssetSlice);
-
-    const batchDecisions = await Promise.all(
-      batchSegments.map(async (seg) => {
-        const outline = outlineMap.get(seg.id);
-        const targetLayout = outline?.layoutType || (seg.id === 1 ? 'hook' : seg.isChapterStart ? 'chapter_title' : 'card_concept');
-        const targetItemCount = outline?.itemCount ?? 3;
-        const targetPurpose = outline?.rhetoricalPurpose || '';
-
-        const singleScenePrompt = `You are planning ONLY Scene #${seg.id} for ${formatLabel}.
-
-Scene #${seg.id} Context:
-- Spoken Narration (${seg.duration}s): "${seg.text}"
-- Suggested Layout Template: "${targetLayout}"
-- Target Item Count: ${targetItemCount}
-- Communication Purpose: "${targetPurpose}"
-- Selected Canvas Background: "${backgroundTheme}"
-
-Rules:
-1. "heading": Punchy 2-5 word headline (NEVER "KEY INSIGHT", "IMPORTANT POINT", "SUMMARY", or "OVERVIEW").
-2. "supportingText": Crisp 6-12 word takeaway — NEVER echo the exact spoken narration text.
-3. "highlightedWords": 1-2 impact words from the headline/narration.
-4. Natural Subject-Matched Colors ("accentColor", "secondaryColor" as 6-digit hex):
-   - Use realistic, subject-appropriate colors (e.g. green #15803D/#4ADE80 for plants/nature, brown #92400E for soil/coffee, dark studio #1E293B for video-editing/UI, gold #D97706 for finance, teal #0F766E for health) instead of generic website brand colors.
-   - Ensure high contrast against "${backgroundTheme}" so nothing blends into or disappears on the background.
-5. Populate the exact fields needed for "${targetLayout}" with ${targetItemCount > 0 ? targetItemCount : 'appropriate'} items:
-   - If stat_card/scorecard_dashboard: include "statValue" (e.g. "$10K", "85%", "3X") and "statLabel".
-   - If comparison/before_after_transformation: include "comparisonItems": { "left": "...", "right": "..." }.
-   - If checklist/horizontal_process/workflow/curved_roadmap/horizontal_shelves/circular_org_chart: include "listItems" array with EXACTLY ${Math.max(2, Math.min(5, targetItemCount || 3))} concise items.
-   - If data_visualization: include "chartItems" array with ${Math.max(2, Math.min(5, targetItemCount || 3))} items ({ "label": "...", "value": 80, "formattedValue": "80%" }).
-   - If card_concept/image_text: pick the best matching "assignedAssetId" from the S3 assets below (or "" if none fits).
-6. If narration is Hindi/Hinglish, provide English meaning in "englishMeaning".
-
-Available Unused Visual Assets:
-${batchAssetPromptText}
-
-Return strict JSON for ONLY this single scene:
-{
-  "segmentId": ${seg.id},
-  "rhetoricalPurpose": "${targetPurpose || 'Explain key point clearly'}",
-  "sceneType": "${seg.id === 1 ? 'hook' : seg.isChapterStart ? 'transition' : 'main_point'}",
-  "layoutType": "${targetLayout}",
-  "heading": "BUILD REAL LEVERAGE",
-  "supportingText": "Focus on scalable systems instead of trading hours.",
-  "englishMeaning": "",
-  "highlightedWords": ["LEVERAGE"],
-  "accentColor": "#15803D",
-  "secondaryColor": "#92400E",
-  "assignedAssetId": "",
-  "vectorDrawingId": "character_business_leader",
-  "comparisonItems": { "left": "Old Way", "right": "New System" },
-  "listItems": [],
-  "statValue": "",
-  "statLabel": "",
-  "statTrend": "up",
-  "chartItems": [],
-  "donutSlices": [],
-  "quoteAuthor": "",
-  "sfx": "whoosh",
-  "animation": "slow_zoom_in"
-}`;
-
-        const parsed = await callPlannerLLMJson(
-          singleScenePrompt,
-          'You are an expert motion graphics scene designer. Respond with valid JSON for a single video scene.',
-          groqApiKey,
-          geminiApiKey
-        );
-
-        return { seg, outline, decision: parsed };
+        return chunkSegments.map((seg, idxInChunk) => {
+          const decision = bySegmentId.get(seg.id) || aiScenesList[idxInChunk] || null;
+          return {
+            seg,
+            outline: decision
+              ? {
+                  layoutType: normalizeVisualLayout(decision.layoutType),
+                  itemCount: Array.isArray(decision.listItems) ? decision.listItems.length : 3,
+                  rhetoricalPurpose: String(decision.rhetoricalPurpose || '').trim(),
+                }
+              : undefined,
+            decision,
+          };
+        });
       })
     );
 
+    const batchDecisions = waveResults.flat();
+
     // ═════════════════════════════════════════════════════════════════════════
-    // STAGE 3: DETERMINISTIC TEMPLATE MAPPER & DYNAMIC INSTANCE CREATION
+    // DETERMINISTIC TEMPLATE MAPPER & DYNAMIC INSTANCE CREATION
     // ═════════════════════════════════════════════════════════════════════════
     batchDecisions.forEach(({ seg, outline, decision }, sIdx) => {
-      const hasValidHeading =
-        typeof decision?.heading === 'string' &&
-        decision.heading.trim().split(/\s+/).length >= 2 &&
-        !/^(?:key insight|important point|summary|overview|note|point|concept|strategy|tip|conclusion)$/i.test(
-          decision.heading.trim()
-        );
-      const hasValidSupporting =
-        typeof decision?.supportingText === 'string' && decision.supportingText.trim().split(/\s+/).length >= 3;
-      if (decision && hasValidHeading && hasValidSupporting) {
-        aiSucceededScenesCount += 1;
-      }
+      const bStart = seg.id - 1;
       const text = seg.text;
       const assetPlan = planVisualAssetsForSentence(text);
       const typographyAnalysis = analyzeTypographyContent(text);
@@ -1798,6 +1784,19 @@ Return strict JSON for ONLY this single scene:
         }
       }
 
+      // Multilingual semantic fallback: if raw-language pre-search missed, search S3 catalog using English meaning/query
+      if (!matchedAsset) {
+        const englishQuery = `${decision?.englishMeaning || ''} ${decision?.brollSearchQuery || ''} ${decision?.visualAssetRequirement || ''}`.trim();
+        if (englishQuery) {
+          const englishMatches = searchS3AssetCatalog(englishQuery, { maxResults: 8 });
+          const unusedMatch = englishMatches.find((a) => !usedAssetIds.has(a.id));
+          if (unusedMatch) {
+            matchedAsset = unusedMatch;
+            assignedId = unusedMatch.id;
+          }
+        }
+      }
+
       if (matchedAsset) {
         usedAssetIds.add(matchedAsset.id);
       }
@@ -1868,10 +1867,9 @@ Return strict JSON for ONLY this single scene:
     });
   }
 
-  const minRequiredAiScenes = Math.max(1, Math.ceil(timelineSegments.length * 0.6));
-  if (aiSucceededScenesCount < minRequiredAiScenes) {
+  if (succeededChunksCount === 0) {
     throw new Error(
-      `AI_PLANNING_FAILED: Only ${aiSucceededScenesCount}/${timelineSegments.length} scenes passed AI validation across Groq & Gemini. Please click Retry — no credits were used.`
+      'AI_PROVIDER_EXHAUSTED: All AI providers (Groq Key #1, Groq Key #2, Vertex AI Gemini) failed across all scene chunks. Please click Retry — no credits were used.'
     );
   }
 

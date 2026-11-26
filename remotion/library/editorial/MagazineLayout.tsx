@@ -57,7 +57,7 @@ export function MagazineLayout({
         backgroundColor: '#09090b',
         borderRadius: 16,
         overflow: 'hidden',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        border: 'none',
         display: 'grid',
         gridTemplateColumns: '1fr 1.2fr',
         boxShadow: '0 30px 60px rgba(0, 0, 0, 0.8)',

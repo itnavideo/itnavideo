@@ -189,8 +189,15 @@ export function auditAndSelfHealVideoBlueprint(options: PreRenderAuditOptions): 
     let assetUrl = healedBrollUrls[sceneNum] || scene.assetUrl || scene.brollUrl;
     let assignedAssetId = scene.assignedAssetId;
 
-    // If layout requires photographic/illustrative media and none is present:
-    if (!assetUrl && (currentLayout === 'card_concept' || currentLayout === 'image_text' || currentLayout === 'full_bleed_visual')) {
+    // If layout supports photographic/illustrative media and none is present:
+    if (
+      !assetUrl &&
+      (currentLayout === 'hook' ||
+        currentLayout === 'card_concept' ||
+        currentLayout === 'image_text' ||
+        currentLayout === 'full_bleed_visual' ||
+        currentLayout === 'split_screen')
+    ) {
       const match = fallbackAssets.find((a) => !usedAssetIds.has(a.id));
       if (match) {
         assetUrl = toAbsoluteS3AssetUrl(match.url || match.absoluteUrl);

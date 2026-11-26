@@ -22,7 +22,7 @@ export const Percentage: React.FC<PercentageProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#FFFFFF';
+  const bgColor = 'transparent';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const textMuted = isDark ? '#94A3B8' : '#64748B';
   const borderColor = isDark ? '#334155' : '#E2E8F0';
@@ -44,7 +44,7 @@ export const Percentage: React.FC<PercentageProps> = ({
         display: 'inline-flex',
         alignItems: 'center',
         gap: '18px',
-        backgroundColor: bgColor,
+        backgroundColor: 'transparent',
         border: `1.5px solid ${accentColor}44`,
         borderRadius: '20px',
         padding: '20px 28px',

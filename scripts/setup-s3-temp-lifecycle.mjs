@@ -31,20 +31,12 @@ await s3.send(
           AbortIncompleteMultipartUpload: {DaysAfterInitiation: 1},
           NoncurrentVersionExpiration: {NoncurrentDays: expirationDays},
         },
-        {
-          ID: 'itnavideo-delete-temp-final-renders-after-48h',
-          Status: 'Enabled',
-          Filter: {Prefix: 'renders/final/'},
-          Expiration: {Days: expirationDays},
-          AbortIncompleteMultipartUpload: {DaysAfterInitiation: 1},
-          NoncurrentVersionExpiration: {NoncurrentDays: expirationDays},
-        },
       ],
     },
   }),
 );
 
-process.stdout.write(`Applied lifecycle to ${bucket}: uploads/raw/ and renders/final/ expire after ${expirationDays} days.\n`);
+process.stdout.write(`Applied lifecycle to ${bucket}: uploads/raw/ expires after ${expirationDays} days; rendered videos in renders/ are preserved.\n`);
 
 function clean(value) {
   return String(value || '').trim().replace(/^['"]|['"]$/g, '');

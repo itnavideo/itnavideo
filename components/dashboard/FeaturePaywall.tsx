@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { Sparkles, Lock, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { trackEvent } from '@/components/analytics/PostHogProvider';
 
 export interface FeaturePaywallProps {
   /** Display name of the locked feature, e.g. "Faceless Shorts". */
@@ -18,6 +19,10 @@ export interface FeaturePaywallProps {
  * paid feature's page client (see lib/billing/freeTierAccess.ts).
  */
 export function FeaturePaywall({ featureName, description, className = '' }: FeaturePaywallProps) {
+  useEffect(() => {
+    trackEvent('paywall_shown', { feature: featureName });
+  }, [featureName]);
+
   const perks = [
     'Unlimited HD 1080p cloud renders',
     'All AI video types unlocked',
@@ -59,6 +64,7 @@ export function FeaturePaywall({ featureName, description, className = '' }: Fea
 
           <Link
             href="/pricing"
+            onClick={() => trackEvent('paywall_upgrade_clicked', { feature: featureName })}
             className="group flex items-center justify-center gap-2 w-full px-5 py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-black shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:-translate-y-0.5 transition-all"
           >
             View Plans &amp; Upgrade

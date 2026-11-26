@@ -70,7 +70,7 @@ export function SceneCanvas({
         }}
       />
 
-      {/* Soft Ambient Studio Radial Glow */}
+      {/* Soft Ambient Studio Radial Glow (no expensive CSS filter: blur on every frame) */}
       <div
         style={{
           position: 'absolute',
@@ -81,7 +81,6 @@ export function SceneCanvas({
           height: ds.layout.isVertical ? '720px' : '560px',
           borderRadius: '50%',
           background: `radial-gradient(circle, ${accent.glow} 0%, transparent 70%)`,
-          filter: 'blur(48px)',
           pointerEvents: 'none',
         }}
       />

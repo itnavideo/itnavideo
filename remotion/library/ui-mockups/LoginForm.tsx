@@ -24,7 +24,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#FFFFFF';
+  const bgColor = 'transparent';
   const inputBg = isDark ? '#1F2937' : '#F9FAFB';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const textMuted = isDark ? '#94A3B8' : '#64748B';
@@ -40,11 +40,11 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     <div
       style={{
         width,
-        backgroundColor: bgColor,
-        border: `1px solid ${borderColor}`,
+        backgroundColor: 'transparent',
+        border: 'none',
         borderRadius: '24px',
         padding: '32px 28px',
-        boxShadow: isDark ? '0 16px 45px rgba(0,0,0,0.55)' : '0 10px 30px rgba(0,0,0,0.08)',
+        boxShadow: 'none',
         boxSizing: 'border-box',
         fontFamily: 'Inter, system-ui, sans-serif',
         transform: `scale(${formSpring}) translateY(${(1 - formSpring) * 20}px)`,
@@ -69,7 +69,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             style={{
               padding: '10px 14px',
               backgroundColor: inputBg,
-              border: `1px solid ${borderColor}`,
+              border: 'none',
               borderRadius: '10px',
               fontSize: '13px',
               color: textColor,
@@ -87,7 +87,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             style={{
               padding: '10px 14px',
               backgroundColor: inputBg,
-              border: `1px solid ${borderColor}`,
+              border: 'none',
               borderRadius: '10px',
               fontSize: '13px',
               color: textMuted,

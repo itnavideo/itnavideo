@@ -1,5 +1,5 @@
 import React from 'react';
-import { interpolate } from 'remotion';
+import { Img, interpolate } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
@@ -22,6 +22,7 @@ export interface HookSceneProps {
 
 export function HookScene({
   scene,
+  mediaUrl,
   headingFont = 'Montserrat, "Plus Jakarta Sans", sans-serif',
   bodyFont = 'Inter, "Plus Jakarta Sans", sans-serif',
   sceneFrame,
@@ -127,7 +128,7 @@ export function HookScene({
               style={{
                 fontFamily: bodyFont,
                 fontSize: `${ds.type.bodyLg.fontSize}px`,
-                fontWeight: 600,
+                fontWeight: ds.type.bodyLg.fontWeight,
                 lineHeight: ds.type.bodyLg.lineHeight,
                 color: ds.surface.textSecondary,
                 margin: 0,
@@ -139,7 +140,7 @@ export function HookScene({
           )}
         </div>
 
-        {/* Right / Bottom Dedicated Vector Illustration Showcase Card */}
+        {/* Right / Bottom Dedicated Visual Showcase Card */}
         <StudioCard
           tone="coral"
           elevated
@@ -153,17 +154,31 @@ export function HookScene({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '28px',
+            padding: mediaUrl ? '14px' : '28px',
+            overflow: 'hidden',
           }}
         >
-          <VectorDrawingIcon
-            keyword={visualKeyword}
-            size={ds.layout.isVertical ? 320 : 380}
-            strokeWidth={4}
-            animated={true}
-            frameOverride={ds.localFrame}
-            theme={ds.surface.isDark ? 'dark' : 'light'}
-          />
+          {mediaUrl ? (
+            <Img
+              src={mediaUrl}
+              style={{
+                width: '100%',
+                height: ds.layout.isVertical ? '340px' : '392px',
+                objectFit: 'cover',
+                borderRadius: '18px',
+                display: 'block',
+              }}
+            />
+          ) : (
+            <VectorDrawingIcon
+              keyword={visualKeyword}
+              size={ds.layout.isVertical ? 320 : 380}
+              strokeWidth={4}
+              animated={true}
+              frameOverride={ds.localFrame}
+              theme={ds.surface.isDark ? 'dark' : 'light'}
+            />
+          )}
         </StudioCard>
       </div>
     </SceneCanvas>

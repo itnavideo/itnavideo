@@ -8,7 +8,7 @@ import BrandLogo from "@/components/brand/BrandLogo";
 import { useAuth } from "@/components/auth/AuthContext";
 import DemoPreviewModal from "@/components/dashboard/DemoPreviewModal";
 import WelcomeModal from "@/components/auth/WelcomeModal";
-import DashboardSidebar, { DashboardTab } from "@/components/dashboard/DashboardSidebar";
+import type { DashboardTab } from "@/components/dashboard/DashboardSidebar";
 import GeneratedVideosTab from "@/components/dashboard/GeneratedVideosTab";
 import PhoneQrDownloadModal from "@/components/media/PhoneQrDownloadModal";
 import AnnouncementsTab from "@/components/dashboard/AnnouncementsTab";
@@ -40,7 +40,7 @@ import {
   List,
   Play,
   Film,
-  Menu,
+  Home,
   BookOpen,
   Sparkles,
   Subtitles,
@@ -367,7 +367,6 @@ function QueryRedirectHandler() {
 export default function DashboardClient() {
   const { user, logout } = useAuth();
   const [dashboardTab, setDashboardTab] = useState<DashboardTab>("studios");
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
@@ -469,14 +468,14 @@ export default function DashboardClient() {
   );
 
   return (
-    <div className="min-h-screen bg-[#08080A] text-white selection:bg-orange-500/30 selection:text-white max-w-full overflow-x-hidden relative font-sans">
-      {/* Vibrant Multi-Color Ambient Mesh Glows (Warm Flame & Violet) */}
+    <div className="min-h-screen bg-[#08080A] text-white selection:bg-orange-500/30 selection:text-white max-w-full overflow-x-clip relative font-sans">
+      {/* Lightweight Top Ambient Glow (non-fixed so scrolling never triggers full-viewport repaints) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[560px] z-0 overflow-hidden"
         style={{
           background:
-            "radial-gradient(ellipse 60% 45% at 20% 0%, rgba(255, 87, 34, 0.16), transparent 60%), radial-gradient(ellipse 50% 50% at 85% 15%, rgba(255, 160, 0, 0.12), transparent 65%), radial-gradient(ellipse 45% 45% at 50% 55%, rgba(236, 72, 153, 0.06), transparent 70%)",
+            "radial-gradient(ellipse 60% 55% at 20% 0%, rgba(255, 87, 34, 0.14), transparent 65%), radial-gradient(ellipse 50% 55% at 85% 15%, rgba(255, 160, 0, 0.1), transparent 70%)",
         }}
       />
 
@@ -498,48 +497,46 @@ export default function DashboardClient() {
         tool={formatModalTool}
       />
 
-      {/* Sidebar Navigation */}
-      <DashboardSidebar
-        activeTab={dashboardTab}
-        onSelectTab={(tab) => setDashboardTab(tab)}
-        remainingCredits={remainingCredits ?? (isFounder ? 999 : 1)}
-        renderedVideosCount={recentRenders.length}
-        userEmail={user?.email ?? undefined}
-        userId={user?.id}
-        onLogout={logout}
-        isOpenMobile={mobileSidebarOpen}
-        onCloseMobile={() => setMobileSidebarOpen(false)}
-      />
-
-      {/* Main Page Area with Left Sidebar Offset */}
-      <div className="lg:pl-72 flex flex-col min-h-screen relative z-10">
+      {/* Main Page Area (Full Width — No Left Sidebar) */}
+      <div className="flex flex-col min-h-screen relative z-10">
         {/* Top Header */}
-        <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0C0C10]/95 backdrop-blur-xl shadow-lg shadow-black/40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            {/* Mobile Hamburger & Studio Title */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setMobileSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-xl border border-white/10 bg-[#181820] text-zinc-300 hover:text-white hover:bg-[#20202A] transition cursor-pointer shadow-xs"
-                aria-label="Open Navigation Menu"
-              >
-                <Menu size={20} />
-              </button>
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0C0C10] shadow-md shadow-black/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            {/* Brand Logo + Navigation Pills */}
+            <div className="flex items-center gap-4">
+              <BrandLogo size="sm" showBadge={false} variant="dark" />
 
-              <BrandLogo size="sm" showBadge={false} variant="dark" className="lg:hidden" />
-
-              <div className="flex items-center gap-2">
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#181820] border border-white/10 text-xs text-zinc-300">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10B981] animate-pulse" />
-                  <span className="font-bold tracking-wide">
-                    {dashboardTab === "studios"
-                      ? "Studio Hub"
-                      : dashboardTab === "history"
-                      ? "Export Library"
-                      : "Changelog"}
-                  </span>
-                </span>
-              </div>
+              <nav className="hidden sm:flex items-center gap-1.5 bg-[#14141B] p-1 rounded-xl border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setDashboardTab("studios")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    dashboardTab === "studios"
+                      ? "bg-orange-600 text-white shadow-sm"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <Home size={13} />
+                  <span>Studios</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDashboardTab("history")}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    dashboardTab === "history"
+                      ? "bg-orange-600 text-white shadow-sm"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <Film size={13} />
+                  <span>Generated Videos</span>
+                  {recentRenders.length > 0 && (
+                    <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-white/15 text-[10px] font-black">
+                      {recentRenders.length}
+                    </span>
+                  )}
+                </button>
+              </nav>
             </div>
 
             {/* Quick Actions & Free Allowance / Credits Pill */}
@@ -552,7 +549,7 @@ export default function DashboardClient() {
                     href="/pricing"
                     className="flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-gradient-to-r from-orange-500/20 via-amber-500/15 to-orange-500/10 border border-orange-500/40 hover:border-orange-500/70 transition-all text-xs font-bold text-orange-200 shadow-xs group cursor-pointer"
                   >
-                    <Zap className="w-3.5 h-3.5 text-orange-500 fill-orange-500 animate-pulse group-hover:scale-110 transition-transform" />
+                    <Zap className="w-3.5 h-3.5 text-orange-500 fill-orange-500 group-hover:scale-110 transition-transform" />
                     <span className="text-orange-300 font-black">
                       {remainingCredits !== null ? `${remainingCredits} Credits` : (isFounder ? "999 Credits" : "...")}
                     </span>
@@ -578,7 +575,17 @@ export default function DashboardClient() {
                   )}
                 </>
               )}
-              {!user && (
+              {user ? (
+                <button
+                  type="button"
+                  onClick={logout}
+                  title="Sign Out"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 bg-[#181820] hover:bg-red-500/15 hover:border-red-500/40 text-zinc-400 hover:text-red-300 text-xs font-semibold transition cursor-pointer"
+                >
+                  <LogOut size={13} />
+                  <span className="hidden md:inline">Sign Out</span>
+                </button>
+              ) : (
                 <Link
                   href="/login"
                   className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white text-xs font-bold hover:brightness-110 transition shadow-md shadow-orange-500/20"
@@ -764,228 +771,9 @@ export default function DashboardClient() {
                 </div>
               )}
 
-              {/*  */}
-              {/* SECTION 2: 16:9 VIDEO TYPES (CINEMA STUDIOS)              */}
-              {/*  */}
-                            {/* ---------------------------------------------------- */}
-              {/* SECTION 0: FEATURED FLAGSHIP - AI VIDEO GENERATOR    */}
-              {/* (TOP ON DASHBOARD BEFORE AUDIO CLEANER)             */}
-              {/* ---------------------------------------------------- */}
-              {(activeCategory === "all" || activeCategory === "long") && searchQuery === "" && (
-                <div className="rounded-[32px] border border-orange-500/30 bg-gradient-to-b from-[#181216] via-[#101014] to-[#101014] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-white/10 pb-5">
-                    <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
-                        <Sparkles size={13} className="text-orange-400" />
-                        <span>Flagship Studio · Prompt to Production</span>
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
-                        AI Video Generator
-                      </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-zinc-400">
-                        Describe your idea, optionally attach media, and generate a 16:9 widescreen video with cinematic visuals, narration, and kinetic typography.
-                      </p>
-                    </div>
-
-                    <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-mono font-black uppercase tracking-wider self-start sm:self-center flex items-center gap-2 shadow-xs">
-                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                      <span>Coming Soon · In Active Development</span>
-                    </span>
-                  </div>
-
-                  <Link
-                    href="/dashboard/ai-video-generator"
-                    className="group relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 rounded-[28px] border border-white/10 bg-[#15151D] hover:bg-[#1C1C26] p-4 sm:p-6 hover:border-orange-500/60 transition-all duration-300 active:scale-[0.99] shadow-xl hover:shadow-2xl hover:shadow-orange-500/15 cursor-pointer overflow-hidden"
-                  >
-                    {/* Left: 16:9 Studio Preview Image */}
-                    <div className="relative aspect-[16/9] w-full lg:w-96 shrink-0 rounded-2xl bg-[#0B0B0E] border border-white/10 overflow-hidden shadow-inner group-hover:border-orange-500/50 transition-colors">
-                      <img
-                        src={optimizeCloudinary("https://res.cloudinary.com/dhouh9idx/image/upload/v1794750594/AI_Video_Generator_Studio_j1fbid.png", 640)}
-                        alt="AI Video Generator"
-                        loading="lazy"
-                        decoding="async"
-                        className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-
-                      {/* Coming Soon Badge Tag on Image */}
-                      <div className="absolute top-2.5 right-2.5 z-10">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-black/85 border border-amber-500/40 text-amber-300 backdrop-blur-md shadow-sm">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                          Coming Soon
-                        </span>
-                      </div>
-
-                      {/* Center Play / Preview Button on Hover */}
-                      <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
-                          <Play size={20} className="fill-current text-white ml-0.5" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Middle: Title, Description, & Feature Highlights */}
-                    <div className="flex flex-col flex-1 justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-500">
-                            <Sparkles size={18} />
-                          </div>
-                          <h3 className="text-lg sm:text-xl font-black text-white tracking-tight group-hover:text-orange-300 transition-colors">
-                            AI Video Generator (16:9 Cinema)
-                          </h3>
-                        </div>
-
-                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
-                          Prompt-to-production studio: AI plans complete scenes, matches footage, records voiceover, and builds kinetic captions with full multitrack timeline control.
-                        </p>
-                      </div>
-
-                      {/* Feature Badges */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/30 text-[11px] font-semibold text-orange-300">
-                          16:9 Widescreen Cinema
-                        </span>
-                        <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
-                          Prompt to Video
-                        </span>
-                        <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
-                          Multitrack Timeline
-                        </span>
-                        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-semibold text-emerald-400">
-                          100% Free Draft Preview
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Right / Bottom: Price & Open CTA Button */}
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10 shrink-0">
-                      <span className="text-[11px] font-mono font-bold text-orange-400 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
-                        {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Min = 1 Credit"}
-                      </span>
-                      <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
-                        <span>Preview Studio (Coming Soon)</span>
-                        <ChevronRight size={14} />
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              )}
-
-              {/* ---------------------------------------------------- */}
-              {/* SECTION 1: AUDIO STUDIO & UTILITIES (TOP ON DASHBOARD)       */}
-              {/* ---------------------------------------------------- */}
-              {showUtilitySection && (
-                <div className="rounded-[32px] border border-white/10 bg-[#101014] p-6 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-white/10 pb-5">
-                    <div>
-                      <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3.5 py-1 text-xs font-bold text-teal-400 uppercase tracking-wider mb-2">
-                        <Mic size={13} className="text-teal-400" />
-                        <span>Studio Utility &amp; Audio Clean</span>
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
-                        Audio Cleaning &amp; Mastering
-                      </h2>
-                      <p className="mt-1 text-xs sm:text-sm text-zinc-400">
-                        Remove background noise, hum, room echo, and retakes to broadcast standard.
-                      </p>
-                    </div>
-
-                    <span className="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-mono font-bold self-start sm:self-center">
-                      {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Credit • Studio Clean"}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-6">
-                    {filteredUtility.map((item) => {
-                      const Icon = item.icon;
-                      const imageSrc = item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png";
-
-                      return (
-                        <Link
-                          key={item.id}
-                          href={item.slug}
-                          className="group relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 rounded-[28px] border border-white/10 bg-[#15151D] hover:bg-[#1C1C26] p-4 sm:p-6 hover:border-teal-500/60 transition-all duration-300 active:scale-[0.99] shadow-xl hover:shadow-2xl hover:shadow-teal-500/15 cursor-pointer overflow-hidden"
-                        >
-                          {/* Left: 16:9 Studio Preview Image */}
-                          <div className="relative aspect-[16/9] w-full lg:w-96 shrink-0 rounded-2xl bg-[#0B0B0E] border border-white/10 overflow-hidden shadow-inner group-hover:border-teal-500/50 transition-colors">
-                            <img
-                              src={optimizeCloudinary(imageSrc, 600)}
-                              alt={item.title}
-                              loading="lazy"
-                              decoding="async"
-                              className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-500"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
-
-                            {/* Badge Tag on Image */}
-                            {item.badge && (
-                              <div className="absolute top-2.5 right-2.5 z-10">
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-teal-500/40 text-teal-300 backdrop-blur-md shadow-sm">
-                                  {item.badge}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Center Play / Audio Button on Hover */}
-                            <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-teal-500 to-emerald-400 text-black shadow-xl shadow-teal-500/40 scale-90 group-hover:scale-100 transition-transform">
-                                <Play size={20} className="fill-current text-black ml-0.5" />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Middle: Title, Description, & 3 Core Verified Feature Pills */}
-                          <div className="flex flex-col flex-1 justify-between gap-4">
-                            <div>
-                              <div className="flex items-center gap-3 mb-2">
-                                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${item.iconBgClass} ${item.iconColorClass}`}>
-                                  <Icon size={18} />
-                                </div>
-                                <h3 className="text-lg sm:text-xl font-black text-white tracking-tight group-hover:text-teal-300 transition-colors">
-                                  {item.title}
-                                </h3>
-                              </div>
-
-                              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
-                                {item.description}
-                              </p>
-                            </div>
-
-                            {/* Feature Badges */}
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/30 text-[11px] font-semibold text-teal-300">
-                                -14dB Noise Isolation
-                              </span>
-                              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
-                                Auto Retake Cut
-                              </span>
-                              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
-                                EBU R128 Loudness
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Right / Bottom: Price & Open CTA Button */}
-                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10 shrink-0">
-                            <span className="text-[11px] font-mono font-bold text-teal-400 px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/20">
-                              {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Credit / Video"}
-                            </span>
-                            <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-all">
-                              <span>Open Audio Studio</span>
-                              <ChevronRight size={14} />
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
               {/* SECTION: UNIFIED VIDEO CREATION STUDIOS (ALL STUDIOS VIEW) */}
               {showUnifiedSection && (
-                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
+                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 shadow-lg shadow-black/30 relative overflow-hidden space-y-6">
                   {/* Clean Spacious Header Banner */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
                     <div>
@@ -1040,7 +828,7 @@ export default function DashboardClient() {
                               {/* Aspect Ratio Badge (Top Left) */}
                               <div className="absolute top-2.5 left-2.5 z-10">
                                 <span
-                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-sm border ${
+                                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm border ${
                                     isDual
                                       ? "bg-orange-500/25 border-orange-500/50 text-orange-300"
                                       : "bg-black/80 border-white/20 text-zinc-300"
@@ -1053,7 +841,7 @@ export default function DashboardClient() {
                               {/* Badge Tag (Top Right) */}
                               {item.badge && (
                                 <div className="absolute top-2.5 right-2.5 z-10">
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white shadow-sm">
                                     {item.badge}
                                   </span>
                                 </div>
@@ -1067,7 +855,7 @@ export default function DashboardClient() {
                               )}
 
                               {/* Center Hover Play Icon */}
-                              <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+                              <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/45">
                                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
                                   <Play size={18} className="fill-current text-white ml-0.5" />
                                 </div>
@@ -1131,7 +919,7 @@ export default function DashboardClient() {
                             <div
                               key={item.id}
                               onClick={() => setFormatModalTool(item.modalData!)}
-                              className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/50 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                              className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-[#1C1C26] active:scale-[0.98] cursor-pointer shadow-md"
                             >
                               {innerCard}
                             </div>
@@ -1142,7 +930,7 @@ export default function DashboardClient() {
                           <Link
                             key={item.id}
                             href={item.singleHref!}
-                            className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/50 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                            className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-[#1C1C26] active:scale-[0.98] cursor-pointer shadow-md"
                           >
                             {innerCard}
                           </Link>
@@ -1153,7 +941,7 @@ export default function DashboardClient() {
               )}
 
               {show169Section && (
-                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
+                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 shadow-lg shadow-black/30 relative overflow-hidden space-y-6">
                   
                   {/* Clean Spacious Header Banner */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
@@ -1196,7 +984,7 @@ export default function DashboardClient() {
                         <Link
                           key={item.id}
                           href={item.slug}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/50 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-[#1C1C26] active:scale-[0.98] cursor-pointer shadow-md"
                         >
                           {/* 16:9 Featured Widescreen Image Stage */}
                           <div className="relative aspect-[16/9] w-full rounded-2xl bg-[#0B0B0E] mb-4 border border-white/10 overflow-hidden shadow-inner flex items-center justify-center group-hover:border-orange-500/40 transition-colors">
@@ -1212,14 +1000,14 @@ export default function DashboardClient() {
                             {/* Badge Tag on Image */}
                             {item.badge && (
                               <div className="absolute top-2.5 right-2.5 z-10">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white shadow-sm">
                                   {item.badge}
                                 </span>
                               </div>
                             )}
 
                             {/* Center Play Button on Hover */}
-                            <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+                            <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/45">
                               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
                                 <Play size={18} className="fill-current text-white ml-0.5" />
                               </div>
@@ -1266,7 +1054,7 @@ export default function DashboardClient() {
               {/* SECTION 3: 9:16 ALL VIDEO CLIPS / SHORTS */}
               {/*  */}
               {show916Section && (
-                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 backdrop-blur-2xl shadow-2xl shadow-black/60 relative overflow-hidden space-y-6">
+                <div className="rounded-[24px] sm:rounded-[32px] border border-white/10 bg-[#101014] p-4 sm:p-8 shadow-lg shadow-black/30 relative overflow-hidden space-y-6">
                   
                   {/* Clean Spacious Header Banner */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
@@ -1311,7 +1099,7 @@ export default function DashboardClient() {
                         <Link
                           key={item.id}
                           href={item.slug}
-                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-all duration-300 hover:-translate-y-2 hover:border-orange-500/50 hover:bg-[#1C1C26] hover:shadow-2xl hover:shadow-orange-500/20 active:scale-[0.98] cursor-pointer shadow-md"
+                          className="group relative flex flex-col justify-between overflow-hidden rounded-[26px] border border-white/10 bg-[#15151D] p-4.5 transition-[transform,border-color,background-color] duration-200 hover:-translate-y-1 hover:border-orange-500/50 hover:bg-[#1C1C26] active:scale-[0.98] cursor-pointer shadow-md"
                         >
                           {/* 9:16 Featured Vertical Smartphone Preview Stage (Full Uncropped Display) */}
                           <div className="relative aspect-[9/16] w-full rounded-2xl bg-[#0B0B0E] mb-3.5 border border-white/10 overflow-hidden shadow-inner flex flex-col items-center justify-center group-hover:border-orange-500/40 transition-colors">
@@ -1320,7 +1108,7 @@ export default function DashboardClient() {
                               src={optimizeCloudinary(item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792945595/file_00000000df688211bc2231047185512d_ifk1xc.png", 120)}
                               alt=""
                               aria-hidden="true"
-                              className="absolute inset-0 h-full w-full object-cover scale-125 blur-xl opacity-25 pointer-events-none"
+                              className="absolute inset-0 h-full w-full object-cover scale-110 opacity-15 pointer-events-none"
                             />
 
                             {/* Full Uncropped Foreground Image (Zero Cropping) */}
@@ -1329,20 +1117,20 @@ export default function DashboardClient() {
                               alt={item.title}
                               loading="lazy"
                               decoding="async"
-                              className="relative z-10 h-full w-full object-contain object-center transition-transform duration-500 group-hover:scale-102"
+                              className="relative z-10 h-full w-full object-contain object-center transition-transform duration-300 group-hover:scale-102"
                             />
 
                             {/* Badge Tag on Image */}
                             {item.badge && (
                               <div className="absolute top-2.5 right-2.5 z-20">
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white backdrop-blur-md shadow-sm">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-white/20 text-white shadow-sm">
                                   {item.badge}
                                 </span>
                               </div>
                             )}
 
                             {/* Center Play Button on Hover */}
-                            <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/30 backdrop-blur-[2px]">
+                            <div className="absolute inset-0 z-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/35">
                               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
                                 <Play size={18} className="fill-current text-white ml-0.5" />
                               </div>
@@ -1385,13 +1173,224 @@ export default function DashboardClient() {
                 </div>
               )}
 
-              {/*  */}
-              {/* SECTION 3: AUDIO STUDIO & UTILITIES (THIRD ON DASHBOARD)       */}
-              {/*  */}
-              
+              {/* ---------------------------------------------------- */}
+              {/* BOTTOM 1: AUDIO STUDIO & UTILITIES                   */}
+              {/* ---------------------------------------------------- */}
+              {showUtilitySection && (
+                <div className="rounded-[32px] border border-white/10 bg-[#101014] p-6 sm:p-8 shadow-lg shadow-black/30 relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-white/10 pb-5">
+                    <div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-500/10 px-3.5 py-1 text-xs font-bold text-teal-400 uppercase tracking-wider mb-2">
+                        <Mic size={13} className="text-teal-400" />
+                        <span>Studio Utility &amp; Audio Clean</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
+                        Audio Cleaning &amp; Mastering
+                      </h2>
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400">
+                        Remove background noise, hum, room echo, and retakes to broadcast standard.
+                      </p>
+                    </div>
+
+                    <span className="px-3 py-1.5 rounded-xl bg-teal-500/10 border border-teal-500/30 text-teal-400 text-xs font-mono font-bold self-start sm:self-center">
+                      {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Credit • Studio Clean"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6">
+                    {filteredUtility.map((item) => {
+                      const Icon = item.icon;
+                      const imageSrc = item.imageCard || "https://res.cloudinary.com/dhouh9idx/image/upload/v1792946356/audio_cleaner_pipcxj.png";
+
+                      return (
+                        <Link
+                          key={item.id}
+                          href={item.slug}
+                          className="group relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 rounded-[28px] border border-white/10 bg-[#15151D] hover:bg-[#1C1C26] p-4 sm:p-6 hover:border-teal-500/60 transition-[transform,border-color,background-color] duration-200 active:scale-[0.99] shadow-xl cursor-pointer overflow-hidden"
+                        >
+                          {/* Left: 16:9 Studio Preview Image */}
+                          <div className="relative aspect-[16/9] w-full lg:w-96 shrink-0 rounded-2xl bg-[#0B0B0E] border border-white/10 overflow-hidden shadow-inner group-hover:border-teal-500/50 transition-colors">
+                            <img
+                              src={optimizeCloudinary(imageSrc, 600)}
+                              alt={item.title}
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                            {/* Badge Tag on Image */}
+                            {item.badge && (
+                              <div className="absolute top-2.5 right-2.5 z-10">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-black/80 border border-teal-500/40 text-teal-300 shadow-sm">
+                                  {item.badge}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Center Play / Audio Button on Hover */}
+                            <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/45">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-teal-500 to-emerald-400 text-black shadow-xl shadow-teal-500/40 scale-90 group-hover:scale-100 transition-transform">
+                                <Play size={20} className="fill-current text-black ml-0.5" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Middle: Title, Description, & 3 Core Verified Feature Pills */}
+                          <div className="flex flex-col flex-1 justify-between gap-4">
+                            <div>
+                              <div className="flex items-center gap-3 mb-2">
+                                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${item.iconBgClass} ${item.iconColorClass}`}>
+                                  <Icon size={18} />
+                                </div>
+                                <h3 className="text-lg sm:text-xl font-black text-white tracking-tight group-hover:text-teal-300 transition-colors">
+                                  {item.title}
+                                </h3>
+                              </div>
+
+                              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                                {item.description}
+                              </p>
+                            </div>
+
+                            {/* Feature Badges */}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/30 text-[11px] font-semibold text-teal-300">
+                                -14dB Noise Isolation
+                              </span>
+                              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
+                                Auto Retake Cut
+                              </span>
+                              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
+                                EBU R128 Loudness
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Right / Bottom: Price & Open CTA Button */}
+                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10 shrink-0">
+                            <span className="text-[11px] font-mono font-bold text-teal-400 px-2.5 py-1 rounded-lg bg-teal-500/10 border border-teal-500/20">
+                              {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Credit / Video"}
+                            </span>
+                            <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-transform">
+                              <span>Open Audio Studio</span>
+                              <ChevronRight size={14} />
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ---------------------------------------------------- */}
+              {/* BOTTOM 2: FEATURED FLAGSHIP - AI VIDEO GENERATOR     */}
+              {/* ---------------------------------------------------- */}
+              {(activeCategory === "all" || activeCategory === "long") && searchQuery === "" && (
+                <div className="rounded-[32px] border border-orange-500/30 bg-gradient-to-b from-[#181216] via-[#101014] to-[#101014] p-6 sm:p-8 shadow-lg shadow-black/30 relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-white/10 pb-5">
+                    <div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-3.5 py-1 text-xs font-bold text-orange-400 uppercase tracking-wider mb-2">
+                        <Sparkles size={13} className="text-orange-400" />
+                        <span>Flagship Studio · Prompt to Production</span>
+                      </div>
+                      <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight font-sans">
+                        AI Video Generator
+                      </h2>
+                      <p className="mt-1 text-xs sm:text-sm text-zinc-400">
+                        Describe your idea, optionally attach media, and generate a 16:9 widescreen video with cinematic visuals, narration, and kinetic typography.
+                      </p>
+                    </div>
+
+                    <span className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-mono font-black uppercase tracking-wider self-start sm:self-center flex items-center gap-2 shadow-xs">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      <span>Coming Soon · In Active Development</span>
+                    </span>
+                  </div>
+
+                  <Link
+                    href="/dashboard/ai-video-generator"
+                    className="group relative flex flex-col lg:flex-row lg:items-center justify-between gap-6 rounded-[28px] border border-white/10 bg-[#15151D] hover:bg-[#1C1C26] p-4 sm:p-6 hover:border-orange-500/60 transition-[transform,border-color,background-color] duration-200 active:scale-[0.99] shadow-xl cursor-pointer overflow-hidden"
+                  >
+                    {/* Left: 16:9 Studio Preview Image */}
+                    <div className="relative aspect-[16/9] w-full lg:w-96 shrink-0 rounded-2xl bg-[#0B0B0E] border border-white/10 overflow-hidden shadow-inner group-hover:border-orange-500/50 transition-colors">
+                      <img
+                        src={optimizeCloudinary("https://res.cloudinary.com/dhouh9idx/image/upload/v1794750594/AI_Video_Generator_Studio_j1fbid.png", 640)}
+                        alt="AI Video Generator"
+                        loading="lazy"
+                        decoding="async"
+                        className="h-full w-full object-cover opacity-95 group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                      {/* Coming Soon Badge Tag on Image */}
+                      <div className="absolute top-2.5 right-2.5 z-10">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider bg-black/85 border border-amber-500/40 text-amber-300 shadow-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                          Coming Soon
+                        </span>
+                      </div>
+
+                      {/* Center Play / Preview Button on Hover */}
+                      <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/45">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white shadow-xl shadow-orange-500/40 scale-90 group-hover:scale-100 transition-transform">
+                          <Play size={20} className="fill-current text-white ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Middle: Title, Description, & Feature Highlights */}
+                    <div className="flex flex-col flex-1 justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-orange-500/15 border border-orange-500/30 text-orange-500">
+                            <Sparkles size={18} />
+                          </div>
+                          <h3 className="text-lg sm:text-xl font-black text-white tracking-tight group-hover:text-orange-300 transition-colors">
+                            AI Video Generator (16:9 Cinema)
+                          </h3>
+                        </div>
+
+                        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                          Prompt-to-production studio: AI plans complete scenes, matches footage, records voiceover, and builds kinetic captions with full multitrack timeline control.
+                        </p>
+                      </div>
+
+                      {/* Feature Badges */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/30 text-[11px] font-semibold text-orange-300">
+                          16:9 Widescreen Cinema
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
+                          Prompt to Video
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-semibold text-zinc-300">
+                          Multitrack Timeline
+                        </span>
+                        <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-semibold text-emerald-400">
+                          100% Free Draft Preview
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right / Bottom: Price & Open CTA Button */}
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 pt-4 lg:pt-0 border-t lg:border-t-0 border-white/10 shrink-0">
+                      <span className="text-[11px] font-mono font-bold text-orange-400 px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                        {PLATFORM_MODE_CONFIG.TEMPORARY_FREE_ACCESS ? "Free • 2 Downloads/Day" : "1 Min = 1 Credit"}
+                      </span>
+                      <div className="inline-flex items-center gap-1.5 font-bold text-white text-xs bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 px-5 py-2.5 rounded-xl shadow-lg shadow-orange-500/25 group-hover:translate-x-0.5 transition-transform">
+                        <span>Preview Studio (Coming Soon)</span>
+                        <ChevronRight size={14} />
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              )}
+
               {/* Empty Search Result */}
               {!showUnifiedSection && !show916Section && !show169Section && !showUtilitySection && (
-                <div className="text-center py-16 border border-dashed border-white/15 rounded-[32px] bg-[#0E1526]/50 backdrop-blur-2xl">
+                <div className="text-center py-16 border border-dashed border-white/15 rounded-[32px] bg-[#0E1526]/80">
                   <Search className="w-10 h-10 text-zinc-500 mx-auto mb-3" />
                   <p className="text-sm text-zinc-300 font-bold">
                     No video studios match &ldquo;{searchQuery}&rdquo;

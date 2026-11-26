@@ -124,7 +124,7 @@ export function CompassRose({
             backgroundColor: 'rgba(9, 9, 11, 0.8)',
             padding: '4px 10px',
             borderRadius: 6,
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            border: 'none',
           }}
         >
           {coordinates}

@@ -2,6 +2,8 @@
 // Production-grade Google Analytics 4 (GA4) Instrumentation for Itnavideo
 // Standardized according to Google Analytics 4 Recommended SaaS & E-commerce Events
 
+import { trackEvent as trackPostHogEvent } from '@/components/analytics/PostHogProvider';
+
 export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-8NSFBYS9EF';
 
 declare global {
@@ -11,10 +13,13 @@ declare global {
   }
 }
 
-// Safe wrapper for gtag calls
+// Safe wrapper for gtag calls (also mirrors SaaS & funnel events to PostHog)
 export function gtag(...args: any[]) {
   if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
     window.gtag(...args);
+  }
+  if (args[0] === 'event' && typeof args[1] === 'string' && args[1] !== 'active_pulse') {
+    trackPostHogEvent(args[1], (args[2] as Record<string, any>) || undefined);
   }
 }
 

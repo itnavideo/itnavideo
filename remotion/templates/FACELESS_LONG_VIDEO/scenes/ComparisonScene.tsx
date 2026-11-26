@@ -36,7 +36,7 @@ export function ComparisonScene({
   const leftRaw = scene.comparisonItems?.left || 'Traditional Manual Approach';
   const rightRaw = scene.comparisonItems?.right || scene.supportingText || 'Modern High-Leverage System';
 
-  const splitPoints = (raw: string, fallbackPoints: string[]) => {
+  const splitPoints = (raw: string, fallbackHeading: string) => {
     const cleaned = String(raw || '').trim();
     const parts = cleaned
       .split(/[•;\n|]+/)
@@ -48,23 +48,24 @@ export function ComparisonScene({
         bullets: parts.slice(1, 4),
       };
     }
+    const commaParts = cleaned
+      .split(/,\s+/)
+      .map((s) => s.trim())
+      .filter((s) => s.length >= 3);
+    if (commaParts.length >= 2) {
+      return {
+        title: commaParts[0],
+        bullets: commaParts.slice(1, 4),
+      };
+    }
     return {
-      title: cleaned || fallbackPoints[0],
-      bullets: fallbackPoints,
+      title: cleaned || fallbackHeading,
+      bullets: [] as string[],
     };
   };
 
-  const leftParsed = splitPoints(leftRaw, [
-    'High manual effort & slow turnaround',
-    'Inconsistent output quality',
-    'Hard to scale sustainably',
-  ]);
-
-  const rightParsed = splitPoints(rightRaw, [
-    'Structured system with clear leverage',
-    'Consistent, repeatable execution',
-    'Compounds results over time',
-  ]);
+  const leftParsed = splitPoints(leftRaw, 'Previous Approach');
+  const rightParsed = splitPoints(rightRaw, 'Recommended Approach');
 
   const leftSpring = ds.motion.stagger(0, 6, 6);
   const vsSpring = spring({

@@ -71,7 +71,7 @@ export function WorldMap({
         height,
         backgroundColor: '#09090b',
         borderRadius: 16,
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        border: 'none',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',

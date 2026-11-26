@@ -457,6 +457,17 @@ export interface FacelessVideoStudioProps {
   onRemoveAiWatermarkChange?: (enabled: boolean) => void;
 }
 
+const GITHUB_REMOTION_CAPTION_STYLES = [
+  { id: 'Flame Gradient', name: 'Flame Gradient', color: '#ff5722', fontFamily: 'Inter, system-ui, sans-serif', category: 'Kinetic', badge: 'GitHub Pro', desc: 'Animated fiery gradient sweep with warm drop glow' },
+  { id: 'Spectrum Shift', name: 'Spectrum Shift', color: '#06b6d4', fontFamily: 'Inter, system-ui, sans-serif', category: 'Modern', badge: 'GitHub Pro', desc: 'Continuous HSL spectrum shift with crisp neon shadow' },
+  { id: 'Chromatic Depth', name: 'Chromatic Depth', color: '#ff3158', fontFamily: 'Inter, system-ui, sans-serif', category: 'Viral', badge: 'GitHub Pro', desc: 'RGB chromatic split depth effect for high retention' },
+  { id: 'Typewriter Reveal', name: 'Typewriter Reveal', color: '#facc15', fontFamily: 'ui-monospace, SFMono-Regular, monospace', category: 'Creative', badge: 'GitHub Pro', desc: 'Smooth clip-path monospace typewriter reveal' },
+  { id: 'Letter Wave', name: 'Letter Wave', color: '#8b5cf6', fontFamily: 'Inter, system-ui, sans-serif', category: 'Kinetic', badge: 'GitHub Pro', desc: 'Fluid per-character sine wave bounce animation' },
+  { id: 'Soft Focus', name: 'Soft Focus', color: '#e2e8f0', fontFamily: 'Georgia, serif', category: 'Editorial', badge: 'GitHub Pro', desc: 'Cinematic editorial serif with focus-pull reveal' },
+];
+
+const ALL_FACELESS_CAPTION_STYLES = [...THIRTY_TWO_CAPTION_STYLES, ...GITHUB_REMOTION_CAPTION_STYLES];
+
 export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   selectedFile,
   onSelectFile,
@@ -1102,9 +1113,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
   const currentCaptionObj = useMemo(() => {
     return (
-      THIRTY_TWO_CAPTION_STYLES.find(
+      ALL_FACELESS_CAPTION_STYLES.find(
         (c) => c.id === subtitleStyle || c.name.toLowerCase() === (subtitleStyle || "").toLowerCase()
-      ) || THIRTY_TWO_CAPTION_STYLES[0]
+      ) || ALL_FACELESS_CAPTION_STYLES[0]
     );
   }, [subtitleStyle]);
 
@@ -1550,8 +1561,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     onGenerate(payload);
   };
 
-  // Filter 32 caption styles
-  const filteredCaptionStyles = THIRTY_TWO_CAPTION_STYLES.filter((s) => {
+  // Filter all caption styles (32 core + 6 GitHub Remotion styles)
+  const filteredCaptionStyles = ALL_FACELESS_CAPTION_STYLES.filter((s) => {
     const matchesCategory = captionFilter === "all" || (s.category || "").toLowerCase() === captionFilter.toLowerCase();
     const matchesSearch =
       !captionSearchQuery.trim() ||

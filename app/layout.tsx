@@ -6,6 +6,7 @@ import { AuthProvider } from '@/components/auth/AuthContext';
 import { Toaster } from 'sonner';
 import AppChrome from '@/components/layout/AppChrome';
 import SmoothScrollProvider from '@/components/layout/SmoothScrollProvider';
+import PostHogProvider from '@/components/analytics/PostHogProvider';
 import { HOMEPAGE_WORKFLOW_COUNT } from '@/constants/homepageWorkflows';
 
 export const viewport: Viewport = {
@@ -258,13 +259,15 @@ export default function RootLayout({
           }}
         />
         <AuthProvider>
-          <SmoothScrollProvider>
-            <div className="relative flex flex-col min-h-screen">
-              <AppChrome>{children}</AppChrome>
-            </div>
+          <PostHogProvider>
+            <SmoothScrollProvider>
+              <div className="relative flex flex-col min-h-screen">
+                <AppChrome>{children}</AppChrome>
+              </div>
 
-            <Toaster richColors position="top-right" closeButton />
-          </SmoothScrollProvider>
+              <Toaster richColors position="top-right" closeButton />
+            </SmoothScrollProvider>
+          </PostHogProvider>
         </AuthProvider>
       </body>
       <Script strategy="afterInteractive" async src="https://www.googletagmanager.com/gtag/js?id=G-8NSFBYS9EF" />

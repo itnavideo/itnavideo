@@ -114,7 +114,7 @@ export function ListScene({
                 style={{
                   fontFamily: resolvedBodyFont,
                   fontSize: `${ds.type.bodyLg.fontSize}px`,
-                  fontWeight: 700,
+                  fontWeight: ds.type.cardTitle.fontWeight,
                   color: ds.surface.textPrimary,
                   lineHeight: 1.4,
                 }}

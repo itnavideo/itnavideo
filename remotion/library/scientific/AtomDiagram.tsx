@@ -187,7 +187,7 @@ export function AtomDiagram({
           borderRadius: 10,
           backgroundColor: 'rgba(9, 9, 11, 0.85)',
           backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: 'none',
         }}
       >
         <div

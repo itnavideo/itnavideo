@@ -2588,9 +2588,9 @@ export async function POST(request: Request) {
           // Remaining 90%+ is explained through animated text, large detailed SVG illustrations,
           // diagrams, shapes, infographics, and motion graphics.
           const totalDurationSec = renderWindow.durationSeconds || 60;
-          const maxImageDurationAllowed = totalDurationSec * 0.35; // balanced 35% B-roll share
+          const maxImageDurationAllowed = totalDurationSec * 0.40; // balanced 40% S3 image/B-roll share
           const totalSceneCount = blueprint.scenes.length || 1;
-          const maxImageScenesAllowed = Math.max(1, Math.min(4, Math.floor(totalSceneCount * 0.35)));
+          const maxImageScenesAllowed = Math.max(2, Math.min(8, Math.floor(totalSceneCount * 0.40)));
 
           let mappedBrollUrls: Record<number, string> = {};
           const userProvidedBroll = (body.brollUrls && typeof body.brollUrls === 'object') ? body.brollUrls : {};
@@ -2636,14 +2636,12 @@ export async function POST(request: Request) {
           }
 
           if (Object.keys(mappedBrollUrls).length === 0 && maxImageScenesAllowed > 0) {
-            // Only search library if the 10% budget allows at least 1 image scene
             try {
               const libraryMatches = await planImagesFromLibraryForScenes(blueprint.scenes, {
                 aspectRatio: targetAspectRatio,
                 videoType: 'facelessVideo',
-                minimumScore: 8,
+                minimumScore: 4,
               });
-              // Pick at most 1 scene within the 10% budget limit
               let currentImageDuration = 0;
               for (const [sNumStr, url] of Object.entries(libraryMatches)) {
                 if (!url) continue;
@@ -2653,7 +2651,6 @@ export async function POST(request: Request) {
                 if (currentImageDuration + sceneDur <= maxImageDurationAllowed && Object.keys(mappedBrollUrls).length < maxImageScenesAllowed) {
                   mappedBrollUrls[sNum] = String(url);
                   currentImageDuration += sceneDur;
-                  break;
                 }
               }
             } catch (err) {
@@ -2663,8 +2660,7 @@ export async function POST(request: Request) {
 
           console.log('[FACELESS_VIDEO_PLANNER]', {
             totalScenes: blueprint.totalScenes,
-            mappedBrollCount: 0,
-            customBgUrl: 'disabled-in-svg-mode',
+            mappedBrollCount: Object.keys(mappedBrollUrls).length,
           });
           const isSfxExplicitlyDisabled = body.facelessEnableSfx === false || body.enableSfx === false;
           const sfxEvents = isSfxExplicitlyDisabled ? [] : generateSFXEvents(blueprint.scenes as any, 30, renderWindow.durationSeconds);

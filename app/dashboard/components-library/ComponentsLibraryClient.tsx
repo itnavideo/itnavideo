@@ -30,12 +30,12 @@ const CATEGORIES: Array<{ id: string; label: string; count?: number }> = [
   { id: 'ui-mockups', label: 'UI & App Mockups' },
   { id: '3d-isometric', label: '3D Isometric' },
   { id: 'business', label: 'Business & SaaS' },
-  { id: 'finance', label: 'Finance & Crypto' },
-  { id: 'technology', label: 'Tech & Architecture' },
-  { id: 'scientific', label: 'Scientific & Medical' },
-  { id: 'documentary', label: 'Documentary & Cinema' },
-  { id: 'typography', label: 'Kinetic Typography' },
-  { id: 'vfx', label: 'VFX & Light Leaks' },
+  { id: 'finance', label: 'Finance & Markets' },
+  { id: 'statistics', label: 'Statistics & KPIs' },
+  { id: 'radial', label: 'Radial & Progress' },
+  { id: 'network', label: 'Network & Hierarchy' },
+  { id: 'scientific', label: 'Scientific & STEM' },
+  { id: 'editorial', label: 'Editorial & News' },
 ];
 
 export default function ComponentsLibraryClient() {
@@ -99,7 +99,7 @@ export default function ComponentsLibraryClient() {
             <Layers className="w-5 h-5 text-orange-500" />
             <h1 className="font-bold text-lg text-white">Motion Graphics Component Library</h1>
             <span className="text-xs bg-orange-500/10 text-orange-400 border border-orange-500/20 px-2 py-0.5 rounded-full font-mono">
-              1,292 Components
+              {REMOTION_COMPONENT_REGISTRY.length} Curated Components
             </span>
           </div>
         </div>

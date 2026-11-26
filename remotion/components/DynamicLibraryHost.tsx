@@ -11,14 +11,19 @@ import * as Business from '../library/business';
 import * as Network from '../library/network';
 import * as Statistics from '../library/statistics';
 import * as UiMockups from '../library/ui-mockups';
-import * as UiMicro from '../library/ui-micro';
 import * as Primitives from '../library/primitives';
-import * as Motion from '../library/motion';
 import * as Graphics from '../library/graphics';
 import * as Infographics from '../library/infographics';
 import * as Scenes from '../library/scenes';
 import * as MotionTemplates from '../library/motion-templates';
 import * as Overlays from '../library/overlays';
+import * as Editorial from '../library/editorial';
+import * as Engineering from '../library/engineering';
+import * as Finance from '../library/finance';
+import * as Geography from '../library/geography';
+import * as Isometric from '../library/isometric';
+import * as Mathematics from '../library/mathematics';
+import * as Scientific from '../library/scientific';
 import * as Library from '../library';
 import { REMOTION_COMPONENT_REGISTRY } from '../library/registry';
 
@@ -45,14 +50,19 @@ const SUITE_MODULES: Record<string, any>[] = [
   Network,
   Statistics,
   UiMockups,
-  UiMicro,
   Primitives,
-  Motion,
   Graphics,
   Infographics,
   Scenes,
   MotionTemplates,
   Overlays,
+  Editorial,
+  Engineering,
+  Finance,
+  Geography,
+  Isometric,
+  Mathematics,
+  Scientific,
   Library,
 ];
 
@@ -263,7 +273,7 @@ export const DynamicLibraryHost: React.FC<DynamicLibraryHostProps> = ({
   palette,
   scale = 1.0,
   placement = 'center',
-  fullScreen = true,
+  fullScreen = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height, durationInFrames } = useVideoConfig();
@@ -275,24 +285,29 @@ export const DynamicLibraryHost: React.FC<DynamicLibraryHostProps> = ({
   // Resolve component dynamically
   const TargetComponent = React.useMemo(() => getComponentById(componentId), [componentId]);
 
-  // Entrance physics: In inspector mode (cinematic: false or fullScreen: true), lock to 1.0
-  const isInspectorMode = !cinematic || fullScreen === true;
-  const entrance = isInspectorMode
+  // Entrance physics: scale down smoothly from 1.15 -> 1.0 on entrance, fade out cleanly at exit
+  const isInspectorMode = !cinematic;
+  const enterSpring = isInspectorMode
     ? 1.0
-    : Math.max(0.6, spring({ frame: currentFrame, fps, config: { damping: 14, stiffness: 120 } }));
+    : spring({ frame: currentFrame, fps, config: { damping: 16, stiffness: 110 } });
 
-  const exitOpacity = isInspectorMode
+  const entranceScale = isInspectorMode ? 1.0 : interpolate(enterSpring, [0, 1], [1.15, 1.0]);
+  const exitProgress = isInspectorMode
     ? 1.0
-    : interpolate(currentFrame, [Math.max(0, currentDuration - 8), currentDuration], [1, 0], {
+    : interpolate(currentFrame, [Math.max(0, currentDuration - 10), currentDuration], [1, 0], {
         extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',
       });
+  const exitScale = isInspectorMode ? 1.0 : interpolate(exitProgress, [0, 1], [0.96, 1.0]);
+  const combinedOpacity = isInspectorMode ? 1.0 : Math.min(enterSpring, exitProgress);
+  const baseScale = isVertical ? 1.08 : 1.0;
+  const effectiveScale = (scale || 1.0) * baseScale * entranceScale * exitScale;
 
   const isDark = palette?.isDark === true;
 
-  // Broadcast safe canvas sizing (fills 92% of frame cleanly)
-  const containerWidth = isVertical ? 960 : 1760;
-  const containerHeight = isVertical ? 1720 : 940;
+  // Broadcast safe canvas sizing (stays inside 1920x1080 / 1080x1920 safe margins)
+  const containerWidth = isVertical ? 960 : 1680;
+  const containerHeight = isVertical ? 1720 : 900;
 
   // Generate sample props if none were passed
   const sampleProps = React.useMemo(
@@ -316,23 +331,24 @@ export const DynamicLibraryHost: React.FC<DynamicLibraryHostProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 15,
-        backgroundColor: isDark ? '#090D16' : '#FFFFFF',
+        backgroundColor: 'transparent',
       }}
     >
-      {/* Broadcast Canvas Stage — Clean, Seamless & Borderless */}
+      {/* Broadcast Canvas Stage — Clean, Seamless, Larger & Animated */}
       <div
         style={{
           width: '100%',
           height: '100%',
           maxWidth: `${containerWidth}px`,
           maxHeight: `${containerHeight}px`,
-          transform: scale !== 1.0 ? `scale(${scale})` : undefined,
+          opacity: combinedOpacity,
+          transform: `scale(${effectiveScale})`,
           transformOrigin: 'center center',
           backgroundColor: 'transparent',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '48px 64px',
+          padding: '24px 36px',
           boxSizing: 'border-box',
         }}
       >
@@ -348,68 +364,39 @@ export const DynamicLibraryHost: React.FC<DynamicLibraryHostProps> = ({
           >
             <TargetComponent {...mergedProps} />
           </div>
-        ) : (
-          /* Autonomous Full-Scale 1080p Broadcast Graphic Card (NEVER a tiny dot!) */
+        ) : (props?.title || props?.heading) ? (
+          /* Clean Editorial Concept Fallback if a component ID is unresolved */
           <div
             style={{
               width: '100%',
-              height: '100%',
+              maxWidth: isVertical ? 880 : 1240,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 24,
+              gap: 20,
               textAlign: 'center',
               fontFamily: 'system-ui, -apple-system, sans-serif',
               color: isDark ? '#FFFFFF' : '#0F172A',
-              padding: 40,
+              padding: '48px 56px',
+              borderRadius: 28,
+              backgroundColor: isDark ? 'rgba(15, 23, 42, 0.85)' : 'rgba(255, 255, 255, 0.92)',
+              border: `1.5px solid ${isDark ? 'rgba(255,255,255,0.14)' : 'rgba(15,23,42,0.1)'}`,
+              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.18)',
               boxSizing: 'border-box',
             }}
           >
-            {/* Animated Broadcast Orb */}
-            <div
-              style={{
-                width: 120,
-                height: 120,
-                borderRadius: '50%',
-                backgroundColor: isDark ? 'rgba(234, 88, 12, 0.2)' : 'rgba(234, 88, 12, 0.1)',
-                border: '3px solid #EA580C',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 52,
-                boxShadow: '0 12px 36px rgba(234, 88, 12, 0.35)',
-              }}
-            >
-              🎬
+            <div style={{ width: 64, height: 5, borderRadius: 99, backgroundColor: '#EA580C' }} />
+            <div style={{ fontSize: isVertical ? 44 : 52, fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.15 }}>
+              {props.title || props.heading}
             </div>
-
-            <div style={{ fontSize: 44, fontWeight: 900, letterSpacing: '-0.02em', color: isDark ? '#FFFFFF' : '#0F172A' }}>
-              {componentId}
-            </div>
-
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '8px 20px',
-                borderRadius: 9999,
-                backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)',
-                border: `1.5px solid ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(15,23,42,0.12)'}`,
-                fontSize: 16,
-                fontWeight: 700,
-                color: '#EA580C',
-              }}
-            >
-              <span>●</span> Remotion Motion Graphic Asset • 1080p 60 FPS
-            </div>
-
-            <div style={{ fontSize: 20, color: isDark ? '#94A3B8' : '#64748B', maxWidth: 720, lineHeight: 1.6, fontWeight: 500 }}>
-              Full broadcast component registered in Remotion Library. Connects dynamically to automated scene planner and timeline renderer.
-            </div>
+            {props.subtitle && (
+              <div style={{ fontSize: isVertical ? 24 : 26, color: isDark ? '#CBD5E1' : '#475569', maxWidth: 880, lineHeight: 1.5, fontWeight: 500 }}>
+                {props.subtitle}
+              </div>
+            )}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

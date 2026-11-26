@@ -38,7 +38,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#0D1117' : '#FFFFFF';
+  const bgColor = 'transparent';
   const headerBg = isDark ? '#161B22' : '#F6F8FA';
   const textColor = isDark ? '#E6EDF3' : '#1F2328';
   const textMuted = isDark ? '#7D8590' : '#656D76';
@@ -54,11 +54,11 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
     <div
       style={{
         width,
-        backgroundColor: bgColor,
-        border: `1px solid ${borderColor}`,
+        backgroundColor: 'transparent',
+        border: 'none',
         borderRadius: '16px',
         overflow: 'hidden',
-        boxShadow: isDark ? '0 16px 45px rgba(0,0,0,0.6)' : '0 10px 30px rgba(0,0,0,0.1)',
+        boxShadow: 'none',
         boxSizing: 'border-box',
         fontFamily: 'JetBrains Mono, Menlo, Consolas, monospace',
         transform: `scale(${editorSpring})`,
@@ -83,7 +83,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B' }} />
           <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981' }} />
         </div>
-        <div style={{ fontSize: '12px', fontWeight: 600, color: textColor, padding: '4px 10px', backgroundColor: bgColor, borderRadius: '6px 6px 0 0' }}>
+        <div style={{ fontSize: '12px', fontWeight: 600, color: textColor, padding: '4px 10px', backgroundColor: 'transparent', borderRadius: '6px 6px 0 0' }}>
           {fileName}
         </div>
       </div>

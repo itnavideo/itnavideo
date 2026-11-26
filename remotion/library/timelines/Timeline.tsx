@@ -41,8 +41,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#FFFFFF';
-  const cardBg = isDark ? '#1E293B' : '#F8FAFC';
+  const bgColor = 'transparent';
+  const cardBg = isDark ? 'rgba(30, 41, 59, 0.42)' : 'rgba(15, 23, 42, 0.04)';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const textMuted = isDark ? '#94A3B8' : '#64748B';
   const borderColor = isDark ? '#334155' : '#E2E8F0';
@@ -53,11 +53,11 @@ export const Timeline: React.FC<TimelineProps> = ({
     <div
       style={{
         width,
-        backgroundColor: bgColor,
-        border: `1px solid ${borderColor}`,
+        backgroundColor: 'transparent',
+        border: 'none',
         borderRadius: '24px',
         padding: '28px 32px',
-        boxShadow: isDark ? '0 12px 36px rgba(0,0,0,0.45)' : '0 8px 30px rgba(0,0,0,0.08)',
+        boxShadow: 'none',
         boxSizing: 'border-box',
         fontFamily: 'Inter, system-ui, sans-serif',
         ...style,
@@ -132,10 +132,10 @@ export const Timeline: React.FC<TimelineProps> = ({
                 style={{
                   flex: 1,
                   backgroundColor: cardBg,
-                  border: `1px solid ${borderColor}`,
+                  border: 'none',
                   borderRadius: '16px',
                   padding: '16px 20px',
-                  boxShadow: isDark ? '0 4px 16px rgba(0,0,0,0.2)' : '0 2px 10px rgba(0,0,0,0.04)',
+                  boxShadow: 'none',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>

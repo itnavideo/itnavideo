@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Img,
   Loop,
   OffthreadVideo,
   interpolate,
@@ -119,11 +120,14 @@ export function CardConceptScene({
             justifyContent: 'center',
             padding: resolvedSrc ? 0 : '24px',      // 24px padding for SVG so it never clips on edges
             flexShrink: 0,
-            backgroundColor: ds.surface.isDark ? '#1E293B' : '#F1F5F9',
-            boxShadow: ds.surface.isDark
-              ? '0 24px 64px -16px rgba(0, 0, 0, 0.65)'
-              : '0 20px 48px -12px rgba(15, 23, 42, 0.12)',
-            transform: `scale(${ds.motion.contentSpring})`,
+            backgroundColor: 'transparent',
+            boxShadow: resolvedSrc
+              ? (ds.surface.isDark
+                  ? '0 24px 64px -16px rgba(0, 0, 0, 0.55)'
+                  : '0 20px 48px -12px rgba(15, 23, 42, 0.14)')
+              : 'none',
+            transform: `scale(${interpolate(ds.motion.contentSpring, [0, 1], [1.12, 1])})`,
+            opacity: ds.motion.contentSpring,
             transformOrigin: 'center center',
             boxSizing: 'border-box',
           }}
@@ -138,19 +142,20 @@ export function CardConceptScene({
                 />
               </Loop>
             ) : (
-              <img
+              <Img
                 src={resolvedSrc}
                 alt={headline}
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'contain',              // ← 'contain' so image is never cropped/zoomed
+                  objectFit: 'cover',
+                  borderRadius: '24px',
                   transform: `scale(${imageKenBurns})`,
                 }}
               />
             )
           ) : (
-            /* SVG wrapper: enforce contain sizing so the icon never overflows or gets cropped */
+            /* SVG wrapper: transparent, borderless, crisp stroke */
             <div
               style={{
                 width: '100%',
@@ -163,8 +168,8 @@ export function CardConceptScene({
             >
               <VectorDrawingIcon
                 keyword={scene.vectorDrawingId || `${headline} ${supportingText}`}
-                size={Math.min(ds.layout.isVertical ? 280 : 360, 360)} // safe max so SVG stays inside container
-                strokeWidth={1.2}
+                size={ds.layout.isVertical ? 320 : 420}
+                strokeWidth={2.4}
                 animated={true}
                 frameOverride={ds.localFrame}
                 theme={ds.surface.isDark ? 'dark' : 'light'}

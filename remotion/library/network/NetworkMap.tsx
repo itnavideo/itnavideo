@@ -44,7 +44,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
   const { fps } = useVideoConfig();
 
   const isDark = theme === 'dark';
-  const bgColor = isDark ? '#111827' : '#FFFFFF';
+  const bgColor = 'transparent';
   const textColor = isDark ? '#F8FAFC' : '#0F172A';
   const textMuted = isDark ? '#94A3B8' : '#64748B';
   const borderColor = isDark ? '#334155' : '#E2E8F0';
@@ -56,11 +56,11 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
     <div
       style={{
         width,
-        backgroundColor: bgColor,
-        border: `1px solid ${borderColor}`,
+        backgroundColor: 'transparent',
+        border: 'none',
         borderRadius: '24px',
         padding: '28px 32px',
-        boxShadow: isDark ? '0 12px 36px rgba(0,0,0,0.45)' : '0 8px 30px rgba(0,0,0,0.08)',
+        boxShadow: 'none',
         boxSizing: 'border-box',
         fontFamily: 'Inter, system-ui, sans-serif',
         ...style,
@@ -81,7 +81,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
           height: `${height - 90}px`,
           backgroundColor: isDark ? '#090D16' : '#F1F5F9',
           borderRadius: '16px',
-          border: `1px solid ${borderColor}`,
+          border: 'none',
           backgroundImage: `radial-gradient(circle, ${gridDotColor} 1.5px, transparent 1.5px)`,
           backgroundSize: '24px 24px',
           overflow: 'hidden',
@@ -162,7 +162,7 @@ export const NetworkMap: React.FC<NetworkMapProps> = ({
               <div
                 style={{
                   backgroundColor: isDark ? 'rgba(17,24,39,0.95)' : 'rgba(255,255,255,0.95)',
-                  border: `1px solid ${borderColor}`,
+                  border: 'none',
                   borderRadius: '8px',
                   padding: '3px 8px',
                   display: 'flex',
