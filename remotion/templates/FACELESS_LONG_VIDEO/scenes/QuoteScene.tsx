@@ -30,7 +30,7 @@ export function QuoteScene({
   });
 
   const quoteText = String(scene.heading || scene.narrationSegment?.text || '').trim();
-  const author = scene.quoteAuthor || scene.supportingText || undefined;
+  const author = scene.quoteAuthor || undefined;
   const categoryPill = scene.categoryPill || 'CORE PRINCIPLE';
 
   return (

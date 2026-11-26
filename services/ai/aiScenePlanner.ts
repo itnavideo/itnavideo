@@ -21,6 +21,8 @@ import {
   buildDeterministicSentenceTimeline,
 } from './sentenceTimelineBuilder';
 import { matchComponentForScene } from './componentMatcher';
+import { getGroqApiKeys, fetchGroqWithFailover } from './groqKeyPool';
+import { callVertexGemini } from '@/services/ai/googleCloudService';
 
 export type TranscriptChunk = {
   text: string;
@@ -31,6 +33,8 @@ export type TranscriptChunk = {
 
 export type ScenePlannerOptions = {
   title?: string;
+  fontFamily?: string;
+  accentFont?: string;
   headingFont?: string;
   bodyFont?: string;
   backgroundTheme?: string;
@@ -91,6 +95,12 @@ export const ALL_VISUAL_LAYOUTS: VisualLayoutType[] = [
   'table_of_contents',
   'mission_vision',
   'medical_infographic',
+  'rough_notation',
+  'lottie_motion',
+  'code_diff',
+  'three_globe',
+  'map_flyover',
+  'kinetic_kit',
   'hook',
 ];
 
@@ -107,6 +117,12 @@ export function normalizeVisualLayout(input?: string): VisualLayoutType {
   if (norm.includes('tableofcontent') || norm.includes('agenda') || norm === 'tableofcontents') return 'table_of_contents';
   if (norm.includes('missionvision') || norm.includes('visionmission') || norm === 'missionvision') return 'mission_vision';
   if (norm.includes('medical') || norm.includes('clinical') || norm.includes('clinicalvitals') || norm === 'medicalinfographic') return 'medical_infographic';
+  if (norm.includes('roughnotation') || norm.includes('handdrawn') || norm === 'rough') return 'rough_notation';
+  if (norm.includes('lottiemotion') || norm === 'lottie') return 'lottie_motion';
+  if (norm.includes('codediff') || norm.includes('codeupgrade') || norm === 'diff') return 'code_diff';
+  if (norm.includes('threeglobe') || norm.includes('globe3d') || norm === 'globe') return 'three_globe';
+  if (norm.includes('mapflyover') || norm.includes('routemap') || norm === 'flyover') return 'map_flyover';
+  if (norm.includes('kinetickit') || norm.includes('kineticword') || norm === 'kinetic') return 'kinetic_kit';
   if (norm.includes('statscene') || norm === 'stat' || norm === 'statcard' || norm === 'metricpill' || norm === 'metricstat') return 'stat_card';
   if (norm.includes('comparisonscene') || norm === 'comparison' || norm === 'vsbattle' || norm === 'battlecard' || norm === 'vs') return 'comparison';
   if (norm.includes('horizontalprocess') || norm.includes('processsteps') || norm === '5stepprocess' || norm === 'steps' || norm === 'numberedsteps') return 'horizontal_process';
@@ -370,7 +386,7 @@ export function resolveVectorDrawingIdFromText(
   let matched = '';
   if (/restaurant|kitchen|food|cooking|chef|dining|meal/i.test(rawText)) {
     matched = 'character_business_leader';
-  } else if (/delivery|driver|drivers|scooter|fleet|courier|doordash/i.test(rawText)) {
+  } else if (/delivery|driver|drivers|scooter|fleet|courier/i.test(rawText)) {
     matched = 'story_journey_road';
   } else if (/website|app|online|channel|direct/i.test(rawText)) {
     matched = 'story_home_workspace';
@@ -431,21 +447,13 @@ export function extractComparisonItemsFromText(
 ): { left: string; right: string } | undefined {
   const source = (text || '').trim();
 
-  // 1. In-house fleet vs On-demand delivery contrast
-  if (/\b(?:instead of hiring|paying salaries|managing vehicles)\b/i.test(source)) {
-    return {
-      left: 'In-House Delivery Fleet • Fixed monthly driver salaries • Vehicle maintenance & insurance • Complex scheduling & management',
-      right: 'DoorDash On-Demand • Zero driver payroll • Request drivers per order • No vehicle liabilities',
-    };
-  }
-
-  // 2. "Instead of X, Y" pattern
+  // 1. "Instead of X, Y" pattern
   const insteadMatch = source.match(/^instead\s+of\s+(.+?),\s*(?:restaurants\s+can|businesses\s+can|you\s+can|we\s+can|they\s+can|simply)?\s*(.+)$/i);
   if (insteadMatch) {
     const leftText = insteadMatch[1].replace(/[.!?]+$/g, '').trim();
     const rightText = insteadMatch[2].replace(/[.!?]+$/g, '').trim();
-    const leftTitle = generateCleanConceptHeading(leftText) || 'Traditional Method';
-    const rightTitle = generateCleanConceptHeading(rightText) || 'Modern Approach';
+    const leftTitle = deriveFactualHeadingFromSentence(leftText) || 'Traditional Method';
+    const rightTitle = deriveFactualHeadingFromSentence(rightText) || 'Modern Approach';
     return {
       left: `${leftTitle} • ${leftText}`,
       right: `${rightTitle} • ${rightText}`,
@@ -455,23 +463,23 @@ export function extractComparisonItemsFromText(
   // 3. Explicit "X versus Y" / "X vs Y" / "rather than"
   const vsParts = source.split(/\b(?:versus|vs\.?|compared to|compared with|rather than)\b/i);
   if (vsParts.length >= 2 && vsParts[0].trim().length >= 3) {
-    const left = generateCleanConceptHeading(vsParts[0]) || 'Option A';
-    const right = generateCleanConceptHeading(vsParts.slice(1).join(' ')) || 'Option B';
+    const left = deriveFactualHeadingFromSentence(vsParts[0]) || 'Option A';
+    const right = deriveFactualHeadingFromSentence(vsParts.slice(1).join(' ')) || 'Option B';
     return { left, right };
   }
 
   const fromTo = source.match(/\bfrom\s+(.{2,45}?)\s+to\s+(.{2,45}?)(?=[.!?,;]|$)/i);
   if (fromTo) {
     return {
-      left: generateCleanConceptHeading(fromTo[1]) || 'Before',
-      right: generateCleanConceptHeading(fromTo[2]) || 'After',
+      left: deriveFactualHeadingFromSentence(fromTo[1]) || 'Before',
+      right: deriveFactualHeadingFromSentence(fromTo[2]) || 'After',
     };
   }
 
   if (heading && supportingText && heading !== supportingText) {
     return {
-      left: generateCleanConceptHeading(heading),
-      right: generateCleanConceptHeading(supportingText),
+      left: deriveFactualHeadingFromSentence(heading),
+      right: deriveFactualHeadingFromSentence(supportingText),
     };
   }
   return undefined;
@@ -683,11 +691,11 @@ const SceneBlueprintItemSchema = z.object({
   background: z.string().optional().default('studio-white'),
   fontHierarchy: z
     .object({
-      headingFont: z.string().optional().default('Lora'),
-      bodyFont: z.string().optional().default('Plus Jakarta Sans'),
+      headingFont: z.string().optional().default('Montserrat'),
+      bodyFont: z.string().optional().default('Montserrat'),
     })
     .optional()
-    .default({ headingFont: 'Lora', bodyFont: 'Plus Jakarta Sans' }),
+    .default({ headingFont: 'Montserrat', bodyFont: 'Montserrat' }),
   animation: z.string().optional().default('slow_zoom_in'),
   SFX: z.enum(['pop', 'woosh', 'whoosh', 'chime', 'rise', 'hit', 'ding', 'none']).optional().default('none'),
   transition: z.enum(['cut', 'dissolve', 'crossfade', 'zoom', 'wipe', 'slide', 'whip', 'fade_to_black']).optional().default('cut'),
@@ -790,7 +798,8 @@ export function enforceEditorialPacingRules(
         scene.highlightedWords = extractKeywordEmphasis(text || scene.heading, 2);
       }
     } else if (i === blueprint.scenes.length - 1 && blueprint.scenes.length >= 3) {
-      scene.layoutType = 'creator_celebration';
+      const isOutroSubscribe = /\b(subscribe|channel|follow|like this video|bell icon)\b/i.test(text);
+      scene.layoutType = isOutroSubscribe ? 'creator_celebration' : 'fullscreen_statement';
       scene.sceneType = 'next_point';
     } else if (!scene.highlightedWords || scene.highlightedWords.length === 0) {
       scene.highlightedWords = extractKeywordEmphasis(text || scene.heading, 2);
@@ -839,8 +848,14 @@ export function enforceEditorialPacingRules(
     }
 
     // 3B. Autonomous Motion Graphic Library Component Matcher (1,282 Components)
-    if (i > 0 && i < blueprint.scenes.length - 1 && !scene.overlayComponent) {
-      const match = matchComponentForScene(text, scene.heading, 3.0);
+    // Only attach overlayComponent on generic scenes (never overwrite structured comparison/stat/process layouts)
+    if (
+      i > 0 &&
+      i < blueprint.scenes.length - 1 &&
+      !scene.overlayComponent &&
+      (scene.layoutType === 'card_concept' || scene.layoutType === 'vector_concept')
+    ) {
+      const match = matchComponentForScene(text, scene.heading, 4.2);
       if (match) {
         scene.overlayComponent = {
           componentId: match.componentId,
@@ -897,7 +912,7 @@ export function enforceEditorialPacingRules(
     // 5b. Guard against weak generic boilerplate headings or verbatim transcript echoes
     const rawH = String(scene.heading || '').trim();
     if (!rawH || /^(?:key insight|important point|summary|overview|note|point|concept|strategy|tip|conclusion)$/i.test(rawH) || rawH.split(/\s+/).length < 2) {
-      scene.heading = generateCleanConceptHeading(text);
+      scene.heading = deriveFactualHeadingFromSentence(text);
     }
     const rawS = String(scene.supportingText || '').trim();
     if (rawS && rawS.toLowerCase() === text.toLowerCase()) {
@@ -958,7 +973,7 @@ export function enforceEditorialPacingRules(
   return {
     title: blueprint.title || options.title || 'Professional Faceless Video',
     overallNarrativeMood: blueprint.overallNarrativeMood || 'High Engagement Dynamic Presentation',
-    totalDurationSeconds: Math.round(finalDuration),
+    totalDurationSeconds: Number(finalDuration.toFixed(3)),
     totalScenes: processedScenes.length,
     scenes: processedScenes,
   };
@@ -985,8 +1000,9 @@ export function buildDeterministicSceneBlueprint(
   }
 
   const isShorts = options.aspectRatio === '9:16' || options.videoType === 'facelessShorts';
-  const headingFont = options.headingFont || 'Lora';
-  const bodyFont = options.bodyFont || 'Plus Jakarta Sans';
+  const primaryFont = options.fontFamily || options.headingFont || options.bodyFont || 'Montserrat';
+  const headingFont = primaryFont;
+  const bodyFont = primaryFont;
   const backgroundTheme = options.backgroundTheme || 'studio-white';
   const timelineSegments = buildDeterministicSentenceTimeline(transcript, {
     minDurationSeconds: isShorts ? 2.0 : 2.5,
@@ -1200,7 +1216,7 @@ export function buildDeterministicSceneBlueprint(
   const rawBlueprint: FullVideoSceneBlueprint = {
     title: options.title || 'Professional Faceless Video',
     overallNarrativeMood: 'High Engagement Dynamic Presentation',
-    totalDurationSeconds: Math.round(timelineSegments[timelineSegments.length - 1].end - timelineSegments[0].start),
+    totalDurationSeconds: Number((timelineSegments[timelineSegments.length - 1].end - timelineSegments[0].start).toFixed(3)),
     totalScenes: scenes.length,
     scenes,
   };
@@ -1217,34 +1233,212 @@ export function buildDeterministicSceneBlueprint(
  * 3. Generates a rich, detailed Scene-by-Scene JSON blueprint (headings, takeaways, comparison pairs, step lists, charts, vector drawing IDs, category pills, SFX).
  * 4. Maps AI decisions directly onto exact frame-accurate sentence timestamps.
  */
+/**
+ * Shared LLM JSON Caller (Groq primary -> Gemini fallback)
+ * Used by both Stage 1 (Scene Structure Outline) and Stage 2 (Independent Per-Scene Visual Plan).
+ */
+async function callPlannerLLMJson(
+  prompt: string,
+  systemPrompt: string,
+  groqApiKey?: string,
+  // geminiApiKey is kept in signature for backward-compat but Gemini now routes through Vertex AI
+  _geminiApiKey?: string
+): Promise<any | null> {
+  let rawText: string | null = null;
+
+  // — Provider 1: Groq (Key #1 → Key #2 failover handled inside fetchGroqWithFailover) —
+  if (groqApiKey || getGroqApiKeys().length > 0) {
+    try {
+      const groqRes = await fetchGroqWithFailover(
+        'https://api.groq.com/openai/v1/chat/completions',
+        (key) => ({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${key}`,
+          },
+          body: JSON.stringify({
+            model: 'openai/gpt-oss-120b',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: prompt },
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0.2,
+          }),
+        }),
+        '[AIScenePlanner]'
+      );
+      if (groqRes.ok) {
+        const groqData = await groqRes.json();
+        rawText = groqData?.choices?.[0]?.message?.content || null;
+      } else {
+        console.warn('[AIScenePlanner] All Groq keys failed with status:', groqRes.status);
+      }
+    } catch (groqErr) {
+      console.warn('[AIScenePlanner] Groq failover exhausted, attempting Vertex AI Gemini:', groqErr);
+    }
+  }
+
+  // — Provider 2: Vertex AI Gemini (uses Google Cloud Credits via service account / ADC) —
+  // This deliberately bypasses the AI Studio key (GEMINI_API_KEY) which has its own separate quota.
+  // Vertex AI charges against the GCP project (geometric-hull-501707-m2) where ~$402 credits remain.
+  if (!rawText) {
+    const vertexModel = (process.env.GEMINI_MODEL || 'gemini-2.5-flash').trim();
+    try {
+      const vertexText = await callVertexGemini({
+        prompt,
+        systemPrompt,
+        model: vertexModel,
+        temperature: 0.2,
+        responseSchema: { type: 'object' },
+      });
+      if (vertexText) {
+        rawText = vertexText;
+      } else {
+        // Try fallback Vertex model
+        const fallbackModel = (process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.0-flash').trim();
+        if (fallbackModel !== vertexModel) {
+          const fallbackText = await callVertexGemini({
+            prompt,
+            systemPrompt,
+            model: fallbackModel,
+            temperature: 0.2,
+            responseSchema: { type: 'object' },
+          });
+          if (fallbackText) rawText = fallbackText;
+        }
+      }
+    } catch (vertexErr) {
+      console.warn('[AIScenePlanner] Vertex AI Gemini call failed:', vertexErr);
+    }
+  }
+
+  // — All providers exhausted: throw structured error (never return boilerplate/null) —
+  if (!rawText) {
+    throw new Error(
+      'AI_PROVIDER_EXHAUSTED: All AI providers (Groq Key #1, Groq Key #2, Vertex AI Gemini) failed. ' +
+      'Please click Retry — no credits were used.'
+    );
+  }
+
+  try {
+    const cleaned = rawText.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+    return JSON.parse(cleaned);
+  } catch {
+    throw new Error(
+      'AI_PROVIDER_EXHAUSTED: AI response could not be parsed as JSON. Please click Retry — no credits were used.'
+    );
+  }
+}
+
+function deriveFactualHeadingFromSentence(text: string): string {
+  const stop = new Set([
+    'the', 'a', 'an', 'and', 'or', 'but', 'for', 'with', 'that', 'this', 'these', 'those',
+    'here', 'heres', 'there', 'where', 'when', 'what', 'which', 'who', 'how', 'why',
+    'can', 'could', 'will', 'would', 'should', 'have', 'has', 'had', 'are', 'is', 'was',
+    'were', 'be', 'been', 'being', 'to', 'of', 'in', 'on', 'at', 'by', 'from', 'into',
+    'their', 'your', 'our', 'they', 'you', 'we', 'it', 'its', 'just', 'simply', 'instead', 'means',
+  ]);
+  const words = String(text || '')
+    .replace(/[^a-zA-Z0-9\s'-]/g, ' ')
+    .split(/\s+/)
+    .map((w) => w.trim())
+    .filter((w) => w.length > 2 && !stop.has(w.toLowerCase().replace(/'/g, '')));
+  const picked = words.slice(0, 3);
+  return picked.length >= 2 ? picked.join(' ').toUpperCase() : 'KEY SCENE INSIGHT';
+}
+
+function resolveSubjectNaturalColors(
+  text: string,
+  backgroundTheme: string,
+  aiPrimary?: string,
+  aiSecondary?: string
+): { primary: string; secondary: string } {
+  const bg = (backgroundTheme || 'solid-white').toLowerCase();
+  const isDarkBg =
+    bg.includes('dark') ||
+    bg.includes('black') ||
+    bg.includes('navy') ||
+    bg.includes('midnight') ||
+    bg.includes('charcoal') ||
+    bg.includes('purple-vignette') ||
+    bg === '#000000' ||
+    bg === '#0f172a' ||
+    bg === '#18181b';
+
+  const isValidHex = (c?: string) => typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c.trim());
+  if (isValidHex(aiPrimary) && isValidHex(aiSecondary)) {
+    return { primary: aiPrimary!.trim(), secondary: aiSecondary!.trim() };
+  }
+
+  const lower = text.toLowerCase();
+  if (/\b(plant|tree|leaf|forest|nature|garden|farm|soil|organic|eco|green)\b/.test(lower)) {
+    return isDarkBg
+      ? { primary: '#4ADE80', secondary: '#D97706' }
+      : { primary: '#15803D', secondary: '#92400E' };
+  }
+  if (/\b(video|edit|timeline|premiere|render|camera|studio|software|code|terminal|app)\b/.test(lower)) {
+    return isDarkBg
+      ? { primary: '#38BDF8', secondary: '#FBBF24' }
+      : { primary: '#1E293B', secondary: '#D97706' };
+  }
+  if (/\b(money|invest|wealth|gold|profit|revenue|bank|cash|coin|stock)\b/.test(lower)) {
+    return isDarkBg
+      ? { primary: '#FBBF24', secondary: '#34D399' }
+      : { primary: '#B45309', secondary: '#047857' };
+  }
+  if (/\b(health|medical|brain|body|sleep|water|heart|science|lab)\b/.test(lower)) {
+    return isDarkBg
+      ? { primary: '#2DD4BF', secondary: '#60A5FA' }
+      : { primary: '#0F766E', secondary: '#0369A1' };
+  }
+  if (/\b(warning|danger|mistake|risk|loss|avoid|error|fail)\b/.test(lower)) {
+    return isDarkBg
+      ? { primary: '#F87171', secondary: '#FBBF24' }
+      : { primary: '#DC2626', secondary: '#B45309' };
+  }
+  return isDarkBg
+    ? { primary: '#F59E0B', secondary: '#38BDF8' }
+    : { primary: '#C2410C', secondary: '#0369A1' };
+}
+
+/**
+ * Generates an elite, high-retention video blueprint using a 2-Stage Per-Scene Architecture:
+ * 1. Builds a deterministic sentence-accurate timeline (zero artificial chopping).
+ * 2. STAGE 1 (AI Content Structure Outline): Decides each scene's layoutType, itemCount, and rhetoricalPurpose.
+ * 3. STAGE 2 (Independent Per-Scene Visual Plan in parallel batches): Generates small, focused JSON per scene.
+ * 4. STAGE 3 (Deterministic Template Mapper): Maps each scene's AI decision dynamically onto Remotion templates.
+ */
 export async function generateStructuredSceneBlueprint(
   transcript: TranscriptChunk[],
   options: ScenePlannerOptions = {}
 ): Promise<FullVideoSceneBlueprint> {
   if (!transcript || transcript.length === 0) {
-    return buildDeterministicSceneBlueprint(transcript, options);
+    throw new Error('AI_PLANNING_FAILED: Transcript is empty. Please retry — no credits were used.');
   }
 
   // 1. Build natural sentence-by-sentence timeline strictly in code (zero artificial 3-6s chopping)
   const isShorts = options.aspectRatio === '9:16' || options.videoType === 'facelessShorts';
   const timelineSegments = buildDeterministicSentenceTimeline(transcript, {
-    minDurationSeconds: isShorts ? 2.0 : 2.5,
+    minDurationSeconds: 2.5,
     maxDurationSeconds: isShorts ? 10.0 : 18.0,
     chapterDurationSeconds: isShorts ? 45.0 : 70.0,
   });
 
   if (timelineSegments.length === 0) {
-    return buildDeterministicSceneBlueprint(transcript, options);
+    throw new Error('AI_PLANNING_FAILED: Could not segment spoken narration. Please retry — no credits were used.');
   }
 
   const geminiApiKey = process.env.GEMINI_API_KEY;
-  const groqApiKey = process.env.GROQ_API_KEY;
+  const groqApiKey = getGroqApiKeys()[0];
   if (!geminiApiKey && !groqApiKey) {
-    return buildDeterministicSceneBlueprint(transcript, options);
+    throw new Error('AI_PLANNING_FAILED: No AI scene planning provider keys configured.');
   }
 
-  const headingFont = options.headingFont || 'Lora';
-  const bodyFont = options.bodyFont || 'Plus Jakarta Sans';
+  const primaryFont = options.fontFamily || options.headingFont || options.bodyFont || 'Montserrat';
+  const headingFont = primaryFont;
+  const bodyFont = primaryFont;
   const backgroundTheme = options.backgroundTheme || 'studio-white';
 
   // 1.5. Pre-search S3 Asset Catalog for the entire transcript
@@ -1252,241 +1446,211 @@ export async function generateStructuredSceneBlueprint(
   const availableS3Assets = searchS3AssetCatalog(fullTranscriptText, {
     maxResults: isShorts ? 20 : 36,
   });
-  const formattedAssetPool = formatAssetCatalogForPrompt(availableS3Assets);
   const usedAssetIds = new Set<string>();
 
-  // 2. Chapter-wise chunking (10-12 segments per batch to support up to 5-minute 16:9 videos cleanly)
-  const CHUNK_SIZE = 12;
-  const chunkCount = Math.ceil(timelineSegments.length / CHUNK_SIZE);
-  const plannedScenes: SceneBlueprintItem[] = [];
-  let prevLayouts: string[] = [];
-  let prevDrawingId: string | undefined;
-
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STAGE 1: LIGHTWEIGHT AI CONTENT STRUCTURE OUTLINE
+  // Decides layoutType, itemCount, and rhetoricalPurpose per scene before building JSON
+  // ═══════════════════════════════════════════════════════════════════════════
   const formatLabel = isShorts
-    ? '9:16 Vertical Shorts (1080x1920, up to 90 seconds, fast-paced vertical storytelling)'
-    : '16:9 Widescreen Long-Form YouTube Documentary/Explainer (1920x1080, up to 5 minutes, Vox / Johnny Harris / MagnatesMedia style)';
+    ? '9:16 Vertical Shorts (1080x1920, fast-paced vertical storytelling)'
+    : '16:9 Widescreen YouTube Explainer (1920x1080, Vox / Johnny Harris style)';
 
-  for (let c = 0; c < chunkCount; c++) {
-    const chunkSegments = timelineSegments.slice(c * CHUNK_SIZE, (c + 1) * CHUNK_SIZE);
-    const chunkDecisions: Map<number, any> = new Map();
+  const outlineMap = new Map<number, { layoutType: VisualLayoutType; itemCount: number; rhetoricalPurpose: string }>();
 
-    try {
-      const prompt = `You are an elite documentary video director and motion graphics architect for ${formatLabel}.
+  const creatorDirective =
+    options.creatorStyle === 'sara-finance'
+      ? `\nCREATOR STYLE (Sara Finance): Use punchy ALL-CAPS 2-4 word headlines, favor high-contrast stat_card, comparison, checklist, and card_concept layouts, and highlight exact dollar figures or key action phrases.`
+      : options.creatorStyle === 'ali-abdaal'
+        ? `\nCREATOR STYLE (Ali Abdaal): Use warm, calm editorial phrasing, favor card_concept, numbered_steps, and horizontal_process layouts with clean breathing room.`
+        : '';
 
-CRITICAL MANDATE:
-Converting a transcript to JSON is NOT just serialization — you must make STRONG, HIGH-RETENTION VISUAL DECISIONS.
-If you make lazy, weak visual decisions (e.g. defaulting to generic cards or repeating transcript text), the final video will look amateur.
-Every scene must have a deliberate visual mental model that explains the core rhetorical point.
+  try {
+    const outlinePrompt = `You are an elite documentary video director for ${formatLabel}.${creatorDirective}
+For each narration segment below, decide ONLY the content structure — do NOT write full scene copy yet:
+1. "rhetoricalPurpose": What this segment communicates (e.g. "Contrasting old vs new", "Quantifying ROI", "3-step workflow", "Core mindset quote").
+2. "layoutType": Choose the BEST fitting template from:
+   - "hook" (ONLY segmentId 1)
+   - "chapter_title" (ONLY when isChapterStart is true and segmentId > 1)
+   - "stat_card" (1 hero number/metric)
+   - "comparison" or "before_after_transformation" (2 contrasting sides)
+   - "horizontal_process" | "workflow" | "curved_roadmap" (3-5 sequential steps/milestones)
+   - "scorecard_dashboard" | "data_visualization" (2-5 quantitative metrics/bars)
+   - "horizontal_shelves" | "circular_org_chart" | "checklist" (2-5 list items/pillars/tiers)
+   - "quote" (mindset axiom)
+   - "card_concept" | "drawing_story" (single visual concept)
+   RULE: NEVER pick the same layoutType twice in a row.
+3. "itemCount": How many items this scene's narration naturally contains (0 for hook/card_concept/quote/drawing_story, 1 for stat_card, 2 for comparison/before_after_transformation, 2-5 for checklist/horizontal_process/workflow/curved_roadmap/data_visualization/horizontal_shelves).
 
-CRITICAL ARCHITECTURAL RULES (2026 Engine):
-0. RHETORICAL PURPOSE FIRST ("Script ka Kaam kya hai"):
-   You MUST determine the exact communication job of this script segment BEFORE picking a layout:
-   - "rhetoricalPurpose": State what this sentence is accomplishing in the viewer's mind (e.g. "Contrasting old vs new paradigm", "Quantifying customer ROI lift", "Breaking down 3-step action roadmap", "Posing a core philosophical question", "Revealing root cause mistake").
-   - Match the purpose directly to the appropriate mental model layout:
-     * Dichotomy / Contrast -> 'comparison' | 'vs_battle' | 'before_after_transformation'
-     * Sequence / Progression -> 'horizontal_process' | 'workflow' | 'curved_roadmap'
-     * Metric / Financial Proof -> 'stat_card' | 'scorecard_dashboard' | 'data_visualization'
-     * Layered Stack / Framework -> 'horizontal_shelves' | 'circular_org_chart'
-     * Deep Mindset / Axiom -> 'quote'
-     * Actionable Rules / Principles -> 'checklist'
-     * Concrete Mental Model -> 'card_concept' | 'drawing_story'
-     * Curiosity Question / Query -> 'search_discovery' | 'prompt_window'
-
-1. VISUAL RHETORIC MATCHING (NO LAZY DEFAULTS — REA TOP CREATOR SUITE):
-   - 'curved_roadmap': MANDATORY when explaining multi-phase evolution, long-term progression, or milestone roadmaps. You MUST provide "timelineSteps" (3-4 milestones with step, title, description).
-   - 'scorecard_dashboard': MANDATORY when analyzing multi-metric business KPIs, growth scorecards, or dashboard metrics. You MUST extract "statValue" and "chartItems" / "listItems".
-   - 'horizontal_shelves': MANDATORY when explaining layered architectures, tech stacks, or tiered frameworks (Tier 1, Tier 2, Tier 3). You MUST provide "listItems" (3-4 tiers).
-   - 'circular_org_chart': MANDATORY when explaining ecosystems, company leadership, centralized hubs with satellite departments. You MUST provide "listItems" (4-5 satellite nodes).
-   - 'mission_vision': MANDATORY when discussing strategic direction, dual objectives, core purpose vs future horizon.
-   - 'medical_infographic': MANDATORY for biology, clinical trials, medical vitals, healthcare, or psychological health.
-   - 'StatScene' / 'stat_card': MANDATORY whenever numbers, money, percentages, growth, or metrics are spoken. You MUST extract "statValue" (e.g. "$10,000", "85%", "3.5X") and "statLabel".
-   - 'ComparisonScene' / 'comparison' / 'vs_battle': MANDATORY when contrasting two methods, before vs after, old vs new, or problem vs solution. You MUST provide "comparisonItems": {"left": "...", "right": "..."}.
-   - 'HorizontalProcessStepsScene' / 'horizontal_process': MANDATORY when explaining steps, stages, or a 3-5 item methodology. You MUST provide "listItems": ["Step 1...", "Step 2...", "Step 3..."].
-   - 'WorkflowScene' / 'workflow': MANDATORY when explaining an interconnected system, pipeline, or cause-and-effect flow. You MUST provide "listItems" (3-4 nodes).
-   - 'RoadmapScene' / 'roadmap': MANDATORY when explaining milestones, career progression, or timelines. You MUST provide "listItems" (3-4 milestones).
-   - 'CardConceptScene' / 'card_concept': Used for concrete concepts and mental models. Pair it with an S3 curated visual asset or vectorDrawingId.
-   - 'ListScene' / 'checklist': Used when listing key pillars, rules, or tips. Must provide "listItems" (3-4 items).
-   - 'ChartScene' / 'data_visualization': Used when 2 or more quantitative numbers are compared. Must provide "chartItems".
-   - 'QuoteScene' / 'quote': Used for high-impact philosophy, mindset axioms, or core principles.
-   - 'HookTypographyScene' / 'hook': Used ONLY for segmentId 1 (the opening hook).
-   - 'ChapterTitleScene' / 'chapter_title': Used when isChapterStart is true and segmentId > 1.
-   - 'DrawingStoryScene': Hand-drawn narrative story metaphor with fine-line vector art.
-
-CRITICAL REA RHETORIC-DRIVEN MANDATE:
-Do NOT force infographics arbitrarily to fill a quota — an explainer video must never look like a boring corporate slide deck!
-Infographics and diagrams must trigger CONTEXTUALLY when the narration actively explains:
-- A multi-phase timeline, career progression, or long-term roadmap -> 'curved_roadmap' or 'roadmap'
-- Quantitative KPIs, multiple metrics, or revenue performance -> 'scorecard_dashboard' or 'stat_card'
-- Layered frameworks, technical stacks, or multi-level tiers -> 'horizontal_shelves'
-- Centralized ecosystems, leadership networks, or team hubs -> 'circular_org_chart'
-- Dual objectives, strategic philosophy, or before vs after -> 'mission_vision' or 'comparison'
-- A structured agenda or module outline -> 'table_of_contents'
-When the narration is narrative, emotional, reflective, or conceptual, use cinematic 'card_concept', 'drawing_story', 'quote', or 'hook' so the video breathes naturally with cinematic editorial flow. Treat infographic density as a natural, rhetoric-driven outcome, NOT a forced rigid quota.
-
-2. EDITORIAL HEADLINES ONLY (ZERO GENERIC BOILERPLATE):
-   - FORBIDDEN HEADINGS: NEVER output "KEY INSIGHT", "IMPORTANT POINT", "SUMMARY", "OVERVIEW", "STEP", "NOTE", or "CONCLUSION".
-   - Write punchy 3-6 word headlines that provoke curiosity (e.g. "THE ASYMMETRIC BET", "COMPOUNDING LEVERAGE", "BREAKING THE TIME TRAP").
-   - NEVER repeat the spoken transcript text in "supportingText"! The viewer is already hearing the voiceover and reading subtitles. "supportingText" must be an executive summary takeaway (6-12 words).
-   - If spoken segment is Hindi/Hinglish, provide accurate English translation in "englishMeaning".
-   - Select 1-2 impact words in "highlightedWords".
-
-3. ABSOLUTE VARIETY & ANTI-STICKMAN MANDATE:
-   - NEVER output the same layoutType twice in a row.
-   - Do NOT default to lone stickman drawings. Prioritize rich presentation suites: curved_roadmap, scorecard_dashboard, horizontal_shelves, circular_org_chart, mission_vision, CardConceptScene, StatScene, ComparisonScene, WorkflowScene, and HorizontalProcessStepsScene.
-   - Across any 4 consecutive scenes, you MUST use at least 3 completely different layouts.
-   - Previous layouts used: ${JSON.stringify(prevLayouts.slice(-4))}.
-
-4. S3 ASSET SELECTION (AVAILABLE ASSET CATALOG):
-   Below is the curated pool of available visual assets stored in S3 for this video topic.
-   When an image, photo, or illustration fits the scene (especially for CardConceptScene, ImageTextScene, FullBleedVisualScene, or broll), assign an exact "assignedAssetId" from this list.
-   If no asset fits this scene (e.g. pure typography, chart, or numbers), set "assignedAssetId": "". Never invent random IDs outside this list.
-   Available S3 Assets:
-   ${formattedAssetPool}
-
-Segments to plan:
+Segments:
 ${JSON.stringify(
-        chunkSegments.map((s) => ({
-          segmentId: s.id,
-          durationSeconds: s.duration,
-          text: s.text,
-          isChapterStart: s.isChapterStart,
-          chapterNumber: s.chapterNumber,
-        })),
-        null,
-        2
-      )}
+  timelineSegments.map((s) => ({
+    segmentId: s.id,
+    durationSeconds: s.duration,
+    isChapterStart: s.isChapterStart,
+    text: s.text,
+  })),
+  null,
+  2
+)}
 
-Return a strict JSON object with this EXACT structure:
+Return strict JSON:
 {
-  "scenes": [
-    {
-      "segmentId": 1,
-      "rhetoricalPurpose": "Contrasting two paradigms: trading time vs scalable assets",
-      "sceneType": "main_point",
-      "layoutType": "drawing_story",
-      "categoryPill": "CORE INSIGHT",
-      "heading": "BUILD REAL LEVERAGE",
-      "supportingText": "Focus on scalable systems instead of trading hours for money.",
-      "englishMeaning": "Accurate English meaning of the spoken sentence",
-      "highlightedWords": ["LEVERAGE", "systems"],
-      "assignedAssetId": "",
-      "vectorDrawingId": "character_business_leader",
-      "comparisonItems": { "left": "Trading Time", "right": "Scalable Systems" },
-      "listItems": ["Identify bottleneck", "Automate workflow", "Scale output"],
-      "statValue": "85%",
-      "statLabel": "Efficiency Gain",
-      "statTrend": "up",
-      "chartItems": [{ "label": "Manual", "value": 20, "formattedValue": "20%" }, { "label": "Automated", "value": 85, "formattedValue": "85%" }],
-      "donutSlices": [{ "label": "High Impact", "value": 80 }, { "label": "Low Impact", "value": 20 }],
-      "quoteAuthor": "",
-      "sfx": "whoosh",
-      "transition": "cut"
-    }
+  "outlines": [
+    { "segmentId": 1, "rhetoricalPurpose": "...", "layoutType": "hook", "itemCount": 0 }
   ]
 }`;
 
-      let rawText: string | null = null;
+    const outlineParsed = await callPlannerLLMJson(
+      outlinePrompt,
+      'You are an expert video structure planner. Always respond in valid JSON.',
+      groqApiKey,
+      geminiApiKey
+    );
 
-      // 1. Try Groq LLM (ultra-fast, JSON-native, high intelligence)
-      if (groqApiKey) {
-        try {
-          const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${groqApiKey}`,
-            },
-            body: JSON.stringify({
-              model: 'openai/gpt-oss-120b',
-              messages: [
-                { role: 'system', content: 'You are an elite YouTube documentary director and motion graphics planner. Always respond in valid JSON matching the exact schema requested.' },
-                { role: 'user', content: prompt },
-              ],
-              response_format: { type: 'json_object' },
-              temperature: 0.2,
-            }),
-          });
-          if (groqRes.ok) {
-            const groqData = await groqRes.json();
-            rawText = groqData?.choices?.[0]?.message?.content || null;
-          } else {
-            console.warn('[AIScenePlanner] Groq response status:', groqRes.status);
-          }
-        } catch (groqErr) {
-          console.warn('[AIScenePlanner] Groq call failed, attempting Gemini:', groqErr);
-        }
-      }
-
-      // 2. Fallback to Gemini if Groq did not provide output
-      if (!rawText && geminiApiKey) {
-        try {
-          const modelName = (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim();
-          const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { responseMimeType: 'application/json', temperature: 0.2 },
-              }),
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-          }
-        } catch (geminiErr) {
-          console.warn('[AIScenePlanner] Gemini call failed:', geminiErr);
-        }
-      }
-
-      if (rawText) {
-        const parsed = JSON.parse(rawText);
-        if (Array.isArray(parsed?.scenes)) {
-          parsed.scenes.forEach((sc: any) => {
-            if (sc?.segmentId) {
-              chunkDecisions.set(Number(sc.segmentId), sc);
-            }
+    if (Array.isArray(outlineParsed?.outlines)) {
+      outlineParsed.outlines.forEach((o: any) => {
+        if (o?.segmentId) {
+          outlineMap.set(Number(o.segmentId), {
+            layoutType: normalizeVisualLayout(o.layoutType),
+            itemCount: Math.max(0, Math.min(6, Number(o.itemCount ?? 0) || 0)),
+            rhetoricalPurpose: String(o.rhetoricalPurpose || '').trim(),
           });
         }
-      }
-    } catch (chunkErr) {
-      console.warn(`[AIScenePlanner] Chapter batch ${c + 1}/${chunkCount} AI error, using deterministic rules:`, chunkErr);
+      });
     }
+  } catch (outlineErr) {
+    console.warn('[AIScenePlanner] Stage 1 outline error, falling back to per-scene defaults:', outlineErr);
+  }
 
-    // Merge AI scene-by-scene JSON decisions with exact deterministic sentence timestamps
-    chunkSegments.forEach((seg, sIdx) => {
-      const decision = chunkDecisions.get(seg.id);
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STAGE 2: INDEPENDENT PER-SCENE VISUAL PLAN (Batched Parallel Execution)
+  // Each scene gets its own small, independent JSON call — never one massive monolithic JSON
+  // ═══════════════════════════════════════════════════════════════════════════
+  const BATCH_CONCURRENCY = 2;
+  const INTER_BATCH_DELAY_MS = 250;
+  const plannedScenes: SceneBlueprintItem[] = [];
+  let prevLayouts: string[] = [];
+  let prevDrawingId: string | undefined;
+  let aiSucceededScenesCount = 0;
+
+  for (let bStart = 0; bStart < timelineSegments.length; bStart += BATCH_CONCURRENCY) {
+    if (bStart > 0) {
+      await new Promise((resolve) => setTimeout(resolve, INTER_BATCH_DELAY_MS));
+    }
+    const batchSegments = timelineSegments.slice(bStart, bStart + BATCH_CONCURRENCY);
+
+    // Filter unused S3 assets so parallel scenes in this batch don't duplicate visuals
+    const batchAssetSlice = availableS3Assets.filter((a) => !usedAssetIds.has(a.id)).slice(0, 18);
+    const batchAssetPromptText = formatAssetCatalogForPrompt(batchAssetSlice);
+
+    const batchDecisions = await Promise.all(
+      batchSegments.map(async (seg) => {
+        const outline = outlineMap.get(seg.id);
+        const targetLayout = outline?.layoutType || (seg.id === 1 ? 'hook' : seg.isChapterStart ? 'chapter_title' : 'card_concept');
+        const targetItemCount = outline?.itemCount ?? 3;
+        const targetPurpose = outline?.rhetoricalPurpose || '';
+
+        const singleScenePrompt = `You are planning ONLY Scene #${seg.id} for ${formatLabel}.
+
+Scene #${seg.id} Context:
+- Spoken Narration (${seg.duration}s): "${seg.text}"
+- Suggested Layout Template: "${targetLayout}"
+- Target Item Count: ${targetItemCount}
+- Communication Purpose: "${targetPurpose}"
+- Selected Canvas Background: "${backgroundTheme}"
+
+Rules:
+1. "heading": Punchy 2-5 word headline (NEVER "KEY INSIGHT", "IMPORTANT POINT", "SUMMARY", or "OVERVIEW").
+2. "supportingText": Crisp 6-12 word takeaway — NEVER echo the exact spoken narration text.
+3. "highlightedWords": 1-2 impact words from the headline/narration.
+4. Natural Subject-Matched Colors ("accentColor", "secondaryColor" as 6-digit hex):
+   - Use realistic, subject-appropriate colors (e.g. green #15803D/#4ADE80 for plants/nature, brown #92400E for soil/coffee, dark studio #1E293B for video-editing/UI, gold #D97706 for finance, teal #0F766E for health) instead of generic website brand colors.
+   - Ensure high contrast against "${backgroundTheme}" so nothing blends into or disappears on the background.
+5. Populate the exact fields needed for "${targetLayout}" with ${targetItemCount > 0 ? targetItemCount : 'appropriate'} items:
+   - If stat_card/scorecard_dashboard: include "statValue" (e.g. "$10K", "85%", "3X") and "statLabel".
+   - If comparison/before_after_transformation: include "comparisonItems": { "left": "...", "right": "..." }.
+   - If checklist/horizontal_process/workflow/curved_roadmap/horizontal_shelves/circular_org_chart: include "listItems" array with EXACTLY ${Math.max(2, Math.min(5, targetItemCount || 3))} concise items.
+   - If data_visualization: include "chartItems" array with ${Math.max(2, Math.min(5, targetItemCount || 3))} items ({ "label": "...", "value": 80, "formattedValue": "80%" }).
+   - If card_concept/image_text: pick the best matching "assignedAssetId" from the S3 assets below (or "" if none fits).
+6. If narration is Hindi/Hinglish, provide English meaning in "englishMeaning".
+
+Available Unused Visual Assets:
+${batchAssetPromptText}
+
+Return strict JSON for ONLY this single scene:
+{
+  "segmentId": ${seg.id},
+  "rhetoricalPurpose": "${targetPurpose || 'Explain key point clearly'}",
+  "sceneType": "${seg.id === 1 ? 'hook' : seg.isChapterStart ? 'transition' : 'main_point'}",
+  "layoutType": "${targetLayout}",
+  "heading": "BUILD REAL LEVERAGE",
+  "supportingText": "Focus on scalable systems instead of trading hours.",
+  "englishMeaning": "",
+  "highlightedWords": ["LEVERAGE"],
+  "accentColor": "#15803D",
+  "secondaryColor": "#92400E",
+  "assignedAssetId": "",
+  "vectorDrawingId": "character_business_leader",
+  "comparisonItems": { "left": "Old Way", "right": "New System" },
+  "listItems": [],
+  "statValue": "",
+  "statLabel": "",
+  "statTrend": "up",
+  "chartItems": [],
+  "donutSlices": [],
+  "quoteAuthor": "",
+  "sfx": "whoosh",
+  "animation": "slow_zoom_in"
+}`;
+
+        const parsed = await callPlannerLLMJson(
+          singleScenePrompt,
+          'You are an expert motion graphics scene designer. Respond with valid JSON for a single video scene.',
+          groqApiKey,
+          geminiApiKey
+        );
+
+        return { seg, outline, decision: parsed };
+      })
+    );
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // STAGE 3: DETERMINISTIC TEMPLATE MAPPER & DYNAMIC INSTANCE CREATION
+    // ═════════════════════════════════════════════════════════════════════════
+    batchDecisions.forEach(({ seg, outline, decision }, sIdx) => {
+      const hasValidHeading =
+        typeof decision?.heading === 'string' &&
+        decision.heading.trim().split(/\s+/).length >= 2 &&
+        !/^(?:key insight|important point|summary|overview|note|point|concept|strategy|tip|conclusion)$/i.test(
+          decision.heading.trim()
+        );
+      const hasValidSupporting =
+        typeof decision?.supportingText === 'string' && decision.supportingText.trim().split(/\s+/).length >= 3;
+      if (decision && hasValidHeading && hasValidSupporting) {
+        aiSucceededScenesCount += 1;
+      }
       const text = seg.text;
       const assetPlan = planVisualAssetsForSentence(text);
       const typographyAnalysis = analyzeTypographyContent(text);
+      const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b/i.test(text);
 
-      const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b|thousands?\s+of\s+dollars|save\s+money/i.test(text);
+      let chosenLayout: VisualLayoutType = decision?.layoutType
+        ? normalizeVisualLayout(decision.layoutType)
+        : outline?.layoutType || 'vector_concept';
 
-      let chosenLayout: VisualLayoutType = decision
-        ? normalizeVisualLayout(decision.layoutType || decision.layout)
-        : 'vector_concept';
+      const aiRhetoricalPurpose = String(decision?.rhetoricalPurpose || outline?.rhetoricalPurpose || '').trim();
 
-      const aiRhetoricalPurpose = String(decision?.rhetoricalPurpose || '').trim();
-
-      // ── Editorial Intelligence Guardrail (Upgrade weak AI decisions based on text & rhetorical purpose) ──
-      // 1. Metric upgrade: Text has real quantitative metrics or rhetorical purpose explicitly states metrics/numbers
+      // Editorial Intelligence Guardrails
       if ((hasRealMetric || /metric|proof|revenue|profit|cost|numbers|roi|\bpercent\b/i.test(aiRhetoricalPurpose)) && (chosenLayout === 'vector_concept' || chosenLayout === 'card_concept' || chosenLayout === 'drawing_story' || !decision)) {
         chosenLayout = 'stat_card';
-      }
-      // 2. Contrast upgrade: Text or rhetorical purpose indicates dichotomy / contrast
-      else if ((/\b(?:versus|vs\.?|compared to|instead of|rather than|better than|traditionally)\b/i.test(text) || /contrast|dichotomy|versus|vs|difference|compare/i.test(aiRhetoricalPurpose)) && (chosenLayout === 'vector_concept' || chosenLayout === 'card_concept' || !decision)) {
+      } else if ((/\b(?:versus|vs\.?|compared to|instead of|rather than|better than|traditionally)\b/i.test(text) || /contrast|dichotomy|versus|vs|difference|compare/i.test(aiRhetoricalPurpose)) && (chosenLayout === 'vector_concept' || chosenLayout === 'card_concept' || !decision)) {
         chosenLayout = isShorts ? 'comparison' : 'before_after_transformation';
-      }
-      // 3. Process upgrade: Text or rhetorical purpose indicates sequence / workflow
-      else if ((/\b(?:step\s*\d+|first|second|third|finally|workflow|process steps|roadmap)\b/i.test(text) || /process|sequence|workflow|steps|roadmap|pipeline/i.test(aiRhetoricalPurpose)) && (chosenLayout === 'vector_concept' || chosenLayout === 'card_concept' || !decision)) {
+      } else if ((/\b(?:step\s*\d+|first|second|third|finally|workflow|process steps|roadmap)\b/i.test(text) || /process|sequence|workflow|steps|roadmap|pipeline/i.test(aiRhetoricalPurpose)) && (chosenLayout === 'vector_concept' || chosenLayout === 'card_concept' || !decision)) {
         chosenLayout = isShorts ? 'workflow' : 'horizontal_process';
       }
 
-      const resolvedRhetoricalPurpose = aiRhetoricalPurpose || deriveRhetoricalPurpose(text, chosenLayout, seg.id);
-
-      if (!decision) {
+      if (!decision && !outline) {
         if (seg.id === 1) chosenLayout = 'hook';
         else if (seg.isChapterStart && seg.id > 1) chosenLayout = 'chapter_title';
         else if (hasRealMetric && typographyAnalysis.statData?.value) chosenLayout = 'stat_card';
@@ -1496,9 +1660,17 @@ Return a strict JSON object with this EXACT structure:
           const fallbackCadence: VisualLayoutType[] = isShorts
             ? ['card_concept', 'supporting_note', 'numbered_steps', 'stat_card']
             : ['card_concept', 'stat_card', 'horizontal_process', 'comparison', 'workflow', 'checklist', 'roadmap', 'quote'];
-          chosenLayout = fallbackCadence[sIdx % fallbackCadence.length];
+          chosenLayout = fallbackCadence[(bStart + sIdx) % fallbackCadence.length];
         }
       }
+
+      // Prevent consecutive duplicate layouts (except hook/chapter_title)
+      const lastLayout = prevLayouts[prevLayouts.length - 1];
+      if (lastLayout && chosenLayout === lastLayout && chosenLayout !== 'hook' && chosenLayout !== 'chapter_title') {
+        chosenLayout = chosenLayout === 'card_concept' ? 'checklist' : 'card_concept';
+      }
+
+      const resolvedRhetoricalPurpose = aiRhetoricalPurpose || deriveRhetoricalPurpose(text, chosenLayout, seg.id);
 
       const sceneType: NarrativeSceneType =
         seg.id === 1
@@ -1515,7 +1687,6 @@ Return a strict JSON object with this EXACT structure:
         ? String(decision?.statLabel || typographyAnalysis.statData?.label || '')
         : undefined;
 
-      // Sanitize weak boilerplate headings: NEVER allow "KEY INSIGHT", "IMPORTANT POINT", "SUMMARY", "OVERVIEW"
       const rawHeading = String(decision?.heading || '').trim();
       const isWeakHeading =
         !rawHeading ||
@@ -1523,10 +1694,9 @@ Return a strict JSON object with this EXACT structure:
         rawHeading.split(/\s+/).length < 2;
 
       const heading = isWeakHeading
-        ? generateCleanConceptHeading(text)
+        ? deriveFactualHeadingFromSentence(text)
         : rawHeading.toUpperCase();
 
-      // Sanitize weak supportingText: NEVER allow exact echo of spoken transcript text
       let rawSupporting = String(
         decision?.supportingText ||
         (typographyAnalysis as any).suggestedSupportingText ||
@@ -1544,13 +1714,17 @@ Return a strict JSON object with this EXACT structure:
           ? decision.highlightedWords.map(String)
           : extractKeywordEmphasis(text, 2);
 
-      const aiListItems = Array.isArray(decision?.listItems) && decision.listItems.length >= 2
+      // Respect AI-decided itemCount dynamically (clamped safely to 2..6 for multi-item templates)
+      const rawListItems = Array.isArray(decision?.listItems) && decision.listItems.length >= 2
         ? decision.listItems.map(String)
         : Array.isArray(decision?.timelineSteps) && decision.timelineSteps.length >= 2
           ? decision.timelineSteps.map(String)
           : Array.isArray(decision?.checklistItems) && decision.checklistItems.length >= 2
             ? decision.checklistItems.map(String)
             : typographyAnalysis.listItems;
+
+      const maxDynamicItems = outline?.itemCount && outline.itemCount >= 2 ? Math.min(6, outline.itemCount) : 5;
+      const aiListItems = Array.isArray(rawListItems) ? rawListItems.slice(0, maxDynamicItems) : undefined;
 
       const aiComparisonItems =
         decision?.comparisonItems &&
@@ -1574,6 +1748,7 @@ Return a strict JSON object with this EXACT structure:
               color: ci?.color ? String(ci.color) : undefined,
             }))
             .filter((ci: any) => ci.label && ci.value > 0)
+            .slice(0, maxDynamicItems)
           : undefined;
 
       const aiDonutSlices =
@@ -1609,13 +1784,12 @@ Return a strict JSON object with this EXACT structure:
       if (sfx === 'none') {
         if (seg.isChapterStart) sfx = 'rise';
         else if (chosenLayout === 'stat_card' || chosenLayout === 'comparison' || chosenLayout === 'vs_battle') sfx = 'hit';
-        else if (sIdx % 3 === 0) sfx = 'woosh';
+        else if ((bStart + sIdx) % 3 === 0) sfx = 'woosh';
       }
 
       let assignedId = String(decision?.assignedAssetId || '').trim();
-      let matchedAsset = assignedId ? getCatalogAssetById(assignedId) : null;
+      let matchedAsset = assignedId && !usedAssetIds.has(assignedId) ? getCatalogAssetById(assignedId) : null;
 
-      // If scene layout thrives on visual media and AI didn't assign one, pick the best unused asset from S3 pool
       if (!matchedAsset && (chosenLayout === 'card_concept' || chosenLayout === 'image_text' || chosenLayout === 'full_bleed_visual')) {
         const candidate = availableS3Assets.find((a) => !usedAssetIds.has(a.id));
         if (candidate) {
@@ -1628,11 +1802,17 @@ Return a strict JSON object with this EXACT structure:
         usedAssetIds.add(matchedAsset.id);
       }
 
-      // Derive full 16:9 canvas composition recipe for each scene
       const derivedComposition = deriveSceneComposition(
         chosenLayout,
         Boolean(matchedAsset),
         decision?.composition
+      );
+
+      const subjectPalette = resolveSubjectNaturalColors(
+        `${heading} ${supportingText} ${text}`,
+        backgroundTheme,
+        decision?.accentColor,
+        decision?.secondaryColor
       );
 
       plannedScenes.push({
@@ -1641,6 +1821,8 @@ Return a strict JSON object with this EXACT structure:
         layoutType: chosenLayout,
         rhetoricalPurpose: resolvedRhetoricalPurpose,
         duration: seg.duration,
+        accentColor: subjectPalette.primary,
+        secondaryColor: subjectPalette.secondary,
         narrationSegment: {
           text: seg.text,
           startSeconds: seg.start,
@@ -1658,7 +1840,7 @@ Return a strict JSON object with this EXACT structure:
         fontHierarchy: { headingFont, bodyFont },
         animation: (decision?.animation as MotionAnimationPreset) || 'slow_zoom_in',
         SFX: sfx,
-        transition: seg.isChapterStart ? 'zoom' : sIdx % 3 === 0 ? 'dissolve' : 'cut',
+        transition: seg.isChapterStart ? 'zoom' : (bStart + sIdx) % 3 === 0 ? 'dissolve' : 'cut',
         statValue: safeStatVal,
         statLabel: safeStatLbl,
         statTrend: decision?.statTrend || (typographyAnalysis.statData as any)?.trend,
@@ -1686,10 +1868,17 @@ Return a strict JSON object with this EXACT structure:
     });
   }
 
+  const minRequiredAiScenes = Math.max(1, Math.ceil(timelineSegments.length * 0.6));
+  if (aiSucceededScenesCount < minRequiredAiScenes) {
+    throw new Error(
+      `AI_PLANNING_FAILED: Only ${aiSucceededScenesCount}/${timelineSegments.length} scenes passed AI validation across Groq & Gemini. Please click Retry — no credits were used.`
+    );
+  }
+
   const rawBlueprint: FullVideoSceneBlueprint = {
     title: options.title || 'Professional Faceless Video',
     overallNarrativeMood: 'High Engagement Dynamic Presentation',
-    totalDurationSeconds: Math.round(timelineSegments[timelineSegments.length - 1].end - timelineSegments[0].start),
+    totalDurationSeconds: Number((timelineSegments[timelineSegments.length - 1].end - timelineSegments[0].start).toFixed(3)),
     totalScenes: plannedScenes.length,
     scenes: plannedScenes,
   };

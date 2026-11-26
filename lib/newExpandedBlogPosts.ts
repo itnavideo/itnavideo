@@ -1,4 +1,4 @@
-import { BlogPost } from "./blogPosts";
+﻿import { BlogPost } from "./blogPosts";
 
 export const newExpandedBlogPosts: BlogPost[] = [
   {
@@ -1652,5 +1652,423 @@ export const newExpandedBlogPosts: BlogPost[] = [
       }
     ],
     "contentHtml": "\n<div class=\"space-y-6 text-zinc-300 font-sans leading-relaxed\">\n  <div class=\"rounded-2xl border border-[#FF6D00]/30 bg-[#FF6D00]/10 p-6 text-zinc-200\">\n    <h3 class=\"font-black text-white text-lg\">Studio Mastering for Creators: Loudness Normalization (-14 LUFS) & De-Reverb</h3>\n    <p class=\"mt-2 text-sm text-zinc-300\">Understand standard podcast loudness targets (-14 LUFS) and how automated mastering prepares audio for Spotify and YouTube.</p>\n  </div>\n  <h2 class=\"text-2xl font-black text-white tracking-tight\">Key Creator Insights & Strategy</h2>\n  <p class=\"text-sm text-zinc-300\">Publishing audio with inconsistent volume levels causes viewers to constantly adjust their volume. Automated mastering normalizes levels to -14 LUFS.</p>\n  <div class=\"rounded-2xl border border-white/10 bg-[#0E1526] p-6\">\n    <h4 class=\"text-base font-black text-white mb-2\">How to Execute with Itnavideo AI</h4>\n    <p class=\"text-xs text-slate-400\">Master your voice tracks to industry-standard -14 LUFS loudness.</p>\n  </div>\n</div>\n"
-  }
+  },
+  // ── FACELESS VIDEO FOCUSED POSTS (Added Nov 2026) ──
+  {
+    slug: "how-to-make-faceless-youtube-videos-with-ai",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807751/itnavideo12345/blog_batch_video_creator.png",
+    title: "How to Make Faceless YouTube Videos with AI in 2026 (Complete Guide)",
+    excerpt:
+      "Learn exactly how to create professional faceless YouTube videos using AI — no camera, no face, no editing skills required. Step-by-step workflow from audio upload to 1080p export.",
+    date: "Nov 2026",
+    readTime: "9 min read",
+    category: "Faceless Video",
+    intro:
+      "Faceless YouTube channels are growing at record speed in 2026 — finance, motivation, history, and educational niches are booming, and creators are making full-time income without ever showing their face on camera.",
+    dashboardType: "faceless-video",
+    keywords: [
+      "how to make faceless youtube videos",
+      "ai faceless video generator",
+      "faceless youtube channel 2026",
+      "faceless video without showing face",
+    ],
+    faqs: [
+      {
+        question: "Do I need to show my face to run a YouTube channel?",
+        answer:
+          "Absolutely not. Thousands of monetized YouTube channels never show a face — using voiceover audio, motion graphics, and kinetic text instead.",
+      },
+      {
+        question: "How long does it take to create a faceless video with AI?",
+        answer:
+          "With Itnavideo, the full workflow from audio upload to 1080p export takes under 5 minutes for a 2-3 minute video.",
+      },
+    ],
+    internalLinks: [
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+      { label: "Auto Caption Generator", href: "/auto-caption-generator" },
+    ],
+    sections: [
+      {
+        heading: "What is a Faceless YouTube Video?",
+        body: ["A faceless YouTube video uses ==orange:voiceover narration==, motion graphics, kinetic subtitles, and stock visuals with zero camera footage of the creator. The result looks professional, branded, and high-retention. -> Faceless videos can easily get 100,000+ views when the content is valuable and the editing is clean.","^^Sirf aapki awaaz chahiye — camera bilkul zaruri nahi hai.^^","Top faceless niches in 2026: finance & investing, self-improvement, true crime, history documentaries, AI & tech explainers, and book summaries. These niches are evergreen and have massive search demand."],
+      },
+      {
+        heading: "Step-by-Step: Create a Faceless Video with Itnavideo AI",
+        body: ["Here is the ==mint:exact workflow== thousands of creators are using:","1. Record your voiceover script. Even a phone recording works fine.\n2. Upload audio at the Faceless Video Generator -> `/faceless-video`\n3. Choose background music style (cinematic, lofi, motivational)\n4. Configure audio ducking so music fades under speech automatically\n5. Select caption style and animation (word-by-word kinetic subtitles)\n6. Choose your font pairing for headings and body text\n7. Pick a background canvas colour from the 28-swatch Canva palette\n8. AI generates 6-12 timestamped scenes -> review -> export your 1080p MP4","^^Poora video 5 minute mein ready — Adobe Premiere ki zarurat nahi.^^"],
+      },
+      {
+        heading: "Why AI-Generated Faceless Videos Get More Views",
+        body: ["AI faceless videos built on Itnavideo use ==yellow:word-level kinetic subtitles== that sync to your exact speech timing. Research shows kinetic captions increase watch time by 40% on mobile devices.","Every scene change happens every 3-8 seconds, matching the editing pace of viral YouTube content. Background music auto-ducks under speech for professional broadcast quality.","-> Start your first faceless video for free at `/faceless-video`. No credit card required."],
+      },
+    ],
+  },
+  {
+    slug: "faceless-youtube-channel-niche-ideas-2026",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807751/itnavideo12345/blog_batch_video_creator.png",
+    title: "30 Profitable Faceless YouTube Channel Niche Ideas for 2026",
+    excerpt:
+      "Discover the most profitable faceless YouTube channel ideas for 2026 — from finance and AI explainers to true crime and history documentaries. All work without showing your face.",
+    date: "Nov 2026",
+    readTime: "7 min read",
+    category: "Faceless Video",
+    intro:
+      "Choosing the right niche is the single most important decision for a faceless YouTube channel. The right niche has high search volume, strong CPM rates, and an audience that watches long-form content.",
+    dashboardType: "faceless-video",
+    keywords: [
+      "faceless youtube channel ideas 2026",
+      "profitable faceless niche youtube",
+      "best youtube niches 2026",
+    ],
+    faqs: [
+      {
+        question: "What is the highest CPM niche for faceless YouTube?",
+        answer:
+          "Finance, insurance, and investing niches consistently have among the highest CPMs, making them the most profitable for faceless channels.",
+      },
+      {
+        question: "Can a faceless channel get monetized?",
+        answer:
+          "Yes. YouTube does not require face-on-camera content for monetization. Many faceless channels are part of the YouTube Partner Program.",
+      },
+    ],
+    internalLinks: [
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+      { label: "Book Summary Video Maker", href: "/book-summary-video" },
+    ],
+    sections: [
+      {
+        heading: "High-CPM Faceless Niches",
+        body: ["==orange:Finance & Investing== — Stock market breakdowns, mutual fund explainers, SIP strategy, and real estate investing. Massive YouTube search volume and extremely high ad rates.","==mint:Insurance & Banking== — Credit card comparisons, term insurance guides, and home loan explainers. Advertisers pay premium CPMs in this space.","==yellow:Business & Entrepreneurship== — Case studies, startup stories, and business model breakdowns. Voiceover + motion graphics work perfectly for this format.","^^Finance channels pe ek achha video lakhs views le sakta hai — aur CPM bhi bahut high hota hai.^^"],
+      },
+      {
+        heading: "Educational & Evergreen Niches",
+        body: ["History documentaries, science explainers, and geography channels get millions of views and require zero on-camera presence. -> Great for creators who want to build a library of evergreen content that generates views for years.","Self-improvement and psychology channels are growing at 200% per year on YouTube. Topics like stoicism, mindset, and productivity have passionate audiences and very low competition in Hinglish.","AI and technology explainers are booming. Covering ChatGPT, Gemini, and automation tools with faceless AI-generated visuals is an extremely low-competition, high-reward niche in 2026."],
+      },
+      {
+        heading: "How to Create All These Niches with Itnavideo",
+        body: ["Every niche listed above works perfectly with the ==mint:Faceless Video Generator== at `/faceless-video`. Simply write or record your script, upload the audio, and AI builds your complete 1080p video with motion graphics, kinetic subtitles, and scene transitions automatically.","No editing software. No design skills. No camera. -> Just your voice and your ideas."],
+      },
+    ],
+  },
+  {
+    slug: "best-background-music-for-faceless-youtube-videos",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_podcaster_new_york.png",
+    title: "Best Background Music for Faceless YouTube Videos (What Actually Works)",
+    excerpt:
+      "Background music is the secret weapon of viral faceless YouTube videos. Learn which music styles work for finance, motivation, education, and storytelling channels — and how to auto-duck it perfectly under your voice.",
+    date: "Nov 2026",
+    readTime: "6 min read",
+    category: "Faceless Video",
+    intro:
+      "The right background music sets the emotional tone of your faceless video before viewers hear a single word. It signals professionalism, keeps retention high, and prevents the flat, lifeless feeling of silence.",
+    dashboardType: "faceless-video",
+    keywords: [
+      "best background music faceless youtube",
+      "background music for educational videos",
+      "audio ducking background music voiceover",
+    ],
+    faqs: [
+      {
+        question: "What volume should background music be at under voiceover?",
+        answer:
+          "Background music should sit at 10-20% volume under speech. Itnavideo auto-ducking brings music to exactly this range whenever speech is detected.",
+      },
+      {
+        question: "Is the music on Itnavideo royalty-free for YouTube?",
+        answer:
+          "Yes. All background music tracks included in Itnavideo are fully licensed for YouTube commercial use with no copyright claims.",
+      },
+    ],
+    internalLinks: [
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+      { label: "AI Audio Cleaner", href: "/ai-audio-cleaner" },
+    ],
+    sections: [
+      {
+        heading: "Music Styles by Content Niche",
+        body: ["==orange:Finance & Business== — Cinematic orchestral, subtle piano, and corporate electronic. These feel premium and confident. Avoid anything upbeat or playful — it conflicts with the authority tone.","==mint:Motivation & Self-Improvement== — Epic background orchestral, rising strings, and percussive cinematic tracks. This style matches the inspirational narrative arc of these videos.","==yellow:Education & History== — Minimal ambient, sparse piano, and atmospheric pads. Music should stay in the background and never compete with narration.","^^Music selection is as important as the script — galat music se viewers bounce karte hain.^^"],
+      },
+      {
+        heading: "Auto-Ducking: The Professional Touch",
+        body: ["Auto-ducking automatically lowers music volume when speech is detected and raises it during pauses. -> This is the single feature that separates amateur from professional faceless videos.","Itnavideo's Step 2 (Music & Audio Ducking) handles this automatically. You choose the ducking strength:","- ==mint:Gentle Duck (20%)== — Subtle reduction for calm, educational content\n- ==orange:Standard Duck (40%)== — Balanced for most faceless video formats\n- ==yellow:Aggressive Duck (60%)== — Strong reduction for finance content with detailed numbers","Use the Itnavideo Faceless Video Generator at `/faceless-video` to access all music tracks and ducking controls in Step 2."],
+      },
+    ],
+  },
+  {
+    slug: "how-long-should-faceless-youtube-videos-be",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807751/itnavideo12345/blog_batch_video_creator.png",
+    title: "How Long Should Faceless YouTube Videos Be for Maximum Watch Time?",
+    excerpt:
+      "Optimal video length is one of the biggest factors affecting YouTube algorithm performance. Discover the ideal faceless video length for each niche and how to structure your content for maximum retention.",
+    date: "Nov 2026",
+    readTime: "5 min read",
+    category: "Faceless Video",
+    intro:
+      "Video length is a critical YouTube algorithm signal. Too short and you sacrifice ad revenue. Too long and viewers drop off, hurting your average view duration percentage.",
+    dashboardType: "faceless-video",
+    keywords: [
+      "how long should youtube videos be 2026",
+      "ideal faceless video length",
+      "faceless video duration best practice",
+    ],
+    faqs: [
+      {
+        question: "What is the best video length for YouTube monetization?",
+        answer:
+          "Videos over 8 minutes allow mid-roll ads which significantly increase CPM revenue. For faceless channels, 8-15 minutes is the sweet spot.",
+      },
+      {
+        question: "What is Itnavideo's maximum faceless video duration?",
+        answer:
+          "Itnavideo supports faceless widescreen videos up to 5 minutes (300 seconds) of voiceover audio. This generates 6-12 AI scenes at 30fps.",
+      },
+    ],
+    internalLinks: [
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+    ],
+    sections: [
+      {
+        heading: "Ideal Video Length by Niche",
+        body: ["==orange:Finance & Investing== — 10-18 minutes. Audiences expect depth and want complete explanations. Longer videos with strong retention signals get pushed harder by the algorithm.","==mint:Motivation & Self-Improvement== — 5-12 minutes. These work best when punchy and don't overstay their welcome.","==yellow:History & Documentary== — 15-25 minutes. Viewers in this niche intentionally seek long-form content.","^^Itnavideo pe aap 5 minute tak ka audio upload kar sakte ho aur AI automatically 6-12 high-retention scenes banata hai.^^"],
+      },
+      {
+        heading: "How to Structure Faceless Videos for Maximum Retention",
+        body: ["The highest-retention faceless videos follow a ==mint:3-part structure==:","1. ==orange:Hook (0-30 seconds)== — State the biggest benefit immediately. The first 30 seconds determine whether viewers stay or leave.","2. ==yellow:Core Content== — Deliver your promised value in clear sections. Scene changes every 4-6 seconds maintain visual momentum.","3. ==mint:CTA & Outro== — Subscribe prompt, related video recommendation, and a memorable closing line.","-> Itnavideo's AI scene planner automatically structures your scenes following this retention-optimized format."],
+      },
+    ],
+  },
+  {
+    slug: "how-to-monetize-faceless-youtube-channel-with-ai-videos",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_faceless_video_studio.png",
+    title: "How to Monetize a Faceless YouTube Channel with AI Videos in 2026",
+    excerpt:
+      "Faceless YouTube channels can be highly profitable through ads, affiliate marketing, and digital products. Learn the exact monetization stack top faceless creators use — and how to build it faster with AI.",
+    date: "Nov 2026",
+    readTime: "8 min read",
+    category: "Faceless Video",
+    intro:
+      "Monetizing a faceless YouTube channel is a multi-stream strategy. Ad revenue is just the beginning — the most successful faceless channels combine YouTube ads, affiliate commissions, and their own digital products.",
+    dashboardType: "faceless-video",
+    keywords: [
+      "how to monetize faceless youtube channel",
+      "faceless youtube channel income",
+      "youtube adsense faceless channel",
+    ],
+    faqs: [
+      {
+        question: "Can I earn from a faceless YouTube channel without showing my face?",
+        answer:
+          "Yes. YouTube monetization has no requirement to show your face. Thousands of fully anonymous channels earn significant income through ads and affiliate programs.",
+      },
+      {
+        question: "How many subscribers do I need to monetize?",
+        answer:
+          "YouTube Partner Program requires 1,000 subscribers and 4,000 watch hours. Faceless channels in high-CPM niches hit this faster because longer videos accumulate watch hours quickly.",
+      },
+    ],
+    internalLinks: [
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+      { label: "Long Video to Clips", href: "/long-video-clips" },
+    ],
+    sections: [
+      {
+        heading: "Revenue Stream 1: YouTube AdSense",
+        body: ["AdSense is the foundation. Your CPM (cost per 1,000 views) depends on your niche. ==orange:Finance== channels earn top CPM rates. ==mint:Education== channels earn mid-range CPM.","To maximize AdSense revenue: publish videos over 8 minutes to unlock mid-roll ads, target high-CPM countries in your SEO, and maintain a consistent upload schedule.","^^Monthly 20-30 videos publish karo aur ek faceless channel 6 months mein monetize ho sakta hai.^^"],
+      },
+      {
+        heading: "Revenue Stream 2: Affiliate Marketing",
+        body: ["Affiliate marketing is where faceless channels make ==mint:serious money==. For a finance channel: broker affiliates and credit card partner programs pay generous commissions per signup.","For business/entrepreneurship: software tools (Notion, project management platforms) all have affiliate programs paying 20-40% recurring commission. -> A single video recommendation can earn substantial affiliate commissions over its lifetime."],
+      },
+      {
+        heading: "Using AI to Publish at Scale",
+        body: ["The creators earning the most from faceless channels publish consistently at high volume. ==orange:AI video generators like Itnavideo== make it possible to publish 5-10 videos per week without hiring editors.","Workflow: record audio -> upload to `/faceless-video` -> AI generates scenes, captions, and visuals -> download 1080p MP4 -> publish. Total time: 15-20 minutes per video.","-> Scale to 20 videos per month and your channel compound-grows much faster than once-per-week publishers."],
+      },
+    ],
+  },
+  {
+    slug: "ai-video-generator-for-finance-youtube-channels",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_faceless_video_studio.png",
+    title: "Best AI Video Generator for Finance YouTube Channels (2026 Guide)",
+    excerpt:
+      "Finance is the highest-CPM YouTube niche. See how AI video generators help finance creators publish authoritative explainer videos on stocks, mutual funds, and investing — without editing software.",
+    date: "Nov 2026",
+    readTime: "6 min read",
+    category: "Finance Video",
+    intro:
+      "Finance YouTube is a gold mine. CPM rates are among the highest on the platform, the content is evergreen, and viewers actively search for answers to their financial questions.",
+    dashboardType: "faceless-video",
+    keywords: [
+      "ai video generator finance youtube",
+      "finance youtube channel ai videos",
+      "stock market explainer video generator",
+    ],
+    faqs: [
+      {
+        question: "What type of visuals work best for finance YouTube videos?",
+        answer:
+          "Data visualization scenes (charts, stat cards, comparison cards), kinetic text layouts, and clean white or dark backgrounds all perform well for finance content.",
+      },
+    ],
+    internalLinks: [
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+      { label: "Book Summary Video Maker", href: "/book-summary-video" },
+    ],
+    sections: [
+      {
+        heading: "Why Finance is the Best Niche for AI Faceless Videos",
+        body: ["Finance content is ==orange:built for the faceless format==. Your viewers want data, strategy, and insights — not your face. Motion graphics and kinetic subtitles deliver exactly this.","The AI scene engine in Itnavideo automatically creates ==mint:stat card scenes== for financial data, ==yellow:comparison layouts== for investment options, and ==orange:timeline scenes== for market history.","^^Finance video create karna ab sirf 15-20 minute ka kaam hai — AI sab handle karta hai.^^"],
+      },
+      {
+        heading: "Workflow: Finance Video from Script to 1080p Export",
+        body: ["1. Write your finance script covering one topic in depth\n2. Record a clear voiceover\n3. Upload to Faceless Video Generator -> `/faceless-video`\n4. Select ==mint:dark background== canvas (navy, midnight-mesh, or deep slate) for the professional finance look\n5. Choose cinematic background music at low volume\n6. AI generates 8-12 timestamped scenes with appropriate layouts\n7. Review and export 1080p MP4","-> Your finance channel can publish daily with this workflow."],
+      },
+    ],
+  },
+  {
+    slug: "how-to-create-16-9-widescreen-ai-videos-online",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807751/itnavideo12345/blog_batch_video_creator.png",
+    title: "How to Create 16:9 Widescreen AI Videos Online — Without Any Software",
+    excerpt:
+      "16:9 widescreen is the standard format for YouTube, LinkedIn, and presentations. Learn how to create professional 1080p widescreen videos from voiceover audio using AI — entirely in your browser.",
+    date: "Nov 2026",
+    readTime: "5 min read",
+    category: "Video Creation",
+    intro:
+      "16:9 widescreen at 1920x1080 is the gold standard format for YouTube videos, LinkedIn content, online course videos, and professional presentations.",
+    dashboardType: "faceless-video",
+    keywords: [
+      "create 16:9 widescreen video online",
+      "ai widescreen video generator",
+      "1080p video creator no software",
+      "16:9 youtube video maker ai",
+    ],
+    faqs: [
+      {
+        question: "What resolution do Itnavideo's 16:9 videos export at?",
+        answer:
+          "All 16:9 Faceless Video Generator exports are delivered at full 1920x1080 (1080p) resolution at 30fps, meeting YouTube's recommended upload specifications.",
+      },
+      {
+        question: "Can I use 16:9 videos on platforms other than YouTube?",
+        answer:
+          "Yes. 16:9 1080p MP4 files work on YouTube, LinkedIn, Vimeo, online course platforms (Teachable, Udemy), and can be embedded on websites.",
+      },
+    ],
+    internalLinks: [
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+      { label: "AI Video Generator", href: "/ai-video-generator" },
+    ],
+    sections: [
+      {
+        heading: "16:9 vs 9:16 — Which Format for Which Platform?",
+        body: ["==orange:16:9 Widescreen== — YouTube long-form videos, LinkedIn posts, online courses, webinar recordings, and website embed videos. Classic 'TV format' that viewers expect for educational content.","==mint:9:16 Vertical== — Instagram Reels, TikTok, YouTube Shorts, and Facebook Stories. Full-screen mobile-first content. Use for short viral clips under 60 seconds.","==yellow:Pro Tip== — Create your 16:9 video first, then use Long Video to Clips to automatically extract 9:16 shorts from the same content. -> Double your content output from a single recording.","^^Itnavideo pe dono format available hai — 16:9 widescreen aur 9:16 vertical shorts.^^"],
+      },
+      {
+        heading: "Create 16:9 AI Videos Step by Step",
+        body: ["1. Go to `/faceless-video` and confirm you are in ==mint:16:9 CINEMA== mode\n2. Upload your voiceover audio (MP3 or M4A, up to 5 minutes)\n3. Set your background music and auto-ducking in Step 2\n4. Configure captions in Step 5 — word-level kinetic subtitles for maximum retention\n5. Select fonts in Step 6 and canvas background colour in Step 7\n6. AI generates your complete storyboard in Step 8\n7. Preview all scenes in the live 16:9 player and export your 1080p MP4","Total time from upload to export: approximately 10-15 minutes for a 3-minute video."],
+      },
+    ],
+  },
+  {
+    slug: "faceless-video-script-to-finished-video-ai-workflow",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_faceless_video_studio.png",
+    title: "From Script to Finished Faceless Video in 20 Minutes — Full AI Workflow",
+    excerpt:
+      "A complete step-by-step walkthrough of the Itnavideo Faceless Video workflow — from writing your script and recording audio to downloading your finished 1080p MP4 with kinetic captions and music.",
+    date: "Nov 2026",
+    readTime: "7 min read",
+    category: "Faceless Video",
+    intro:
+      "Most creators spend 8-15 hours editing a single YouTube video. With the right AI workflow, that same video can be produced in under 20 minutes.",
+    dashboardType: "faceless-video",
+    keywords: [
+      "faceless video workflow ai",
+      "script to video ai generator",
+      "faceless video production workflow",
+    ],
+    faqs: [
+      {
+        question: "Do I need any video editing experience?",
+        answer:
+          "Zero experience required. Itnavideo handles all editing, scene generation, caption sync, music mixing, and export automatically.",
+      },
+      {
+        question: "What microphone do I need for faceless videos?",
+        answer:
+          "Any microphone works — including your phone's built-in mic. Itnavideo's AI Audio Cleaner can remove background noise from phone recordings.",
+      },
+    ],
+    internalLinks: [
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+      { label: "AI Audio Cleaner", href: "/ai-audio-cleaner" },
+    ],
+    sections: [
+      {
+        heading: "Phase 1: Write Your Script (5 Minutes)",
+        body: ["Your script is the backbone of your faceless video. Keep it ==orange:conversational and direct== — write like you speak, not like you write an essay.","Structure: Hook (1-2 lines) -> Core points (3-5 main ideas) -> CTA (1-2 lines). For a 3-minute video, your script should be approximately 450-600 words.","^^Hinglish mein script likho agar aapka audience India-based hai — relatability views badhata hai.^^","-> Use ChatGPT or Gemini to generate a first draft, then personalise it with your own examples."],
+      },
+      {
+        heading: "Phase 2: Record Your Voiceover (3 Minutes)",
+        body: ["Find a quiet room and record your script using your phone's voice recorder app. Speak clearly, at a moderate pace, with natural pauses between paragraphs.","Common mistakes: rushing (slow down 20% from your natural pace), echo-heavy rooms (bathroom, empty hall). A small bedroom with soft furnishings works perfectly.","Record as an ==mint:MP3 or M4A file==. File size under 50MB is ideal."],
+      },
+      {
+        heading: "Phase 3: AI Video Generation (12 Minutes)",
+        body: ["Upload to `/faceless-video` and work through the 8 steps:","- ==orange:Step 1== — Upload audio\n- ==orange:Step 2== — Choose background music + set auto-ducking\n- ==orange:Step 3== — Configure audio ducking strength\n- ==orange:Step 4== — Add sound effects (optional)\n- ==orange:Step 5== — Select caption style and animation\n- ==orange:Step 6== — Choose font pairing\n- ==orange:Step 7== — Select background canvas colour\n- ==orange:Step 8== — AI generates scenes -> review -> download","Total: approximately 12-15 minutes. -> Your 1080p MP4 is ready to upload directly to YouTube."],
+      },
+    ],
+  },
+  {
+    slug: "book-summary-video-maker-free-online",
+    featuredImage:
+      "https://res.cloudinary.com/dhouh9idx/image/upload/c_crop,g_north_west,w_0.96,h_0.94/f_auto,q_auto/v1793807678/itnavideo12345/blog_faceless_video_studio.png",
+    title: "Book Summary Video Maker: Create YouTube Book Summaries with AI (Free to Try)",
+    excerpt:
+      "Book summary YouTube channels get millions of views. Learn how to create cinematic 16:9 book summary videos from a voice narration using AI — no design skills, no editing software needed.",
+    date: "Nov 2026",
+    readTime: "6 min read",
+    category: "Book Summary",
+    intro:
+      "Book summary channels like Escaping Ordinary, Practical Psychology, and After Skool collectively generate hundreds of millions of views. The format works because viewers want insights without reading 300-page books.",
+    dashboardType: "book-summary",
+    keywords: [
+      "book summary video maker online",
+      "create book summary youtube video ai",
+      "ai book summary video generator free",
+    ],
+    faqs: [
+      {
+        question: "Can I monetize book summary videos on YouTube?",
+        answer:
+          "Yes, if you create original commentary, analysis, and insights rather than directly reading the book text.",
+      },
+      {
+        question: "What books work best for YouTube summaries?",
+        answer:
+          "Business books (Atomic Habits, Rich Dad Poor Dad), psychology books (The Psychology of Money), and self-help books consistently get the most views.",
+      },
+    ],
+    internalLinks: [
+      { label: "Book Summary Video Maker", href: "/book-summary-video" },
+      { label: "Faceless Video Generator", href: "/faceless-video" },
+    ],
+    sections: [
+      {
+        heading: "Why Book Summary Channels Get Millions of Views",
+        body: ["People want knowledge, not necessarily the full book experience. A well-produced 8-12 minute book summary that delivers the ==orange:3-5 key ideas== from a business or self-help book will get watched, saved, and recommended by the YouTube algorithm.","==mint:High-performing book summary formats==:\n- Chapter-by-chapter breakdowns with key quotes highlighted\n- 'The 5 biggest lessons from [Book]' format\n- Animated whiteboard-style explanations","^^Book summary channel ek high-CPM, low-competition niche hai — especially Hindi mein.^^"],
+      },
+      {
+        heading: "Create Book Summary Videos with AI",
+        body: ["Use Itnavideo's ==orange:Book Summary Video Maker== at `/book-summary-video` for the structured whiteboard and kinetic text format, or use the ==mint:Faceless Video Generator== at `/faceless-video` for a fully narrated 16:9 cinematic format.","Workflow:\n1. Read the book and extract 5-7 key ideas with supporting quotes\n2. Write a 400-700 word narration script explaining each idea in your own words\n3. Record your voiceover\n4. Upload to Itnavideo -> AI generates scene layouts matching each book concept\n5. Export 1080p MP4 -> publish","-> With AI, you can produce 2-3 book summary videos per week consistently."],
+      },
+    ],
+  },
 ];

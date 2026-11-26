@@ -121,6 +121,13 @@ export function searchS3AssetCatalog(
   const scored: Array<{ asset: S3CatalogAsset; score: number }> = [];
 
   for (const asset of catalog) {
+    // Skip interactive HTML widgets — Remotion <Img>/<OffthreadVideo> cannot render .html URLs
+    if (/\.html?(\?.*)?$/i.test(asset.url || asset.absoluteUrl || '')) continue;
+    // Skip technical database-svgs unless transcript actually discusses databases/SQL
+    const isDbSvg = (asset.url || asset.absoluteUrl || '').includes('/database-svgs/');
+    if (isDbSvg && !/\b(database|sql|postgres|postgresql|mysql|query|indexing|table\s+scan)\b/i.test(transcriptText)) {
+      continue;
+    }
     if (category && category !== 'all' && asset.category !== category) continue;
     if (style && style !== 'all' && asset.style !== style) continue;
 
@@ -151,15 +158,8 @@ export function searchS3AssetCatalog(
 
   scored.sort((a, b) => b.score - a.score);
 
-  if (scored.length >= maxResults) {
-    return scored.slice(0, maxResults).map((s) => s.asset);
-  }
-
-  // Fill up with high quality general assets if score list is small
-  const matchedIds = new Set(scored.map((s) => s.asset.id));
-  const remaining = catalog.filter((a) => !matchedIds.has(a.id)).slice(0, maxResults - scored.length);
-
-  return [...scored.map((s) => s.asset), ...remaining];
+  // Only return genuinely relevant matches (score >= 10); never pad with unrelated database/neuroscience SVGs
+  return scored.filter((s) => s.score >= 10).slice(0, maxResults).map((s) => s.asset);
 }
 
 /**

@@ -136,6 +136,7 @@ export const VectorDrawingIcon: React.FC<VectorDrawingIconProps> = ({
     return (
       <svg
         viewBox={item.viewBox || '0 0 100 100'}
+        preserveAspectRatio="xMidYMid meet"
         className={className}
         style={{
           width: size,

@@ -1280,6 +1280,22 @@ mark.highlight-mint,
   text-decoration-thickness: 1.5px;
 }
 
+.editorial-handwriting {
+  font-family: var(--font-handwritten), "Caveat", cursive;
+  font-size: 1.28em;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #ea580c;
+  letter-spacing: 0.01em;
+}
+
+.editorial-arrow {
+  display: inline-block;
+  color: #ea580c;
+  font-weight: 800;
+  margin: 0 0.15em;
+}
+
 /* Big Magazine Pull-Quote */
 .editorial-pull-quote {
   position: relative;

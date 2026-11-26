@@ -858,7 +858,7 @@ export function planWhiteboardInfographicData(
     bracketHeader: 'Key principles in this video...',
     bracketItems,
     centerStatement,
-    heroLabel: (heroVisual?.label || 'CORE IDEA').slice(0, 16),
+    heroLabel: ((heroVisual as { label?: string } | undefined)?.label || 'CORE IDEA').slice(0, 16),
     heroType: heroVisual?.id || 'lightbulb_idea',
     sideNote,
     bottomSubhead: 'Clear execution today... Real results tomorrow.',
@@ -958,18 +958,20 @@ export async function planWhiteboardVideo(input: WhiteboardPlanInput): Promise<W
   const words = input.words || [];
   const transcript = input.transcript || '';
 
-  // 1. Try Groq Cloud LLM First (Lightning Fast, JSON-mode, High Intelligence)
-  const groqKey = process.env.GROQ_API_KEY;
-  if (groqKey && transcript) {
-    try {
-      console.log('[WB_PLANNER] Generating whiteboard director blueprint via Groq Cloud LLM...');
-      const planned = await callGroqWhiteboardDirector(input, groqKey);
-      if (planned && planned.points && planned.points.length > 0) {
-        console.log(`[WB_PLANNER] Groq director succeeded: ${planned.points.length} points across boards`);
-        return planned;
+  // 1. Try Groq Cloud LLM First (50/50 Rotation + Failover across GROQ_API_KEY & GROQ_API_KEY_2)
+  const groqKeys = getGroqApiKeysRotated();
+  if (groqKeys.length > 0 && transcript) {
+    for (let i = 0; i < groqKeys.length; i++) {
+      try {
+        console.log(`[WB_PLANNER] Generating whiteboard director blueprint via Groq Cloud LLM (key #${i + 1})...`);
+        const planned = await callGroqWhiteboardDirector(input, groqKeys[i]);
+        if (planned && planned.points && planned.points.length > 0) {
+          console.log(`[WB_PLANNER] Groq director succeeded: ${planned.points.length} points across boards`);
+          return planned;
+        }
+      } catch (groqErr) {
+        console.warn(`[WB_PLANNER] Groq director key #${i + 1} failed:`, groqErr);
       }
-    } catch (groqErr) {
-      console.warn('[WB_PLANNER] Groq director LLM failed, trying Gemini:', groqErr);
     }
   }
 
@@ -991,6 +993,8 @@ export async function planWhiteboardVideo(input: WhiteboardPlanInput): Promise<W
   console.log('[WB_PLANNER] Falling back to semantic deterministic planner');
   return planDeterministicWhiteboard(input);
 }
+
+import { getGroqApiKeysRotated } from './groqKeyPool';
 
 // ── Groq LLM Director Implementation ─────────────────────────────────────────
 

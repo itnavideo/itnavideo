@@ -60,6 +60,12 @@ export type VisualLayoutType =
   | 'table_of_contents'
   | 'mission_vision'
   | 'medical_infographic'
+  | 'rough_notation'
+  | 'lottie_motion'
+  | 'code_diff'
+  | 'three_globe'
+  | 'map_flyover'
+  | 'kinetic_kit'
   | 'library_overlay'
   | 'hook';
 
@@ -203,6 +209,9 @@ export type SceneBlueprintItem = {
   assetUrl?: string;
   assetTitle?: string;
   assetStyle?: string;
+  brollUrl?: string;
+  accentColor?: string;
+  secondaryColor?: string;
 
   // Complete 16:9 Screen Composition Recipe
   composition?: SceneCompositionPlan;

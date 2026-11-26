@@ -1,4 +1,10 @@
 import type { SceneBlueprintItem } from './sceneBlueprintTypes';
+import {
+  analyzeBatchImagesInSingleCall,
+  generateDeterministicAnalysis,
+  scoreScriptToAnalyzedImageMatch,
+  type AnalyzedImage,
+} from './imageUnderstanding';
 
 export interface UploadedImageCandidate {
   key: string;
@@ -136,5 +142,117 @@ export function smartMatchUploadedImagesToScenes(
   }
 
   return mappedBrollUrls;
+}
+
+/**
+ * Vision-AI + Semantic Placement for User-Uploaded Assets in Faceless Video (16:9 & 9:16).
+ *
+ * 1. Analyzes uploaded image URLs via Gemini Multimodal Vision (`analyzeBatchImagesInSingleCall`)
+ *    with deterministic fallback (`generateDeterministicAnalysis`) — never relies on raw filenames.
+ * 2. Scores every analyzed asset against every scene's narration, heading, and visual requirement.
+ * 3. Places each uploaded asset 1-to-1 into the highest-scoring scene (AI decides placement).
+ */
+export async function planUserUploadedAssetsForFacelessScenes<T extends SceneBlueprintItem>(
+  scenes: T[],
+  uploadedImageUrls: string[],
+  options: { assetMode?: string; minimumSemanticScore?: number } = {}
+): Promise<{
+  scenes: T[];
+  brollUrls: Record<number, string>;
+  analyzedAssets: AnalyzedImage[];
+}> {
+  const validUrls = (uploadedImageUrls || []).filter((u) => typeof u === 'string' && u.trim().length > 0);
+  if (!scenes || scenes.length === 0 || validUrls.length === 0 || options.assetMode === 'library') {
+    return { scenes, brollUrls: {}, analyzedAssets: [] };
+  }
+
+  // Step 1: Analyze uploaded images with Gemini Vision (batched) + resilient fallback
+  let analyzedAssets: AnalyzedImage[] = [];
+  try {
+    analyzedAssets = await analyzeBatchImagesInSingleCall(validUrls);
+  } catch (err) {
+    console.warn('[FACELESS_VISION_MATCH] Batch vision analysis failed, using deterministic fallback:', err);
+  }
+  if (!analyzedAssets || analyzedAssets.length === 0) {
+    analyzedAssets = validUrls.map((url, idx) =>
+      generateDeterministicAnalysis(url, `faceless-user-${idx + 1}`)
+    );
+  }
+
+  // Step 2: Score every (scene, analyzedAsset) pair and greedily assign highest-relevance matches 1-to-1
+  const minScore = options.minimumSemanticScore ?? 4;
+  const candidatePairs: Array<{ sceneIdx: number; assetIdx: number; score: number }> = [];
+
+  scenes.forEach((scene, sceneIdx) => {
+    const sceneContext = [
+      scene.heading || '',
+      scene.supportingText || '',
+      scene.narrationSegment?.text || '',
+      scene.visualAssetRequirement || '',
+    ]
+      .join(' ')
+      .trim();
+
+    analyzedAssets.forEach((img, assetIdx) => {
+      const score = scoreScriptToAnalyzedImageMatch(sceneContext, img);
+      candidatePairs.push({ sceneIdx, assetIdx, score });
+    });
+  });
+
+  // Sort highest semantic score first so AI places the strongest matches first
+  candidatePairs.sort((a, b) => b.score - a.score);
+
+  const assignedSceneIndices = new Set<number>();
+  const assignedAssetIndices = new Set<number>();
+  const brollUrls: Record<number, string> = {};
+
+  for (const pair of candidatePairs) {
+    if (pair.score < minScore) break;
+    if (assignedSceneIndices.has(pair.sceneIdx) || assignedAssetIndices.has(pair.assetIdx)) continue;
+
+    const scene = scenes[pair.sceneIdx];
+    const asset = analyzedAssets[pair.assetIdx];
+    if (scene && asset?.originalUrl) {
+      brollUrls[scene.sceneNumber] = asset.originalUrl;
+      assignedSceneIndices.add(pair.sceneIdx);
+      assignedAssetIndices.add(pair.assetIdx);
+    }
+  }
+
+  // Step 3: If user explicitly chose 'upload' mode (or still has unplaced assets),
+  // slot remaining user assets into the best open visual scenes (still 1-to-1, never duplicated)
+  if (assignedAssetIndices.size < analyzedAssets.length && options.assetMode !== 'library') {
+    const visualLayouts = new Set([
+      'full_bleed_visual',
+      'card_concept',
+      'split_screen',
+      'image_text',
+      'broll_overlay',
+      'screenshot_highlight',
+    ]);
+    const remainingAssetIndices = analyzedAssets
+      .map((_, i) => i)
+      .filter((i) => !assignedAssetIndices.has(i));
+
+    let ptr = 0;
+    for (let sIdx = 0; sIdx < scenes.length && ptr < remainingAssetIndices.length; sIdx++) {
+      if (assignedSceneIndices.has(sIdx)) continue;
+      if (visualLayouts.has(scenes[sIdx].layoutType)) {
+        const asset = analyzedAssets[remainingAssetIndices[ptr++]];
+        if (asset?.originalUrl) {
+          brollUrls[scenes[sIdx].sceneNumber] = asset.originalUrl;
+          assignedSceneIndices.add(sIdx);
+        }
+      }
+    }
+  }
+
+  // Step 4: Attach matched URLs onto scene objects
+  const updatedScenes = scenes.map((sc) => {
+    const matchedUrl = brollUrls[sc.sceneNumber];
+    return matchedUrl ? { ...sc, assetUrl: matchedUrl } : sc;
+  });
+
+  return { scenes: updatedScenes, brollUrls, analyzedAssets };
 }
 

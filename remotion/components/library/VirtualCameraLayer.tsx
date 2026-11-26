@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
+import { noise2D } from '@remotion/noise';
+import { CameraMotionBlur } from '@remotion/motion-blur';
 
 // =========================================================================
 // 1. VIRTUAL CAMERA & KINETIC MOTION SCHEMA
@@ -9,6 +11,7 @@ export type CameraMovementType =
   | 'none'
   | 'handheld-subtle'
   | 'handheld-intense'
+  | 'organic-drift'
   | 'ken-burns-in'
   | 'ken-burns-out'
   | 'pan-left-to-right'
@@ -27,6 +30,10 @@ export interface VirtualCameraConfig {
   shakeIntensity?: number;    // 0.0 to 2.0 (default 1.0)
   enablePunches?: boolean;
   punchEvents?: CameraPunchEvent[];
+  enableMotionBlur?: boolean; // Optional @remotion/motion-blur shutter blur for fast punches/pans
+  motionBlurSamples?: number; // Default 5 (Lambda-safe)
+  shutterAngle?: number;      // Default 180
+  noiseSeed?: string;         // Deterministic seed for @remotion/noise
 }
 
 // =========================================================================
@@ -43,8 +50,9 @@ export const VirtualCameraLayer: React.FC<{
   const movement = config.movement ?? 'handheld-subtle';
   const baseScale = config.baseScale ?? 1.05;
   const shakeIntensity = config.shakeIntensity ?? 1.0;
+  const seed = config.noiseSeed ?? 'itnavideo-cam';
 
-  // ── 1. Base Continuous Movement (Handheld / Ken Burns) ──
+  // ── 1. Base Continuous Movement (Organic @remotion/noise Handheld / Ken Burns) ──
   let continuousScale = 1.0;
   let continuousTx = 0;
   let continuousTy = 0;
@@ -52,14 +60,19 @@ export const VirtualCameraLayer: React.FC<{
 
   if (movement === 'handheld-subtle' && shakeIntensity > 0) {
     const t = frame / fps;
-    continuousTx = (Math.sin(t * 1.7) * 3.5 + Math.cos(t * 3.1) * 2.0) * shakeIntensity;
-    continuousTy = (Math.cos(t * 1.9) * 4.0 + Math.sin(t * 2.8) * 2.2) * shakeIntensity;
-    continuousRot = (Math.sin(t * 1.2) * 0.4) * shakeIntensity;
+    continuousTx = noise2D(`${seed}-hx`, t * 0.45, 0) * 6.5 * shakeIntensity;
+    continuousTy = noise2D(`${seed}-hy`, 0, t * 0.42) * 6.5 * shakeIntensity;
+    continuousRot = noise2D(`${seed}-hr`, t * 0.3, 1.7) * 0.55 * shakeIntensity;
   } else if (movement === 'handheld-intense' && shakeIntensity > 0) {
     const t = frame / fps;
-    continuousTx = (Math.sin(t * 3.5) * 8.0 + Math.cos(t * 6.2) * 4.5) * shakeIntensity;
-    continuousTy = (Math.cos(t * 3.8) * 8.5 + Math.sin(t * 5.4) * 4.0) * shakeIntensity;
-    continuousRot = (Math.sin(t * 2.4) * 1.0) * shakeIntensity;
+    continuousTx = noise2D(`${seed}-hix`, t * 1.15, 0.5) * 14.0 * shakeIntensity;
+    continuousTy = noise2D(`${seed}-hiy`, 0.5, t * 1.05) * 14.0 * shakeIntensity;
+    continuousRot = noise2D(`${seed}-hir`, t * 0.85, 2.3) * 1.3 * shakeIntensity;
+  } else if (movement === 'organic-drift' && shakeIntensity > 0) {
+    const t = frame / fps;
+    continuousTx = noise2D(`${seed}-dx`, t * 0.22, 3.1) * 18.0 * shakeIntensity;
+    continuousTy = noise2D(`${seed}-dy`, 4.2, t * 0.2) * 12.0 * shakeIntensity;
+    continuousScale = 1.02 + (noise2D(`${seed}-dz`, t * 0.18, 7.4) + 1) * 0.025;
   } else if (movement === 'ken-burns-in') {
     continuousScale = interpolate(frame, [0, durationInFrames], [1.0, 1.12], {
       extrapolateLeft: 'clamp',
@@ -125,7 +138,7 @@ export const VirtualCameraLayer: React.FC<{
   const finalY = continuousTy + punchShakeY;
   const finalRot = continuousRot;
 
-  return (
+  const stageContent = (
     <div
       style={{
         position: 'absolute',
@@ -148,5 +161,18 @@ export const VirtualCameraLayer: React.FC<{
       </div>
     </div>
   );
+
+  if (config.enableMotionBlur) {
+    return (
+      <CameraMotionBlur
+        shutterAngle={config.shutterAngle ?? 180}
+        samples={Math.min(8, Math.max(2, config.motionBlurSamples ?? 5))}
+      >
+        {stageContent}
+      </CameraMotionBlur>
+    );
+  }
+
+  return stageContent;
 });
 

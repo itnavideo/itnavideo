@@ -50,6 +50,9 @@ import {
 import { WatermarkRemoverToggle } from "@/components/dashboard/WatermarkRemoverToggle";
 import { StudioStepper, StudioStepperRow } from "@/components/dashboard/shared/StudioStepper";
 import { FacelessStoryboardTimeline } from "@/components/dashboard/FacelessStoryboardTimeline";
+import { Player, type PlayerRef } from "@remotion/player";
+import { FacelessLongVideoTemplate } from "@/remotion/templates/FACELESS_LONG_VIDEO/template";
+import { splitCaptionChunksToShortPills } from "@/remotion/components/library/UniversalCaptionLayer";
 import {
   ThreeDClapperboardIcon,
 } from "@/components/ui/ThreeDimensionalIcons";
@@ -72,36 +75,131 @@ import {
 export const FACELESS_STEPS = [
   { step: 0, title: "Overview", desc: "Process & Time" },
   { step: 1, title: "Upload", desc: "Audio & Script" },
-  { step: 2, title: "Music", desc: "Soundtrack & Audio" },
-  { step: 3, title: "Captions", desc: "Kinetic Presets" },
-  { step: 4, title: "Fonts", desc: "Dual Typography" },
-  { step: 5, title: "Theme", desc: "Visual System" },
-  { step: 6, title: "Canvas", desc: "Backdrop Tone" },
-  { step: 7, title: "Storyboard", desc: "Scene Review & Render" },
+  { step: 2, title: "Creator Styles", desc: "1-Click or Skip" },
+  { step: 3, title: "Music", desc: "Library or Custom" },
+  { step: 4, title: "Audio Ducking", desc: "Auto-Lower Music" },
+  { step: 5, title: "Sound Effects", desc: "Scene Impacts" },
+  { step: 6, title: "Captions", desc: "Kinetic Presets" },
+  { step: 7, title: "Fonts", desc: "Typography & Accent" },
+  { step: 8, title: "Canvas", desc: "Backdrop Tone" },
+  { step: 9, title: "Edit & Download", desc: "Preview & Export" },
 ] as const;
 
-// ── Font Selection (Dual Font Architecture: Font 1 & Font 2) ──
-export const POPULAR_HEADING_FONTS = [
-  { id: "Lora", name: "Lora", sample: "Mastery & Vision", category: "Editorial Serif", desc: "Vox & NYT Editorial Serif" },
-  { id: "Playfair Display", name: "Playfair Display", sample: "Timeless Luxury", category: "Luxury Serif", desc: "High-Contrast Luxury" },
-  { id: "Georgia", name: "Georgia", sample: "Authoritative Truth", category: "Classic Serif", desc: "Balanced Editorial Serif" },
-  { id: "Montserrat", name: "Montserrat", sample: "YOUTUBE IMPACT", category: "Bold Sans", desc: "Punchy Modern YouTube" },
-  { id: "Cinzel", name: "Cinzel", sample: "ANCIENT WISDOM", category: "Cinema Serif", desc: "Documentary Authority" },
-  { id: "Bebas Neue", name: "Bebas Neue", sample: "THE BIG SHIFT", category: "Headline Display", desc: "Tall Punchy Title Sans" },
-  { id: "Anton", name: "Anton", sample: "STOP SCROLLING", category: "Hook Display", desc: "Ultra-Bold Hook Title" },
-  { id: "Archivo Black", name: "Archivo Black", sample: "RAW POWER", category: "Heavy Sans", desc: "Heavy Industrial Punch" },
-  { id: "Outfit", name: "Outfit", sample: "Future of AI", category: "Tech Sans", desc: "Clean Geometric Tech" },
-  { id: "Plus Jakarta Sans", name: "Plus Jakarta", sample: "Modern Thinking", category: "Modern Sans", desc: "Global Clean Tech Sans" },
-] as const;
+// ── Font Selection (Single Font Family + Weight Hierarchy via Google Fonts) ──
+export interface StudioFontOption {
+  id: string;
+  name: string;
+  sample: string;
+  bodySample: string;
+  category: string;
+  desc: string;
+  recommended?: boolean;
+}
 
-export const POPULAR_BODY_FONTS = [
-  { id: "Plus Jakarta Sans", name: "Plus Jakarta", sample: "Every breakthrough starts with a quiet insight.", category: "Tech Sans", desc: "High-Retention Reading" },
-  { id: "Inter", name: "Inter", sample: "Clear typography builds trust and effortless focus.", category: "Clean Sans", desc: "Neutral Modern Legibility" },
-  { id: "DM Sans", name: "DM Sans", sample: "Friendly geometric letters engineered for screens.", category: "Geometric Sans", desc: "Friendly Subtitles" },
-  { id: "Poppins", name: "Poppins", sample: "Rounded contemporary rhythm that feels inviting.", category: "Rounded Sans", desc: "Contemporary Clean" },
-  { id: "Nunito", name: "Nunito", sample: "Warm human balance that makes narration natural.", category: "Warm Sans", desc: "Warm Balanced Narrative" },
-  { id: "Lora", name: "Lora", sample: "Refined storytelling rhythm from classic literature.", category: "Story Serif", desc: "Refined Storytelling Serif" },
-] as const;
+export const POPULAR_STUDIO_FONTS: StudioFontOption[] = [
+  { id: "Montserrat", name: "Montserrat", sample: "YOUTUBE IMPACT", bodySample: "Bold geometric headings paired with crisp supporting copy.", category: "Geometric Sans", desc: "YouTube, Creators & SaaS", recommended: true },
+  { id: "Inter", name: "Inter", sample: "Clarity & Focus", bodySample: "Clean UI legibility across titles, cards, and subtitles.", category: "Clean UI Sans", desc: "Tech, Explainers & Neutral", recommended: true },
+  { id: "Plus Jakarta Sans", name: "Plus Jakarta Sans", sample: "Modern Thinking", bodySample: "Every breakthrough starts with a quiet insight.", category: "Modern Sans", desc: "Business & Global Content", recommended: true },
+  { id: "Poppins", name: "Poppins", sample: "Smart Strategy", bodySample: "Rounded contemporary rhythm that feels inviting.", category: "Rounded Sans", desc: "Education & Lifestyle", recommended: true },
+  { id: "DM Sans", name: "DM Sans", sample: "CRISP & MINIMAL", bodySample: "Friendly geometric letters engineered for widescreen.", category: "Geometric", desc: "Minimal & Crisp", recommended: true },
+  { id: "Lora", name: "Lora", sample: "Mastery & Vision", bodySample: "Refined editorial storytelling from hook to takeaway.", category: "Editorial Serif", desc: "Documentary, Essays & Vox", recommended: true },
+  { id: "Space Grotesk", name: "Space Grotesk", sample: "Future of AI", bodySample: "Sharp technical personality for AI and coding videos.", category: "Tech Display", desc: "AI, Coding & Startups" },
+  { id: "Outfit", name: "Outfit", sample: "Clean Growth", bodySample: "Sleek modern proportions built for SaaS explainers.", category: "Geometric", desc: "Sleek SaaS & Startups" },
+  { id: "Playfair Display", name: "Playfair Display", sample: "Timeless Luxury", bodySample: "High-contrast authority for finance and mindset.", category: "Luxury Serif", desc: "Finance, Mindset & Luxury" },
+  { id: "Merriweather", name: "Merriweather", sample: "Deep Research", bodySample: "Thoughtful, pleasant reading pace for book summaries.", category: "Classic Serif", desc: "History, Books & Research" },
+  { id: "Nunito", name: "Nunito", sample: "Warm & Natural", bodySample: "Balanced human warmth that makes narration effortless.", category: "Warm Sans", desc: "Friendly & Courses" },
+  { id: "Raleway", name: "Raleway", sample: "MINIMAL DESIGN", bodySample: "Elegant light-to-black weight range for lifestyle.", category: "Elegant Sans", desc: "Minimalist & Lifestyle" },
+  { id: "Work Sans", name: "Work Sans", sample: "Editorial Focus", bodySample: "Optimized for crisp on-screen headings and paragraphs.", category: "Editorial Sans", desc: "Modern Article Look" },
+  { id: "Manrope", name: "Manrope", sample: "Fintech Clarity", bodySample: "Precision geometry built for data and dashboards.", category: "Precision", desc: "Fintech & Data Clarity" },
+  { id: "Bricolage Grotesque", name: "Bricolage Grotesque", sample: "Creator Studio", bodySample: "Expressive modern storytelling with bold character.", category: "Expressive", desc: "Trendy Storytelling" },
+  { id: "Rubik", name: "Rubik", sample: "Learn Faster", bodySample: "Soft, approachable geometry for tech and education.", category: "Soft Bold", desc: "Tech & Education" },
+  { id: "Source Sans 3", name: "Source Sans 3", sample: "Long-Form Flow", bodySample: "Effortless long-form readability without fatigue.", category: "Doc Sans", desc: "Long-Form Explanations" },
+  { id: "Lato", name: "Lato", sample: "Business Ready", bodySample: "Balanced warmth and professionalism in every line.", category: "Balanced", desc: "Business & Explainers" },
+  { id: "Roboto", name: "Roboto", sample: "Universal Clarity", bodySample: "Trusted clarity across mobile and widescreen.", category: "Standard Sans", desc: "Classic YouTube Clarity" },
+  { id: "Open Sans", name: "Open Sans", sample: "Clear Lessons", bodySample: "Comfortable reading pace for educational videos.", category: "Humanist", desc: "Educational Copy" },
+];
+
+export const POPULAR_HEADING_FONTS = POPULAR_STUDIO_FONTS;
+export const POPULAR_BODY_FONTS = POPULAR_STUDIO_FONTS;
+
+export const POPULAR_ACCENT_FONTS: StudioFontOption[] = [
+  { id: "Caveat", name: "Caveat", sample: "Key insight right here!", bodySample: "", category: "Handwritten", desc: "Natural Marker Callouts", recommended: true },
+  { id: "Patrick Hand", name: "Patrick Hand", sample: "Remember this step", bodySample: "", category: "Clean Script", desc: "Neat Whiteboard Notes", recommended: true },
+  { id: "Kalam", name: "Kalam", sample: "Why this matters ->", bodySample: "", category: "Pen Note", desc: "Bold Expressive Ink", recommended: true },
+  { id: "Shadows Into Light", name: "Shadows Into Light", sample: "Quick takeaway!", bodySample: "", category: "Marker", desc: "Friendly Margin Notes" },
+  { id: "Architects Daughter", name: "Architects Daughter", sample: "Step 1: Start small", bodySample: "", category: "Sketch", desc: "Crisp Diagram Labels" },
+  { id: "Indie Flower", name: "Indie Flower", sample: "Big difference here", bodySample: "", category: "Casual Ink", desc: "Warm Creator Annotations" },
+];
+
+// ── 1-Click Creator-Inspired Style Bundles (Font + Background + Subtitle only) ──
+// Each bundle applies ONLY: fontFamily, backgroundTheme, subtitleStyle (if captions are on).
+// Everything else (pacing, SFX, BGM, transitions, animations) stays on the standard workflow.
+export interface CreatorStyleBundle {
+  id: string;
+  name: string;
+  inspiredBy: string;
+  creatorHandle?: string;
+  avatarUrl?: string;
+  featured?: boolean;
+  tag: string;
+  desc: string;
+  /** Font family applied to the video titles and body text */
+  fontFamily: string;
+  /** Background theme / hex color for the canvas */
+  backgroundTheme: string;
+  /** Subtitle pill style — applied ONLY when the user has captions enabled */
+  subtitleStyle: string;
+  previewBg: string;
+  previewText: string;
+  previewAccent: string;
+  accentColors: [string, string, string];
+  previewHeadline: string;
+  previewSubline: string;
+  previewCallout: string;
+}
+
+export const CREATOR_STYLE_BUNDLES: CreatorStyleBundle[] = [
+  {
+    id: "ali-abdaal",
+    name: "Ali Abdaal",
+    inspiredBy: "YouTube Creator",
+    creatorHandle: "@aliabdaal",
+    avatarUrl: "https://res.cloudinary.com/dhouh9idx/image/upload/v1795673159/ali_abdaal_uodbfo.jpg",
+    featured: true,
+    tag: "",
+    desc: "",
+    fontFamily: "Lora",
+    backgroundTheme: "solid-white",
+    subtitleStyle: "clean-minimal-pill",
+    previewBg: "#FAF6F2",
+    previewText: "#141414",
+    previewAccent: "#FB923C",
+    accentColors: ["#FAF6F2", "#FB923C", "#141414"],
+    previewHeadline: "Corporate restructuring",
+    previewSubline: "AI automates your job",
+    previewCallout: "Reason 1",
+  },
+  {
+    id: "sara-finance",
+    name: "Sara Finance",
+    inspiredBy: "YouTube Creator",
+    creatorHandle: "@sarafinance",
+    avatarUrl: "https://res.cloudinary.com/dhouh9idx/image/upload/v1795673158/sara_finance_d52i6w.jpg",
+    featured: true,
+    tag: "",
+    desc: "",
+    fontFamily: "Montserrat",
+    backgroundTheme: "#4F46E5",
+    subtitleStyle: "box-highlight",
+    previewBg: "#3B1FD4",
+    previewText: "#FFFFFF",
+    previewAccent: "#FFF000",
+    accentColors: ["#3B1FD4", "#FFF000", "#FFFFFF"],
+    previewHeadline: "INTERACTIVE SPREADSHEETS",
+    previewSubline: "HELP PEOPLE SOLVE EVERYDAY",
+    previewCallout: "",
+  },
+];
 
 // ── Background Palette Selection (Studio Presets) ──
 export const BACKGROUND_PALETTES = [
@@ -285,6 +383,9 @@ export interface FacelessVideoStudioProps {
   topicTitle?: string;
   onTopicTitleChange?: (val: string) => void;
 
+  showCaptions?: boolean;
+  onShowCaptionsChange?: (val: boolean) => void;
+
   subtitleStyle?: string;
   onSubtitleStyleChange?: (style: string) => void;
 
@@ -312,10 +413,8 @@ export interface FacelessVideoStudioProps {
   visualTheme?: string;
   onVisualThemeChange?: (themeId: string) => void;
 
-  headingFont?: string;
-  onHeadingFontChange?: (font: string) => void;
-  bodyFont?: string;
-  onBodyFontChange?: (font: string) => void;
+  fontFamily?: string;
+  onFontFamilyChange?: (font: string) => void;
 
   bgmEnabled?: boolean;
   onBgmEnabledChange?: (enabled: boolean) => void;
@@ -352,6 +451,8 @@ export interface FacelessVideoStudioProps {
   planningError?: string | null;
   onClearPlanningError?: () => void;
   onSceneBlueprintChange?: (blueprint: any[]) => void;
+  initialSceneBlueprint?: any[];
+  initialBrollUrls?: Record<number, string>;
   removeAiWatermark?: boolean;
   onRemoveAiWatermarkChange?: (enabled: boolean) => void;
 }
@@ -361,6 +462,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   onSelectFile,
   topicTitle = "",
   onTopicTitleChange,
+  showCaptions = true,
+  onShowCaptionsChange,
   subtitleStyle = "glow-viral",
   onSubtitleStyleChange,
   captionAnimationStyle = "smooth",
@@ -379,10 +482,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   onEnableSfxChange,
   visualTheme = "modern-saas",
   onVisualThemeChange,
-  headingFont = "Lora",
-  onHeadingFontChange,
-  bodyFont = "Plus Jakarta Sans",
-  onBodyFontChange,
+  fontFamily,
+  onFontFamilyChange,
   bgmEnabled = true,
   onBgmEnabledChange,
   backgroundTheme = "solid-white",
@@ -403,6 +504,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   planningError = null,
   onClearPlanningError,
   onSceneBlueprintChange,
+  initialSceneBlueprint,
+  initialBrollUrls,
   removeAiWatermark = true,
   onRemoveAiWatermarkChange,
 }) => {
@@ -419,11 +522,26 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [transcriptText, setTranscriptText] = useState("");
   const [editableTranscript, setEditableTranscript] = useState("");
   const [transcriptSavedFeedback, setTranscriptSavedFeedback] = useState(false);
+  const [isReplanningFromTranscript, setIsReplanningFromTranscript] = useState(false);
+  const [transcriptReplanError, setTranscriptReplanError] = useState<string | null>(null);
   const [showTranscriptEditor, setShowTranscriptEditor] = useState(false);
   const [transcriptSegments, setTranscriptSegments] = useState<any[]>([]);
+  const [audioPlaybackRate, setAudioPlaybackRate] = useState<1 | 1.5>(1);
   const [originalWords, setOriginalWords] = useState<any[]>([]);
-  const [sceneBlueprint, setSceneBlueprint] = useState<any[]>([]);
-  const [brollUrls, setBrollUrls] = useState<Record<number, string>>({});
+  const [sceneBlueprint, setSceneBlueprint] = useState<any[]>(initialSceneBlueprint || []);
+  const [brollUrls, setBrollUrls] = useState<Record<number, string>>(initialBrollUrls || {});
+
+  useEffect(() => {
+    if (Array.isArray(initialSceneBlueprint) && initialSceneBlueprint.length > 0 && sceneBlueprint.length === 0) {
+      setSceneBlueprint(initialSceneBlueprint);
+    }
+  }, [initialSceneBlueprint]);
+
+  useEffect(() => {
+    if (initialBrollUrls && Object.keys(initialBrollUrls).length > 0 && Object.keys(brollUrls).length === 0) {
+      setBrollUrls(initialBrollUrls);
+    }
+  }, [initialBrollUrls]);
   const [audioDurationSec, setAudioDurationSec] = useState<number>(0);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState<string>("");
 
@@ -439,15 +557,33 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     selectedBgmTrackId || AWS_BGM_TRACKS[0]?.id || "not-for-nothing-otis-mcdonald"
   );
   const [activeVisualTheme, setActiveVisualTheme] = useState<string>(visualTheme || "modern-saas");
-  const [activeHeadingFont, setActiveHeadingFont] = useState<string>(headingFont || "Lora");
-  const [activeBodyFont, setActiveBodyFont] = useState<string>(bodyFont || "Plus Jakarta Sans");
+  const [activeFont, setActiveFont] = useState<string>(fontFamily || "Montserrat");
+  const [activeAccentFont, setActiveAccentFont] = useState<string>("Caveat");
+  const [activeCreatorBundleId, setActiveCreatorBundleId] = useState<string | null>(null);
+  const handleSelectPrimaryFont = (fontId: string) => {
+    setActiveCreatorBundleId(null);
+    setActiveFont(fontId);
+    onFontFamilyChange?.(fontId);
+  };
   const [isBgmActive, setIsBgmActive] = useState<boolean>(bgmEnabled ?? true);
+  const [bgmSourceMode, setBgmSourceMode] = useState<"library" | "custom">("library");
+  const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
+  const [customBgmUrl, setCustomBgmUrl] = useState<string>("");
+  const [customBgmName, setCustomBgmName] = useState<string>("");
 
   // Canva Color Palette & Custom Hex State
+  const [activeBackgroundTheme, setActiveBackgroundTheme] = useState<string>(backgroundTheme || "solid-white");
+  const [canvasTexture, setCanvasTexture] = useState<"solid" | "dot-grid" | "square-grid" | "vignette" | "paper">("solid");
   const [customHexInput, setCustomHexInput] = useState<string>(
     backgroundTheme?.startsWith("#") ? backgroundTheme : "#FAF6F2"
   );
   const [copiedHexFeedback, setCopiedHexFeedback] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (backgroundTheme) {
+      setActiveBackgroundTheme(backgroundTheme);
+    }
+  }, [backgroundTheme]);
 
   // Storyboard Scene Editing & Swapping State (Audit Recommendation 1)
   const [swapModalSceneIndex, setSwapModalSceneIndex] = useState<number | null>(null);
@@ -456,7 +592,132 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [editTakeawayInput, setEditTakeawayInput] = useState<string>("");
   const [editNarrationInput, setEditNarrationInput] = useState<string>("");
   const [editLayoutInput, setEditLayoutInput] = useState<string>("card_concept");
+  const [editHighlightArrowInput, setEditHighlightArrowInput] = useState<boolean>(false);
+  const [editConceptStickerInput, setEditConceptStickerInput] = useState<string>("none");
+  const [sceneTransitionStyle, setSceneTransitionStyle] = useState<"crossfade" | "slide-push" | "zoom-whip" | "hard-cut">("crossfade");
+  const applyCreatorBundle = (bundle: CreatorStyleBundle, jumpToFinal = true) => {
+    // ── Font ────────────────────────────────────────────────────────────────
+    setActiveCreatorBundleId(bundle.id);
+    setActiveFont(bundle.fontFamily);
+    onFontFamilyChange?.(bundle.fontFamily);
+
+    // ── Background ──────────────────────────────────────────────────────────
+    setActiveBackgroundTheme(bundle.backgroundTheme);
+    onBackgroundThemeChange?.(bundle.backgroundTheme);
+
+    // ── Subtitle style (only if user already has captions enabled) ──────────
+    if (isCaptionsEnabled && bundle.subtitleStyle) {
+      onSubtitleStyleChange?.(bundle.subtitleStyle);
+    }
+
+    // Everything else (pacing, SFX, BGM, transitions, animations) is NOT
+    // changed — the standard workflow handles those independently.
+
+    if (jumpToFinal) {
+      setCurrentStep(9);
+    }
+  };
+  const [replanningSceneIndex, setReplanningSceneIndex] = useState<number | null>(null);
   const [showPreRenderModal, setShowPreRenderModal] = useState<boolean>(false);
+  const step8PlayerRef = useRef<PlayerRef | null>(null);
+  const [step8CurrentFrame, setStep8CurrentFrame] = useState<number>(0);
+
+  const totalSceneDurationSec = useMemo(() => {
+    if (!sceneBlueprint || sceneBlueprint.length === 0) {
+      return Math.max(5, Number((audioDurationSec || 30).toFixed(3)));
+    }
+    const sum = sceneBlueprint.reduce((acc, s) => acc + Number(s.duration || 5), 0);
+    return Math.max(5, Number((audioDurationSec > 0 ? Math.max(audioDurationSec, sum) : sum).toFixed(3)));
+  }, [sceneBlueprint, audioDurationSec]);
+
+  const realPreviewCaptions = useMemo(() => {
+    if (!transcriptSegments || transcriptSegments.length === 0) return [];
+    const rawChunks = transcriptSegments.map((seg) => ({
+      text: seg.text,
+      start: seg.start,
+      end: seg.end,
+      words: (originalWords || []).filter(
+        (w) => w.start >= seg.start - 0.15 && w.end <= seg.end + 0.15
+      ),
+    }));
+    return splitCaptionChunksToShortPills(rawChunks);
+  }, [transcriptSegments, originalWords]);
+
+  const activeBgmPreviewUrl = useMemo(() => {
+    if (!isBgmActive) return undefined;
+    if (bgmSourceMode === "custom" && customBgmUrl) return customBgmUrl;
+    const found = AWS_BGM_TRACKS.find((t) => t.id === selectedBgmTrack);
+    return found ? getBgmTrackAudioUrl(found) : undefined;
+  }, [isBgmActive, bgmSourceMode, customBgmUrl, selectedBgmTrack]);
+
+  const step8PreviewInputProps = useMemo(
+    () => ({
+      title: topicTitle || "Faceless Video",
+      durationSeconds: totalSceneDurationSec,
+      audioSrc: audioPreviewUrl || undefined,
+      musicUrl: activeBgmPreviewUrl,
+      musicVolume: isBgmActive ? activeBgmVolume / 100 : 0,
+      sceneBlueprint,
+      brollUrls,
+      captions: realPreviewCaptions,
+      showCaptions,
+      subtitleStyle,
+      captionAnimationStyle,
+      captionPosition,
+      fontFamily: activeFont,
+      headingFont: activeFont,
+      typographyFont: activeFont,
+      accentFont: activeAccentFont,
+      backgroundTheme: activeBackgroundTheme,
+      canvasTexture,
+      sceneTransitionStyle,
+      visualTheme: activeVisualTheme,
+      pacingStyle: facelessPacingStyle,
+      aspectRatio: "16:9" as const,
+      watermark: false,
+    }),
+    [
+      topicTitle,
+      totalSceneDurationSec,
+      audioPreviewUrl,
+      activeBgmPreviewUrl,
+      isBgmActive,
+      activeBgmVolume,
+      sceneBlueprint,
+      brollUrls,
+      realPreviewCaptions,
+      showCaptions,
+      subtitleStyle,
+      captionAnimationStyle,
+      captionPosition,
+      activeFont,
+      activeAccentFont,
+      activeBackgroundTheme,
+      canvasTexture,
+      sceneTransitionStyle,
+      activeVisualTheme,
+      facelessPacingStyle,
+    ]
+  );
+
+  useEffect(() => {
+    const player = step8PlayerRef.current;
+    if (!player || currentStep !== 9 || sceneBlueprint.length === 0) return;
+    const onFrameUpdate = (e: { detail: { frame: number } }) => {
+      setStep8CurrentFrame(e.detail.frame);
+    };
+    player.addEventListener("frameupdate", onFrameUpdate as any);
+    return () => {
+      player.removeEventListener("frameupdate", onFrameUpdate as any);
+    };
+  }, [currentStep, sceneBlueprint.length]);
+
+  const handleSelectAndSeekScene = (sceneNum: number, startSeconds: number) => {
+    setSelectedSceneForAssetSwap(sceneNum);
+    if (step8PlayerRef.current) {
+      step8PlayerRef.current.seekTo(Math.max(0, Math.round(startSeconds * 30)));
+    }
+  };
 
   // Curated stock library for 16:9 widescreen scenes
   const CURATED_16_9_STOCKS = [
@@ -508,6 +769,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [assetCategoryFilter, setAssetCategoryFilter] = useState<string>("all");
   const [assetSearchQuery, setAssetSearchQuery] = useState<string>("");
   const [assetStyleFilter, setAssetStyleFilter] = useState<string>("all");
+  const [brokenAssetUrls, setBrokenAssetUrls] = useState<Record<string, boolean>>({});
 
   const handleRemoveAssetFromScene = (sceneNum: number) => {
     setBrollUrls((prev) => {
@@ -522,15 +784,26 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     );
   };
 
-  const handleAssignAssetToCurrentOrTarget = (assetUrl: string) => {
-    const targetSceneNum = selectedSceneForAssetSwap || 1;
+  const handleSceneCustomImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const targetSceneNum = uploadTargetSceneNum || selectedSceneForAssetSwap || 1;
+    const localUrl = URL.createObjectURL(file);
+    setSceneCustomImageFiles((prev) => ({ ...prev, [targetSceneNum]: file }));
+    handleAssignAssetToCurrentOrTarget(localUrl, targetSceneNum);
+    setUploadTargetSceneNum(null);
+    if (e.target) e.target.value = "";
+  };
+
+  const handleAssignAssetToCurrentOrTarget = (assetUrl: string, explicitSceneNum?: number) => {
+    const targetSceneNum = explicitSceneNum || selectedSceneForAssetSwap || 1;
     setBrollUrls((prev) => ({
       ...prev,
       [targetSceneNum]: assetUrl,
     }));
     setSceneBlueprint((prev) =>
-      prev.map((sc) =>
-        sc.sceneNumber === targetSceneNum ? { ...sc, assetUrl, brollUrl: assetUrl } : sc
+      prev.map((sc, idx) =>
+        (sc.sceneNumber || idx + 1) === targetSceneNum ? { ...sc, assetUrl, brollUrl: assetUrl } : sc
       )
     );
   };
@@ -584,6 +857,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     setEditTakeawayInput(sc.supportingText || sc.keyTakeaway || "");
     setEditNarrationInput(sc.narrationSegment?.text || sc.narrationExcerpt || sc.description || "");
     setEditLayoutInput(sc.layoutType || "card_concept");
+    setEditHighlightArrowInput(Boolean(sc.highlightArrow));
+    setEditConceptStickerInput(sc.conceptSticker || "none");
   };
 
   const handleSaveSceneEdits = () => {
@@ -597,6 +872,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
             heading: editHeadlineInput,
             supportingText: editTakeawayInput,
             layoutType: editLayoutInput,
+            highlightArrow: editHighlightArrowInput,
+            conceptSticker: editConceptStickerInput === "none" ? undefined : editConceptStickerInput,
             narrationSegment: sc.narrationSegment
               ? { ...sc.narrationSegment, text: editNarrationInput || sc.narrationSegment.text }
               : { text: editNarrationInput, startSeconds: 0 },
@@ -609,6 +886,61 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       )
     );
     setEditSceneIndex(null);
+  };
+
+  const handleReplanSingleScene = async (sceneIdx: number) => {
+    const targetScene = sceneBlueprint[sceneIdx];
+    if (!targetScene || replanningSceneIndex !== null) return;
+    const narrationText =
+      targetScene.narrationSegment?.text ||
+      targetScene.narrationExcerpt ||
+      targetScene.supportingText ||
+      targetScene.heading ||
+      "Key video insight";
+    const startSec = Number(targetScene.narrationSegment?.startSeconds ?? targetScene.startSeconds ?? 0);
+    const durSec = Math.max(2, Number(targetScene.duration || 5));
+
+    setReplanningSceneIndex(sceneIdx);
+    try {
+      const res = await fetch("/api/reels/plan-faceless-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          existingTranscript: narrationText,
+          durationSeconds: durSec,
+          existingSegments: [{ text: narrationText, start: startSec, end: startSec + durSec }],
+          topicTitle: topicTitle.trim() || undefined,
+          backgroundTheme: activeBackgroundTheme,
+          fontFamily: activeFont,
+          accentFont: activeAccentFont,
+          creatorStyle: activeCreatorBundleId || undefined,
+        }),
+      });
+      const data = await res.json();
+      const replanned = data?.sceneBlueprint?.[0];
+      if (data?.ok && replanned) {
+        const sceneNum = targetScene.sceneNumber || sceneIdx + 1;
+        setSceneBlueprint((prev) =>
+          prev.map((sc, idx) =>
+            idx === sceneIdx
+              ? {
+                  ...replanned,
+                  sceneNumber: sceneNum,
+                  duration: targetScene.duration || replanned.duration,
+                  narrationSegment: targetScene.narrationSegment || replanned.narrationSegment,
+                }
+              : sc
+          )
+        );
+        if (replanned.assetUrl) {
+          setBrollUrls((prev) => ({ ...prev, [sceneNum]: replanned.assetUrl }));
+        }
+      }
+    } catch (err) {
+      console.warn("[REPLAN_SINGLE_SCENE_ERROR]", err);
+    } finally {
+      setReplanningSceneIndex(null);
+    }
   };
 
   useEffect(() => {
@@ -624,15 +956,83 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     }
   }, [selectedBgmTrackId]);
 
-  const [bgmSourceMode, setBgmSourceMode] = useState<"library" | "custom">("library");
-  const [customBgmFile, setCustomBgmFile] = useState<File | null>(null);
-  const [customBgmUrl, setCustomBgmUrl] = useState<string>("");
-  const [customBgmName, setCustomBgmName] = useState<string>("");
   const [playingBgmPreview, setPlayingBgmPreview] = useState<string | null>(null);
   const [autoDucking, setAutoDucking] = useState<boolean>(true);
+  const [duckingStrength, setDuckingStrength] = useState<"gentle" | "balanced" | "podcast">("balanced");
   const [bgmMoodFilter, setBgmMoodFilter] = useState<string>("all");
   const [isPlayingSfxSample, setIsPlayingSfxSample] = useState<boolean>(false);
   const sfxAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [isPlayingDuckingExample, setIsPlayingDuckingExample] = useState(false);
+  const duckingAudioRef = useRef<HTMLAudioElement | null>(null);
+  const duckingTimersRef = useRef<number[]>([]);
+
+  const stopDuckingExample = () => {
+    duckingTimersRef.current.forEach((id) => window.clearTimeout(id));
+    duckingTimersRef.current = [];
+    if (duckingAudioRef.current) {
+      duckingAudioRef.current.pause();
+      duckingAudioRef.current.currentTime = 0;
+    }
+    setIsPlayingDuckingExample(false);
+  };
+
+  const playDuckingExample = () => {
+    if (isPlayingDuckingExample) {
+      stopDuckingExample();
+      return;
+    }
+    try {
+      const track = AWS_BGM_TRACKS.find((t) => t.id === selectedBgmTrack) || AWS_BGM_TRACKS[0];
+      const src =
+        bgmSourceMode === "custom" && customBgmUrl
+          ? customBgmUrl
+          : getBgmTrackAudioUrl(track);
+      if (!src) return;
+
+      if (!duckingAudioRef.current || duckingAudioRef.current.src !== src) {
+        duckingAudioRef.current = new Audio(src);
+      }
+      const audio = duckingAudioRef.current;
+      audio.currentTime = 0;
+      audio.volume = 0.4;
+      setIsPlayingDuckingExample(true);
+
+      const dipVolume = !autoDucking
+        ? 0.4
+        : duckingStrength === "gentle"
+          ? 0.16
+          : duckingStrength === "podcast"
+            ? 0.03
+            : 0.08;
+
+      audio
+        .play()
+        .then(() => {
+          // 1.2s: smoothly dip music volume as if voiceover starts speaking
+          duckingTimersRef.current.push(
+            window.setTimeout(() => {
+              if (duckingAudioRef.current) duckingAudioRef.current.volume = dipVolume;
+            }, 1200)
+          );
+          // 3.0s: smoothly raise music back up during a pause
+          duckingTimersRef.current.push(
+            window.setTimeout(() => {
+              if (duckingAudioRef.current) duckingAudioRef.current.volume = 0.4;
+            }, 3000)
+          );
+          // 4.2s: stop preview
+          duckingTimersRef.current.push(
+            window.setTimeout(() => {
+              stopDuckingExample();
+            }, 4200)
+          );
+        })
+        .catch(() => stopDuckingExample());
+    } catch {
+      stopDuckingExample();
+    }
+  };
 
   const playSfxSample = () => {
     try {
@@ -656,17 +1056,48 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   // Step 3 Sub-Tabs: Fast mobile-first navigation across 65 style cards
   const [styleSubTab, setStyleSubTab] = useState<"subtitles" | "themes" | "typography" | "canvas">("subtitles");
 
-  // Caption Filter & Search
+  // Caption Filter, Search & ON/OFF Toggle
+  const [isCaptionsEnabled, setIsCaptionsEnabled] = useState<boolean>(showCaptions ?? true);
+  const [showAllCaptionStyles, setShowAllCaptionStyles] = useState<boolean>(false);
   const [captionFilter, setCaptionFilter] = useState("all");
   const [captionSearchQuery, setCaptionSearchQuery] = useState("");
   const [previewWordStep, setPreviewWordStep] = useState<number>(1);
 
   useEffect(() => {
-    if (currentStep !== 3) return;
+    setIsCaptionsEnabled(showCaptions ?? true);
+  }, [showCaptions]);
+
+  // Font Search Filter & Expand Toggle
+  const [fontSearch, setFontSearch] = useState("");
+  const [showAllFonts, setShowAllFonts] = useState(false);
+
+  useEffect(() => {
+    if (currentStep !== 6) return;
     const interval = setInterval(() => {
       setPreviewWordStep((prev) => (prev + 1) % 3);
     }, 700);
     return () => clearInterval(interval);
+  }, [currentStep]);
+
+  // Dynamically load all Google Fonts for Step 0, Step 2 (Creator Bundles) & Step 7 (Typography)
+  useEffect(() => {
+    if ((currentStep !== 0 && currentStep !== 2 && currentStep !== 7) || typeof document === "undefined") return;
+    const linkId = "itnavideo-studio-google-fonts";
+    if (document.getElementById(linkId)) return;
+    const families = [
+      ...new Set([
+        ...POPULAR_STUDIO_FONTS.map((f) => f.id),
+        ...POPULAR_ACCENT_FONTS.map((f) => f.id),
+      ]),
+    ].filter((name) => name !== "Georgia");
+    const query = families
+      .map((name) => `family=${encodeURIComponent(name)}:wght@400;500;600;700;800;900`)
+      .join("&");
+    const link = document.createElement("link");
+    link.id = linkId;
+    link.rel = "stylesheet";
+    link.href = `https://fonts.googleapis.com/css2?${query}&display=swap`;
+    document.head.appendChild(link);
   }, [currentStep]);
 
   const currentCaptionObj = useMemo(() => {
@@ -699,6 +1130,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const audioInputRef = useRef<HTMLInputElement>(null);
   const bgmInputRef = useRef<HTMLInputElement>(null);
   const multiMediaInputRef = useRef<HTMLInputElement>(null);
+  const sceneImageInputRef = useRef<HTMLInputElement>(null);
+  const [uploadTargetSceneNum, setUploadTargetSceneNum] = useState<number | null>(null);
+  const [sceneCustomImageFiles, setSceneCustomImageFiles] = useState<Record<number, File>>({});
   const bgmPreviewAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Audio Duration & Calculation (1 Min = 1 Credit, Max 5 min / 300s)
@@ -721,21 +1155,19 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     };
   }, [audioPreviewUrl]);
 
-  // Load sample demo
-  const handleLoadSampleDemo = () => {
-    onTopicTitleChange?.("The Psychology of High Performance");
-    const demoAudioUrl = "/assets/reusable/testing1.mp3";
-    setAudioPreviewUrl(demoAudioUrl);
-    setAudioDurationSec(60);
-    const dummyFile = new File(["dummy audio"], "high-performance-narration-sample.mp3", { type: "audio/mpeg" });
-    onSelectFile(dummyFile);
-    setCurrentStep(1);
+  const [isDraggingNarration, setIsDraggingNarration] = useState(false);
+  const [isDraggingBgm, setIsDraggingBgm] = useState(false);
+
+  const isValidMediaFile = (file: File, allowVideo: boolean) => {
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    const audioExts = ["mp3", "wav", "m4a", "aac", "ogg", "flac", "webm"];
+    if (file.type.startsWith("audio/") || audioExts.includes(ext)) return true;
+    if (allowVideo && (file.type === "video/mp4" || ext === "mp4")) return true;
+    return false;
   };
 
-  // Handle narration audio file selection
-  const handleNarrationSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processNarrationFile = (file: File) => {
+    if (!isValidMediaFile(file, true)) return;
 
     onSelectFile(file);
     const localUrl = URL.createObjectURL(file);
@@ -749,8 +1181,23 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     };
 
     triggerTranscription(file);
-    if (e.target) e.target.value = "";
     setCurrentStep(1);
+  };
+
+  // Handle narration audio file selection
+  const handleNarrationSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processNarrationFile(file);
+    if (e.target) e.target.value = "";
+  };
+
+  const handleNarrationDrop = (e: React.DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingNarration(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processNarrationFile(file);
   };
 
   // Trigger transcription
@@ -781,11 +1228,96 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       });
   };
 
-  // Save edited transcript
+  // Save edited transcript (text only)
   const handleSaveEditedTranscript = () => {
     setTranscriptText(editableTranscript);
+    setTranscriptReplanError(null);
     setTranscriptSavedFeedback(true);
     setTimeout(() => setTranscriptSavedFeedback(false), 2500);
+  };
+
+  // Save edited transcript AND re-plan storyboard scenes so scenes stay 100% synced
+  const handleApplyAndReplanTranscript = async () => {
+    const cleanText = editableTranscript.trim();
+    if (!cleanText || isReplanningFromTranscript) return;
+
+    setTranscriptText(cleanText);
+    setTranscriptReplanError(null);
+
+    if (sceneBlueprint.length === 0) {
+      handleSaveEditedTranscript();
+      return;
+    }
+
+    const totalDur = Math.max(5, audioDurationSec || totalSceneDurationSec || 60);
+    const sentences = cleanText
+      .split(/(?<=[.!?।])\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    let mappedSegments: Array<{ text: string; start: number; end: number }>;
+    if (
+      transcriptSegments.length > 0 &&
+      sentences.length === transcriptSegments.length
+    ) {
+      mappedSegments = transcriptSegments.map((seg, i) => ({
+        text: sentences[i],
+        start: Number(seg.start ?? 0),
+        end: Number(seg.end ?? totalDur),
+      }));
+    } else {
+      const parts = sentences.length > 0 ? sentences : [cleanText];
+      const totalChars = parts.reduce((sum, p) => sum + p.length, 0) || 1;
+      let cursor = 0;
+      mappedSegments = parts.map((p, idx) => {
+        const span = (p.length / totalChars) * totalDur;
+        const start = Math.round(cursor * 100) / 100;
+        const end = idx === parts.length - 1 ? totalDur : Math.round((cursor + span) * 100) / 100;
+        cursor = end;
+        return { text: p, start, end };
+      });
+    }
+
+    setIsReplanningFromTranscript(true);
+    try {
+      const res = await fetch("/api/reels/plan-faceless-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          existingTranscript: cleanText,
+          existingSegments: mappedSegments,
+          durationSeconds: totalDur,
+          topicTitle: topicTitle.trim() || undefined,
+          backgroundTheme: activeBackgroundTheme,
+          fontFamily: activeFont,
+          accentFont: activeAccentFont,
+          creatorStyle: activeCreatorBundleId || undefined,
+        }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || !payload.ok) {
+        throw new Error(payload.error || "Failed to re-plan scenes from edited transcript.");
+      }
+
+      if (Array.isArray(payload.segments) && payload.segments.length > 0) {
+        setTranscriptSegments(payload.segments);
+      } else {
+        setTranscriptSegments(mappedSegments);
+      }
+      if (Array.isArray(payload.sceneBlueprint)) {
+        setSceneBlueprint(payload.sceneBlueprint);
+        onSceneBlueprintChange?.(payload.sceneBlueprint);
+      }
+      if (payload.brollUrls && typeof payload.brollUrls === "object") {
+        setBrollUrls(payload.brollUrls);
+      }
+      setTranscriptSavedFeedback(true);
+      setTimeout(() => setTranscriptSavedFeedback(false), 2500);
+    } catch (err: any) {
+      setTranscriptReplanError(err?.message || "Failed to re-plan scenes. Please click Retry.");
+    } finally {
+      setIsReplanningFromTranscript(false);
+    }
   };
 
   // Handle multi-media (Images AND Video Clips)
@@ -817,10 +1349,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     if (e.target) e.target.value = "";
   };
 
-  // Handle custom BGM upload
-  const handleCustomBgmUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processCustomBgmFile = (file: File) => {
+    if (!isValidMediaFile(file, false)) return;
 
     setCustomBgmFile(file);
     const localUrl = URL.createObjectURL(file);
@@ -828,7 +1358,22 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     setCustomBgmName(file.name);
     setBgmSourceMode("custom");
     setSelectedBgmTrack(localUrl);
+  };
+
+  // Handle custom BGM upload
+  const handleCustomBgmUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processCustomBgmFile(file);
     if (e.target) e.target.value = "";
+  };
+
+  const handleBgmDrop = (e: React.DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingBgm(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processCustomBgmFile(file);
   };
 
   // Preview music track
@@ -903,6 +1448,21 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     setAudioCurrentTime(target);
   };
 
+  const handleSkipAudio = (deltaSec: number) => {
+    if (!audioPlayerRef.current || !audioDurationSec) return;
+    const next = Math.max(0, Math.min(audioDurationSec, audioPlayerRef.current.currentTime + deltaSec));
+    audioPlayerRef.current.currentTime = next;
+    setAudioCurrentTime(next);
+  };
+
+  const handleTogglePlaybackRate = () => {
+    const nextRate: 1 | 1.5 = audioPlaybackRate === 1 ? 1.5 : 1;
+    setAudioPlaybackRate(nextRate);
+    if (audioPlayerRef.current) {
+      audioPlayerRef.current.playbackRate = nextRate;
+    }
+  };
+
   // Final Generate Video Action
   const handleTriggerGenerate = () => {
     // Mutually exclusive: strictly use custom uploaded music OR built-in library music, never both
@@ -919,13 +1479,16 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       segments: transcriptSegments,
       durationSeconds: audioDurationSec || 60,
       topicTitle: topicTitle.trim() || "",
-      backgroundTheme: backgroundTheme || "solid-white",
-      headingFont: activeHeadingFont,
-      bodyFont: activeBodyFont,
+      backgroundTheme: activeBackgroundTheme || backgroundTheme || "solid-white",
+      canvasTexture,
+      fontFamily: activeFont,
+      accentFont: activeAccentFont,
+      creatorStyle: activeCreatorBundleId || undefined,
       bgmEnabled: isBgmActive,
       bgmSourceMode,
       customBgmFile: (bgmSourceMode === "custom" && customBgmUrl) ? customBgmFile : null,
       visualTheme: activeVisualTheme,
+      showCaptions: isCaptionsEnabled,
       subtitleStyle,
       captionAnimationStyle,
       captionPosition,
@@ -939,8 +1502,12 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       bgmUrl: finalBgmUrl,
       bgmTrackId: isBgmActive ? (bgmSourceMode === "custom" && customBgmUrl ? "custom" : selectedBgmTrack) : "none",
       userMediaClips,
+      sceneCustomImageFiles,
       removeAiWatermark,
       autoDucking,
+      duckingStrength,
+      duckingDb: duckingStrength === "gentle" ? -8 : duckingStrength === "podcast" ? -20 : -14,
+      sceneTransitionStyle,
     };
 
     onGenerate(payload);
@@ -959,6 +1526,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       topicTitle: topicTitle.trim() || "",
       backgroundTheme: "solid-white",
       visualTheme: activeVisualTheme,
+      showCaptions: isCaptionsEnabled,
       subtitleStyle,
       captionAnimationStyle,
       captionPosition,
@@ -971,8 +1539,12 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       bgmUrl: finalBgmUrl,
       bgmTrackId: selectedBgmTrack,
       userMediaClips,
+      sceneCustomImageFiles,
       removeAiWatermark,
       autoDucking,
+      duckingStrength,
+      duckingDb: duckingStrength === "gentle" ? -8 : duckingStrength === "podcast" ? -20 : -14,
+      sceneTransitionStyle,
     };
 
     onGenerate(payload);
@@ -980,12 +1552,12 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
   // Filter 32 caption styles
   const filteredCaptionStyles = THIRTY_TWO_CAPTION_STYLES.filter((s) => {
-    const matchesCategory = captionFilter === "all" || s.category.toLowerCase() === captionFilter.toLowerCase();
+    const matchesCategory = captionFilter === "all" || (s.category || "").toLowerCase() === captionFilter.toLowerCase();
     const matchesSearch =
       !captionSearchQuery.trim() ||
       s.name.toLowerCase().includes(captionSearchQuery.toLowerCase()) ||
-      s.desc.toLowerCase().includes(captionSearchQuery.toLowerCase()) ||
-      s.badge.toLowerCase().includes(captionSearchQuery.toLowerCase());
+      (s.desc || "").toLowerCase().includes(captionSearchQuery.toLowerCase()) ||
+      (s.badge || "").toLowerCase().includes(captionSearchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -1015,6 +1587,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
         steps={[...FACELESS_STEPS]}
         currentStep={currentStep}
         onStepClick={(step) => setCurrentStep(step)}
+        allowJumpAhead
       />
 
       {/* ── ROW 2: Scrollable Studio Workspace ── */}
@@ -1093,6 +1666,29 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         <span>Watch Demo Videos</span>
                       </a>
                     </div>
+
+                    {/* Handwritten Margin Note near Start Creating Video CTA */}
+                    <div className="flex items-center gap-1.5 pl-1 pt-0.5 select-none">
+                      <svg
+                        className="w-5 h-5 text-orange-500 shrink-0 -mt-1"
+                        viewBox="0 0 28 28"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        {/* Hand-drawn curved arrow pointing up-left toward Start Creating Video */}
+                        <path d="M22 20 C14 20, 9 15, 8 6" />
+                        <path d="M4 11 L8 6 L13 10" />
+                      </svg>
+                      <span
+                        style={{ fontFamily: 'var(--font-caveat), "Caveat", cursive' }}
+                        className="text-xl sm:text-2xl font-bold text-orange-600 tracking-wide -rotate-1"
+                      >
+                        No editing skills needed
+                      </span>
+                    </div>
                   </div>
 
                   {/* Right Side: Authentic Borderless YouTube Logo with Subtle Float Animation */}
@@ -1143,7 +1739,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 {/* ── CLEAN ANIMATED MOVING TIMELINE: 0 to 5 Min ── */}
                 <div className="my-6 sm:my-8 p-4 sm:p-5 rounded-2xl border border-slate-200/90 bg-gradient-to-r from-orange-50/20 via-white to-amber-50/20 shadow-2xs">
                   {/* Top Bar: Left = Video Timeline Label, Right = Handwritten Note & Arrow */}
-                  <div className="flex items-center justify-between gap-3 pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-3">
                     <div className="flex items-center gap-2">
                       <div className="h-6 w-6 rounded-lg bg-orange-50 border border-orange-200/80 flex items-center justify-center text-orange-600 shadow-2xs">
                         <Clock size={13} />
@@ -1157,7 +1753,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                     <div className="flex items-center gap-1.5 leading-none">
                       <span
                         style={{ fontFamily: 'var(--font-caveat), "Caveat", cursive' }}
-                        className="text-2xl sm:text-3xl font-bold text-orange-600 tracking-wide select-none"
+                        className="text-xl sm:text-3xl font-bold text-orange-600 tracking-wide select-none"
                       >
                         Up to 5 Minutes
                       </span>
@@ -1203,198 +1799,304 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   </div>
                 </div>
 
-                {/* ── ROW 2: 7-Step Interactive Pipeline Cards with Generous Spacing ── */}
+                {/* ── ROW 2: 9-Step Interactive Pipeline Cards with Generous Spacing ── */}
                 <div className="pt-10 sm:pt-12 relative">
                   {/* Subtle section label */}
-                  <div className="flex items-center justify-between mb-5 px-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-5 px-1">
                     <span className="text-xs font-black uppercase tracking-wider text-slate-400 font-mono">
-                      Creation Pipeline (7 Focused Steps)
+                      Creation Pipeline (8 Focused Steps)
                     </span>
                     <span className="text-xs font-mono font-bold text-slate-500">
                       Total Time: ~60s
                     </span>
                   </div>
 
-                  {/* Desktop connecting journey progression track */}
-                  <div className="hidden lg:block absolute top-[94px] left-14 right-14 h-[2px] bg-gradient-to-r from-orange-300 via-amber-300 via-violet-300 to-emerald-400 z-0 opacity-70" />
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3.5 relative z-10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative z-10">
                     {[
                       {
                         step: "Step 1",
+                        numLabel: "01",
+                        handFont: '"Caveat", cursive',
+                        numTilt: "-rotate-6",
                         stepNumber: 1,
                         phase: "Input",
                         title: "Voiceover Narration",
                         time: "~10s",
                         icon: Mic,
-                        bullets: ["MP3, WAV, M4A", "Word-Sync"],
-                        tip: "Required",
-                        tipColor: "bg-orange-50 text-orange-700 border-orange-200/80",
+                        cardBg: "bg-gradient-to-br from-orange-50/85 via-white to-amber-50/30 border-orange-200/90 hover:border-orange-400 hover:shadow-orange-500/15",
+                        iconWrap: "bg-orange-500 text-white shadow-orange-500/30",
+                        numColor: "text-orange-600",
+                        sticker: "🎙️ Required",
+                        stickerBg: "bg-orange-100/90 text-orange-800 border-orange-200",
+                        bullets: ["MP3, WAV, M4A", "Word-Sync & Transcript"],
                         widget: (
-                          <div className="flex items-center justify-between px-2 py-1 rounded bg-orange-50/80 border border-orange-200/60 text-[9px] font-mono font-bold text-orange-700">
-                            <span className="flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                              Voiceover
+                          <div className="rounded-xl bg-white/90 border border-orange-200/80 p-2.5 flex items-center justify-between gap-2 shadow-2xs">
+                            <div className="flex items-end gap-1 h-6">
+                              {[45, 85, 60, 100, 70, 90, 50, 75].map((h, i) => (
+                                <span
+                                  key={i}
+                                  style={{ height: `${h}%`, animationDelay: `${i * 110}ms` }}
+                                  className="w-1 rounded-full bg-gradient-to-t from-orange-600 to-amber-400 animate-pulse"
+                                />
+                              ))}
+                            </div>
+                            <span className="text-[10px] font-mono font-black text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200/70">
+                              00:45
                             </span>
-                            <span>00:45</span>
                           </div>
                         ),
                       },
                       {
                         step: "Step 2",
+                        numLabel: "02",
+                        handFont: '"Patrick Hand", cursive',
+                        numTilt: "rotate-3",
                         stepNumber: 2,
-                        phase: "Audio",
+                        phase: "Music",
                         title: "Background Music",
-                        time: "~10s",
-                        icon: Headphones,
-                        bullets: ["14 Tracks or Upload", "Auto-Ducking"],
-                        tip: "Smart Ducking",
-                        tipColor: "bg-slate-100 text-slate-700 border-slate-200/80",
+                        time: "~5s",
+                        icon: Music,
+                        cardBg: "bg-gradient-to-br from-sky-50/85 via-white to-cyan-50/30 border-sky-200/90 hover:border-sky-400 hover:shadow-sky-500/15",
+                        iconWrap: "bg-sky-600 text-white shadow-sky-600/30",
+                        numColor: "text-sky-600",
+                        sticker: "🎵 14 Tracks",
+                        stickerBg: "bg-sky-100/90 text-sky-800 border-sky-200",
+                        bullets: ["Mood-Filtered Library", "Or Upload Custom Track"],
                         widget: (
-                          <div className="flex items-center justify-between px-2 py-1 rounded bg-slate-100/90 border border-slate-200 text-[9px] font-mono font-bold text-slate-700">
-                            <span className="flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                              BGM
+                          <div className="rounded-xl bg-white/90 border border-sky-200/80 p-2.5 flex items-center justify-between gap-2 shadow-2xs">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="h-6 w-6 rounded-full bg-sky-600 text-white flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
+                                <Music size={11} />
+                              </div>
+                              <span className="text-[10px] font-bold text-slate-700 truncate">Lo-Fi Focus</span>
+                            </div>
+                            <span className="text-[10px] font-mono font-black text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                              12% Vol
                             </span>
-                            <span>-18 dB</span>
                           </div>
                         ),
                       },
                       {
                         step: "Step 3",
+                        numLabel: "03",
+                        handFont: '"Kalam", cursive',
+                        numTilt: "-rotate-3",
                         stepNumber: 3,
-                        phase: "Captions",
-                        title: "Kinetic Captions",
-                        time: "~15s",
-                        icon: Zap,
-                        bullets: ["32 Word Styles", "Active Glow"],
-                        tip: "32 Presets",
-                        tipColor: "bg-amber-50 text-amber-800 border-amber-200/80",
+                        phase: "Ducking",
+                        title: "Dynamic Audio Ducking",
+                        time: "~5s",
+                        icon: Sliders,
+                        cardBg: "bg-gradient-to-br from-emerald-50/85 via-white to-teal-50/30 border-emerald-200/90 hover:border-emerald-400 hover:shadow-emerald-500/15",
+                        iconWrap: "bg-emerald-600 text-white shadow-emerald-600/30",
+                        numColor: "text-emerald-600",
+                        sticker: "✨ Clear Vocals",
+                        stickerBg: "bg-emerald-100/90 text-emerald-800 border-emerald-200",
+                        bullets: ["3 Strength Presets", "Hear Live Example"],
                         widget: (
-                          <div className="flex items-center justify-between gap-1 px-1.5 py-1 rounded bg-amber-50/80 border border-amber-200/70 text-[8px] font-bold">
-                            <span className="px-1 py-0.5 rounded bg-amber-400 text-black">POP</span>
-                            <span className="px-1 py-0.5 rounded bg-slate-800 text-white">GLOW</span>
+                          <div className="rounded-xl bg-white/90 border border-emerald-200/80 p-2.5 space-y-1.5 shadow-2xs">
+                            <div className="flex items-center justify-between text-[9px] font-mono font-bold">
+                              <span className="text-emerald-700">Voice 100%</span>
+                              <span className="text-slate-500">Music -14 dB</span>
+                            </div>
+                            <div className="flex items-center gap-1 h-2">
+                              <div className="h-full w-3/4 rounded-full bg-emerald-500" />
+                              <div className="h-1 w-1/4 rounded-full bg-slate-300" />
+                            </div>
                           </div>
                         ),
                       },
                       {
                         step: "Step 4",
+                        numLabel: "04",
+                        handFont: '"Shadows Into Light", cursive',
+                        numTilt: "rotate-6",
                         stepNumber: 4,
-                        phase: "Fonts",
-                        title: "Dual Typography",
-                        time: "~10s",
-                        icon: Type,
-                        bullets: ["Headline Font", "Subtitle Font"],
-                        tip: "Google Fonts",
-                        tipColor: "bg-violet-50 text-violet-800 border-violet-200/80",
+                        phase: "SFX",
+                        title: "Sound Effects",
+                        time: "~5s",
+                        icon: Zap,
+                        cardBg: "bg-gradient-to-br from-amber-50/90 via-white to-yellow-50/40 border-amber-200/90 hover:border-amber-400 hover:shadow-amber-500/15",
+                        iconWrap: "bg-amber-600 text-white shadow-amber-600/30",
+                        numColor: "text-amber-600",
+                        sticker: "⚡ Retention Boost",
+                        stickerBg: "bg-amber-100/90 text-amber-800 border-amber-200",
+                        bullets: ["Whooshes & Hits", "Synced to Scene Cuts"],
                         widget: (
-                          <div className="flex items-center justify-between px-2 py-1 rounded bg-violet-50/80 border border-violet-200/70 text-[9px] font-mono font-bold text-violet-800">
-                            <span>Lora / Jakarta</span>
+                          <div className="min-h-[42px] rounded-xl bg-white/90 border border-amber-200/80 p-2 flex flex-wrap items-center justify-center gap-1 shadow-2xs">
+                            {["⚡ Whoosh", "💥 Hit", "📈 Riser"].map((fx) => (
+                              <span
+                                key={fx}
+                                className="px-1.5 py-0.5 rounded-md bg-amber-50 border border-amber-200/70 text-[9px] font-extrabold text-amber-900 whitespace-nowrap"
+                              >
+                                {fx}
+                              </span>
+                            ))}
                           </div>
                         ),
                       },
                       {
                         step: "Step 5",
+                        numLabel: "05",
+                        handFont: '"Architects Daughter", cursive',
+                        numTilt: "-rotate-3",
                         stepNumber: 5,
-                        phase: "Theme",
-                        title: "Visual Themes",
+                        phase: "Captions",
+                        title: "Kinetic Captions",
                         time: "~10s",
                         icon: Sparkles,
-                        bullets: ["6 Master Systems", "16:9 Motion"],
-                        tip: "6 Systems",
-                        tipColor: "bg-purple-50 text-purple-800 border-purple-200/80",
+                        cardBg: "bg-gradient-to-br from-violet-50/85 via-white to-indigo-50/30 border-violet-200/90 hover:border-violet-400 hover:shadow-violet-500/15",
+                        iconWrap: "bg-violet-700 text-white shadow-violet-700/30",
+                        numColor: "text-violet-700",
+                        sticker: "💬 32 Presets",
+                        stickerBg: "bg-violet-100/90 text-violet-800 border-violet-200",
+                        bullets: ["ON / OFF Toggle", "Word-by-Word Pop"],
                         widget: (
-                          <div className="flex items-center justify-between px-2 py-1 rounded bg-purple-50/80 border border-purple-200/70 text-[9px] font-mono font-bold text-purple-800">
-                            <span>SaaS • Viral • Docu</span>
+                          <div className="rounded-xl bg-slate-900 border border-violet-300/40 p-2 flex items-center justify-center gap-1.5 shadow-2xs">
+                            <span className="text-[10px] font-black text-white/70">STAY</span>
+                            <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 animate-pulse">
+                              LOCKED
+                            </span>
+                            <span className="text-[10px] font-black text-white/70">IN</span>
                           </div>
                         ),
                       },
                       {
                         step: "Step 6",
+                        numLabel: "06",
+                        handFont: '"Indie Flower", cursive',
+                        numTilt: "rotate-3",
                         stepNumber: 6,
-                        phase: "Canvas",
-                        title: "Studio Canvas",
-                        time: "~10s",
-                        icon: Layers,
-                        bullets: ["5 Backdrops", "High Contrast"],
-                        tip: "5 Tones",
-                        tipColor: "bg-amber-50 text-amber-800 border-amber-200/80",
+                        phase: "Fonts",
+                        title: "Dual + Accent Fonts",
+                        time: "~5s",
+                        icon: Type,
+                        cardBg: "bg-gradient-to-br from-slate-100/90 via-white to-slate-50 border-slate-300/90 hover:border-slate-500 hover:shadow-slate-500/15",
+                        iconWrap: "bg-slate-800 text-white shadow-slate-800/25",
+                        numColor: "text-slate-700",
+                        sticker: "✍️ Google Fonts",
+                        stickerBg: "bg-slate-200/80 text-slate-800 border-slate-300",
+                        bullets: ["Live 16:9 Pairing", "Handwritten Accents"],
                         widget: (
-                          <div className="flex items-center justify-between px-2 py-1 rounded bg-amber-50/80 border border-amber-200/70 text-[9px] font-mono font-bold text-amber-800">
-                            <span>Light / Dark</span>
+                          <div className="rounded-xl bg-white/95 border border-slate-200 p-2 flex items-center justify-between gap-2 shadow-2xs">
+                            <div className="flex items-baseline gap-1.5">
+                              <span style={{ fontFamily: '"Lora", serif' }} className="text-sm font-black text-slate-900">
+                                Aa
+                              </span>
+                              <span className="text-[10px] font-sans font-semibold text-slate-500">Body</span>
+                            </div>
+                            <span
+                              style={{ fontFamily: '"Caveat", cursive' }}
+                              className="text-sm font-bold text-orange-600 -rotate-2"
+                            >
+                              + Note!
+                            </span>
                           </div>
                         ),
                       },
                       {
                         step: "Step 7",
+                        numLabel: "07",
+                        handFont: '"Caveat", cursive',
+                        numTilt: "-rotate-6",
                         stepNumber: 7,
-                        phase: "Render",
-                        title: "AI Storyboard",
-                        time: "~25s",
-                        icon: Film,
-                        bullets: ["S3 Curated Pool", "1080p Cloud"],
-                        tip: "AWS Lambda",
-                        tipColor: "bg-emerald-50 text-emerald-800 border-emerald-200/80",
+                        phase: "Canvas",
+                        title: "Background & Texture",
+                        time: "~5s",
+                        icon: Palette,
+                        cardBg: "bg-gradient-to-br from-orange-50/70 via-white to-amber-50/60 border-amber-200/90 hover:border-orange-400 hover:shadow-orange-500/15",
+                        iconWrap: "bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-orange-500/30",
+                        numColor: "text-orange-600",
+                        sticker: "🎨 28 Swatches",
+                        stickerBg: "bg-amber-100/90 text-amber-800 border-amber-200",
+                        bullets: ["4 Studio Textures", "Auto-Contrast Text"],
                         widget: (
-                          <div className="flex items-center justify-between px-2 py-1 rounded bg-emerald-50/80 border border-emerald-200/70 text-[9px] font-mono font-bold text-emerald-800">
-                            <span className="flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              1080p
-                            </span>
-                            <span>30 FPS</span>
+                          <div className="min-h-[42px] rounded-xl bg-white/90 border border-amber-200/80 p-2 flex items-center justify-between gap-2 shadow-2xs">
+                            <div className="flex items-center -space-x-1.5">
+                              {["#0F172A", "#1E293B", "#FAF6F2", "#EA580C", "#059669", "#0284C7"].map((hex) => (
+                                <span
+                                  key={hex}
+                                  style={{ backgroundColor: hex }}
+                                  className="w-4 h-4 rounded-full border-2 border-white ring-1 ring-slate-300/70 shadow-2xs"
+                                />
+                              ))}
+                            </div>
+                            <span className="text-[9px] font-mono font-bold text-slate-600">Dot / Paper</span>
+                          </div>
+                        ),
+                      },
+                      {
+                        step: "Step 8",
+                        numLabel: "08",
+                        handFont: '"Kalam", cursive',
+                        numTilt: "rotate-2",
+                        stepNumber: 8,
+                        phase: "Final",
+                        title: "Edit Scenes & Download",
+                        time: "~15s",
+                        icon: Film,
+                        cardBg: "bg-gradient-to-br from-emerald-50/95 via-white to-sky-50/40 border-emerald-300/90 hover:border-emerald-500 hover:shadow-emerald-500/20",
+                        iconWrap: "bg-gradient-to-br from-emerald-600 to-teal-600 text-white shadow-emerald-600/30",
+                        numColor: "text-emerald-700",
+                        sticker: "🎬 1080p HD",
+                        stickerBg: "bg-emerald-100 text-emerald-800 border-emerald-300",
+                        bullets: ["Transitions & Arrows", "Single-Scene AI Re-plan"],
+                        widget: (
+                          <div className="rounded-xl bg-white/95 border border-emerald-200 p-2 flex items-center gap-1.5 shadow-2xs">
+                            {[1, 2, 3].map((n) => (
+                              <div
+                                key={n}
+                                className="flex-1 aspect-video rounded bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-400/40 flex items-center justify-center text-[8px] font-mono font-black text-emerald-300"
+                              >
+                                S{n}
+                              </div>
+                            ))}
                           </div>
                         ),
                       },
                     ].map((item, idx) => {
                       const IconC = item.icon;
-                      return (
+          return (
                         <div
                           key={item.step}
-                          onClick={() => setCurrentStep(item.stepNumber)}
-                          style={{ animationDelay: `${(idx + 1) * 80}ms` }}
-                          className="animate-fade-in-up p-5 sm:p-6 rounded-2xl border border-slate-200/90 bg-white hover:border-orange-400 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+                          style={{ animationDelay: `${(idx + 1) * 70}ms` }}
+                          className={`animate-fade-in-up p-4 sm:p-5 rounded-2xl border ${item.cardBg} hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden`}
                         >
-                          {/* Top: Step number + phase + time estimate */}
-                          <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-                            <div className="flex items-center gap-2">
-                              <div className="h-7 w-7 rounded-[10px] bg-orange-50 text-orange-600 flex items-center justify-center font-black text-xs group-hover:bg-orange-500 group-hover:text-white transition-colors shadow-2xs">
+                          {/* Top: Step Number + Icon + Time */}
+                          <div className="flex items-center justify-between pb-3 border-b border-slate-200/60">
+                            <div className="flex items-center gap-2.5">
+                              <div className={`h-8 w-8 rounded-xl ${item.iconWrap} flex items-center justify-center shadow-sm`}>
                                 <IconC size={15} />
                               </div>
-                              <div className="flex flex-col">
-                                <span className="text-xs font-black text-slate-900 tracking-tight">{item.step}</span>
-                                <span className="text-[10px] font-medium text-slate-500">{item.phase}</span>
-                              </div>
+                              <span className={`text-xs font-mono font-black tracking-tight ${item.numColor}`}>
+                                STEP {item.numLabel}
+                              </span>
                             </div>
-                            <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-orange-700 bg-orange-50/90 px-2.5 py-0.5 rounded-full border border-orange-200/80 shadow-2xs">
-                              <Clock size={11} className="text-orange-500" />
+                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-slate-600 bg-white/90 px-2 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                              <Clock size={10} className="text-slate-400" />
                               {item.time}
                             </span>
                           </div>
 
-                          {/* Middle: Title & Micro-Visual Widget */}
-                          <div className="py-4 space-y-3">
-                            <h3 className="text-sm font-extrabold text-slate-900 group-hover:text-orange-600 transition-colors">
+                          {/* Middle: Title & Unique Mini-Studio Widget */}
+                          <div className="py-3.5 space-y-2.5 flex-1">
+                            <h3 className="text-sm font-black text-slate-900 tracking-tight">
                               {item.title}
                             </h3>
                             {item.widget}
-                            <ul className="space-y-1.5 pt-1">
+                            <ul className="space-y-1 pt-0.5">
                               {item.bullets.map((b, i) => (
-                                <li key={i} className="text-[11px] text-slate-600 flex items-center gap-1.5">
-                                  <span className="w-1 h-1 rounded-full bg-orange-400 shrink-0" />
+                                <li key={i} className="text-[11px] text-slate-600 flex items-center gap-1.5 font-medium">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400/70 shrink-0" />
                                   <span>{b}</span>
                                 </li>
                               ))}
                             </ul>
                           </div>
 
-                          {/* Bottom: Status pill + Interactive Jump cue */}
-                          <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between">
-                            <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${item.tipColor}`}>
-                              {item.tip}
-                            </span>
-                            <span className="text-[11px] font-bold text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-0.5">
-                              <span>Open</span>
-                              <ChevronRight size={13} />
+                          {/* Bottom: Clean Informational Tag */}
+                          <div className="pt-3 border-t border-slate-200/60 flex items-center">
+                            <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${item.stickerBg}`}>
+                              {item.sticker}
                             </span>
                           </div>
                         </div>
@@ -1407,7 +2109,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 <div className="mt-10 sm:mt-12 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-500">
                   <p className="flex items-center gap-2 font-medium">
                     <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                    <span>Zero video editing experience required — AI builds your complete storyboard in under 60 seconds.</span>
+                    <span>Zero video editing experience required — AI builds your complete video scenes in under 60 seconds.</span>
                   </p>
                   <span className="font-mono text-[11px] text-slate-400 shrink-0">Automated Cloud Render • 30 FPS</span>
                 </div>
@@ -1420,22 +2122,27 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
               ══════════════════════════════════════════════════════════════ */}
           {currentStep === 1 && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              {/* Workflow Pipeline Guide (Gradients + Directional Arrows) */}
-              <div className="flex items-center justify-between gap-1.5 sm:gap-3 py-2 px-3.5 rounded-2xl bg-gradient-to-r from-orange-50/70 via-amber-50/40 to-orange-50/70 border border-orange-200/60 text-[11px] sm:text-xs font-bold text-slate-700 shadow-2xs overflow-x-auto scrollbar-none">
-                <div className="flex items-center gap-1.5 shrink-0 text-orange-600 font-extrabold">
-                  <span className="w-2 h-2 rounded-full bg-orange-500 animate-ping" />
-                  <span>1. Voiceover Narration</span>
+              {/* Optional Video Title Input */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5 shrink-0">
+                  <label htmlFor="faceless-video-title" className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <Edit3 size={13} className="text-orange-500" />
+                    <span>Video Title</span>
+                    <span className="text-[10px] font-bold lowercase text-slate-400 font-sans">(optional)</span>
+                  </label>
+                  <p className="text-[11px] text-slate-500">
+                    Used to name your video and guide scene visuals
+                  </p>
                 </div>
-                <ArrowRight size={13} className="text-orange-400 shrink-0" />
-                <div className="flex items-center gap-1.5 shrink-0 text-slate-600">
-                  <Sparkles size={12} className="text-amber-500" />
-                  <span>2. Groq Whisper Word-Sync</span>
-                </div>
-                <ArrowRight size={13} className="text-orange-400 shrink-0" />
-                <div className="flex items-center gap-1.5 shrink-0 text-slate-600">
-                  <Film size={12} className="text-orange-500" />
-                  <span>3. 16:9 Widescreen Storyboard</span>
-                </div>
+                <input
+                  id="faceless-video-title"
+                  type="text"
+                  value={topicTitle}
+                  onChange={(e) => onTopicTitleChange?.(e.target.value)}
+                  placeholder="e.g., How to Build Better Habits"
+                  maxLength={120}
+                  className="w-full sm:max-w-md px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none transition"
+                />
               </div>
 
               {!selectedFile ? (
@@ -1444,7 +2151,22 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   <button
                     type="button"
                     onClick={() => audioInputRef.current?.click()}
-                    className="w-full py-12 sm:py-20 md:py-24 border-2 border-dashed border-slate-300 hover:border-orange-500 rounded-3xl bg-slate-50/70 hover:bg-orange-50/20 transition-all duration-300 flex flex-col items-center justify-center gap-4 sm:gap-5 cursor-pointer group relative z-10"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsDraggingNarration(true);
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsDraggingNarration(false);
+                    }}
+                    onDrop={handleNarrationDrop}
+                    className={`w-full py-12 sm:py-20 md:py-24 border-2 border-dashed rounded-3xl transition-all duration-300 flex flex-col items-center justify-center gap-4 sm:gap-5 cursor-pointer group relative z-10 ${
+                      isDraggingNarration
+                        ? "border-orange-500 bg-orange-50/40 scale-[1.01] shadow-md"
+                        : "border-slate-300 hover:border-orange-500 bg-slate-50/70 hover:bg-orange-50/20"
+                    }`}
                   >
                     {/* High-Clarity Professional Audio Upload Icon */}
                     <div className="relative">
@@ -1478,9 +2200,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       </div>
                     </div>
                     <div className="text-center px-4 space-y-1 sm:space-y-2">
-                      <h2 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight group-hover:text-orange-600 transition-colors flex items-center justify-center gap-2">
+                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight group-hover:text-orange-600 transition-colors flex items-center justify-center gap-2">
                         <span>Upload Audio / Voiceover</span>
-                        <ArrowRight size={18} className="text-orange-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                        <ArrowRight size={18} className="hidden sm:inline-block text-orange-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                       </h2>
                       <p className="text-xs sm:text-sm text-slate-500 font-medium">
                         Drag &amp; drop audio file here or tap to browse
@@ -1541,20 +2263,50 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       </div>
                     </div>
 
-                    {/* Waveform Visualizer Bar with Gradient Bars */}
+                    {/* Waveform Visualizer Bar with Quick Take-Check Controls */}
                     <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
-                      <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
-                        <div className="flex items-center gap-2 font-bold text-slate-800">
+                      <div className="flex items-center justify-between flex-wrap gap-2 text-xs text-slate-500 font-mono">
+                        <div className="flex items-center gap-1.5 sm:gap-2 font-bold text-slate-800">
                           <button
                             type="button"
                             onClick={togglePlayAudio}
+                            title={isPlayingAudio ? "Pause audio" : "Play audio"}
                             className="h-8 w-8 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white flex items-center justify-center transition cursor-pointer shadow-xs shadow-orange-500/30"
                           >
                             {isPlayingAudio ? <Pause size={14} /> : <Play size={14} className="ml-0.5" />}
                           </button>
                           <button
                             type="button"
+                            onClick={() => handleSkipAudio(-5)}
+                            title="Rewind 5 seconds"
+                            className="px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-[11px] font-bold text-slate-600 transition cursor-pointer"
+                          >
+                            -5s
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleSkipAudio(5)}
+                            title="Forward 5 seconds"
+                            className="px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-[11px] font-bold text-slate-600 transition cursor-pointer"
+                          >
+                            +5s
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleTogglePlaybackRate}
+                            title="Toggle playback speed"
+                            className={`px-2 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer ${
+                              audioPlaybackRate === 1.5
+                                ? "border-orange-300 bg-orange-50 text-orange-700"
+                                : "border-slate-200 hover:bg-slate-100 text-slate-600"
+                            }`}
+                          >
+                            {audioPlaybackRate}x
+                          </button>
+                          <button
+                            type="button"
                             onClick={toggleMuteAudio}
+                            title={isAudioMuted ? "Unmute" : "Mute"}
                             className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition cursor-pointer"
                           >
                             {isAudioMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
@@ -1566,32 +2318,98 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                               <span className="w-0.5 bg-orange-500 rounded-full animate-pulse h-2" />
                             </div>
                           )}
-                          <span>{formatSec(audioCurrentTime)}</span>
+                          <span className="ml-1">{formatSec(audioCurrentTime)}</span>
                         </div>
-                        <span>{formatSec(audioDurationSec)}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="hidden sm:inline font-sans text-[11px] font-semibold text-slate-400">
+                            Tap waveform to scrub
+                          </span>
+                          <span>{formatSec(audioDurationSec)}</span>
+                        </div>
                       </div>
 
-                      {/* Interactive Waveform Bars with Gradient */}
-                      <div className="flex items-end gap-1 h-12 w-full pt-2 cursor-pointer overflow-hidden">
-                        {WAVE_BARS.map((height, i) => {
-                          const barProgress = i / WAVE_BARS.length;
-                          const currentProgress = audioDurationSec > 0 ? audioCurrentTime / audioDurationSec : 0;
-                          const isPlayed = barProgress <= currentProgress;
+                      {/* Natural High-Density Studio Waveform Scrubber */}
+                      {(() => {
+                        const currentProgress = audioDurationSec > 0 ? Math.min(1, Math.max(0, audioCurrentTime / audioDurationSec)) : 0;
+                        const totalBars = 140;
+                        const svgWidth = totalBars * 4;
+                        const svgHeight = 56;
+                        const midY = svgHeight / 2;
+                        const bars = Array.from({ length: totalBars }, (_, i) => {
+                          // Natural speech envelope: phrase bursts + syllable variation + micro-pauses
+                          const phrase = Math.max(0.15, Math.sin(i * 0.14) * 0.5 + 0.55);
+                          const syllable = Math.abs(Math.sin(i * 0.63 + 0.7) * Math.cos(i * 0.29));
+                          const microPause = (i % 27 >= 23 && i % 27 <= 25) ? 0.18 : 1;
+                          const amp = Math.min(0.95, Math.max(0.12, (0.22 + syllable * 0.78) * phrase * microPause));
+                          return Math.round(amp * (svgHeight - 8));
+                        });
+                        return (
+                          <div
+                            onClick={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+                              handleWaveformSeek(ratio);
+                            }}
+                            className="relative h-14 w-full px-2 rounded-xl bg-slate-50/90 border border-slate-200/80 flex items-center cursor-pointer overflow-hidden select-none group"
+                          >
+                            <svg
+                              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                              preserveAspectRatio="none"
+                              className="w-full h-11 overflow-visible"
+                            >
+                              <defs>
+                                <linearGradient id="step1WavePlayed" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="#F59E0B" />
+                                  <stop offset="50%" stopColor="#EA580C" />
+                                  <stop offset="100%" stopColor="#F59E0B" />
+                                </linearGradient>
+                                <clipPath id="step1PlayedClip">
+                                  <rect x="0" y="0" width={currentProgress * svgWidth} height={svgHeight} />
+                                </clipPath>
+                              </defs>
 
-                          return (
-                            <div
-                              key={i}
-                              onClick={() => handleWaveformSeek(barProgress)}
-                              className={`flex-1 rounded-full transition-all duration-150 ${
-                                isPlayed
-                                  ? "bg-gradient-to-t from-orange-600 to-amber-400 shadow-2xs shadow-orange-500/20"
-                                  : "bg-slate-200 hover:bg-slate-300"
-                              }`}
-                              style={{ height: `${height}%` }}
-                            />
-                          );
-                        })}
-                      </div>
+                              {/* Unplayed Waveform */}
+                              <g fill="#CBD5E1" className="group-hover:fill-slate-400 transition-colors">
+                                {bars.map((h, i) => (
+                                  <rect
+                                    key={i}
+                                    x={i * 4}
+                                    y={midY - h / 2}
+                                    width="2.4"
+                                    height={h}
+                                    rx="1.2"
+                                  />
+                                ))}
+                              </g>
+
+                              {/* Played Waveform */}
+                              <g fill="url(#step1WavePlayed)" clipPath="url(#step1PlayedClip)">
+                                {bars.map((h, i) => (
+                                  <rect
+                                    key={i}
+                                    x={i * 4}
+                                    y={midY - h / 2}
+                                    width="2.4"
+                                    height={h}
+                                    rx="1.2"
+                                  />
+                                ))}
+                              </g>
+
+                              {/* Crisp Playhead Line */}
+                              <line
+                                x1={currentProgress * svgWidth}
+                                y1="2"
+                                x2={currentProgress * svgWidth}
+                                y2={svgHeight - 2}
+                                stroke="#EA580C"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -1606,74 +2424,136 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
               )}
 
               {planningError && (
-                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex items-center justify-between gap-3 text-red-800 text-sm font-bold shadow-xs">
-                  <div className="flex items-center gap-2.5">
-                    <AlertCircle size={18} className="text-red-500" />
-                    <span>{planningError}</span>
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex flex-wrap items-center justify-between gap-3 text-red-800 text-sm font-bold shadow-xs">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <AlertCircle size={18} className="text-red-500 shrink-0" />
+                    <div className="min-w-0">
+                      <div>{planningError}</div>
+                      <div className="text-[11px] font-medium text-red-600 mt-0.5">
+                        No credits were used. You can safely retry.
+                      </div>
+                    </div>
                   </div>
-                  <button
-                    onClick={onClearPlanningError}
-                    className="text-xs text-red-600 hover:text-red-800 underline font-semibold cursor-pointer"
-                  >
-                    Dismiss
-                  </button>
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    {selectedFile && onTranscribeAndPlan && (
+                      <button
+                        type="button"
+                        onClick={() => triggerTranscription(selectedFile)}
+                        disabled={isPlanning}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black transition cursor-pointer shadow-xs disabled:opacity-50"
+                      >
+                        <RefreshCw size={12} />
+                        <span>Retry</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={onClearPlanningError}
+                      className="text-xs text-red-600 hover:text-red-800 underline font-semibold cursor-pointer"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
                 </div>
               )}
 
-              {/* Editable Spoken Transcript Editor */}
+              {/* Collapsible Editable Transcript Preview (Post-Upload) */}
               {transcriptText && (
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-4">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center gap-2">
-                      <FileText size={18} className="text-orange-500" />
-                      <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
-                        Spoken Narration Transcript
-                      </h3>
+                <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden transition-all">
+                  <button
+                    type="button"
+                    onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
+                    className="w-full px-5 sm:px-7 py-4 sm:py-5 flex items-center justify-between gap-3 hover:bg-slate-50/70 transition text-left cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-xl bg-orange-50 border border-orange-200/80 flex items-center justify-center text-orange-600 shrink-0">
+                        <FileText size={17} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-sm font-black text-slate-900">
+                            Review &amp; Fix Transcript
+                          </h3>
+                          <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                            {transcriptText.trim().split(/\s+/).filter(Boolean).length} words
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 truncate mt-0.5">
+                          {showTranscriptEditor
+                            ? "Fix brand names, numbers, or spelling before captions & scenes render"
+                            : transcriptText}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setShowTranscriptEditor(!showTranscriptEditor)}
-                        className="text-xs font-bold text-orange-600 hover:text-orange-700 transition"
-                      >
-                        {showTranscriptEditor ? "Collapse Editor" : "Edit Transcript"}
-                      </button>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-orange-600 shrink-0">
+                      <span className="hidden sm:inline">
+                        {showTranscriptEditor ? "Collapse" : "Edit"}
+                      </span>
+                      {showTranscriptEditor ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </div>
+                  </button>
 
-                      {showTranscriptEditor && (
-                        <button
-                          type="button"
-                          onClick={handleSaveEditedTranscript}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer"
-                        >
-                          {transcriptSavedFeedback ? (
-                            <>
-                              <CheckCheck size={13} />
-                              <span>Saved!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Save size={13} />
-                              <span>Save Words</span>
-                            </>
-                          )}
-                        </button>
+                  {showTranscriptEditor && (
+                    <div className="px-5 sm:px-7 pb-6 pt-1 space-y-3 border-t border-slate-100">
+                      <textarea
+                        value={editableTranscript}
+                        onChange={(e) => {
+                          setEditableTranscript(e.target.value);
+                          if (transcriptReplanError) setTranscriptReplanError(null);
+                        }}
+                        rows={5}
+                        placeholder="Edit your spoken transcript here..."
+                        className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-mono font-medium text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none transition leading-relaxed"
+                      />
+                      {sceneBlueprint.length > 0 && editableTranscript.trim() !== transcriptText.trim() && (
+                        <div className="rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+                          <span className="text-[11px] font-semibold text-amber-800">
+                            Transcript changed — re-plan scenes so headlines, cards, and captions match your edits.
+                          </span>
+                        </div>
                       )}
-                    </div>
-                  </div>
-
-                  {showTranscriptEditor ? (
-                    <textarea
-                      value={editableTranscript}
-                      onChange={(e) => setEditableTranscript(e.target.value)}
-                      rows={5}
-                      className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-mono font-medium text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none transition leading-relaxed"
-                    />
-                  ) : (
-                    <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-4 max-h-36 overflow-y-auto">
-                      <p className="text-xs text-slate-600 leading-relaxed font-sans">
-                        {transcriptText}
-                      </p>
+                      {transcriptReplanError && (
+                        <div className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2 text-[11px] font-semibold text-red-700">
+                          {transcriptReplanError}
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <span className="text-[11px] text-slate-500">
+                          Edits here update your captions and scene narration before rendering.
+                        </span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <button
+                            type="button"
+                            onClick={handleSaveEditedTranscript}
+                            disabled={isReplanningFromTranscript}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition cursor-pointer disabled:opacity-50"
+                          >
+                            {transcriptSavedFeedback && !isReplanningFromTranscript ? (
+                              <>
+                                <CheckCheck size={13} className="text-emerald-600" />
+                                <span>Saved!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Save size={13} />
+                                <span>Save Text Only</span>
+                              </>
+                            )}
+                          </button>
+                          {sceneBlueprint.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={handleApplyAndReplanTranscript}
+                              disabled={isReplanningFromTranscript || !editableTranscript.trim()}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition cursor-pointer shadow-xs disabled:opacity-50"
+                            >
+                              <Sparkles size={13} className={isReplanningFromTranscript ? "animate-spin" : ""} />
+                              <span>{isReplanningFromTranscript ? "Re-planning Scenes..." : "Apply & Re-plan Scenes"}</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1683,55 +2563,220 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
 
           {/* ══════════════════════════════════════════════════════════════
-              STEP 2: MUSIC (Direct Tracks First & Sleek Controls)
+              STEP 2: CREATOR STYLES (Minimal YouTube-Style Cards + Skip)
               ══════════════════════════════════════════════════════════════ */}
           {currentStep === 2 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 lg:p-10 shadow-sm space-y-6">
+                {/* Clean Minimal Header + Skip */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                      Choose a Creator Style
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                      Applies font, background &amp; subtitle style (if captions are on). Everything else follows the standard workflow.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveCreatorBundleId(null);
+                      setCurrentStep(3);
+                    }}
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer shrink-0 self-start sm:self-center"
+                  >
+                    <span>Skip</span>
+                    <ArrowRight size={13} />
+                  </button>
+                </div>
+
+                {/* Two Clean YouTube-Style Creator Cards */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {CREATOR_STYLE_BUNDLES.map((bundle) => {
+                    const isSelected = activeCreatorBundleId === bundle.id;
+                    const isAli = bundle.id === "ali-abdaal";
+                    return (
+                      <div
+                        key={bundle.id}
+                        className={`rounded-3xl border-2 p-5 sm:p-6 transition-all flex flex-col justify-between gap-5 ${
+                          isSelected
+                            ? "border-orange-500 bg-orange-50/20 shadow-md ring-2 ring-orange-500/20"
+                            : "border-slate-200 bg-white hover:border-slate-300 shadow-xs"
+                        }`}
+                      >
+                        {/* YouTube-Style Creator Header */}
+                        <div className="flex items-center gap-3.5">
+                          <img
+                            src={bundle.avatarUrl}
+                            alt={bundle.name}
+                            className="h-12 w-12 rounded-full object-cover border border-slate-200 shrink-0 bg-slate-100"
+                          />
+                          <div className="min-w-0">
+                            <h3 className="text-base sm:text-lg font-black text-slate-900 truncate">
+                              {bundle.name}
+                            </h3>
+                            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mt-0.5">
+                              {/* YouTube Play Icon */}
+                              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="#FF0000" aria-hidden="true">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                              </svg>
+                              <span>YouTube Creator</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Accurate 16:9 Faceless Visual Preview */}
+                        {isAli ? (
+                          <div
+                            className="aspect-video w-full rounded-2xl p-4 sm:p-5 flex flex-col justify-center gap-2 border border-slate-200/80 overflow-hidden"
+                            style={{ backgroundColor: "#FAF6F2" }}
+                          >
+                            {[
+                              { tag: "Reason 1", title: "Corporate restructuring", tint: "#FFF1E6", iconColor: "#EA580C" },
+                              { tag: "Reason 2", title: "Bought out by private equity", tint: "#E0F2FE", iconColor: "#0284C7" },
+                              { tag: "Reason 3", title: "AI automates your job", tint: "#F3E8FF", iconColor: "#7C3AED" },
+                            ].map((item, idx) => (
+                              <div
+                                key={idx}
+                                className="rounded-xl bg-white px-3.5 py-2 shadow-xs border border-slate-100 flex items-center gap-3"
+                              >
+                                <div
+                                  className="h-7 w-7 rounded-lg shrink-0 flex items-center justify-center"
+                                  style={{ backgroundColor: item.tint }}
+                                >
+                                  <span
+                                    className="h-2.5 w-2.5 rounded-xs"
+                                    style={{ backgroundColor: item.iconColor }}
+                                  />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <span
+                                    className="inline-block px-2 py-0.2 rounded-full text-[8px] font-bold text-white leading-tight"
+                                    style={{ backgroundColor: "#FB923C" }}
+                                  >
+                                    {item.tag}
+                                  </span>
+                                  <div
+                                    style={{ fontFamily: `'Lora', Georgia, serif` }}
+                                    className="text-xs sm:text-sm font-bold text-slate-900 truncate leading-tight mt-0.5"
+                                  >
+                                    {item.title}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div
+                            className="aspect-video w-full rounded-2xl p-5 sm:p-6 flex flex-col justify-center relative overflow-hidden border border-indigo-900/20"
+                            style={{
+                              background: "radial-gradient(circle at 50% 45%, #5B4CF5 0%, #3F2CC9 75%, #2D1F9E 100%)",
+                            }}
+                          >
+                            {/* Subtle Blue Square Grid */}
+                            <div
+                              className="absolute inset-0 pointer-events-none opacity-25"
+                              style={{
+                                backgroundImage:
+                                  "linear-gradient(to right, rgba(255,255,255,0.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.22) 1px, transparent 1px)",
+                                backgroundSize: "22px 22px",
+                              }}
+                            />
+
+                            {/* Black Title Pill with Glowing Blue Border */}
+                            <div className="relative z-10 flex flex-col items-start gap-3.5">
+                              <div
+                                className="w-full rounded-lg px-3.5 py-2 flex items-center justify-center gap-2"
+                                style={{
+                                  backgroundColor: "#050507",
+                                  border: "1.5px solid #2563EB",
+                                  boxShadow: "0 0 18px rgba(37, 99, 235, 0.55)",
+                                }}
+                              >
+                                <span
+                                  className="h-3.5 w-3.5 rounded-xs shrink-0 flex items-center justify-center text-[8px] font-black"
+                                  style={{ backgroundColor: "#10B981", color: "#FFFFFF" }}
+                                >
+                                  $
+                                </span>
+                                <span
+                                  style={{ fontFamily: `'Montserrat', sans-serif` }}
+                                  className="text-[11px] sm:text-xs font-black tracking-wide text-white uppercase truncate"
+                                >
+                                  INTERACTIVE SPREADSHEETS
+                                </span>
+                              </div>
+
+                              {/* White Curved Arrow + Progressive Uppercase Sans Text */}
+                              <div className="flex items-start gap-2 pl-1">
+                                <svg
+                                  className="w-6 h-6 text-white shrink-0 -mt-1"
+                                  viewBox="0 0 28 28"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2.4"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M16 4 C6 6, 4 15, 11 22" />
+                                  <path d="M6 21 L12 22 L11 16" />
+                                </svg>
+                                <div
+                                  style={{ fontFamily: `'Montserrat', sans-serif` }}
+                                  className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wide leading-snug pt-1"
+                                >
+                                  <span className="text-white">HELP PEOPLE </span>
+                                  <span className="text-white/40">SOLVE EVERYDAY</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Single Action Button */}
+                        <button
+                          type="button"
+                          onClick={() => applyCreatorBundle(bundle, true)}
+                          className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-black transition cursor-pointer shadow-sm shadow-orange-600/20"
+                        >
+                          Use This Style
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 3: MUSIC (Direct Tracks First & Sleek Controls)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 3 && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 lg:p-10 shadow-sm space-y-8 sm:space-y-10">
                 
                 {/* Centered Main Section Heading with Generous Spacing */}
-                <div className="text-center max-w-xl mx-auto space-y-3 pb-3 pt-1">
+                <div className="text-center max-w-xl mx-auto space-y-2.5 pb-1 pt-1">
                   <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/25 mb-1">
                     <Music size={26} />
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                     Audio &amp; Soundtrack
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-                    Choose whether to pick from our curated library or upload your own audio file. <span className="font-semibold text-slate-700">Only one source will be used</span> in your final video.
+                    Choose from our music library, upload your own audio, or render with no background music.
                   </p>
-
-                  {/* Master On/Off Switch & Active Volume */}
-                  <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                    <div className="inline-flex items-center gap-2.5 bg-slate-50 hover:bg-slate-100/80 px-4 py-2 rounded-full border border-slate-200 shadow-2xs transition">
-                      <ModernToggleSwitch
-                        checked={isBgmActive}
-                        onChange={(next) => {
-                          setIsBgmActive(next);
-                          onBgmEnabledChange?.(next);
-                        }}
-                        activeColor="orange"
-                      />
-                      <span className="text-xs font-bold text-slate-800">
-                        {isBgmActive ? "Music Enabled" : "Music Muted"}
-                      </span>
-                    </div>
-
-                    {isBgmActive && (
-                      <div className="inline-flex items-center gap-1.5 bg-orange-50 text-orange-700 border border-orange-200/90 px-3.5 py-2 rounded-full text-xs font-bold shadow-2xs">
-                        <Volume2 size={13} className="text-orange-500" />
-                        <span>Volume: {activeBgmVolume}%</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
 
                 {/* ACTIVE SOUNDTRACK & CONTROLS */}
-                {isBgmActive ? (() => {
+                {(() => {
                   const activeLibraryTrack = AWS_BGM_TRACKS.find((t) => t.id === selectedBgmTrack) || AWS_BGM_TRACKS[0];
                   const isLibraryTrackPlaying = playingBgmPreview === activeLibraryTrack.id;
 
-                  return (
+      return (
                     <div className="space-y-6 sm:space-y-8">
                       {/* Hidden File Input for Custom Upload */}
                       <input
@@ -1742,56 +2787,58 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         className="hidden"
                       />
 
-                      {/* ── EXCLUSIVE SOURCE SELECTOR: LIBRARY vs CUSTOM UPLOAD (Only One Active, Never Both) ── */}
-                      <div className="space-y-3 pt-2">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 max-w-2xl mx-auto px-1">
+                      {/* ── EXCLUSIVE 3-OPTION SOURCE SELECTOR: LIBRARY vs CUSTOM UPLOAD vs NO MUSIC ── */}
+                      <div className="space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 max-w-4xl mx-auto px-1">
                           <span className="text-xs font-black uppercase tracking-wider text-slate-800 font-mono flex items-center gap-2">
                             <span>Select Music Source</span>
-                            <span className="text-[10px] font-bold text-slate-400 font-sans lowercase">(only one is used in render)</span>
                           </span>
                           <span className="text-[11px] font-bold text-orange-600 bg-orange-50 border border-orange-200 px-2.5 py-0.5 rounded-full self-start sm:self-auto">
-                            {bgmSourceMode === "custom" && customBgmUrl
-                              ? "Active: Your Uploaded Music"
-                              : `Active: Library (${activeLibraryTrack.label})`}
+                            {!isBgmActive
+                              ? "Active: No Background Music"
+                              : bgmSourceMode === "custom" && customBgmUrl
+                                ? "Active: Your Uploaded Music"
+                                : `Active: Library (${activeLibraryTrack.label})`}
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-4xl mx-auto p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
                           {/* Option 1: Choose from Library */}
                           <button
                             type="button"
                             onClick={() => {
+                              setIsBgmActive(true);
+                              onBgmEnabledChange?.(true);
                               setBgmSourceMode("library");
                               if (playingBgmPreview === "custom" && bgmPreviewAudioRef.current) {
                                 bgmPreviewAudioRef.current.pause();
                                 setPlayingBgmPreview(null);
                               }
                             }}
-                            className={`flex items-center justify-between p-4 sm:px-5 rounded-xl text-left transition cursor-pointer ${
-                              bgmSourceMode === "library"
+                            className={`flex items-center justify-between p-3.5 sm:px-4 rounded-xl text-left transition cursor-pointer ${
+                              isBgmActive && bgmSourceMode === "library"
                                 ? "bg-white text-slate-900 shadow-sm border border-slate-200 ring-2 ring-orange-500/50"
                                 : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
-                                bgmSourceMode === "library" ? "bg-orange-500 text-white shadow-xs" : "bg-slate-200 text-slate-500"
+                              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
+                                isBgmActive && bgmSourceMode === "library" ? "bg-orange-500 text-white shadow-xs" : "bg-slate-200 text-slate-500"
                               }`}>
-                                <Music size={20} />
+                                <Music size={18} />
                               </div>
                               <div className="min-w-0">
                                 <p className="text-xs font-black truncate">Choose from Library</p>
-                                <p className="text-[11px] text-slate-400 truncate">14 curated royalty-free tracks</p>
+                                <p className="text-[11px] text-slate-400 truncate">14 royalty-free tracks</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              {bgmSourceMode === "library" ? (
-                                <span className="flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-orange-500 text-white shadow-2xs">
+                            <div className="shrink-0 pl-2">
+                              {isBgmActive && bgmSourceMode === "library" ? (
+                                <span className="h-5 w-5 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-2xs">
                                   <Check size={12} strokeWidth={3} />
-                                  <span>Active</span>
                                 </span>
                               ) : (
-                                <span className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                                <span className="block w-4 h-4 rounded-full border-2 border-slate-300" />
                               )}
                             </div>
                           </button>
@@ -1800,45 +2847,93 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           <button
                             type="button"
                             onClick={() => {
+                              setIsBgmActive(true);
+                              onBgmEnabledChange?.(true);
                               setBgmSourceMode("custom");
                               if (playingBgmPreview && playingBgmPreview !== "custom" && bgmPreviewAudioRef.current) {
                                 bgmPreviewAudioRef.current.pause();
                                 setPlayingBgmPreview(null);
                               }
                             }}
-                            className={`flex items-center justify-between p-4 sm:px-5 rounded-xl text-left transition cursor-pointer ${
-                              bgmSourceMode === "custom"
+                            className={`flex items-center justify-between p-3.5 sm:px-4 rounded-xl text-left transition cursor-pointer ${
+                              isBgmActive && bgmSourceMode === "custom"
                                 ? "bg-white text-slate-900 shadow-sm border border-slate-200 ring-2 ring-orange-500/50"
                                 : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 ${
-                                bgmSourceMode === "custom" ? "bg-orange-500 text-white shadow-xs" : "bg-slate-200 text-slate-500"
+                              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
+                                isBgmActive && bgmSourceMode === "custom" ? "bg-orange-500 text-white shadow-xs" : "bg-slate-200 text-slate-500"
                               }`}>
-                                <UploadCloud size={20} />
+                                <UploadCloud size={18} />
                               </div>
                               <div className="min-w-0">
                                 <p className="text-xs font-black truncate">Upload My Own Music</p>
                                 <p className="text-[11px] text-slate-400 truncate">
-                                  {customBgmName ? `Uploaded: ${customBgmName}` : "Use your own MP3, WAV, M4A"}
+                                  {customBgmName ? `Uploaded: ${customBgmName}` : "MP3, WAV, M4A"}
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              {bgmSourceMode === "custom" ? (
-                                <span className="flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-orange-500 text-white shadow-2xs">
+                            <div className="shrink-0 pl-2">
+                              {isBgmActive && bgmSourceMode === "custom" ? (
+                                <span className="h-5 w-5 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-2xs">
                                   <Check size={12} strokeWidth={3} />
-                                  <span>Active</span>
                                 </span>
                               ) : (
-                                <span className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                                <span className="block w-4 h-4 rounded-full border-2 border-slate-300" />
+                              )}
+                            </div>
+                          </button>
+
+                          {/* Option 3: No Background Music */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsBgmActive(false);
+                              onBgmEnabledChange?.(false);
+                              if (bgmPreviewAudioRef.current) {
+                                bgmPreviewAudioRef.current.pause();
+                                setPlayingBgmPreview(null);
+                              }
+                            }}
+                            className={`flex items-center justify-between p-3.5 sm:px-4 rounded-xl text-left transition cursor-pointer ${
+                              !isBgmActive
+                                ? "bg-white text-slate-900 shadow-sm border border-slate-200 ring-2 ring-orange-500/50"
+                                : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
+                                !isBgmActive ? "bg-orange-500 text-white shadow-xs" : "bg-slate-200 text-slate-500"
+                              }`}>
+                                <VolumeX size={18} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-black truncate">No Background Music</p>
+                                <p className="text-[11px] text-slate-400 truncate">Voiceover only</p>
+                              </div>
+                            </div>
+                            <div className="shrink-0 pl-2">
+                              {!isBgmActive ? (
+                                <span className="h-5 w-5 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-2xs">
+                                  <Check size={12} strokeWidth={3} />
+                                </span>
+                              ) : (
+                                <span className="block w-4 h-4 rounded-full border-2 border-slate-300" />
                               )}
                             </div>
                           </button>
                         </div>
                       </div>
 
+                      {!isBgmActive ? (
+                        <div className="py-10 px-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 text-center space-y-2 max-w-4xl mx-auto">
+                          <VolumeX size={24} className="mx-auto text-slate-400" />
+                          <p className="text-sm font-black text-slate-700">No background music selected</p>
+                          <p className="text-xs text-slate-500">Your video will be created with your voiceover narration only.</p>
+                        </div>
+                      ) : (
+                        <>
                       {/* ══════════════════════════════════════════════════════════════
                           MODE 1: BUILT-IN LIBRARY TRACKS (Active when bgmSourceMode === "library")
                           ══════════════════════════════════════════════════════════════ */}
@@ -1906,7 +3001,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                                   </span>
                                 </span>
 
-                                <div className="flex items-center gap-2 self-start sm:self-auto select-none">
+                                <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto select-none">
                                   <span
                                     style={{ fontFamily: 'var(--font-caveat), "Caveat", cursive' }}
                                     className="text-lg sm:text-xl font-bold text-orange-600 leading-none"
@@ -1914,7 +3009,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                                     Auto-ducks when voiceover speaks
                                   </span>
                                   <svg
-                                    className="w-5 h-5 text-orange-500 shrink-0 transform rotate-12 -mt-0.5"
+                                    className="hidden sm:block w-5 h-5 text-orange-500 shrink-0 transform rotate-12 -mt-0.5"
                                     viewBox="0 0 36 36"
                                     fill="none"
                                     stroke="currentColor"
@@ -1926,7 +3021,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                                     <path d="M16 26 L26 26 L26 16" />
                                   </svg>
 
-                                  <div className="flex items-center gap-1.5 ml-1">
+                                  <div className="flex flex-wrap items-center gap-1.5 sm:ml-1">
                                     {[
                                       { label: "12% (Ideal)", val: 12 },
                                       { label: "20%", val: 20 },
@@ -1994,7 +3089,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                                   { id: "acoustic", label: "🎸 Guitar" },
                                 ].map((mood) => {
                                   const isMoodActive = bgmMoodFilter === mood.id;
-                                  return (
+                      return (
                                     <button
                                       key={mood.id}
                                       type="button"
@@ -2017,7 +3112,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                                 const isSelected = selectedBgmTrack === track.id;
                                 const isPlaying = playingBgmPreview === track.id;
 
-                                return (
+                    return (
                                   <div
                                     key={track.id}
                                     onClick={() => {
@@ -2113,7 +3208,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                                   </div>
                                 </div>
 
-                                <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+                                <div className="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-auto">
                                   {/* Listen Preview Button */}
                                   <button
                                     type="button"
@@ -2175,7 +3270,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                                     </span>
                                   </span>
 
-                                  <div className="flex items-center gap-1.5 ml-1 self-start sm:self-auto">
+                                  <div className="flex flex-wrap items-center gap-1.5 sm:ml-1 self-start sm:self-auto">
                                     {[
                                       { label: "12% (Ideal)", val: 12 },
                                       { label: "20%", val: 20 },
@@ -2223,7 +3318,22 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                             /* Upload Dropzone (When No File Uploaded Yet) */
                             <div
                               onClick={() => bgmInputRef.current?.click()}
-                              className="rounded-3xl border-2 border-dashed border-orange-300 bg-gradient-to-b from-orange-50/50 via-white to-amber-50/30 p-8 sm:p-12 text-center flex flex-col items-center justify-center gap-4 cursor-pointer hover:border-orange-400 hover:bg-orange-50/60 transition shadow-xs group"
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsDraggingBgm(true);
+                              }}
+                              onDragLeave={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsDraggingBgm(false);
+                              }}
+                              onDrop={handleBgmDrop}
+                              className={`rounded-3xl border-2 border-dashed bg-gradient-to-b from-orange-50/50 via-white to-amber-50/30 p-8 sm:p-12 text-center flex flex-col items-center justify-center gap-4 cursor-pointer transition shadow-xs group ${
+                                isDraggingBgm
+                                  ? "border-orange-500 bg-orange-50/80 scale-[1.01] shadow-md"
+                                  : "border-orange-300 hover:border-orange-400 hover:bg-orange-50/60"
+                              }`}
                             >
                               <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-3xl bg-white border border-orange-200 text-orange-500 flex items-center justify-center shadow-sm group-hover:scale-105 transition">
                                 <UploadCloud size={32} />
@@ -2250,951 +3360,1021 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           )}
                         </div>
                       )}
-                    </div>
-                  );
-                })() : (
-                  <div className="py-8 px-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 text-center space-y-2">
-                    <p className="text-xs font-bold text-slate-600">Background music is currently muted</p>
-                    <p className="text-[11px] text-slate-400">Your video will be rendered with crystal-clear voiceover narration and sound effects only.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* ══════════════════════════════════════════════════════════════
-                  CARD 2: AUDIO ENGINEERING & SOUND EFFECTS (Dedicated Standalone Section)
-                  ══════════════════════════════════════════════════════════════ */}
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 lg:p-10 shadow-sm space-y-7 sm:space-y-8">
-                {/* Header with clear independent identity */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-100">
-                  <div className="flex items-start gap-3.5">
-                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-700 text-white flex items-center justify-center shadow-md shadow-violet-500/25 shrink-0 mt-0.5">
-                      <Sparkles size={22} />
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                          Audio Engineering &amp; Sound Effects
-                        </h3>
-                        <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200 font-mono">
-                          Smart Studio Processing
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-400 font-medium mt-0.5">
-                        Independent vocal priority mastering, intelligent ducking curves, and tactile sound design
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Two Dedicated Feature Cards */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Dynamic Auto-Ducking Card */}
-                  <div
-                    onClick={() => setAutoDucking(!autoDucking)}
-                    className={`rounded-2xl sm:rounded-3xl border-2 transition-all duration-300 p-6 sm:p-7 flex flex-col justify-between gap-5 cursor-pointer select-none ${
-                      autoDucking 
-                        ? "border-violet-300 bg-gradient-to-br from-violet-50/80 via-white to-indigo-50/40 shadow-sm ring-1 ring-violet-500/20" 
-                        : "border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300"
-                    }`}
-                  >
-                    <div className="space-y-4">
-                      {/* Top Header Row */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className={`h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 border ${
-                            autoDucking 
-                              ? "bg-violet-600 text-white border-violet-700 shadow-sm shadow-violet-600/20" 
-                              : "bg-white text-slate-400 border-slate-200 shadow-2xs"
-                          }`}>
-                            <Mic size={20} />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm sm:text-base font-black text-slate-900">
-                                Dynamic Auto-Ducking
-                              </span>
-                              <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 border border-violet-200 font-mono">
-                                Speech Priority
-                              </span>
-                            </div>
-                            <span className="text-[11px] text-slate-400 font-medium block mt-0.5">
-                              Automatic background music attenuation
-                            </span>
-                          </div>
-                        </div>
-
-                        <ModernToggleSwitch
-                          checked={autoDucking}
-                          onChange={setAutoDucking}
-                          activeColor="violet"
-                          size="sm"
-                        />
-                      </div>
-
-                      <p className="text-xs text-slate-500 leading-relaxed">
-                        Automatically attenuates background music by <strong className="text-violet-700 font-black">-18 dB</strong> during spoken voiceover narration, ensuring 100% vocal clarity and zero auditory clutter.
-                      </p>
-
-                      {/* Studio Waveform Visualization */}
-                      <div className="rounded-xl border border-violet-200/80 bg-white/90 p-3.5 space-y-2.5 shadow-2xs">
-                        <div className="flex items-center justify-between text-[11px] font-bold">
-                          <span className="flex items-center gap-1.5 text-violet-900">
-                            <Sliders size={13} className="text-violet-600" />
-                            <span>Voiceover vs Music Waveform</span>
-                          </span>
-                          <span className="text-emerald-700 font-mono text-[9px] font-extrabold uppercase bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                            100% Clear Vocals
-                          </span>
-                        </div>
-
-                        {/* Interactive Waveform Bar Visualizer */}
-                        <div className="h-7 w-full flex items-center gap-1 bg-violet-50/70 px-2.5 rounded-lg overflow-hidden">
-                          {[40, 65, 90, 100, 85, 95, 70, 30, 20, 20, 20, 35, 75, 95, 100, 80, 50, 25].map((h, i) => (
-                            <div
-                              key={i}
-                              className={`w-full rounded-full transition-all duration-300 ${
-                                i >= 7 && i <= 11 
-                                  ? "bg-slate-300 h-2" // Attenuated Ducked Music
-                                  : "bg-gradient-to-t from-violet-500 to-indigo-600" // Speaking Vocal Peaks
-                              }`}
-                              style={{ height: `${Math.max(16, h)}%` }}
-                            />
-                          ))}
-                        </div>
-
-                        <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium pt-0.5">
-                          <span>Music dips by -18 dB during speech</span>
-                          <span className="font-mono font-bold text-violet-700">0.25s Smooth Ramp</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer Status */}
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                      <span className="flex items-center gap-1.5">
-                        <span className={`w-2 h-2 rounded-full ${autoDucking ? "bg-emerald-500 animate-pulse" : "bg-slate-300"}`} />
-                        <span className={autoDucking ? "text-slate-700 font-bold" : "text-slate-400"}>
-                          {autoDucking ? "Enabled: Speech priority mastering on" : "Disabled: Static music volume"}
-                        </span>
-                      </span>
-                      {!isBgmActive && (
-                        <span className="text-[10px] text-amber-600 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                          Music is muted
-                        </span>
+                        </>
                       )}
                     </div>
-                  </div>
-
-                  {/* Cinematic Sound Effects (SFX) Card */}
-                  <div
-                    onClick={() => onEnableSfxChange?.(!facelessEnableSfx)}
-                    className={`rounded-2xl sm:rounded-3xl border-2 transition-all duration-300 p-6 sm:p-7 flex flex-col justify-between gap-5 cursor-pointer select-none ${
-                      facelessEnableSfx 
-                        ? "border-orange-300 bg-gradient-to-br from-orange-50/80 via-white to-amber-50/40 shadow-sm ring-1 ring-orange-500/20" 
-                        : "border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300"
-                    }`}
-                  >
-                    <div className="space-y-4">
-                      {/* Top Header Row */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className={`h-11 w-11 rounded-2xl flex items-center justify-center shrink-0 border ${
-                            facelessEnableSfx 
-                              ? "bg-orange-500 text-white border-orange-600 shadow-sm shadow-orange-500/20" 
-                              : "bg-white text-slate-400 border-slate-200 shadow-2xs"
-                          }`}>
-                            <Zap size={20} />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm sm:text-base font-black text-slate-900">
-                                Cinematic Sound Effects
-                              </span>
-                              <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 font-mono">
-                                Scene Impacts
-                              </span>
-                            </div>
-                            <span className="text-[11px] text-slate-400 font-medium block mt-0.5">
-                              Tactile whooshes, impacts &amp; risers
-                            </span>
-                          </div>
-                        </div>
-
-                        <ModernToggleSwitch
-                          checked={Boolean(facelessEnableSfx)}
-                          onChange={(val) => onEnableSfxChange?.(val)}
-                          activeColor="orange"
-                          size="sm"
-                        />
-                      </div>
-
-                      <p className="text-xs text-slate-500 leading-relaxed">
-                        Adds synchronized whooshes on scene cuts, dramatic riser cues, and tactile metric impact pops on key visual transitions for maximum viewer retention.
-                      </p>
-
-                      {/* Interactive Audition & Sound Cue Badges */}
-                      <div className="rounded-xl border border-orange-200/80 bg-white/90 p-3.5 space-y-2.5 shadow-2xs">
-                        <div className="flex items-center justify-between text-[11px] font-bold">
-                          <span className="flex items-center gap-1.5 text-orange-950">
-                            <Headphones size={13} className="text-orange-500" />
-                            <span>Synchronized Sound Cues</span>
-                          </span>
-
-                          {/* Audition Sample SFX Button */}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playSfxSample();
-                            }}
-                            className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-orange-500 hover:bg-orange-600 text-white transition shadow-xs cursor-pointer active:scale-95"
-                          >
-                            {isPlayingSfxSample ? (
-                              <>
-                                <div className="flex items-end gap-0.5 h-2.5">
-                                  <span className="w-0.5 bg-white rounded-full animate-bounce h-2.5" />
-                                  <span className="w-0.5 bg-white rounded-full animate-pulse h-1.5" />
-                                </div>
-                                <span>Playing Cue...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Play size={10} className="fill-white" />
-                                <span>Audition Sample SFX</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-
-                        {/* Three Cue Cards */}
-                        <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-orange-50/70 border border-orange-200/80 rounded-lg p-2 text-center">
-                            <p className="text-[11px] font-black text-orange-950">💨 Whoosh</p>
-                            <p className="text-[9px] text-orange-700 mt-0.5">Scene transitions</p>
-                          </div>
-                          <div className="bg-orange-50/70 border border-orange-200/80 rounded-lg p-2 text-center">
-                            <p className="text-[11px] font-black text-orange-950">💥 Metric Hit</p>
-                            <p className="text-[9px] text-orange-700 mt-0.5">Stats &amp; charts</p>
-                          </div>
-                          <div className="bg-orange-50/70 border border-orange-200/80 rounded-lg p-2 text-center">
-                            <p className="text-[11px] font-black text-orange-950">📈 Riser</p>
-                            <p className="text-[9px] text-orange-700 mt-0.5">Climax build-up</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer Status */}
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                      <span className="flex items-center gap-1.5">
-                        <span className={`w-2 h-2 rounded-full ${facelessEnableSfx ? "bg-emerald-500 animate-pulse" : "bg-slate-300"}`} />
-                        <span className={facelessEnableSfx ? "text-slate-700 font-bold" : "text-slate-400"}>
-                          {facelessEnableSfx ? "Active: Syncs with scene cuts & kinetic text" : "SFX muted"}
-                        </span>
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-mono">
-                        Independent of BGM
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-
-          {/* ══════════════════════════════════════════════════════════════
-              STEP 3: CAPTIONS (Dedicated Step: 32 Kinetic Styles, Pacing & Position)
-              ══════════════════════════════════════════════════════════════ */}
-          {currentStep === 3 && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 lg:p-10 shadow-sm space-y-6 sm:space-y-7">
-                {/* Kinetic Caption Pipeline Guide */}
-                <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-orange-50/70 via-amber-50/40 to-slate-50 border border-orange-200/60 overflow-x-auto scrollbar-none shadow-2xs">
-                  <span className="text-orange-600 font-extrabold flex items-center gap-1.5 shrink-0">
-                    <Zap size={13} className="fill-orange-500 text-orange-500" />
-                    Kinetic Pipeline:
-                  </span>
-                  <span className="text-slate-800 shrink-0">Spoken Speech</span>
-                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
-                  <span className="text-slate-800 shrink-0">Word Timestamps</span>
-                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
-                  <span className="text-orange-600 font-bold shrink-0">Active Word Glow</span>
-                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
-                  <span className="text-slate-800 shrink-0">1080p Cinema Burn-in</span>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-1 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <Type size={18} className="text-orange-500" />
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                      Kinetic Caption Styles
-                    </h2>
-                    <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 font-mono">
-                      32 Presets
-                    </span>
-                  </div>
-
-                  {/* Search Bar */}
-                  <div className="relative w-full sm:w-64">
-                    <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      value={captionSearchQuery}
-                      onChange={(e) => setCaptionSearchQuery(e.target.value)}
-                      placeholder="Search caption styles..."
-                      className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none transition"
-                    />
-                  </div>
-                </div>
-
-                {/* Active Subtitle Live Cinema Preview Bar */}
-                <div className="rounded-2xl bg-slate-950 p-4 border border-slate-800 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400 shrink-0">
-                      <Sparkles size={16} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400">
-                          Active Preset:
-                        </span>
-                        <h4 className="text-xs sm:text-sm font-black text-white flex items-center gap-1.5">
-                          {currentCaptionObj.name}
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                            {currentCaptionObj.category}
-                          </span>
-                        </h4>
-                      </div>
-                      <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
-                        {currentCaptionObj.desc}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Dynamic Preview Words Live Preview */}
-                  <div className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-black/80 border border-slate-800 flex items-center justify-center min-w-[220px]">
-                    {renderPreviewCaptionWords(
-                      currentCaptionObj.id,
-                      currentCaptionObj.color,
-                      currentCaptionObj.fontFamily,
-                      previewWordStep
-                    )}
-                  </div>
-                </div>
-
-                {/* Category Filter Pills */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                  {["all", "viral", "cinema", "modern", "creative", "minimal"].map((cat) => (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setCaptionFilter(cat)}
-                      className={`text-xs font-extrabold uppercase px-3 py-1.5 rounded-xl border transition cursor-pointer shrink-0 ${captionFilter === cat
-                        ? "bg-orange-500 text-white border-orange-500 shadow-xs"
-                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                        }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-
-                {/* 32 Caption Cards Grid with Live Word Previews */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {filteredCaptionStyles.map((theme) => {
-                    const isSelected = subtitleStyle === theme.id;
-
-                    return (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => onSubtitleStyleChange?.(theme.id)}
-                        className={`p-4 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-3 ${isSelected
-                          ? "border-orange-500 bg-orange-50/50 text-slate-900 shadow-sm ring-2 ring-orange-500/20"
-                          : "border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 text-slate-700"
-                          }`}
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3.5 h-3.5 rounded-full shadow-xs" style={{ backgroundColor: theme.color }} />
-                            <span className="text-xs font-black text-slate-900">{theme.name}</span>
-                          </div>
-                          <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700">
-                            {theme.badge}
-                          </span>
-                        </div>
-
-                        {/* Live Kinetic Word Preview Strip */}
-                        <div className="bg-slate-950 rounded-xl px-3 py-2.5 flex items-center justify-center min-h-[44px] overflow-hidden border border-slate-800/80 shadow-inner">
-                          {renderPreviewCaptionWords(
-                            theme.id,
-                            theme.color,
-                            theme.fontFamily,
-                            isSelected ? previewWordStep : 1
-                          )}
-                        </div>
-
-                        <span className="text-[11px] text-slate-500 line-clamp-1">{theme.desc}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Motion Pacing & Subtitle Position */}
-                <div className="pt-4 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-700">Editorial Motion Pacing</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { id: "clean", label: "Clean (Calm)", desc: "Gentle spring drift" },
-                        { id: "cinematic", label: "Cinematic", desc: "Balanced editorial flow" },
-                        { id: "documentary", label: "Documentary", desc: "Vox/Veritas style" },
-                        { id: "dynamic", label: "Dynamic", desc: "Punchy fast-paced cuts" },
-                      ].map((pace) => (
-                        <button
-                          key={pace.id}
-                          type="button"
-                          onClick={() => onPacingStyleChange?.(pace.id as any)}
-                          className={`p-2.5 rounded-xl border text-left text-xs font-bold transition cursor-pointer ${facelessPacingStyle === pace.id
-                            ? "border-orange-500 bg-orange-50 text-orange-600"
-                            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                            }`}
-                        >
-                          <div>{pace.label}</div>
-                          <div className="text-[10px] text-slate-400 font-normal">{pace.desc}</div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-700">Subtitle Position</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: "bottom", label: "Bottom (Standard)" },
-                        { id: "center", label: "Center Pop" },
-                        { id: "top", label: "Top Strip" },
-                      ].map((pos) => (
-                        <button
-                          key={pos.id}
-                          type="button"
-                          onClick={() => onCaptionPositionChange?.(pos.id as any)}
-                          className={`p-2.5 rounded-xl border text-center text-xs font-bold transition cursor-pointer ${captionPosition === pos.id
-                            ? "border-orange-500 bg-orange-50 text-orange-600"
-                            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                            }`}
-                        >
-                          {pos.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
             </div>
           )}
 
           {/* ══════════════════════════════════════════════════════════════
-              STEP 4: FONTS (Dedicated Step: Dual Font Typography)
+              STEP 4: DYNAMIC AUDIO DUCKING (Dedicated Step: Auto-Lower Music)
               ══════════════════════════════════════════════════════════════ */}
           {currentStep === 4 && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 lg:p-10 shadow-sm space-y-6">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0">
-                      <Type size={20} />
-                    </div>
-                    <div>
-                      <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                        Font Pairing Selection
-                      </h2>
-                      <p className="text-xs text-slate-500">
-                        Dual font architecture engineered for maximum retention &amp; legibility
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 font-mono">
-                    Dual Fonts
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Font 1: Headline & Stats Font */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="h-5 w-5 rounded-full bg-orange-600 text-white flex items-center justify-center text-[10px]">1</span>
-                        <span>Font 1 (Headlines, Numbers &amp; Hook Words)</span>
-                      </label>
-                      <span className="text-[10px] font-bold text-orange-600 font-mono bg-orange-50 px-2 py-0.5 rounded border border-orange-200">
-                        {activeHeadingFont}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {POPULAR_HEADING_FONTS.map((f: any) => {
-                        const isSelected = activeHeadingFont === f.id;
-                        return (
-                          <button
-                            key={f.id}
-                            type="button"
-                            onClick={() => {
-                              setActiveHeadingFont(f.id);
-                              onHeadingFontChange?.(f.id);
-                            }}
-                            className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${isSelected
-                              ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-2 ring-orange-500/20"
-                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
-                              }`}
-                          >
-                            <div className="flex items-center justify-between w-full">
-                              <span className="text-[11px] font-bold text-slate-500 font-sans">{f.name}</span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-600 font-sans">
-                                  {f.category}
-                                </span>
-                                {isSelected && (
-                                  <div className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-600 text-white shadow-2xs">
-                                    <Check size={10} strokeWidth={3} />
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Actual Font Live Specimen Preview */}
-                            <div className="py-1">
-                              <span
-                                style={{ fontFamily: `'${f.id}', serif, sans-serif` }}
-                                className="text-base sm:text-lg font-black text-slate-900 block truncate tracking-tight leading-none"
-                              >
-                                {f.sample}
-                              </span>
-                            </div>
-
-                            <span className="text-[10px] text-slate-400 font-medium font-sans truncate block">{f.desc}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Font 2: Body & Subtitles Font */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="h-5 w-5 rounded-full bg-slate-800 text-white flex items-center justify-center text-[10px]">2</span>
-                        <span>Font 2 (Subtitles, Narration &amp; Body Text)</span>
-                      </label>
-                      <span className="text-[10px] font-bold text-slate-700 font-mono bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                        {activeBodyFont}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {POPULAR_BODY_FONTS.map((f: any) => {
-                        const isSelected = activeBodyFont === f.id;
-                        return (
-                          <button
-                            key={f.id}
-                            type="button"
-                            onClick={() => {
-                              setActiveBodyFont(f.id);
-                              onBodyFontChange?.(f.id);
-                            }}
-                            className={`p-3.5 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between gap-2.5 ${isSelected
-                              ? "border-orange-500 bg-orange-50/60 text-slate-900 shadow-xs ring-2 ring-orange-500/20"
-                              : "border-slate-200 bg-slate-50/60 hover:bg-slate-100 text-slate-700"
-                              }`}
-                          >
-                            <div className="flex items-center justify-between w-full">
-                              <span className="text-[11px] font-bold text-slate-500 font-sans">{f.name}</span>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-600 font-sans">
-                                  {f.category}
-                                </span>
-                                {isSelected && (
-                                  <div className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-600 text-white shadow-2xs">
-                                    <Check size={10} strokeWidth={3} />
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Actual Font Live Specimen Preview */}
-                            <div className="py-1">
-                              <p
-                                style={{ fontFamily: `'${f.id}', sans-serif, serif` }}
-                                className="text-xs text-slate-800 font-medium line-clamp-1 leading-snug"
-                              >
-                                {f.sample}
-                              </p>
-                            </div>
-
-                            <span className="text-[10px] text-slate-400 font-medium font-sans truncate block">{f.desc}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ══════════════════════════════════════════════════════════════
-              STEP 5: VISUAL THEME (Dedicated Step: 6 Master Scene Systems)
-              ══════════════════════════════════════════════════════════════ */}
-          {currentStep === 5 && (
-            <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 lg:p-10 shadow-sm space-y-7">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 lg:p-10 shadow-sm space-y-6">
+                {/* Step Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-slate-100">
                   <div className="flex items-start gap-3.5">
-                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-700 text-white flex items-center justify-center shadow-md shadow-violet-500/25 shrink-0 mt-0.5">
-                      <Sparkles size={22} />
+                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0 mt-0.5">
+                      <Mic size={22} />
                     </div>
                     <div>
                       <div className="flex flex-wrap items-center gap-2.5">
-                        <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                          Visual Scene Systems
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                          Dynamic Audio Ducking
                         </h2>
-                        <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-800 border border-violet-200 font-mono">
-                          16:9 Motion Architecture
+                        <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 font-mono">
+                          Recommended: ON
                         </span>
                       </div>
                       <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                        Choose the visual direction, scene card composition, and motion dynamics for your video
+                        Automatically lowers music when you speak so your voice stays crystal clear
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* 6 Master Video Scene Simulators Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {Object.values(MASTER_THEMES).map((theme) => {
-                    const isSelected = activeVisualTheme === theme.id;
+                {/* Warning if Background Music is muted in Step 3 */}
+                {!isBgmActive && (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 text-xs text-amber-900 font-semibold">
+                      <AlertCircle size={16} className="text-amber-600 shrink-0" />
+                      <span>Background music is currently turned OFF in Step 3. Turn on music if you want auto-ducking to apply.</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(3)}
+                      className="px-3 py-1.5 rounded-xl bg-white border border-amber-300 text-amber-800 text-xs font-bold hover:bg-amber-100 transition cursor-pointer shrink-0"
+                    >
+                      Go to Step 3: Music
+                    </button>
+                  </div>
+                )}
 
-                    // Scene simulator details per theme
-                    const themeMetas: Record<string, {
-                      bestFor: string;
-                      badgeColor: string;
-                      headlineText: string;
-                      motionLabel: string;
-                      previewRender: React.ReactNode;
-                    }> = {
-                      'modern-saas': {
-                        bestFor: 'Tech & SaaS Explainer',
-                        badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-400/30',
-                        headlineText: '10X FASTER WORKFLOWS',
-                        motionLabel: '⚡ Zoom-Snap',
-                        previewRender: (
-                          <div className="w-full h-full bg-[#090D16] p-3 flex flex-col justify-between relative overflow-hidden">
-                            {/* Blueprint grid lines */}
-                            <div className="absolute inset-0 bg-[radial-gradient(#3B82F6_1px,transparent_1px)] [background-size:14px_14px] opacity-20 pointer-events-none" />
-                            {/* Window Header */}
-                            <div className="flex items-center justify-between pb-1.5 border-b border-blue-500/20 relative z-10">
-                              <div className="flex items-center gap-1.5">
-                                <span className="w-2 h-2 rounded-full bg-red-400/80" />
-                                <span className="w-2 h-2 rounded-full bg-amber-400/80" />
-                                <span className="w-2 h-2 rounded-full bg-emerald-400/80" />
-                              </div>
-                              <span className="text-[9px] font-mono font-bold text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
-                                SaaS Architecture
-                              </span>
-                            </div>
-                            {/* Content mockup */}
-                            <div className="my-auto space-y-1.5 relative z-10">
-                              <div className="text-xs font-black text-white tracking-wide">
-                                10X FASTER WORKFLOWS
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="h-1.5 flex-1 bg-blue-500/20 rounded-full overflow-hidden">
-                                  <div className="h-full w-3/4 bg-gradient-to-r from-blue-500 to-cyan-400" />
-                                </div>
-                                <span className="text-[9px] font-mono font-bold text-cyan-300">+84% Speed</span>
-                              </div>
-                            </div>
-                            {/* Bottom metric chips */}
-                            <div className="flex items-center justify-between text-[8px] font-mono text-slate-400 pt-1 border-t border-white/10 relative z-10">
-                              <span>API: 24ms</span>
-                              <span className="text-blue-400">STATUS: ACTIVE</span>
-                            </div>
-                          </div>
-                        ),
-                      },
-                      'bold-viral': {
-                        bestFor: 'YouTube Shorts & High Retention',
-                        badgeColor: 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30',
-                        headlineText: 'STOP SCROLLING NOW',
-                        motionLabel: '🔥 Whip-Pan',
-                        previewRender: (
-                          <div className="w-full h-full bg-[#09090B] p-3 flex flex-col justify-between relative overflow-hidden">
-                            {/* High-contrast amber background radial */}
-                            <div className="absolute top-0 right-0 w-28 h-28 bg-yellow-500/10 rounded-full blur-xl pointer-events-none" />
-                            {/* Top Hook Pill */}
-                            <div className="flex items-center justify-between relative z-10">
-                              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-yellow-400 text-black">
-                                VIRAL HOOK
-                              </span>
-                              <span className="text-[9px] font-mono font-bold text-red-500 flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                98.4% RETENTION
-                              </span>
-                            </div>
-                            {/* Big Bold Headline */}
-                            <div className="my-auto text-center space-y-1 relative z-10">
-                              <div className="text-sm font-black text-yellow-400 tracking-tight leading-none uppercase font-mono">
-                                STOP SCROLLING
-                              </div>
-                              <div className="text-[10px] font-bold text-white tracking-widest uppercase">
-                                THE 1% SECRET REVEALED
-                              </div>
-                            </div>
-                            {/* Kinetic emphasis bar */}
-                            <div className="flex items-center justify-between pt-1 border-t border-white/10 relative z-10">
-                              <div className="flex items-center gap-1">
-                                <span className="w-2.5 h-1 bg-yellow-400 rounded-sm" />
-                                <span className="w-2.5 h-1 bg-yellow-400 rounded-sm" />
-                                <span className="w-2.5 h-1 bg-white/40 rounded-sm" />
-                              </div>
-                              <span className="text-[8px] font-mono font-bold text-slate-400">30 FPS CINEMA</span>
-                            </div>
-                          </div>
-                        ),
-                      },
-                      'premium-finance': {
-                        bestFor: 'Finance, Real Estate & Luxury',
-                        badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-400/30',
-                        headlineText: 'GLOBAL CAPITAL GROWTH',
-                        motionLabel: '✨ Smooth Fade',
-                        previewRender: (
-                          <div className="w-full h-full bg-[#0B132B] p-3 flex flex-col justify-between relative overflow-hidden border border-amber-500/20">
-                            {/* Ambient luxury gold gradient */}
-                            <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-transparent pointer-events-none" />
-                            {/* Header */}
-                            <div className="flex items-center justify-between relative z-10">
-                              <span className="text-[9px] font-serif italic text-amber-300">
-                                Executive Portfolio
-                              </span>
-                              <span className="text-[9px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                                +34.2% Net
-                              </span>
-                            </div>
-                            {/* Chart silhouette */}
-                            <div className="my-auto space-y-1.5 relative z-10">
-                              <div className="text-xs font-serif font-black text-amber-100 tracking-wide">
-                                CAPITAL COMPOUNDING
-                              </div>
-                              <div className="flex items-end gap-1.5 h-7 pt-1">
-                                <div className="flex-1 bg-amber-400/20 rounded-t h-2.5" />
-                                <div className="flex-1 bg-amber-400/40 rounded-t h-4" />
-                                <div className="flex-1 bg-amber-400/60 rounded-t h-5" />
-                                <div className="flex-1 bg-gradient-to-t from-amber-500 to-amber-300 rounded-t h-7" />
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between text-[8px] font-mono text-slate-400 pt-1 border-t border-amber-500/20 relative z-10">
-                              <span>AUDITED ASSETS</span>
-                              <span className="text-amber-300">GOLD STANDARD</span>
-                            </div>
-                          </div>
-                        ),
-                      },
-                      'educational': {
-                        bestFor: 'Courses, Lessons & Science',
-                        badgeColor: 'bg-teal-500/20 text-teal-300 border-teal-400/30',
-                        headlineText: 'STEP-BY-STEP BREAKDOWN',
-                        motionLabel: '🌊 Slide Flow',
-                        previewRender: (
-                          <div className="w-full h-full bg-[#F8FAFC] p-3 flex flex-col justify-between relative overflow-hidden border border-slate-200">
-                            {/* Header */}
-                            <div className="flex items-center justify-between relative z-10">
-                              <span className="text-[9px] font-extrabold uppercase text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
-                                Core Principle
-                              </span>
-                              <span className="text-[9px] font-bold text-slate-500">
-                                Lesson 03
-                              </span>
-                            </div>
-                            {/* Lesson visual breakdown */}
-                            <div className="my-auto space-y-1.5 relative z-10">
-                              <div className="text-xs font-black text-slate-900 tracking-tight">
-                                Cognitive Retention Model
-                              </div>
-                              <div className="flex items-center gap-1 text-[8px] font-bold">
-                                <span className="bg-teal-600 text-white px-2 py-0.5 rounded">01. Hook</span>
-                                <span className="text-slate-400">➜</span>
-                                <span className="bg-teal-100 text-teal-800 px-2 py-0.5 rounded border border-teal-200">02. Story</span>
-                                <span className="text-slate-400">➜</span>
-                                <span className="bg-slate-200 text-slate-700 px-2 py-0.5 rounded">03. Action</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between text-[8px] font-bold text-slate-400 pt-1 border-t border-slate-200 relative z-10">
-                              <span className="text-teal-700">CLEAR EXPLAINER</span>
-                              <span>STEP ARCHITECTURE</span>
-                            </div>
-                          </div>
-                        ),
-                      },
-                      'editorial': {
-                        bestFor: 'Documentaries, Essays & History',
-                        badgeColor: 'bg-amber-600/20 text-amber-800 border-amber-600/30',
-                        headlineText: 'THE ARCHITECTURE OF TIME',
-                        motionLabel: '🎬 Docu Dissolve',
-                        previewRender: (
-                          <div className="w-full h-full bg-[#FCFBF7] p-3 flex flex-col justify-between relative overflow-hidden border border-[#E7E5E4]">
-                            {/* Paper texture feel */}
-                            <div className="flex items-center justify-between relative z-10">
-                              <span className="text-[9px] font-mono tracking-widest uppercase text-slate-500">
-                                CHAPTER IV • ESSAY
-                              </span>
-                              <span className="text-[9px] font-serif italic text-amber-800">
-                                New York Review
-                              </span>
-                            </div>
-                            {/* Classic serif quote */}
-                            <div className="my-auto space-y-1 relative z-10 text-center">
-                              <div className="text-xs font-serif font-black text-stone-900 italic tracking-tight">
-                                &ldquo;The Architecture of Focus&rdquo;
-                              </div>
-                              <div className="w-8 h-[1px] bg-amber-700/40 mx-auto" />
-                              <div className="text-[9px] font-serif text-stone-600">
-                                Historical deep dive &amp; analysis
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between text-[8px] font-mono text-stone-500 pt-1 border-t border-stone-200 relative z-10">
-                              <span>PLAYFAIR SERIF</span>
-                              <span>VOX &amp; NYT STYLE</span>
-                            </div>
-                          </div>
-                        ),
-                      },
-                      'futuristic-tech': {
-                        bestFor: 'AI, Crypto & Cybernetics',
-                        badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/30',
-                        headlineText: 'NEURAL PROCESSING ACTIVE',
-                        motionLabel: '⚡ Cyber Glitch',
-                        previewRender: (
-                          <div className="w-full h-full bg-[#050814] p-3 flex flex-col justify-between relative overflow-hidden border border-cyan-500/30 shadow-lg shadow-cyan-500/10">
-                            {/* Cyber glow background */}
-                            <div className="absolute inset-0 bg-[radial-gradient(#00F0FF_1px,transparent_1px)] [background-size:12px_12px] opacity-25 pointer-events-none" />
-                            {/* HUD Top Bar */}
-                            <div className="flex items-center justify-between relative z-10">
-                              <span className="text-[9px] font-mono font-bold text-cyan-400 flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-                                [SYS_ONLINE: 99.8%]
-                              </span>
-                              <span className="text-[9px] font-mono font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/30">
-                                QUANTUM HUD
-                              </span>
-                            </div>
-                            {/* Cyber Waveform */}
-                            <div className="my-auto space-y-1 relative z-10">
-                              <div className="text-xs font-mono font-black text-cyan-300 tracking-wider">
-                                NEURAL SYNC ACTIVE
-                              </div>
-                              <div className="flex items-center gap-0.5 h-4">
-                                {[40, 75, 95, 30, 85, 60, 100, 70, 45, 90, 80, 50, 65, 85].map((h, i) => (
-                                  <div
-                                    key={i}
-                                    style={{ height: `${h}%` }}
-                                    className="flex-1 bg-gradient-to-t from-cyan-500 to-purple-400 rounded-full"
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between text-[8px] font-mono text-cyan-400/70 pt-1 border-t border-cyan-500/20 relative z-10">
-                              <span>MATRIX: ZERO LATENCY</span>
-                              <span>CYBERPUNK</span>
-                            </div>
-                          </div>
-                        ),
-                      },
-                    };
+                {/* Main Interactive Auto-Ducking Card */}
+                <div
+                  onClick={() => setAutoDucking(!autoDucking)}
+                  className={`rounded-2xl sm:rounded-3xl border-2 transition-all duration-300 p-6 sm:p-8 flex flex-col justify-between gap-6 cursor-pointer select-none ${
+                    autoDucking
+                      ? "border-orange-300 bg-gradient-to-br from-orange-50/70 via-white to-amber-50/30 shadow-sm ring-1 ring-orange-500/15"
+                      : "border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-base sm:text-lg font-black text-slate-900">
+                          {autoDucking ? "Auto-Ducking is ON" : "Auto-Ducking is OFF"}
+                        </h3>
+                        <span className={`text-[10px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
+                          autoDucking
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : "bg-slate-100 text-slate-500 border-slate-200"
+                        }`}>
+                          {autoDucking ? "Clear Vocals" : "Constant Music Volume"}
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
+                        Automatically lowers music when you speak, then gently brings it back up during pauses.
+                      </p>
+                    </div>
 
-                    const meta = themeMetas[theme.id] || {
-                      bestFor: 'General Production',
-                      badgeColor: 'bg-slate-500/20 text-slate-300 border-slate-400/30',
-                      headlineText: theme.name,
-                      motionLabel: '✨ Smooth Motion',
-                      previewRender: null,
-                    };
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <ModernToggleSwitch
+                        checked={autoDucking}
+                        onChange={setAutoDucking}
+                        activeColor="orange"
+                        size="md"
+                      />
+                    </div>
+                  </div>
 
-                    return (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => {
-                          setActiveVisualTheme(theme.id);
-                          onVisualThemeChange?.(theme.id);
-                        }}
-                        className={`rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
-                          isSelected
-                            ? "border-orange-500 bg-orange-50/40 shadow-md ring-2 ring-orange-500/40 -translate-y-1"
-                            : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm"
-                        }`}
-                      >
-                        {/* 16:9 Realistic Video Scene Viewport */}
-                        <div className="aspect-[16/9] w-full border-b border-slate-100 relative overflow-hidden bg-slate-950">
-                          {meta.previewRender}
-
-                          {/* Motion Tag Overlay */}
-                          <div className="absolute top-2 right-2 z-20">
-                            <span className="text-[9px] font-mono font-black uppercase px-2 py-0.5 rounded-full bg-black/80 text-white border border-white/20 backdrop-blur-md shadow-xs">
-                              {meta.motionLabel}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Card Info & Details */}
-                        <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between">
-                              <h3 className="text-sm font-black text-slate-900 group-hover:text-orange-600 transition-colors">
-                                {theme.name}
-                              </h3>
-                              {isSelected ? (
-                                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-600 text-white shadow-xs">
-                                  <Check size={12} strokeWidth={3} />
+                  {/* 3 Ducking Strength Presets */}
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className={`space-y-2 transition-opacity ${autoDucking ? "opacity-100" : "opacity-50 pointer-events-none"}`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      <span className="text-xs font-extrabold text-slate-700">
+                        Ducking Strength
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        Choose how much the music dips while you speak
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      {[
+                        { id: "gentle" as const, label: "Gentle", db: "-8 dB", desc: "Keeps music lively underneath" },
+                        { id: "balanced" as const, label: "Balanced", db: "-14 dB", desc: "Clear voice + warm music", recommended: true },
+                        { id: "podcast" as const, label: "Podcast Clear", db: "-20 dB", desc: "Maximum vocal focus" },
+                      ].map((preset) => {
+                        const isSelected = duckingStrength === preset.id;
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            onClick={() => {
+                              setDuckingStrength(preset.id);
+                              if (!autoDucking) setAutoDucking(true);
+                            }}
+                            className={`px-3.5 py-2.5 rounded-xl border text-left transition cursor-pointer ${
+                              isSelected
+                                ? "border-orange-500 bg-orange-50/90 ring-2 ring-orange-500/20 shadow-2xs"
+                                : "border-slate-200 bg-white hover:border-orange-300 hover:bg-orange-50/30"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1.5">
+                              <span className={`text-xs font-black ${isSelected ? "text-orange-700" : "text-slate-900"}`}>
+                                {preset.label} ({preset.db})
+                              </span>
+                              {preset.recommended && (
+                                <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+                                  Recommended
                                 </span>
-                              ) : (
-                                <span className="w-4 h-4 rounded-full border border-slate-300" />
                               )}
                             </div>
-                            <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
-                              {theme.description}
-                            </p>
+                            <p className="text-[11px] text-slate-500 mt-0.5">{preset.desc}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Interactive Waveform Visualization + Hear Example Button */}
+                  <div className="rounded-2xl border border-orange-200/80 bg-white p-4 sm:p-5 space-y-3 shadow-2xs">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold">
+                      <span className="flex items-center gap-2 text-slate-900">
+                        <Sliders size={14} className="text-orange-500" />
+                        <span>Voiceover vs Background Music Level</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playDuckingExample();
+                        }}
+                        className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white transition shadow-xs cursor-pointer active:scale-95"
+                      >
+                        {isPlayingDuckingExample ? (
+                          <>
+                            <Pause size={10} className="fill-white" />
+                            <span>Stop Example</span>
+                          </>
+                        ) : (
+                          <>
+                            <Play size={10} className="fill-white" />
+                            <span>Hear Example</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Natural 2-Track Studio Ducking Visualizer (Voiceover + Music Waveforms) */}
+                    {(() => {
+                      const totalBars = 140;
+                      const svgW = totalBars * 4;
+                      const duckScale = !autoDucking
+                        ? 1
+                        : duckingStrength === "gentle"
+                          ? 0.52
+                          : duckingStrength === "podcast"
+                            ? 0.18
+                            : 0.34;
+
+                      // Smooth speech activity mask (3 realistic spoken phrases with natural pauses)
+                      const getSpeechWeight = (i: number) => {
+                        const t = i / totalBars;
+                        const p1 = Math.exp(-Math.pow((t - 0.18) / 0.11, 2));
+                        const p2 = Math.exp(-Math.pow((t - 0.54) / 0.13, 2));
+                        const p3 = Math.exp(-Math.pow((t - 0.85) / 0.09, 2));
+                        return Math.min(1, Math.max(0, (p1 + p2 + p3) * 1.15));
+                      };
+
+                      const voiceBars = Array.from({ length: totalBars }, (_, i) => {
+                        const w = getSpeechWeight(i);
+                        const syllable = Math.abs(Math.sin(i * 0.58 + 0.4) * Math.cos(i * 0.31)) * 0.75 + 0.25;
+                        const h = w > 0.22 ? Math.round((0.18 + w * syllable * 0.8) * 34) : 3;
+                        return { h, active: w > 0.22 };
+                      });
+
+                      const musicBars = Array.from({ length: totalBars }, (_, i) => {
+                        const w = getSpeechWeight(i);
+                        const gain = 1 - w * (1 - duckScale);
+                        const groove = 0.55 + 0.45 * Math.abs(Math.sin(i * 0.24 + 1.1) * Math.cos(i * 0.13));
+                        return Math.max(4, Math.round(groove * gain * 36));
+                      });
+
+                      return (
+                        <div className="rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 space-y-2.5">
+                          {/* Track 1: Voiceover Speech Waveform */}
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-12 shrink-0 text-[10px] font-mono font-bold text-emerald-700">
+                              Voice
+                            </span>
+                            <div className="flex-1 h-10 px-2 rounded-lg bg-white border border-slate-200/80 flex items-center">
+                              <svg viewBox={`0 0 ${svgW} 40`} preserveAspectRatio="none" className="w-full h-9">
+                                {voiceBars.map((b, i) => (
+                                  <rect
+                                    key={i}
+                                    x={i * 4}
+                                    y={20 - b.h / 2}
+                                    width="2.4"
+                                    height={b.h}
+                                    rx="1.2"
+                                    fill={b.active ? "#10B981" : "#E2E8F0"}
+                                  />
+                                ))}
+                              </svg>
+                            </div>
                           </div>
 
-                          {/* Bottom Meta Tags */}
-                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-400">
-                            <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-mono">
-                              {meta.bestFor}
+                          {/* Track 2: Background Music Waveform (Naturally Dips Under Speech) */}
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-12 shrink-0 text-[10px] font-mono font-bold text-orange-700">
+                              Music
                             </span>
-                            <span className="text-slate-500">
-                              {theme.typography.headingFont.split(',')[0].replace(/['"]/g, '')}
+                            <div className="flex-1 h-10 px-2 rounded-lg bg-white border border-slate-200/80 flex items-center">
+                              <svg viewBox={`0 0 ${svgW} 40`} preserveAspectRatio="none" className="w-full h-9">
+                                <defs>
+                                  <linearGradient id="duckMusicGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#F59E0B" />
+                                    <stop offset="50%" stopColor="#EA580C" />
+                                    <stop offset="100%" stopColor="#F59E0B" />
+                                  </linearGradient>
+                                </defs>
+                                {musicBars.map((h, i) => {
+                                  const isDucked = getSpeechWeight(i) > 0.25 && autoDucking;
+                                  return (
+                                    <rect
+                                      key={i}
+                                      x={i * 4}
+                                      y={20 - h / 2}
+                                      width="2.4"
+                                      height={h}
+                                      rx="1.2"
+                                      fill={isDucked ? "#FCD34D" : "url(#duckMusicGrad)"}
+                                      opacity={isDucked ? 0.85 : 0.95}
+                                    />
+                                  );
+                                })}
+                              </svg>
+                            </div>
+                          </div>
+
+                          {/* Legend Footer */}
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-medium text-slate-500 pt-0.5">
+                            <div className="flex flex-wrap items-center gap-3">
+                              <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                Voice Speaking
+                              </span>
+                              <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-orange-500" />
+                                Music Full
+                              </span>
+                              <span className="inline-flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-amber-300" />
+                                Music Dipped
+                              </span>
+                            </div>
+                            <span className="font-mono font-bold text-emerald-700">
+                              {autoDucking
+                                ? `Auto-Dip ${duckingStrength === "gentle" ? "-8 dB" : duckingStrength === "podcast" ? "-20 dB" : "-14 dB"}`
+                                : "Flat Volume (Disabled)"}
                             </span>
                           </div>
                         </div>
-                      </button>
-                    );
-                  })}
+                      );
+                    })()}
+                  </div>
+
+                  {/* 3 Clear Benefits */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    <div className="rounded-xl border border-slate-200/80 bg-white/80 p-3.5">
+                      <p className="text-xs font-black text-slate-900">🎙️ Clear Voiceover</p>
+                      <p className="text-[11px] text-slate-500 mt-1">Your narration never gets drowned out by loud music.</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/80 bg-white/80 p-3.5">
+                      <p className="text-xs font-black text-slate-900">🎚️ Smooth Transitions</p>
+                      <p className="text-[11px] text-slate-500 mt-1">Gentle volume fade with no sudden audio jumps.</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-200/80 bg-white/80 p-3.5">
+                      <p className="text-xs font-black text-slate-900">🎵 Works Everywhere</p>
+                      <p className="text-[11px] text-slate-500 mt-1">Applies to both Library tracks and your own uploaded music.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {/* ══════════════════════════════════════════════════════════════
-              STEP 6: BACKGROUND CANVAS (Canva 28-Swatch Palette + Studio Presets)
+              STEP 5: SOUND EFFECTS (Dedicated Step: Scene Impacts & Cues)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 5 && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 lg:p-10 shadow-sm space-y-6">
+                {/* Step Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-slate-100">
+                  <div className="flex items-start gap-3.5">
+                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0 mt-0.5">
+                      <Zap size={22} />
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                          Cinematic Sound Effects (SFX)
+                        </h2>
+                        <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 font-mono">
+                          Scene Impacts
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                        Add subtle whooshes, metric hits, and risers synchronized to visual transitions
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Main Interactive Sound Effects Card */}
+                <div
+                  onClick={() => onEnableSfxChange?.(!facelessEnableSfx)}
+                  className={`rounded-2xl sm:rounded-3xl border-2 transition-all duration-300 p-6 sm:p-8 flex flex-col justify-between gap-6 cursor-pointer select-none ${
+                    facelessEnableSfx
+                      ? "border-orange-300 bg-gradient-to-br from-orange-50/80 via-white to-amber-50/40 shadow-sm ring-1 ring-orange-500/20"
+                      : "border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-base sm:text-lg font-black text-slate-900">
+                          {facelessEnableSfx ? "Sound Effects are ON" : "Sound Effects are OFF"}
+                        </h3>
+                        <span className={`text-[10px] font-mono font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
+                          facelessEnableSfx
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : "bg-slate-100 text-slate-500 border-slate-200"
+                        }`}>
+                          {facelessEnableSfx ? "Synced to Scene Cuts" : "Muted"}
+                        </span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
+                        Automatically adds crisp whooshes on scene changes, metric impact pops on stats, and subtle risers before key moments. <strong className="text-slate-800 font-semibold">Kept subtle so they never overpower your voiceover.</strong>
+                      </p>
+                    </div>
+
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <ModernToggleSwitch
+                        checked={Boolean(facelessEnableSfx)}
+                        onChange={(val) => onEnableSfxChange?.(val)}
+                        activeColor="orange"
+                        size="md"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Interactive Audition & Sound Cue Cards */}
+                  <div className="rounded-2xl border border-orange-200/80 bg-white p-4 sm:p-5 space-y-4 shadow-2xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <span className="flex items-center gap-2 text-xs font-bold text-orange-950">
+                        <Headphones size={15} className="text-orange-500" />
+                        <span>Included Synchronized Sound Cues</span>
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          playSfxSample();
+                        }}
+                        className="inline-flex items-center justify-center gap-2 text-xs font-black uppercase px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white transition shadow-sm cursor-pointer active:scale-95"
+                      >
+                        {isPlayingSfxSample ? (
+                          <>
+                            <div className="flex items-end gap-0.5 h-3">
+                              <span className="w-0.5 bg-white rounded-full animate-bounce h-3" />
+                              <span className="w-0.5 bg-white rounded-full animate-pulse h-2" />
+                            </div>
+                            <span>Playing Sample...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Play size={12} className="fill-white" />
+                            <span>Audition Sample SFX</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="bg-orange-50/70 border border-orange-200/80 rounded-xl p-4 text-center space-y-1">
+                        <p className="text-sm font-black text-orange-950">💨 Whoosh</p>
+                        <p className="text-[11px] text-orange-800 font-medium">Plays smoothly on scene transitions</p>
+                      </div>
+                      <div className="bg-orange-50/70 border border-orange-200/80 rounded-xl p-4 text-center space-y-1">
+                        <p className="text-sm font-black text-orange-950">💥 Metric Hit</p>
+                        <p className="text-[11px] text-orange-800 font-medium">Highlights stats, numbers &amp; charts</p>
+                      </div>
+                      <div className="bg-orange-50/70 border border-orange-200/80 rounded-xl p-4 text-center space-y-1">
+                        <p className="text-sm font-black text-orange-950">📈 Riser</p>
+                        <p className="text-[11px] text-orange-800 font-medium">Builds anticipation before key points</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer Status */}
+                  <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
+                    <span className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${facelessEnableSfx ? "bg-emerald-500 animate-pulse" : "bg-slate-300"}`} />
+                      <span className={facelessEnableSfx ? "text-slate-800 font-bold" : "text-slate-400"}>
+                        {facelessEnableSfx ? "Active: Sound cues sync automatically with your storyboard" : "SFX muted"}
+                      </span>
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      Independent of Background Music (works even when BGM is off)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 6: CAPTIONS (Dedicated Step: Clean Caption Styles & Position)
               ══════════════════════════════════════════════════════════════ */}
           {currentStep === 6 && (() => {
-            const activeCanvas = resolveCurrentCanvasDetails(backgroundTheme);
+            const isDefaultView = captionFilter === "all" && !captionSearchQuery.trim();
+            const topCuratedCount = 9;
+            const visibleCaptionStyles =
+              isDefaultView && !showAllCaptionStyles
+                ? filteredCaptionStyles.filter((t, idx) => idx < topCuratedCount || t.id === subtitleStyle)
+                : filteredCaptionStyles;
+            const hasMoreStyles = isDefaultView && filteredCaptionStyles.length > topCuratedCount;
+
+return (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 lg:p-10 shadow-sm space-y-7">
+                {/* Prominent Centered Section Heading */}
+                <div className="text-center max-w-xl mx-auto space-y-3 pt-1 pb-1">
+                  <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 text-white shadow-md shadow-orange-500/25 mb-1">
+                    <Type size={26} />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                    Choose Your Video Captions
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                    Pick how your spoken words animate on screen, or turn captions off if you prefer YouTube&apos;s native CC.
+                  </p>
+
+                  {/* Captions ON / OFF Segmented Toggle */}
+                  <div className="pt-2 flex justify-center">
+                    <div className="inline-grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-slate-100 border border-slate-200">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCaptionsEnabled(true);
+                          onShowCaptionsChange?.(true);
+                        }}
+                        className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                          isCaptionsEnabled
+                            ? "bg-white text-orange-600 shadow-xs ring-1 ring-orange-500/30"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <Check size={13} strokeWidth={3} className={isCaptionsEnabled ? "opacity-100" : "opacity-0 w-0"} />
+                        <span>Captions ON</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCaptionsEnabled(false);
+                          onShowCaptionsChange?.(false);
+                        }}
+                        className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                          !isCaptionsEnabled
+                            ? "bg-white text-slate-900 shadow-xs ring-1 ring-slate-300"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <X size={13} strokeWidth={3} className={!isCaptionsEnabled ? "opacity-100" : "opacity-0 w-0"} />
+                        <span>No Captions (OFF)</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {!isCaptionsEnabled ? (
+                  <div className="py-10 px-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 text-center space-y-3 max-w-2xl mx-auto">
+                    <Type size={26} className="mx-auto text-slate-400" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-black text-slate-800">No burned-in captions</p>
+                      <p className="text-xs text-slate-500">
+                        Your 16:9 video will be rendered cleanly without on-screen subtitles (great if you upload your own YouTube CC).
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCaptionsEnabled(true);
+                        onShowCaptionsChange?.(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                    >
+                      <span>Turn Captions ON</span>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Clean Active Caption & Position Bar */}
+                    <div className="rounded-2xl border border-orange-200/80 bg-orange-50/40 p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+                      {/* Left: Active Style + Live Animated Word Strip */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4 min-w-0">
+                        <div
+                          className="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-700/60 flex items-center justify-center sm:min-w-[210px] shrink-0 shadow-sm relative overflow-hidden"
+                          style={{
+                            background: `radial-gradient(circle at 50% 50%, ${currentCaptionObj.color}26 0%, #0F172A 78%)`,
+                          }}
+                        >
+                          {renderPreviewCaptionWords(
+                            currentCaptionObj.id,
+                            currentCaptionObj.color,
+                            currentCaptionObj.fontFamily,
+                            previewWordStep
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-orange-700">
+                            Selected Style
+                          </span>
+                          <h3 className="text-base font-black text-slate-900 mt-0.5 truncate">
+                            {currentCaptionObj.name}
+                          </h3>
+                          <p className="text-xs text-slate-500 line-clamp-1">
+                            {currentCaptionObj.desc}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right: Where Captions Appear */}
+                      <div className="space-y-1.5 shrink-0">
+                        <label className="text-[11px] font-black uppercase tracking-wider text-slate-600 block">
+                          Caption Position
+                        </label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { id: "bottom", label: "Bottom" },
+                            { id: "center", label: "Center" },
+                            { id: "top", label: "Top" },
+                          ].map((pos) => (
+                            <button
+                              key={pos.id}
+                              type="button"
+                              onClick={() => onCaptionPositionChange?.(pos.id as any)}
+                              className={`px-3.5 py-2 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                                captionPosition === pos.id
+                                  ? "border-orange-500 bg-orange-500 text-white shadow-xs"
+                                  : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                              }`}
+                            >
+                              {pos.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Category Filters & Search */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+                        {["all", "viral", "cinema", "modern", "creative", "minimal"].map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setCaptionFilter(cat)}
+                            className={`text-xs font-extrabold uppercase px-3.5 py-1.5 rounded-xl border transition cursor-pointer shrink-0 ${
+                              captionFilter === cat
+                                ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                            }`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="relative w-full sm:w-64 shrink-0">
+                        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="text"
+                          value={captionSearchQuery}
+                          onChange={(e) => setCaptionSearchQuery(e.target.value)}
+                          placeholder="Search caption styles..."
+                          className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-orange-500 focus:outline-none transition"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Caption Styles Grid (Visual-First Stage Cards, Clean Name + Description) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {visibleCaptionStyles.map((theme) => {
+                        const isSelected = subtitleStyle === theme.id;
+
+            return (
+                          <button
+                            key={theme.id}
+                            type="button"
+                            onClick={() => onSubtitleStyleChange?.(theme.id)}
+                            className={`group p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
+                              isSelected
+                                ? "border-orange-500 bg-orange-50/40 text-slate-900 shadow-md ring-2 ring-orange-500/20"
+                                : "border-slate-200/90 bg-white hover:border-orange-300 hover:shadow-sm text-slate-700"
+                            }`}
+                          >
+                            {/* Visual-First Tinted Stage Preview */}
+                            <div
+                              className="relative w-full rounded-xl px-4 py-5 flex items-center justify-center min-h-[76px] overflow-hidden border border-slate-900/10"
+                              style={{
+                                background: `radial-gradient(circle at 50% 55%, ${theme.color}30 0%, #1E293B 68%, #0F172A 100%)`,
+                              }}
+                            >
+                              {/* Subtle grid texture */}
+                              <div
+                                className="absolute inset-0 pointer-events-none opacity-15"
+                                style={{
+                                  backgroundImage:
+                                    "radial-gradient(rgba(255,255,255,0.45) 1px, transparent 1px)",
+                                  backgroundSize: "14px 14px",
+                                }}
+                              />
+
+                              <div className="relative z-10 flex items-center justify-center">
+                                {renderPreviewCaptionWords(
+                                  theme.id,
+                                  theme.color,
+                                  theme.fontFamily,
+                                  isSelected ? previewWordStep : 1
+                                )}
+                              </div>
+
+                              {isSelected && (
+                                <span className="absolute top-2 right-2 h-5 w-5 rounded-full bg-orange-600 text-white flex items-center justify-center shadow-sm ring-2 ring-white/90 z-20">
+                                  <Check size={11} strokeWidth={3} />
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Clean Style Name + Description (No Clutter Badges) */}
+                            <div className="px-0.5 space-y-0.5">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/10"
+                                  style={{ backgroundColor: theme.color }}
+                                />
+                                <span className="text-xs sm:text-sm font-black text-slate-900 truncate">
+                                  {theme.name}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 line-clamp-2 leading-snug">
+                                {theme.desc}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Show More / Show Fewer Styles Toggle */}
+                    {hasMoreStyles && (
+                      <div className="flex justify-center pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setShowAllCaptionStyles(!showAllCaptionStyles)}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-black text-slate-700 transition cursor-pointer"
+                        >
+                          {showAllCaptionStyles ? (
+                            <>
+                              <ChevronUp size={14} />
+                              <span>Show fewer styles</span>
+                            </>
+                          ) : (
+                            <>
+                              <ChevronDown size={14} />
+                              <span>Show all {filteredCaptionStyles.length} caption styles</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Scene Animation Speed */}
+                <div className="pt-5 border-t border-slate-100 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                    <label className="text-xs font-black uppercase tracking-wider text-slate-700">
+                      Scene Animation Speed
+                    </label>
+                    <span className="text-[11px] text-slate-400">Controls how fast captions and visuals transition</span>
+                  </div>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    {[
+                      { id: "clean", label: "Clean (Calm)", desc: "Gentle, relaxed pacing" },
+                      { id: "cinematic", label: "Balanced", desc: "Smooth storytelling flow" },
+                      { id: "documentary", label: "Documentary", desc: "Editorial Vox style" },
+                      { id: "dynamic", label: "Fast & Dynamic", desc: "Punchy, high-energy cuts" },
+                    ].map((pace) => (
+                      <button
+                        key={pace.id}
+                        type="button"
+                        onClick={() => onPacingStyleChange?.(pace.id as any)}
+                        className={`p-3 rounded-xl border text-left transition cursor-pointer ${
+                          facelessPacingStyle === pace.id
+                            ? "border-orange-500 bg-orange-50 text-orange-700 ring-1 ring-orange-500/30"
+                            : "border-slate-200 bg-slate-50/70 text-slate-700 hover:bg-slate-100"
+                        }`}
+                      >
+                        <div className="text-xs font-black">{pace.label}</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">{pace.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            );
+          })()}
+
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 7: FONTS (Single Font Family + Weight Hierarchy + Handwritten Accent)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 7 && (() => {
+            const filteredFonts = POPULAR_STUDIO_FONTS.filter(
+              (f) =>
+                !fontSearch.trim() ||
+                f.name.toLowerCase().includes(fontSearch.toLowerCase()) ||
+                f.category.toLowerCase().includes(fontSearch.toLowerCase()) ||
+                f.desc.toLowerCase().includes(fontSearch.toLowerCase())
+            );
+
+return (
+              <div className="space-y-6 animate-in fade-in duration-200">
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 lg:p-10 shadow-sm space-y-6">
+                  {/* Simple Step Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0">
+                        <Type size={20} />
+                      </div>
+                      <div>
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                          Choose your video font &amp; accent style.
+                        </h2>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          One unified Google Font with automatic weights for headings (800–900) &amp; body (400–600)
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 font-mono self-start sm:self-center">
+                      Google Fonts Library
+                    </span>
+                  </div>
+
+                  {/* Live 16:9 Mockup Card (Single Font + Weight Hierarchy + Handwritten Accent) */}
+                  <div className="rounded-2xl border border-orange-200/80 bg-gradient-to-br from-orange-50/70 via-[#FAF6F2] to-amber-50/60 p-5 sm:p-7 text-zinc-900 relative overflow-hidden shadow-sm">
+                    <div className="relative z-10 flex flex-col gap-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-orange-700 bg-orange-100/90 border border-orange-200 px-2.5 py-0.5 rounded-full">
+                          16:9 Live Typography Preview
+                        </span>
+                        <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono text-zinc-700">
+                          <span className="px-2 py-0.5 rounded bg-white border border-zinc-200 font-semibold">Font: {activeFont} (400–900)</span>
+                          <span className="px-2 py-0.5 rounded bg-orange-100 border border-orange-200 text-orange-800 font-bold">Accent: {activeAccentFont}</span>
+                        </div>
+                      </div>
+
+                      <div className="min-h-[180px] sm:aspect-video sm:max-h-56 w-full rounded-xl border border-orange-200/70 bg-white p-4 sm:p-7 flex flex-col justify-center relative shadow-2xs">
+                        <div className="max-w-xl space-y-2.5">
+                          <div className="flex items-center gap-2">
+                            <span
+                              style={{ fontFamily: `'${activeAccentFont}', "Caveat", cursive` }}
+                              className="text-base sm:text-xl font-bold text-orange-600 -rotate-2 inline-block"
+                            >
+                              Key stat to watch!
+                            </span>
+                            <svg className="w-5 h-5 text-orange-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M4 6 C10 8, 14 12, 16 18" />
+                              <path d="M11 16 L16 18 L18 13" />
+                            </svg>
+                          </div>
+                          <h3
+                            style={{ fontFamily: `'${activeFont}', sans-serif` }}
+                            className="text-xl sm:text-3xl font-black text-zinc-900 tracking-tight leading-tight"
+                          >
+                            +240% Audience Retention in{" "}
+                            <span className="relative inline-block text-orange-600">
+                              90 Days
+                              <svg className="w-full h-2 absolute -bottom-1 left-0 text-orange-500" viewBox="0 0 100 10" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                                <path d="M2 7 Q50 1 98 6" />
+                              </svg>
+                            </span>
+                          </h3>
+                          <p
+                            style={{ fontFamily: `'${activeFont}', sans-serif` }}
+                            className="text-xs sm:text-sm font-medium text-zinc-600 leading-relaxed max-w-lg"
+                          >
+                            A single unified font family uses bold weights for widescreen headlines and clean medium weights for effortless reading pace.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section 1: Primary Video Font (Headings & Body via Weight Hierarchy) */}
+                  <div className="rounded-2xl border border-orange-200/80 bg-orange-50/30 p-4 sm:p-5 space-y-3.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div>
+                        <span className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                          <span className="h-5 w-5 rounded-full bg-orange-600 text-white flex items-center justify-center text-[10px] font-black">1</span>
+                          <span>Primary Video Font (Headings &amp; Body)</span>
+                        </span>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Automatically applies ExtraBold/Black (800–900) for titles and Regular/Medium (400–600) for body &amp; subtitles
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                        <div className="relative flex-1 min-w-[140px] sm:flex-none sm:w-52">
+                          <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type="text"
+                            value={fontSearch}
+                            onChange={(e) => setFontSearch(e.target.value)}
+                            placeholder="Search Google Fonts..."
+                            className="w-full pl-7 pr-2.5 py-1 rounded-lg border border-slate-200 bg-white text-[11px] font-medium text-slate-800 focus:outline-none focus:border-orange-500"
+                          />
+                        </div>
+                        <span className="text-[11px] font-mono font-bold text-orange-800 bg-white px-2.5 py-1 rounded-lg border border-orange-200 shrink-0">
+                          {activeFont}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                      {(fontSearch.trim() || showAllFonts
+                        ? filteredFonts
+                        : filteredFonts.filter((f, idx) => idx < 6 || f.id === activeFont)
+                      ).map((f) => {
+                        const isSelected = activeFont === f.id;
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => handleSelectPrimaryFont(f.id)}
+                            className={`p-3 rounded-xl border text-left transition flex flex-col justify-between gap-1.5 cursor-pointer ${
+                              isSelected
+                                ? "border-orange-500 bg-white shadow-sm ring-2 ring-orange-500/20"
+                                : "border-slate-200 bg-white/80 hover:border-orange-300"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1.5">
+                              <span className="text-[11px] font-bold text-slate-700 truncate">{f.name}</span>
+                              <div className="flex items-center gap-1 shrink-0">
+                                {f.recommended && (
+                                  <span className="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Popular
+                                  </span>
+                                )}
+                                {isSelected && (
+                                  <div className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-600 text-white">
+                                    <Check size={10} strokeWidth={3} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <span
+                              style={{ fontFamily: `'${f.id}', sans-serif` }}
+                              className="text-lg font-black text-slate-900 block truncate tracking-tight leading-snug"
+                            >
+                              {f.sample}
+                            </span>
+                            <p
+                              style={{ fontFamily: `'${f.id}', sans-serif` }}
+                              className="text-[11px] text-slate-600 font-medium line-clamp-1 leading-snug"
+                            >
+                              {f.bodySample}
+                            </p>
+                            <span className="text-[10px] text-slate-400 font-medium truncate">{f.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {!fontSearch.trim() && filteredFonts.length > 6 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllFonts(!showAllFonts)}
+                        className="w-full py-2 rounded-xl border border-orange-200/80 bg-white hover:bg-orange-50 text-xs font-bold text-slate-700 transition cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        {showAllFonts ? (
+                          <>
+                            <ChevronUp size={14} />
+                            <span>Show fewer fonts</span>
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown size={14} />
+                            <span>View all {filteredFonts.length} Google Fonts</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Section 2: Accent / Annotation Font (Handwritten) */}
+                  <div className="rounded-2xl border border-orange-200/80 bg-orange-50/30 p-4 sm:p-5 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <span className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                          <span className="h-5 w-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-black">2</span>
+                          <span>Accent / Annotation Font (Handwritten)</span>
+                        </span>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Used for margin callout notes, arrows, and underlined keywords inside video scenes
+                        </p>
+                      </div>
+                      <span className="text-[11px] font-mono font-bold text-orange-800 bg-white px-2.5 py-1 rounded-lg border border-orange-200 self-start sm:self-center">
+                        {activeAccentFont}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                      {POPULAR_ACCENT_FONTS.map((f) => {
+                        const isSelected = activeAccentFont === f.id;
+                        return (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() => setActiveAccentFont(f.id)}
+                            className={`p-3 rounded-xl border text-left transition flex flex-col justify-between gap-1.5 cursor-pointer ${
+                              isSelected
+                                ? "border-orange-500 bg-white shadow-sm ring-2 ring-orange-500/20"
+                                : "border-slate-200 bg-white/80 hover:border-orange-300"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1.5">
+                              <span className="text-[11px] font-bold text-slate-700">{f.name}</span>
+                              <div className="flex items-center gap-1">
+                                {f.recommended && (
+                                  <span className="text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                    Popular
+                                  </span>
+                                )}
+                                {isSelected && (
+                                  <div className="flex h-4 w-4 items-center justify-center rounded-full bg-orange-600 text-white">
+                                    <Check size={10} strokeWidth={3} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <p
+                              style={{ fontFamily: `'${f.id}', "Caveat", cursive` }}
+                              className="text-xl text-orange-600 leading-snug"
+                            >
+                              {f.sample}
+                            </p>
+                            <span className="text-[10px] text-slate-400 font-medium">{f.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* ══════════════════════════════════════════════════════════════
+              STEP 8: BACKGROUND CANVAS (Canva 28-Swatch Palette + Studio Presets)
+              ══════════════════════════════════════════════════════════════ */}
+          {currentStep === 8 && (() => {
+            const activeCanvas = resolveCurrentCanvasDetails(activeBackgroundTheme);
             const isSwatchSelected = (hex: string) => activeCanvas.hex.toLowerCase() === hex.toLowerCase();
+
+            const selectBackgroundColor = (val: string) => {
+              setActiveBackgroundTheme(val);
+              onBackgroundThemeChange?.(val);
+            };
 
             const handleCustomHexChange = (hexVal: string) => {
               let formatted = hexVal.trim();
               if (!formatted.startsWith("#")) formatted = "#" + formatted;
               setCustomHexInput(formatted);
               if (/^#[0-9A-Fa-f]{6}$/.test(formatted)) {
-                onBackgroundThemeChange?.(formatted);
+                selectBackgroundColor(formatted);
               }
             };
 
@@ -3205,6 +4385,18 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 setTimeout(() => setCopiedHexFeedback(false), 2000);
               }
             };
+
+            const isVibrantCanvas = (() => {
+              let c = activeCanvas.hex.replace("#", "").trim();
+              if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+              if (c.length !== 6) return false;
+              const r = parseInt(c.slice(0, 2), 16);
+              const g = parseInt(c.slice(2, 4), 16);
+              const b = parseInt(c.slice(4, 6), 16);
+              const max = Math.max(r, g, b);
+              const min = Math.min(r, g, b);
+              return max - min > 110 && max > 160;
+            })();
 
             return (
               <div className="space-y-6 animate-in fade-in duration-200">
@@ -3217,7 +4409,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       </div>
                       <div>
                         <div className="flex flex-wrap items-center gap-2.5">
-                          <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                             Background Color &amp; Canvas
                           </h2>
                           <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200 font-mono">
@@ -3231,78 +4423,154 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                     </div>
                   </div>
 
-                  {/* Main Two-Column Layout: Left Simulator & Inspector / Right Canva Swatches Grid */}
+                  {/* Main Two-Column Layout: Left Clean 16:9 YouTube Canvas / Right Canva Swatches Grid */}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
-                    {/* LEFT PANEL: 16:9 Live Video Simulator & Active Color Inspector (5 cols) */}
-                    <div className="lg:col-span-5 space-y-5">
-                      {/* 16:9 Miniature Video Canvas Viewport */}
-                      <div className="rounded-2xl border border-slate-200 bg-slate-950 p-3 shadow-md">
-                        <div className="flex items-center justify-between pb-2 px-1 text-[10px] font-mono font-bold text-slate-400">
-                          <span className="flex items-center gap-1.5 text-orange-400">
-                            <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                            Live 16:9 Canvas Simulator
-                          </span>
-                          <span>1920 × 1080</span>
-                        </div>
-
-                        <div
-                          className="aspect-[16/9] w-full rounded-xl border border-black/15 p-4 flex flex-col justify-between relative overflow-hidden transition-colors duration-200 shadow-inner"
-                          style={{ backgroundColor: activeCanvas.hex }}
-                        >
-                          {/* Top indicator on canvas */}
-                          <div className="flex items-center justify-between relative z-10">
-                            <span
-                              className={`text-[9px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border shadow-xs ${
-                                activeCanvas.isDark
-                                  ? "bg-black/40 text-white border-white/20 backdrop-blur-sm"
-                                  : "bg-white/80 text-slate-800 border-black/10 backdrop-blur-sm"
-                              }`}
-                            >
-                              {activeCanvas.tag}
-                            </span>
-                            <span
-                              className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
-                                activeCanvas.isDark ? "text-slate-300 bg-black/40" : "text-slate-700 bg-white/70"
-                              }`}
-                            >
-                              {activeCanvas.hex}
-                            </span>
-                          </div>
-
-                          {/* Floating sample scene card on top of this canvas */}
+                    {/* LEFT PANEL: Clean 16:9 YouTube Video Canvas & Active Color Inspector (5 cols) */}
+                    <div className="lg:col-span-5 space-y-4">
+                      {/* Full 16:9 YouTube Video Canvas with Live Texture Overlay */}
+                      <div
+                        className="aspect-[16/9] w-full rounded-xl border-[1.2px] border-orange-500/75 flex items-center justify-center relative overflow-hidden transition-colors duration-200"
+                        style={{ backgroundColor: activeCanvas.hex }}
+                      >
+                        {canvasTexture === "dot-grid" && (
                           <div
-                            className={`p-3.5 rounded-xl border shadow-md my-auto relative z-10 transition-all ${
-                              activeCanvas.isDark
-                                ? "bg-slate-900/90 border-white/15 text-white"
-                                : "bg-white border-slate-200 text-slate-900"
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-[11px] font-black tracking-wide">
-                                16:9 Scene Preview
-                              </span>
-                              <span className="w-2 h-2 rounded-full bg-orange-500 shadow-xs" />
-                            </div>
-                            <div className="text-[10px] font-medium opacity-80 line-clamp-1">
-                              Narration &amp; visual typography auto-adapts contrast
-                            </div>
-                            <div
-                              className={`mt-2 h-1.5 w-4/5 rounded-full ${
-                                activeCanvas.isDark ? "bg-white/20" : "bg-slate-200"
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                              backgroundImage: `radial-gradient(${activeCanvas.isDark ? "rgba(255,255,255,0.16)" : "rgba(15,23,42,0.14)"} 1px, transparent 1px)`,
+                              backgroundSize: "16px 16px",
+                            }}
+                          />
+                        )}
+                        {canvasTexture === "vignette" && (
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                              background: activeCanvas.isDark
+                                ? "radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.45) 100%)"
+                                : "radial-gradient(circle at center, transparent 50%, rgba(15,23,42,0.12) 100%)",
+                            }}
+                          />
+                        )}
+                        {canvasTexture === "paper" && (
+                          <div
+                            className="absolute inset-0 pointer-events-none opacity-45"
+                            style={{
+                              backgroundImage: `repeating-linear-gradient(0deg, ${activeCanvas.isDark ? "rgba(255,255,255,0.03)" : "rgba(15,23,42,0.025)"} 0px, transparent 1px, transparent 3px), repeating-linear-gradient(90deg, ${activeCanvas.isDark ? "rgba(255,255,255,0.025)" : "rgba(15,23,42,0.02)"} 0px, transparent 1px, transparent 4px)`,
+                            }}
+                          />
+                        )}
+                      </div>
+
+                      {/* Visual Background Texture Style Selector */}
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-black text-slate-900 tracking-tight">
+                            Background Texture Style
+                          </span>
+                          <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-600">
+                            4 Styles
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2.5">
+                          {[
+                            { id: "solid" as const, label: "Clean Solid", hint: "Flat color" },
+                            { id: "dot-grid" as const, label: "Dot Grid", hint: "Studio dots" },
+                            { id: "vignette" as const, label: "Vignette", hint: "Soft edges" },
+                            { id: "paper" as const, label: "Paper Grain", hint: "Editorial texture" },
+                          ].map((tex) => {
+                            const isTexActive = canvasTexture === tex.id;
+                            return (
+                              <button
+                                key={tex.id}
+                                type="button"
+                                onClick={() => setCanvasTexture(tex.id)}
+                                className={`group p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
+                                  isTexActive
+                                    ? "border-orange-500 bg-white shadow-sm ring-2 ring-orange-500/20"
+                                    : "border-slate-200 bg-white/85 hover:bg-white hover:border-orange-300"
+                                }`}
+                              >
+                                {/* Live Mini Texture Swatch */}
+                                <div
+                                  className="h-10 w-12 rounded-lg shrink-0 relative overflow-hidden border border-black/10"
+                                  style={{ backgroundColor: activeCanvas.hex }}
+                                >
+                                  {tex.id === "dot-grid" && (
+                                    <div
+                                      className="absolute inset-0"
+                                      style={{
+                                        backgroundImage: `radial-gradient(${activeCanvas.isDark ? "rgba(255,255,255,0.42)" : "rgba(15,23,42,0.32)"} 1.2px, transparent 1.2px)`,
+                                        backgroundSize: "7px 7px",
+                                      }}
+                                    />
+                                  )}
+                                  {tex.id === "vignette" && (
+                                    <div
+                                      className="absolute inset-0"
+                                      style={{
+                                        background: activeCanvas.isDark
+                                          ? "radial-gradient(circle at center, rgba(255,255,255,0.14) 20%, rgba(0,0,0,0.65) 100%)"
+                                          : "radial-gradient(circle at center, transparent 30%, rgba(15,23,42,0.28) 100%)",
+                                      }}
+                                    />
+                                  )}
+                                  {tex.id === "paper" && (
+                                    <div
+                                      className="absolute inset-0"
+                                      style={{
+                                        backgroundImage: `repeating-linear-gradient(0deg, ${activeCanvas.isDark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.09)"} 0px, transparent 1px, transparent 3px), repeating-linear-gradient(90deg, ${activeCanvas.isDark ? "rgba(255,255,255,0.1)" : "rgba(15,23,42,0.08)"} 0px, transparent 1px, transparent 4px)`,
+                                      }}
+                                    />
+                                  )}
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-1">
+                                    <span className="text-[11px] font-black text-slate-900 truncate">
+                                      {tex.label}
+                                    </span>
+                                    {isTexActive && (
+                                      <Check size={12} strokeWidth={3} className="text-orange-600 shrink-0" />
+                                    )}
+                                  </div>
+                                  <span className="text-[10px] text-slate-500 block truncate">
+                                    {tex.hint}
+                                  </span>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Auto-Contrast Text Indicator + Friendly Readability Tip */}
+                      <div
+                        className={`text-[11px] leading-snug px-3 py-2.5 rounded-xl border space-y-1.5 ${
+                          isVibrantCanvas
+                            ? "bg-amber-50 border-amber-200 text-amber-800 font-semibold"
+                            : "bg-slate-50 border-slate-200/80 text-slate-600"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2 font-bold text-slate-800">
+                          <span className="inline-flex items-center gap-1.5">
+                            <span
+                              className={`h-3 w-3 rounded-full border ${
+                                activeCanvas.isDark
+                                  ? "bg-white border-slate-300"
+                                  : "bg-slate-900 border-slate-700"
                               }`}
                             />
-                          </div>
-
-                          {/* Bottom contrast tag */}
-                          <div
-                            className={`flex items-center justify-between text-[9px] font-mono font-bold relative z-10 ${
-                              activeCanvas.isDark ? "text-slate-300" : "text-slate-600"
-                            }`}
-                          >
-                            <span>100% BROADCAST CONTRAST</span>
-                            <span>{activeCanvas.isDark ? "DARK MODE CANVAS" : "LIGHT MODE CANVAS"}</span>
-                          </div>
+                            <span>
+                              Text Color: {activeCanvas.isDark ? "Crisp White" : "Deep Charcoal"}
+                            </span>
+                          </span>
+                          <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-200">
+                            Auto-Contrast
+                          </span>
                         </div>
+                        <p className="text-[11px] opacity-90">
+                          AI automatically adapts scene &amp; subject colors to this background so nothing blends in or disappears.
+                        </p>
                       </div>
 
                       {/* Active Color Details & Custom Color Picker */}
@@ -3310,7 +4578,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div
-                              className="w-10 h-10 rounded-full border-2 border-white shadow-md ring-2 ring-slate-200 shrink-0"
+                              className="w-10 h-10 rounded-full border border-slate-200 shrink-0"
                               style={{ backgroundColor: activeCanvas.hex }}
                             />
                             <div>
@@ -3359,7 +4627,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                               value={activeCanvas.hex.startsWith("#") ? activeCanvas.hex : "#FAF6F2"}
                               onChange={(e) => {
                                 setCustomHexInput(e.target.value);
-                                onBackgroundThemeChange?.(e.target.value);
+                                selectBackgroundColor(e.target.value);
                               }}
                               className="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-lg cursor-pointer border-0 p-0 bg-transparent"
                               title="Open Color Wheel"
@@ -3372,10 +4640,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                     {/* RIGHT PANEL: Canva 28-Swatch Palette Grid (7 cols) */}
                     <div className="lg:col-span-7 space-y-6">
                       {/* Canva Swatches Section */}
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6 space-y-4 shadow-2xs">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 sm:p-6 space-y-4 shadow-2xs">
                         <div className="flex items-center justify-between pb-2 border-b border-slate-200/80">
                           <div>
-                            <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                            <h3 className="text-sm font-black text-slate-900 tracking-tight flex flex-wrap items-center gap-2">
                               <span>Default Colors (Canva Palette)</span>
                               <span className="text-[10px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
                                 4 Rows × 7 Columns
@@ -3388,20 +4656,20 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         </div>
 
                         {/* 28 Swatches in 7 Columns Grid */}
-                        <div className="grid grid-cols-7 gap-3 sm:gap-4 md:gap-4.5 justify-items-center py-2">
+                        <div className="grid grid-cols-7 gap-1.5 sm:gap-3.5 md:gap-4 justify-items-center py-2">
                           {CANVA_PALETTE_SWATCHES.map((swatch) => {
                             const isSelected = isSwatchSelected(swatch.hex);
 
-                            return (
+                return (
                               <button
                                 key={swatch.id}
                                 type="button"
                                 onClick={() => {
                                   setCustomHexInput(swatch.hex);
-                                  onBackgroundThemeChange?.(swatch.hex);
+                                  selectBackgroundColor(swatch.hex);
                                 }}
                                 title={`${swatch.name} (${swatch.hex})`}
-                                className={`group relative w-11 h-11 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-full cursor-pointer transition-all duration-150 flex items-center justify-center active:scale-95 hover:scale-110 ${
+                                className={`group relative w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full cursor-pointer transition-all duration-150 flex items-center justify-center active:scale-95 hover:scale-110 ${
                                   isSelected
                                     ? "ring-4 ring-orange-500 ring-offset-2 scale-105 shadow-md"
                                     : "hover:shadow-md"
@@ -3428,22 +4696,22 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                             <Layers size={14} className="text-orange-500" />
-                            <span>Studio Document Backdrops (Recommended)</span>
+                            <span>Recommended Background</span>
                           </h4>
-                          <span className="text-[10px] font-mono text-slate-400">5 Signature Presets</span>
+                          <span className="text-[10px] font-mono text-slate-400">5 Presets</span>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                           {BACKGROUND_PALETTES.map((preset) => {
-                            const isSelected = (backgroundTheme || "solid-white") === preset.id;
+                            const isSelected = activeBackgroundTheme === preset.id;
 
-                            return (
+                return (
                               <button
                                 key={preset.id}
                                 type="button"
                                 onClick={() => {
                                   setCustomHexInput(preset.color);
-                                  onBackgroundThemeChange?.(preset.id);
+                                  selectBackgroundColor(preset.id);
                                 }}
                                 className={`p-2.5 rounded-xl border text-left transition cursor-pointer flex items-center gap-3 ${
                                   isSelected
@@ -3484,286 +4752,414 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
           })()}
 
           {/* ══════════════════════════════════════════════════════════════
-              STEP 7: STORYBOARD & ASSETS (S3 Curated Media Pool & Scene Assignment)
+              STEP 9: VIDEO SCENES (Clean Storyboard & Visual Library)
               ══════════════════════════════════════════════════════════════ */}
-          {currentStep === 7 && (
+          {currentStep === 9 && (
             <div className="space-y-6 animate-in fade-in duration-200">
-              <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Layers size={20} className="text-orange-500" />
-                      <span>S3 Curated Media Pool &amp; Scene Assignment</span>
-                      <span className="text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full border border-orange-200">
-                        730+ Curated S3 Assets
-                      </span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Connect each scene with authentic S3 illustrations, 2D vector concepts, and realistic documentary visuals. AI has pre-matched the most relevant assets below.
-                    </p>
+              <div className="rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 lg:p-10 shadow-sm space-y-6">
+                {/* Clean Pictory-Style Header: Title on left, Count + Export CTA on right */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+                  <div className="flex items-start gap-3.5">
+                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-500 via-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md shadow-orange-500/25 shrink-0 mt-0.5">
+                      <Film size={22} />
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                          Edit Scenes &amp; Download
+                        </h2>
+                        {activeCreatorBundleId && (() => {
+                          const bundle = CREATOR_STYLE_BUNDLES.find((b) => b.id === activeCreatorBundleId);
+                          if (!bundle) return null;
+                          return (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-bold text-orange-800">
+                              <Sparkles size={11} className="text-orange-600" />
+                              <span>{bundle.name} ({bundle.inspiredBy})</span>
+                              <button
+                                type="button"
+                                onClick={() => setCurrentStep(3)}
+                                className="underline text-orange-700 hover:text-orange-900 ml-1 cursor-pointer"
+                              >
+                                Customize
+                              </button>
+                            </span>
+                          );
+                        })()}
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                        {sceneBlueprint.length > 0
+                          ? "Click any scene to jump the live preview, edit text or visuals, and export your 1080p MP4."
+                          : "Upload your audio or video in Step 1 to generate your real storyboard and live preview."}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-                      {sceneBlueprint.length} Scenes Planned
+
+                  <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-center shrink-0">
+                    <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3.5 py-1.5 rounded-full border border-slate-200 font-mono">
+                      {sceneBlueprint.length} {sceneBlueprint.length === 1 ? "Scene" : "Scenes"}
+                      {sceneBlueprint.length > 0 ? ` • ${formatSec(totalSceneDurationSec)}` : ""}
                     </span>
+
+                    {renderedVideoUrl ? (
+                      <a
+                        href={renderedVideoUrl}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition shadow-sm shadow-emerald-600/25"
+                      >
+                        <CheckCircle2 size={14} />
+                        <span>Download MP4</span>
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowPreRenderModal(true)}
+                        disabled={isGenerating || !selectedFile || sceneBlueprint.length === 0}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-black transition shadow-sm shadow-orange-600/25 cursor-pointer disabled:opacity-45 disabled:pointer-events-none"
+                      >
+                        <Sparkles size={14} />
+                        <span>Render &amp; Download MP4</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 
-                {/* Video Beat Pipeline Guide */}
-                <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500 px-3.5 py-2 rounded-2xl bg-gradient-to-r from-orange-50/70 via-amber-50/40 to-slate-50 border border-orange-200/60 overflow-x-auto scrollbar-none shadow-2xs">
-                  <span className="text-orange-600 font-extrabold flex items-center gap-1.5 shrink-0">
-                    <Film size={13} className="text-orange-500" />
-                    Story Beat Flow:
-                  </span>
-                  <span className="text-slate-800 shrink-0">Hook Intro</span>
-                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
-                  <span className="text-slate-800 shrink-0">Core Tenets &amp; Data</span>
-                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
-                  <span className="text-slate-800 shrink-0">B-Roll Visuals</span>
-                  <ArrowRight size={12} className="text-orange-400 shrink-0" />
-                  <span className="text-orange-600 font-bold shrink-0">Retention Climax</span>
-                </div>
-
-                {/* Scene-to-Asset Mapping Strip */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                      <Film size={14} className="text-orange-500" />
-                      <span>Scene Visual Timeline</span>
-                    </h3>
-                    <span className="text-[11px] font-bold text-slate-500">
-                      Click any scene to assign or replace its S3 asset
-                    </span>
-                  </div>
-
-                  {sceneBlueprint.length === 0 ? (
-                    <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-8 text-center space-y-2">
-                      <Film size={32} className="mx-auto text-slate-400 stroke-1" />
-                      <p className="text-xs font-bold text-slate-700">No scenes planned yet</p>
-                      <p className="text-[11px] text-slate-500 max-w-sm mx-auto">
-                        Please upload your voiceover audio in Step 1 to auto-transcribe and generate scenes with AI.
+                {/* Main Storyboard + Live Preview Area */}
+                {sceneBlueprint.length === 0 ? (
+                  isPlanning ? (
+                    <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-8 sm:p-12 text-center space-y-3">
+                      <Sparkles size={32} className="mx-auto text-orange-500 animate-spin" />
+                      <p className="text-sm font-black text-slate-800">
+                        {planningMessage || "Creating your real video scenes from audio..."}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Your storyboard and live 16:9 preview will appear automatically once planning completes.
                       </p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                      {sceneBlueprint.map((sc, idx) => {
-                        const sceneNum = sc.sceneNumber || idx + 1;
-                        const assetUrl = brollUrls[sceneNum] || sc.assetUrl;
-                        const isSelected = selectedSceneForAssetSwap === sceneNum;
-
-                        return (
-                          <div
-                            key={`scene-asset-card-${sceneNum}`}
-                            onClick={() => setSelectedSceneForAssetSwap(isSelected ? null : sceneNum)}
-                            className={`rounded-2xl border p-3.5 transition-all duration-200 cursor-pointer space-y-2.5 group hover:-translate-y-1 ${isSelected
-                              ? "border-orange-500 bg-gradient-to-b from-orange-50/50 to-white ring-2 ring-orange-500/25 shadow-md shadow-orange-500/10"
-                              : "border-slate-200 bg-white hover:border-orange-300 hover:shadow-md"
-                              }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1.5">
-                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-tr from-slate-900 to-slate-800 text-white text-[10px] font-mono font-black shadow-xs">
-                                  {sceneNum}
-                                </span>
-                                <span className="text-xs font-black text-slate-900 truncate max-w-[140px] group-hover:text-orange-600 transition-colors">
-                                  {sc.heading || sc.title || `Scene ${sceneNum}`}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-[10px] font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">
-                                  {sc.duration ? `${Math.round(sc.duration)}s` : "5s"}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleOpenEditModal(idx);
-                                  }}
-                                  className="p-1 rounded-md text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition cursor-pointer"
-                                  title="Edit Scene Text"
-                                >
-                                  <Edit3 size={11} />
-                                </button>
-                              </div>
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-6 sm:p-8 space-y-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+                        <div className="lg:col-span-5 space-y-2.5">
+                          <div className="text-xs font-black uppercase tracking-wider text-slate-500">
+                            Storyboard
+                          </div>
+                          <div className="rounded-xl border border-dashed border-slate-200 bg-white p-4 text-xs text-slate-500 leading-relaxed">
+                            No scenes generated yet. Upload your real voiceover or video in Step 1 so AI can build your timestamped storyboard scenes.
+                          </div>
+                        </div>
+                        <div className="lg:col-span-7">
+                          <div className="aspect-video w-full rounded-2xl border border-dashed border-slate-300 bg-white flex flex-col items-center justify-center gap-2.5 p-6 text-center">
+                            <div className="h-12 w-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
+                              <Film size={22} />
                             </div>
+                            <p className="text-sm font-black text-slate-800">
+                              Live 16:9 Preview Ready After Upload
+                            </p>
+                            <p className="text-xs text-slate-500 max-w-sm">
+                              We never show fake or sample footage here — your preview will reflect your actual uploaded audio, captions, and scenes.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
 
-                            {/* Thumbnail / Visual Placeholder */}
-                            <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 flex items-center justify-center group">
-                              {assetUrl ? (
-                                <>
+                      <div className="flex justify-center pt-1">
+                        {selectedFile ? (
+                          <button
+                            type="button"
+                            onClick={() => triggerTranscription(selectedFile)}
+                            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-black transition shadow-xs cursor-pointer"
+                          >
+                            <Sparkles size={14} />
+                            <span>Generate Video Scenes</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setCurrentStep(1)}
+                            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                          >
+                            <span>Upload Audio in Step 1</span>
+                            <ArrowRight size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <div className="space-y-5">
+                    {/* 2-Column Pictory-Style Workspace: Left Storyboard List + Right Large 16:9 Preview */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                      {/* Left Column: Storyboard Scene Rows */}
+                      <div className="lg:col-span-5 flex flex-col rounded-2xl border border-slate-200 bg-slate-50/70 overflow-hidden">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-white">
+                          <span className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                            Storyboard
+                          </span>
+                          <span className="text-[11px] font-bold text-slate-500">
+                            Click a scene to preview &amp; edit
+                          </span>
+                        </div>
+
+                        <div className="p-2.5 space-y-2 max-h-[430px] overflow-y-auto">
+                          {sceneBlueprint.map((sc, idx) => {
+                            const sceneNum = sc.sceneNumber || idx + 1;
+                            const cumulativeStart = sceneBlueprint
+                              .slice(0, idx)
+                              .reduce((acc, s) => acc + Number(s.duration || 5), 0);
+                            const sceneStartSec = Number(
+                              sc.narrationSegment?.startSeconds ?? sc.startSeconds ?? cumulativeStart
+                            );
+                            const sceneDurSec = Number(sc.duration || 5);
+                            const sceneEndSec = sceneStartSec + sceneDurSec;
+                            const isSelected = selectedSceneForAssetSwap === sceneNum;
+                            const playbackSec = step8CurrentFrame / 30;
+                            const isPlayingThisScene =
+                              playbackSec >= sceneStartSec && playbackSec < sceneEndSec;
+                            const isReplanningThis = replanningSceneIndex === idx;
+                            const layoutLabel = String(sc.layoutType || "card_concept").replace(/_/g, " ");
+
+                            return (
+                              <div
+                                key={`storyboard-row-${sceneNum}`}
+                                onClick={() => handleSelectAndSeekScene(sceneNum, sceneStartSec)}
+                                className={`rounded-xl border p-3 transition-all cursor-pointer space-y-1.5 ${
+                                  isSelected || isPlayingThisScene
+                                    ? "border-orange-400 border-l-4 border-l-orange-600 bg-white shadow-sm"
+                                    : "border-slate-200/80 bg-white/85 hover:border-orange-300 hover:bg-white"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <span
+                                      className={`inline-flex items-center justify-center w-5 h-5 rounded-md text-[11px] font-mono font-black shrink-0 ${
+                                        isSelected || isPlayingThisScene
+                                          ? "bg-orange-600 text-white"
+                                          : "bg-slate-800 text-white"
+                                      }`}
+                                    >
+                                      {sceneNum}
+                                    </span>
+                                    <span className="text-[11px] font-mono font-bold text-slate-500 shrink-0">
+                                      {formatSec(Math.round(sceneStartSec))}–{formatSec(Math.round(sceneEndSec))}
+                                    </span>
+                                    <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 truncate">
+                                      {layoutLabel}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleReplanSingleScene(idx);
+                                      }}
+                                      disabled={replanningSceneIndex !== null}
+                                      className="p-1 rounded-md text-slate-500 hover:text-orange-600 hover:bg-orange-50 transition cursor-pointer disabled:opacity-50"
+                                      title="Re-plan scene with AI"
+                                    >
+                                      <Sparkles size={12} className={isReplanningThis ? "animate-spin text-orange-600" : ""} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenEditModal(idx);
+                                      }}
+                                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold text-slate-600 hover:text-orange-700 hover:bg-orange-50 transition cursor-pointer"
+                                      title="Edit scene text & layout"
+                                    >
+                                      <Edit3 size={11} />
+                                      <span>Edit</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setUploadTargetSceneNum(sceneNum);
+                                        sceneImageInputRef.current?.click();
+                                      }}
+                                      className="p-1 rounded-md text-slate-500 hover:text-orange-600 hover:bg-orange-50 transition cursor-pointer"
+                                      title="Upload image for this scene"
+                                    >
+                                      <Upload size={12} />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                <div className="text-xs font-black text-slate-900 line-clamp-1">
+                                  {sc.heading || sc.title || `Scene ${sceneNum}`}
+                                </div>
+                                <p className="text-[11px] text-slate-600 line-clamp-2 leading-snug">
+                                  {sc.narrationSegment?.text || sc.supportingText || sc.keyTakeaway}
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Right Column: Large 16:9 Live Preview */}
+                      <div className="lg:col-span-7 space-y-2.5">
+                        <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 shadow-md">
+                          <Player
+                            ref={step8PlayerRef}
+                            component={FacelessLongVideoTemplate as any}
+                            inputProps={step8PreviewInputProps}
+                            durationInFrames={Math.max(150, Math.ceil(totalSceneDurationSec * 30))}
+                            fps={30}
+                            compositionWidth={1920}
+                            compositionHeight={1080}
+                            controls
+                            style={{ width: "100%", height: "100%" }}
+                          />
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-[11px] text-slate-500">
+                          <span className="font-mono font-bold text-slate-700">
+                            Preview: {formatSec(Math.floor(step8CurrentFrame / 30))} / {formatSec(totalSceneDurationSec)}
+                          </span>
+                          <span>
+                            {selectedSceneForAssetSwap
+                              ? `Selected: Scene ${selectedSceneForAssetSwap} — swap visual below or click Edit`
+                              : "Live preview reflects your real uploaded audio, captions, fonts & scenes"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Horizontal Scene Filmstrip (Click to jump & swap visual) */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-slate-900">
+                          Scene Filmstrip
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          Click any thumbnail to jump preview &amp; assign visuals
+                        </span>
+                      </div>
+
+                      <div className="flex items-stretch gap-2.5 overflow-x-auto pb-2 pt-0.5">
+                        {sceneBlueprint.map((sc, idx) => {
+                          const sceneNum = sc.sceneNumber || idx + 1;
+                          const assetUrl = brollUrls[sceneNum] || sc.assetUrl;
+                          const cumulativeStart = sceneBlueprint
+                            .slice(0, idx)
+                            .reduce((acc, s) => acc + Number(s.duration || 5), 0);
+                          const sceneStartSec = Number(
+                            sc.narrationSegment?.startSeconds ?? sc.startSeconds ?? cumulativeStart
+                          );
+                          const sceneDurSec = Number(sc.duration || 5);
+                          const isSelected = selectedSceneForAssetSwap === sceneNum;
+                          const playbackSec = step8CurrentFrame / 30;
+                          const isPlayingThisScene =
+                            playbackSec >= sceneStartSec && playbackSec < sceneStartSec + sceneDurSec;
+
+                          return (
+                            <div
+                              key={`filmstrip-thumb-${sceneNum}`}
+                              onClick={() => handleSelectAndSeekScene(sceneNum, sceneStartSec)}
+                              className={`group relative w-40 shrink-0 rounded-xl border overflow-hidden cursor-pointer transition-all ${
+                                isSelected || isPlayingThisScene
+                                  ? "border-orange-600 ring-2 ring-orange-500/30 shadow-md"
+                                  : "border-slate-200 hover:border-orange-300"
+                              }`}
+                            >
+                              <div className="relative aspect-video w-full bg-slate-900 flex items-center justify-center overflow-hidden">
+                                {assetUrl && !assetUrl.endsWith(".html") ? (
                                   <img
                                     src={assetUrl}
-                                    alt={sc.heading || "Scene Visual"}
+                                    alt={sc.heading || `Scene ${sceneNum}`}
                                     className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
                                   />
+                                ) : (
+                                  <div className="w-full h-full p-2 flex flex-col justify-center bg-slate-800 text-left">
+                                    <span className="text-[9px] font-bold uppercase text-orange-400 truncate">
+                                      {String(sc.layoutType || "scene").replace(/_/g, " ")}
+                                    </span>
+                                    <span className="text-[10px] font-bold text-white line-clamp-2 leading-tight mt-0.5">
+                                      {sc.heading || `Scene ${sceneNum}`}
+                                    </span>
+                                  </div>
+                                )}
+
+                                <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-slate-950/80 text-white text-[10px] font-mono font-black">
+                                  #{sceneNum}
+                                </span>
+                                <span className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-slate-950/80 text-white text-[9px] font-mono">
+                                  {sceneDurSec.toFixed(1)}s
+                                </span>
+
+                                {assetUrl && !assetUrl.endsWith(".html") && (
                                   <button
                                     type="button"
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleRemoveAssetFromScene(sceneNum);
                                     }}
-                                    className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-slate-900/80 hover:bg-red-600 text-white transition opacity-0 group-hover:opacity-100 shadow-sm cursor-pointer"
-                                    title="Remove asset from scene"
+                                    className="absolute top-1.5 right-1.5 p-1 rounded bg-slate-950/80 hover:bg-red-600 text-white opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                                    title="Remove visual"
                                   >
-                                    <Trash2 size={12} />
+                                    <Trash2 size={10} />
                                   </button>
-                                </>
-                              ) : (
-                                <div className="flex flex-col items-center gap-1 text-slate-400 p-2 text-center">
-                                  <Type size={18} className="text-slate-400" />
-                                  <span className="text-[10px] font-bold text-slate-500">
-                                    {sc.layoutType ? String(sc.layoutType).replace(/_/g, " ") : "Vector Typography"}
-                                  </span>
-                                  <span className="text-[9px] text-orange-600 font-semibold">
-                                    Click to assign S3 visual
-                                  </span>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
-
-                            <div className="flex items-center justify-between text-[11px]">
-                              <span className="text-slate-500 line-clamp-1">
-                                {sc.supportingText || sc.keyTakeaway || "Supporting explanation"}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* S3 Curated Asset Library Browser */}
-                <div className="pt-4 border-t border-slate-200/80 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                      <h3 className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                        <Search size={14} className="text-orange-500" />
-                        <span>Browse S3 Asset Library</span>
-                        {selectedSceneForAssetSwap && (
-                          <span className="bg-orange-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
-                            Target: Scene #{selectedSceneForAssetSwap}
-                          </span>
-                        )}
-                      </h3>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        Select any asset below to assign it to {selectedSceneForAssetSwap ? `Scene #${selectedSceneForAssetSwap}` : "the active scene"}.
-                      </p>
+                          );
+                        })}
+                      </div>
                     </div>
 
-                    {/* Search Box */}
-                    <div className="relative w-full sm:w-64">
-                      <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input
-                        type="text"
-                        value={assetSearchQuery}
-                        onChange={(e) => setAssetSearchQuery(e.target.value)}
-                        placeholder="Search tags or titles..."
-                        className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 focus:outline-none focus:border-orange-500"
-                      />
+                    {/* Scene Transition Selector (Per-Video) */}
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-xs font-black text-slate-900">
+                          Scene Transition Style
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          Applied between every scene change
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { id: "crossfade" as const, label: "Smooth Crossfade", desc: "Clean cinema blend" },
+                          { id: "slide-push" as const, label: "Slide Push", desc: "Dynamic lateral move" },
+                          { id: "zoom-whip" as const, label: "Zoom Whip", desc: "High-energy YouTube cut" },
+                          { id: "hard-cut" as const, label: "Hard Cut", desc: "Instant documentary snap" },
+                        ].map((tr) => {
+                          const isTrActive = sceneTransitionStyle === tr.id;
+                          return (
+                            <button
+                              key={tr.id}
+                              type="button"
+                              onClick={() => setSceneTransitionStyle(tr.id)}
+                              className={`px-3 py-2 rounded-xl border text-left transition cursor-pointer ${
+                                isTrActive
+                                  ? "border-orange-500 bg-white ring-2 ring-orange-500/20 shadow-2xs"
+                                  : "border-slate-200 bg-white/70 hover:border-orange-300"
+                              }`}
+                            >
+                              <div className={`text-xs font-black ${isTrActive ? "text-orange-700" : "text-slate-800"}`}>
+                                {tr.label}
+                              </div>
+                              <div className="text-[10px] text-slate-500 mt-0.5">{tr.desc}</div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Category Pills */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    {ITNAVIDEO_STOCK_CATEGORIES.map((cat) => (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setAssetCategoryFilter(cat.id)}
-                        className={`px-3 py-1 rounded-xl text-xs font-bold transition cursor-pointer ${assetCategoryFilter === cat.id
-                          ? "bg-slate-900 text-white shadow-xs"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                      >
-                        {cat.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Assets Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-h-[460px] overflow-y-auto pr-1">
-                    {filteredAssets.map((asset) => {
-                      const isAssigned = Object.values(brollUrls).includes(asset.absoluteUrl);
-                      return (
-                        <div
-                          key={`stock-card-${asset.id}`}
-                          className="group relative rounded-2xl border border-slate-200 bg-white p-2 hover:border-orange-400 hover:shadow-md transition flex flex-col space-y-2"
-                        >
-                          <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
-                            <img
-                              src={asset.absoluteUrl}
-                              alt={asset.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                              loading="lazy"
-                            />
-                            <span className="absolute top-1 left-1 bg-slate-900/80 backdrop-blur-xs text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md">
-                              {asset.style || "2d"}
-                            </span>
-                            {isAssigned && (
-                              <span className="absolute bottom-1 right-1 bg-emerald-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs flex items-center gap-0.5">
-                                <Check size={10} /> In Use
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex-1 flex flex-col justify-between">
-                            <p className="text-[11px] font-black text-slate-900 line-clamp-1" title={asset.title}>
-                              {asset.title}
-                            </p>
-                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mt-0.5">
-                              {asset.categoryLabel || asset.category}
-                            </p>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleAssignAssetToCurrentOrTarget(asset.absoluteUrl)}
-                            className="w-full py-1.5 rounded-xl bg-orange-50 hover:bg-orange-500 text-orange-600 hover:text-white text-[11px] font-black transition cursor-pointer flex items-center justify-center gap-1 active:scale-95 border border-orange-200 hover:border-orange-500"
-                          >
-                            <Plus size={12} />
-                            <span>{selectedSceneForAssetSwap ? `Assign to #${selectedSceneForAssetSwap}` : "Assign to Scene"}</span>
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Preflight Guarantee Banner */}
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 space-y-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                      <ShieldCheck size={18} />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-black text-emerald-950 uppercase tracking-wider">
-                        Studio-Grade 1080p Cinema Preflight Verified
-                      </h4>
-                      <p className="text-[11px] text-emerald-800">
-                        All visual assets, BGM audio tracks, and Remotion scene templates are cleared for commercial YouTube monetization.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-[11px] font-bold text-emerald-900">
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 size={13} className="text-emerald-600" />
-                      <span>1920×1080 @ 30 FPS</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 size={13} className="text-emerald-600" />
-                      <span>-16 LUFS Audio Mastering</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 size={13} className="text-emerald-600" />
-                      <span>Dynamic BGM Auto-Ducking</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 size={13} className="text-emerald-600" />
-                      <span>AWS Lambda Parallel Render</span>
-                    </div>
-                  </div>
-                </div>
+                {/* Hidden Scene Image Input */}
+                <input
+                  ref={sceneImageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleSceneCustomImageUpload}
+                  className="hidden"
+                />
               </div>
             </div>
           )}
@@ -3773,16 +5169,16 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
       {/* ── MODAL: Pre-Render Confirmation (Audit Recommendation 6) ── */}
       {showPreRenderModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <div className="h-9 w-9 rounded-xl bg-orange-100 border border-orange-200 text-orange-600 flex items-center justify-center">
                   <Sparkles size={18} />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-900">Confirm Cloud Render</h3>
-                  <p className="text-xs text-slate-500">1080p Cinema Widescreen (16:9)</p>
+                  <h3 className="text-base font-black text-slate-900">Ready to Create Your Video?</h3>
+                  <p className="text-xs text-slate-500">Full HD Widescreen (16:9)</p>
                 </div>
               </div>
               <button
@@ -3808,8 +5204,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 </span>
               </div>
               <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
-                <span className="font-bold text-slate-500">Mastering:</span>
-                <span className="font-bold text-slate-700">1080p Full HD • -16 LUFS Audio</span>
+                <span className="font-bold text-slate-500">Quality:</span>
+                <span className="font-bold text-slate-700">1080p Full HD • Studio Audio Mastering</span>
               </div>
               <div className="flex items-center justify-between py-1 pt-2 text-sm">
                 <span className="font-black text-slate-900">Credits Required:</span>
@@ -3823,9 +5219,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
               <button
                 type="button"
                 onClick={() => setShowPreRenderModal(false)}
-                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700"
+                className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 cursor-pointer"
               >
-                Back to Storyboard
+                Back to Scenes
               </button>
               <button
                 type="button"
@@ -3835,7 +5231,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 }}
                 className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black shadow-md shadow-orange-500/25 active:scale-95 cursor-pointer"
               >
-                Confirm &amp; Render ({calculatedCredits} Cr)
+                Create Video ({calculatedCredits} Cr)
               </button>
             </div>
           </div>
@@ -3844,8 +5240,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
       {/* ── MODAL: Edit Scene Text ── */}
       {editSceneIndex !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <div className="h-9 w-9 rounded-xl bg-orange-100 border border-orange-200 text-orange-600 flex items-center justify-center">
@@ -3867,32 +5263,34 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
             <div className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Visual Layout & Presentation Infographic</label>
+                <label className="block font-bold text-slate-700 mb-1">Layout Style</label>
                 <select
                   value={editLayoutInput}
                   onChange={(e) => setEditLayoutInput(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 focus:outline-none focus:border-orange-500 bg-white"
                 >
-                  <optgroup label="── Modern Infographics (PowerPoint/Keynote Suite) ──">
-                    <option value="curved_roadmap">Curved Serpentine Roadmap (Poles & Milestones)</option>
-                    <option value="circular_org_chart">Multi-Level Circular Org Chart (Radial Hub)</option>
-                    <option value="horizontal_shelves">Horizontal Architecture Shelves (3-4 Tiers)</option>
-                    <option value="scorecard_dashboard">Scorecard / Executive KPI Dashboard</option>
-                    <option value="table_of_contents">Table of Contents / Agenda Roadmap</option>
-                    <option value="mission_vision">Mission & Vision Dual Strategic Pillars</option>
-                    <option value="medical_infographic">Medical & Clinical Monitor (Live ECG Waveform)</option>
-                  </optgroup>
-                  <optgroup label="── Core 16:9 Narrative Archetypes ──">
-                    <option value="card_concept">Card Concept (Default Modern Card)</option>
-                    <option value="stat_card">Stat Card (Single KPI & Accent Chime)</option>
-                    <option value="comparison">Versus Comparison (Side-by-Side)</option>
-                    <option value="horizontal_process">5-Step Horizontal Process Flow</option>
-                    <option value="workflow">Workflow & Automation Pipeline</option>
-                    <option value="before_after_transformation">Before / After Transformation</option>
-                    <option value="checklist">Checklist / Core Tenets</option>
-                    <option value="quote">Quote & Mindset Principle</option>
-                    <option value="chapter_title">Chapter Title Card</option>
-                  </optgroup>
+                  <option value="card_concept">Standard Card</option>
+                  <option value="stat_card">Big Stat</option>
+                  <option value="comparison">Comparison (Side-by-Side)</option>
+                  <option value="checklist">Checklist</option>
+                  <option value="quote">Quote</option>
+                  <option value="chapter_title">Chapter Title</option>
+                  <option value="horizontal_process">Step-by-Step Process</option>
+                  <option value="workflow">Workflow</option>
+                  <option value="before_after_transformation">Before &amp; After</option>
+                  <option value="curved_roadmap">Roadmap</option>
+                  <option value="scorecard_dashboard">KPI Scorecard</option>
+                  <option value="rough_notation">RoughNotation Highlight</option>
+                  <option value="lottie_motion">Lottie Motion Card</option>
+                  <option value="code_diff">Animated Code Diff</option>
+                  <option value="three_globe">3D Spinning Globe</option>
+                  <option value="map_flyover">Map Route Flyover</option>
+                  <option value="kinetic_kit">Kinetic Kit Takeaway</option>
+                  <option value="table_of_contents">Agenda / Contents</option>
+                  <option value="mission_vision">Two Pillars</option>
+                  <option value="circular_org_chart">Radial Diagram</option>
+                  <option value="horizontal_shelves">Tiered Shelves</option>
+                  <option value="medical_infographic">Monitor / Chart</option>
                 </select>
               </div>
 
@@ -3914,6 +5312,49 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   onChange={(e) => setEditTakeawayInput(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-900 focus:outline-none focus:border-orange-500 resize-none"
                 />
+              </div>
+
+              {/* Sticker / Arrow Callout Toggles */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">Highlight Arrow Callout</p>
+                    <p className="text-[11px] text-slate-500">Draw an animated arrow pointing to key stats or comparisons</p>
+                  </div>
+                  <ModernToggleSwitch
+                    checked={editHighlightArrowInput}
+                    onChange={setEditHighlightArrowInput}
+                    activeColor="orange"
+                    size="sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-slate-200/70">
+                  <label className="block text-xs font-bold text-slate-800">Reaction / Concept Sticker</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { id: "none", label: "None" },
+                      { id: "lightbulb", label: "💡 Insight" },
+                      { id: "rocket", label: "🚀 Growth" },
+                      { id: "check", label: "✅ Verified" },
+                      { id: "trending", label: "📈 Trend" },
+                      { id: "warning", label: "⚠️ Caution" },
+                    ].map((st) => (
+                      <button
+                        key={st.id}
+                        type="button"
+                        onClick={() => setEditConceptStickerInput(st.id)}
+                        className={`px-2.5 py-1 rounded-lg border text-[11px] font-bold transition cursor-pointer ${
+                          editConceptStickerInput === st.id
+                            ? "border-orange-500 bg-orange-50 text-orange-700"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-orange-300"
+                        }`}
+                      >
+                        {st.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -3938,26 +5379,26 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       )}
 
       {/* ── ROW 3: Sticky Bottom Action Bar ── */}
-      <div className="shrink-0 border-t border-slate-200/90 bg-white/95 backdrop-blur-xl px-3 sm:px-8 lg:px-12 py-2.5 sm:py-3.5 flex items-center justify-between gap-2 shadow-lg">
+      <div className="shrink-0 border-t border-slate-200/90 bg-white/95 backdrop-blur-xl px-3 sm:px-8 lg:px-12 py-2.5 sm:py-3.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shadow-lg">
         {/* Left Side: Back button + Step info */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {currentStep > 0 && (
             <button
               type="button"
               onClick={() => setCurrentStep((currentStep - 1))}
-              className="px-3.5 py-2 rounded-[10px] border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition cursor-pointer shrink-0"
+              className="px-3 sm:px-3.5 py-2 rounded-[10px] border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 transition cursor-pointer shrink-0"
             >
               Back
             </button>
           )}
 
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-700 bg-slate-100/90 px-3 sm:px-3.5 py-1.5 rounded-full border border-slate-200/80 shrink-0 font-mono">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold text-slate-700 bg-slate-100/90 px-2.5 sm:px-3.5 py-1.5 rounded-full border border-slate-200/80 shrink-0 font-mono">
             {currentStep === 0 ? (
               <span>
                 <span className="hidden sm:inline">Overview Roadmap • </span>~60s Total
               </span>
             ) : (
-              <span>{`Step ${currentStep} of ${FACELESS_STEPS.length - 1} • ${calculatedCredits} Cr`}</span>
+              <span>{`Step ${currentStep}/${FACELESS_STEPS.length - 1} • ${calculatedCredits} Cr`}</span>
             )}
           </div>
 
@@ -3968,15 +5409,15 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
         </div>
 
         {/* Right Side: Next or Generate */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
           {currentStep < FACELESS_STEPS[FACELESS_STEPS.length - 1].step ? (
             <button
               type="button"
               onClick={() => setCurrentStep((currentStep + 1))}
-              className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-[10px] bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black transition-all cursor-pointer shadow-md shadow-orange-500/25 active:scale-95 group"
+              className="inline-flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-[10px] bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black transition-all cursor-pointer shadow-md shadow-orange-500/25 active:scale-95 group max-w-[210px] sm:max-w-none"
             >
-              <span>{currentStep === 0 ? "Start Creating Video" : `Next: ${FACELESS_STEPS.find(s => s.step === currentStep + 1)?.title ?? "Next"}`}</span>
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
+              <span className="truncate">{currentStep === 0 ? "Start Creating Video" : `Next: ${FACELESS_STEPS.find(s => s.step === currentStep + 1)?.title ?? "Next"}`}</span>
+              <ArrowRight size={14} className="shrink-0 group-hover:translate-x-1 transition-transform duration-200" />
             </button>
           ) : (
             <button

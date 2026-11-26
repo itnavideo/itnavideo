@@ -105,6 +105,7 @@ export function auditAndSelfHealVideoBlueprint(options: PreRenderAuditOptions): 
   // Track layout history to break repetition
   let prevLayout: VisualLayoutType | null = null;
   let prevDrawingId: string | undefined;
+  const usedStatValues = new Set<string>();
 
   const variedCadence: VisualLayoutType[] = isShorts
     ? ['card_concept', 'supporting_note', 'numbered_steps', 'stat_card', 'workflow']
@@ -122,7 +123,7 @@ export function auditAndSelfHealVideoBlueprint(options: PreRenderAuditOptions): 
     }
 
     // ── CHECK 2: RHETORICAL PURPOSE EXTRACTION & UPGRADES ──
-    const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b|thousands?\s+of\s+dollars|save\s+money/i.test(text);
+    const hasRealMetric = /(\$|€|£|₹)\s*\d+|\b\d+(?:\.\d+)?\s*(%|percent|x|times|crore|lakh|million|billion)\b/i.test(text);
     const hasComparison = /\b(?:versus|vs\.?|compared to|instead of|rather than|better than|traditionally)\b/i.test(text);
     const hasSequentialSteps = /\b(?:step\s*\d+|first|second|third|finally|workflow|process steps|pipeline)\b/i.test(text);
 
@@ -163,7 +164,14 @@ export function auditAndSelfHealVideoBlueprint(options: PreRenderAuditOptions): 
       heading.split(/\s+/).length < 2;
 
     if (isWeakHeading) {
-      heading = generateCleanConceptHeading(text || 'High Impact Strategy');
+      const stopWords = new Set(['the', 'and', 'for', 'with', 'that', 'this', 'from', 'your', 'their', 'into', 'about']);
+      const keywords = text
+        .replace(/[^a-zA-Z0-9\s'-]/g, ' ')
+        .split(/\s+/)
+        .map((w) => w.trim())
+        .filter((w) => w.length > 2 && !stopWords.has(w.toLowerCase()))
+        .slice(0, 4);
+      heading = keywords.length >= 2 ? keywords.join(' ').toUpperCase() : 'KEY SCENE POINT';
       if (scene.heading) auditReport.fixedWeakBoilerplates++;
       else auditReport.fixedMissingHeadings++;
     }
@@ -205,14 +213,30 @@ export function auditAndSelfHealVideoBlueprint(options: PreRenderAuditOptions): 
     // ── CHECK 7: METRICS, COMPARISON & PROCESS COMPATIBILITY ──
     let statValue = scene.statValue;
     let statLabel = scene.statLabel;
-    if (currentLayout === 'stat_card' && (!statValue || !statLabel)) {
-      const metricMatch = text.match(/((?:\$|€|£|₹)\s*\d+(?:,\d+)*(?:\.\d+)?|\b\d+(?:\.\d+)?\s*(?:%|x|times|crore|lakh|million|billion)\b)/i);
-      if (metricMatch) {
-        statValue = metricMatch[1].toUpperCase();
-        statLabel = heading.length <= 25 ? heading : 'Metric Impact';
-      } else {
-        statValue = statValue || '85%';
-        statLabel = statLabel || 'Efficiency Lift';
+    if (currentLayout === 'stat_card') {
+      if (!statValue || !statLabel) {
+        const metricMatch = text.match(/((?:\$|€|£|₹)\s*\d+(?:,\d+)*(?:\.\d+)?|\b\d+(?:\.\d+)?\s*(?:%|x|times|crore|lakh|million|billion)\b)/i);
+        if (metricMatch) {
+          statValue = metricMatch[1].toUpperCase();
+          statLabel = heading.length <= 25 ? heading : 'Metric Impact';
+        } else if (!statValue) {
+          // Never invent fake "85% Efficiency Lift" stats — downgrade to card_concept when no real metric exists
+          currentLayout = 'card_concept';
+          statValue = undefined;
+          statLabel = undefined;
+        }
+      }
+
+      if (statValue) {
+        const normStat = String(statValue).trim().toLowerCase();
+        if (usedStatValues.has(normStat)) {
+          // Block duplicate stat values across scenes — switch to conceptual layout instead
+          currentLayout = 'card_concept';
+          statValue = undefined;
+          statLabel = undefined;
+        } else {
+          usedStatValues.add(normStat);
+        }
       }
     }
 
@@ -277,18 +301,51 @@ export function auditAndSelfHealVideoBlueprint(options: PreRenderAuditOptions): 
     };
   });
 
-  // ── CHECK 10: TIMELINE DURATION SYNCHRONIZATION (Zero trailing black silence) ──
-  if (durationSeconds > 0 && healedScenes.length > 0) {
-    const totalScenesDuration = healedScenes.reduce((acc, sc) => acc + (sc.duration || 0), 0);
-    const durationDelta = durationSeconds - totalScenesDuration;
+  // ── CHECK 10: FRAME-ACCURATE CONTIGUOUS TIMELINE STITCHING (30 FPS, Zero Gaps/Overlaps) ──
+  if (healedScenes.length > 0) {
+    const FPS = 30;
+    const rawTotalSec =
+      durationSeconds > 0
+        ? durationSeconds
+        : healedScenes.reduce((acc, sc) => acc + Math.max(0.5, Number(sc.duration || 0)), 0);
+    const totalFrames = Math.max(healedScenes.length * 15, Math.ceil(rawTotalSec * FPS));
 
-    // If total scenes end earlier than the audio voiceover by more than 0.5s:
-    if (durationDelta > 0.5) {
-      const lastScene = healedScenes[healedScenes.length - 1];
-      lastScene.duration = Number((lastScene.duration + durationDelta).toFixed(2));
-      if (lastScene.narrationSegment) {
-        lastScene.narrationSegment.endSeconds = durationSeconds;
+    let cursorFrame = 0;
+    for (let i = 0; i < healedScenes.length; i++) {
+      const sc = healedScenes[i];
+      const nextSc = healedScenes[i + 1];
+      const isLast = i === healedScenes.length - 1;
+
+      const minFramesForRemaining = (healedScenes.length - 1 - i) * 15;
+      let endFrame: number;
+
+      if (isLast) {
+        endFrame = Math.max(cursorFrame + 15, totalFrames);
+      } else {
+        // Close any silent gap by extending this scene's end to meet the next scene's start
+        const nextNaturalStart = Number(nextSc?.narrationSegment?.startSeconds);
+        const ownNaturalEnd = Number(sc.narrationSegment?.endSeconds ?? (cursorFrame / FPS + (sc.duration || 4)));
+        const targetEndSec = Number.isFinite(nextNaturalStart) && nextNaturalStart > cursorFrame / FPS
+          ? Math.max(ownNaturalEnd, nextNaturalStart)
+          : ownNaturalEnd;
+
+        const snappedEnd = Math.round(targetEndSec * FPS);
+        const maxAllowedEnd = totalFrames - minFramesForRemaining;
+        endFrame = Math.max(cursorFrame + 15, Math.min(maxAllowedEnd, snappedEnd));
       }
+
+      const startSec = Number((cursorFrame / FPS).toFixed(3));
+      const endSec = Number((endFrame / FPS).toFixed(3));
+      const durSec = Number(((endFrame - cursorFrame) / FPS).toFixed(3));
+
+      sc.duration = durSec;
+      sc.narrationSegment = {
+        text: sc.narrationSegment?.text || sc.heading || '',
+        startSeconds: startSec,
+        endSeconds: endSec,
+      };
+
+      cursorFrame = endFrame;
     }
   }
 
@@ -302,5 +359,82 @@ export function auditAndSelfHealVideoBlueprint(options: PreRenderAuditOptions): 
     healedBrollUrls,
     healedSfxEvents,
     auditReport,
+  };
+}
+
+export interface QualityGateResult {
+  passed: boolean;
+  violations: string[];
+}
+
+/**
+ * Hard Pre-Render Quality Gate:
+ * Validates invariants before any Remotion render or credit deduction occurs.
+ */
+export function assertPreRenderQualityGate(params: {
+  healedScenes: SceneBlueprintItem[];
+  healedBrollUrls: Record<number, string>;
+  durationSeconds: number;
+  fps?: number;
+}): QualityGateResult {
+  const { healedScenes, healedBrollUrls, durationSeconds, fps = 30 } = params;
+  const violations: string[] = [];
+
+  if (!Array.isArray(healedScenes) || healedScenes.length === 0) {
+    violations.push('No scenes present in blueprint.');
+    return { passed: false, violations };
+  }
+
+  // 1. Block .html/.js/.json URLs in image/video slots
+  for (const [sceneNum, url] of Object.entries(healedBrollUrls || {})) {
+    if (/\.(html?|js|json)(\?.*)?$/i.test(String(url || ''))) {
+      violations.push(`Scene ${sceneNum} has non-renderable asset URL: ${url}`);
+    }
+  }
+  for (const sc of healedScenes) {
+    const assetUrl = String(sc.assetUrl || sc.brollUrl || '');
+    if (assetUrl && /\.(html?|js|json)(\?.*)?$/i.test(assetUrl)) {
+      violations.push(`Scene ${sc.sceneNumber} assetUrl is non-renderable: ${assetUrl}`);
+    }
+  }
+
+  // 2. Block consecutive duplicate headings or duplicate statValues across scenes
+  const seenStats = new Set<string>();
+  for (let i = 0; i < healedScenes.length; i++) {
+    const curr = healedScenes[i];
+    const prev = healedScenes[i - 1];
+    if (prev && curr.heading && prev.heading && curr.heading.trim().toLowerCase() === prev.heading.trim().toLowerCase()) {
+      violations.push(`Consecutive duplicate heading at scenes ${prev.sceneNumber} & ${curr.sceneNumber}: "${curr.heading}"`);
+    }
+    if (curr.statValue) {
+      const statKey = String(curr.statValue).trim().toLowerCase();
+      if (seenStats.has(statKey)) {
+        violations.push(`Duplicate statValue "${curr.statValue}" at scene ${curr.sceneNumber}`);
+      }
+      seenStats.add(statKey);
+    }
+  }
+
+  // 3. Block inter-scene gaps (> 0.05s) and verify totalFrames >= audioFrames
+  for (let i = 0; i < healedScenes.length - 1; i++) {
+    const currEnd = Number(healedScenes[i].narrationSegment?.endSeconds ?? 0);
+    const nextStart = Number(healedScenes[i + 1].narrationSegment?.startSeconds ?? 0);
+    if (Math.abs(nextStart - currEnd) > 0.05) {
+      violations.push(`Timing gap/overlap (${(nextStart - currEnd).toFixed(3)}s) between scene ${i + 1} and ${i + 2}`);
+    }
+  }
+
+  if (durationSeconds > 0) {
+    const audioFrames = Math.ceil(durationSeconds * fps);
+    const sceneTotalSec = healedScenes.reduce((acc, s) => acc + Number(s.duration || 0), 0);
+    const sceneFrames = Math.ceil(sceneTotalSec * fps);
+    if (sceneFrames + 1 < audioFrames) {
+      violations.push(`Scene total frames (${sceneFrames}) is shorter than audio frames (${audioFrames})`);
+    }
+  }
+
+  return {
+    passed: violations.length === 0,
+    violations,
   };
 }

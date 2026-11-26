@@ -66,15 +66,17 @@ export default function FacelessVideoPageClient() {
   const [facelessPacingStyle, setFacelessPacingStyle] = useState<"clean" | "cinematic" | "documentary" | "dynamic">("cinematic");
   const [facelessEnableSfx, setFacelessEnableSfx] = useState<boolean>(true);
   const [subtitleStyle, setSubtitleStyle] = useState<string>("glow-viral");
+  const [showCaptions, setShowCaptions] = useState<boolean>(true);
   const [captionAnimationStyle, setCaptionAnimationStyle] = useState<"mrbeast" | "handwriting" | "bouncy" | "smooth" | "capsule" | "decodingyt">("smooth");
   const [captionPosition, setCaptionPosition] = useState<"bottom" | "center" | "top">("bottom");
   const [visualTheme, setVisualTheme] = useState<string>("modern-saas");
   const [backgroundTheme, setBackgroundTheme] = useState<string>("solid-white");
   const [customBgUrl, setCustomBgUrl] = useState<string>("");
   const [customBgFile, setCustomBgFile] = useState<File | null>(null);
-  const [headingFont, setHeadingFont] = useState<string>("Montserrat");
-  const [bodyFont, setBodyFont] = useState<string>("Plus Jakarta Sans");
+  const [fontFamily, setFontFamily] = useState<string>("Montserrat");
+  const [accentFont, setAccentFont] = useState<string>("Caveat");
   const [bgmEnabled, setBgmEnabled] = useState<boolean>(true);
+  const [plannedBrollUrls, setPlannedBrollUrls] = useState<Record<number, string>>({});
 
   // Job, billing and render history
   const [jobStatus, setJobStatus] = useState<JobStatus>({ state: "idle" });
@@ -232,8 +234,8 @@ export default function FacelessVideoPageClient() {
           assetMode: assetSourceMode,
           uploadedImageUrls,
           backgroundTheme,
-          headingFont,
-          bodyFont,
+          fontFamily,
+          accentFont,
           brandNamesHint,
         }),
       });
@@ -244,6 +246,8 @@ export default function FacelessVideoPageClient() {
       }
 
       setPlanningMessage("");
+      setPlannedBlueprint(planPayload.sceneBlueprint || []);
+      setPlannedBrollUrls(planPayload.brollUrls || {});
 
       return {
         transcript: planPayload.transcript,
@@ -309,6 +313,35 @@ export default function FacelessVideoPageClient() {
         }
       }
 
+      // Upload any additional media clips (videos or images) staged in userMediaClips
+      const uploadedVideoUrls: string[] = [];
+      const userMediaClips: Array<{ file: File; type: "video" | "image"; url: string }> = Array.isArray(activeStoryboard?.userMediaClips)
+        ? activeStoryboard.userMediaClips
+        : [];
+      const stagedMediaUrlsByBlob = new Map<string, string>();
+      if (userMediaClips.length > 0) {
+        const knownImageSig = new Set(facelessImageFiles.map((f) => `${f.name}:${f.size}`));
+        const clipsToUpload = userMediaClips.filter(
+          (clip) => clip?.file instanceof File && (clip.type === "video" || !knownImageSig.has(`${clip.file.name}:${clip.file.size}`))
+        );
+        if (clipsToUpload.length > 0) {
+          setJobStatus({
+            state: "uploading",
+            message: "Uploading your custom media clips to cloud storage...",
+          });
+          for (const clip of clipsToUpload) {
+            const clipKey = await uploadFileViaPresign(clip.file, "facelessVideo", user.id);
+            const clipReadUrl = await getReadUrlFromKey(clipKey);
+            if (clip.url) stagedMediaUrlsByBlob.set(clip.url, clipReadUrl);
+            if (clip.type === "video") {
+              uploadedVideoUrls.push(clipReadUrl);
+            } else {
+              uploadedImageKeys.push(clipKey);
+            }
+          }
+        }
+      }
+
       // Check if user uploaded a custom BGM audio file that needs staging to AWS S3
       let customBgmKey: string | undefined = undefined;
       const customBgmFile = activeStoryboard?.customBgmFile;
@@ -327,6 +360,46 @@ export default function FacelessVideoPageClient() {
 
       const audioDuration = activeStoryboard?.durationSeconds || 60;
 
+      // Upload any per-scene custom images and replace blob URLs with real S3 URLs
+      const finalBrollUrls: Record<number, string> = { ...(activeStoryboard?.brollUrls || {}) };
+      let finalSceneBlueprint = activeStoryboard?.sceneBlueprint;
+      if (stagedMediaUrlsByBlob.size > 0) {
+        for (const [sceneKey, urlVal] of Object.entries(finalBrollUrls)) {
+          if (typeof urlVal === "string" && stagedMediaUrlsByBlob.has(urlVal)) {
+            finalBrollUrls[Number(sceneKey)] = stagedMediaUrlsByBlob.get(urlVal)!;
+          }
+        }
+        if (Array.isArray(finalSceneBlueprint)) {
+          finalSceneBlueprint = finalSceneBlueprint.map((sc: any) => {
+            const mapped = sc.assetUrl && stagedMediaUrlsByBlob.get(sc.assetUrl);
+            return mapped ? { ...sc, assetUrl: mapped, brollUrl: mapped } : sc;
+          });
+        }
+      }
+      const sceneCustomFiles: Record<number, File> | undefined = activeStoryboard?.sceneCustomImageFiles;
+      if (sceneCustomFiles && Object.keys(sceneCustomFiles).length > 0) {
+        setJobStatus({
+          state: "uploading",
+          message: "Uploading your custom scene images...",
+        });
+        for (const [sceneKey, imgFile] of Object.entries(sceneCustomFiles)) {
+          if (imgFile instanceof File) {
+            const imgKey = await uploadFileViaPresign(imgFile, "facelessVideo", user.id);
+            const imgUrl = await getReadUrlFromKey(imgKey);
+            const sceneNum = Number(sceneKey);
+            finalBrollUrls[sceneNum] = imgUrl;
+            uploadedImageKeys.push(imgKey);
+            if (Array.isArray(finalSceneBlueprint)) {
+              finalSceneBlueprint = finalSceneBlueprint.map((sc: any, idx: number) =>
+                (sc.sceneNumber || idx + 1) === sceneNum
+                  ? { ...sc, assetUrl: imgUrl, brollUrl: imgUrl }
+                  : sc
+              );
+            }
+          }
+        }
+      }
+
       // 2. Submit Render Job with Approved Storyboard Blueprint
       const jobResponse = await fetch("/api/reels/jobs", {
         method: "POST",
@@ -338,10 +411,13 @@ export default function FacelessVideoPageClient() {
           mediaType: "audio",
           mode: "facelessVideo",
           removeAiWatermark: Boolean(removeAiWatermark),
+          showCaptions: activeStoryboard?.showCaptions !== undefined ? activeStoryboard.showCaptions : showCaptions,
+          enableCaptions: activeStoryboard?.showCaptions !== undefined ? activeStoryboard.showCaptions : showCaptions,
           subtitleStyle: activeStoryboard?.subtitleStyle || subtitleStyle,
           captionAnimationStyle: activeStoryboard?.captionAnimationStyle || captionAnimationStyle,
           captionPosition: activeStoryboard?.captionPosition || captionPosition,
           uploadedImageKeys,
+          uploadedVideoUrls: uploadedVideoUrls.length > 0 ? uploadedVideoUrls : undefined,
           assetMode: assetSourceMode,
           topicTitle: plannedTitle,
           userId: user.id,
@@ -356,6 +432,8 @@ export default function FacelessVideoPageClient() {
           facelessPacingStyle: activeStoryboard?.facelessPacingStyle || facelessPacingStyle,
           pacingStyle: activeStoryboard?.facelessPacingStyle || facelessPacingStyle || "clean",
           autoDucking: activeStoryboard?.autoDucking !== false,
+          duckingStrength: activeStoryboard?.duckingStrength || "balanced",
+          duckingDb: typeof activeStoryboard?.duckingDb === "number" ? activeStoryboard.duckingDb : -14,
           facelessEnableSfx: activeStoryboard?.facelessEnableSfx ?? facelessEnableSfx,
           aspectRatio: "16:9",
           durationSeconds: audioDuration,
@@ -363,11 +441,14 @@ export default function FacelessVideoPageClient() {
           mediaAspect: "landscape",
           visualTheme: activeStoryboard?.visualTheme || visualTheme || "modern-saas",
           backgroundTheme: activeStoryboard?.backgroundTheme || backgroundTheme || "solid-white",
-          headingFont: activeStoryboard?.headingFont || headingFont || "Montserrat",
-          bodyFont: activeStoryboard?.bodyFont || bodyFont || "Plus Jakarta Sans",
+          canvasTexture: activeStoryboard?.canvasTexture || "solid",
+          creatorStyle: activeStoryboard?.creatorStyle || undefined,
+          sceneTransitionStyle: activeStoryboard?.sceneTransitionStyle || "crossfade",
+          fontFamily: activeStoryboard?.fontFamily || fontFamily || "Montserrat",
+          accentFont: activeStoryboard?.accentFont || accentFont || "Caveat",
           customBgUrl: "",
-          sceneBlueprint: activeStoryboard?.sceneBlueprint,
-          brollUrls: activeStoryboard?.brollUrls,
+          sceneBlueprint: finalSceneBlueprint,
+          brollUrls: finalBrollUrls,
           approvedCaptions: activeStoryboard?.approvedCaptions,
           transcript: activeStoryboard?.transcript,
           brandNamesHint: activeStoryboard?.brandNamesHint,
@@ -655,6 +736,8 @@ export default function FacelessVideoPageClient() {
             }}
             topicTitle={topicTitle}
             onTopicTitleChange={setTopicTitle}
+            showCaptions={showCaptions}
+            onShowCaptionsChange={setShowCaptions}
             subtitleStyle={subtitleStyle}
             onSubtitleStyleChange={setSubtitleStyle}
             captionAnimationStyle={captionAnimationStyle}
@@ -678,10 +761,8 @@ export default function FacelessVideoPageClient() {
             onVisualThemeChange={setVisualTheme}
             backgroundTheme={backgroundTheme}
             onBackgroundThemeChange={setBackgroundTheme}
-            headingFont={headingFont}
-            onHeadingFontChange={setHeadingFont}
-            bodyFont={bodyFont}
-            onBodyFontChange={setBodyFont}
+            fontFamily={fontFamily}
+            onFontFamilyChange={setFontFamily}
             bgmEnabled={bgmEnabled}
             onBgmEnabledChange={setBgmEnabled}
             customBgUrl={customBgUrl}
@@ -703,6 +784,8 @@ export default function FacelessVideoPageClient() {
             isGenerating={false}
             renderedVideoUrl={jobStatus.outputFile}
             onSceneBlueprintChange={setPlannedBlueprint}
+            initialSceneBlueprint={plannedBlueprint}
+            initialBrollUrls={plannedBrollUrls}
             removeAiWatermark={removeAiWatermark}
             onRemoveAiWatermarkChange={setRemoveAiWatermark}
           />

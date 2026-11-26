@@ -37,7 +37,7 @@ import { planImagesFromLibraryForScenes } from '@/services/ai/aiImageLibraryMatc
 import { planSemanticImageToVideoTimeline, planVisualIntelligenceTimeline } from '@/services/ai/visualPlanner';
 import { SUBTITLE_PRESETS } from '@/remotion/types/subtitles';
 import { inspectAndAutoFixComposition } from '@/lib/inspector/bhideCompositionInspector';
-import { auditAndSelfHealVideoBlueprint } from '@/services/ai/preRenderQualityAudit';
+import { auditAndSelfHealVideoBlueprint, assertPreRenderQualityGate } from '@/services/ai/preRenderQualityAudit';
 
 function getFontForLanguage(lang?: string): string {
   if (!lang) return 'Plus Jakarta Sans, sans-serif';
@@ -50,7 +50,7 @@ function getFontForLanguage(lang?: string): string {
 }
 import { generateSFXEvents } from '@/services/ai/sfxEngine';
 import { detectChaptersFromTranscript } from '@/services/ai/chapterDetector';
-import { smartMatchUploadedImagesToScenes } from '@/services/ai/smartMediaMatcher';
+import { smartMatchUploadedImagesToScenes, planUserUploadedAssetsForFacelessScenes } from '@/services/ai/smartMediaMatcher';
 import { analyzeMultipleImages, analyzeBatchImagesInSingleCall, generateDeterministicAnalysis, matchScriptToAnalyzedImages, isGenericFilename, type AnalyzedImage } from '@/services/ai/imageUnderstanding';
 import { searchPexelsFallbackImages, matchPexelsMediaForScenes } from '@/services/ai/pexelsImages';
 
@@ -2507,9 +2507,10 @@ export async function POST(request: Request) {
             };
           }).filter((c: any) => c.text && c.end > c.start);
 
-          const headingFont = readString(body.headingFont) || 'Lora';
-          const subheadingFont = readString(body.subheadingFont) || 'Plus Jakarta Sans';
-          const bodyFont = readString(body.bodyFont) || readString(body.typographyFont) || 'Inter';
+          const primaryFont = readString(body.fontFamily) || readString(body.headingFont) || readString(body.bodyFont) || readString(body.typographyFont) || 'Montserrat';
+          const headingFont = primaryFont;
+          const subheadingFont = primaryFont;
+          const bodyFont = primaryFont;
           const backgroundTheme = readString(body.backgroundTheme) || readString(body.selectedBackgroundTheme) || 'solid-white';
           const subtitleStyle = readString(body.subtitleStyle) || 'classic-clean';
           const captionAnimationStyle = readString(body.captionAnimationStyle) || 'bouncy';
@@ -2523,7 +2524,7 @@ export async function POST(request: Request) {
           const derivedTranscriptTitle = titleFromTranscript(transcription.transcript);
           const videoTitle = (!isGenericOrFilename(topicTitle) ? topicTitle : '') ||
             (!isGenericOrFilename(derivedTranscriptTitle) ? derivedTranscriptTitle : '') ||
-            'Cut Delivery Costs with DoorDash Drive';
+            (mode === 'facelessShorts' ? 'Faceless Shorts' : 'Faceless Video');
 
           // If user confirmed a storyboard blueprint in studio, reuse it with 100% fidelity
           const userProvidedScenes = Array.isArray(body.sceneBlueprint) && body.sceneBlueprint.length > 0
@@ -2593,6 +2594,20 @@ export async function POST(request: Request) {
 
           let mappedBrollUrls: Record<number, string> = {};
           const userProvidedBroll = (body.brollUrls && typeof body.brollUrls === 'object') ? body.brollUrls : {};
+
+          // If user uploaded images for facelessVideo without pre-planned brollUrls,
+          // analyze them with Gemini Vision and semantically place them into matching scenes.
+          if (Object.keys(userProvidedBroll).length === 0 && uploadedImageUrls.length > 0) {
+            try {
+              const visionPlan = await planUserUploadedAssetsForFacelessScenes(blueprint.scenes, uploadedImageUrls, {
+                assetMode: readString(body.assetMode) || 'mix',
+              });
+              blueprint.scenes = visionPlan.scenes;
+              Object.assign(mappedBrollUrls, visionPlan.brollUrls);
+            } catch (visionPlanErr) {
+              console.warn('[FACELESS_VIDEO_PLANNER] User uploaded asset vision matching fallback:', visionPlanErr);
+            }
+          }
 
           if (Object.keys(userProvidedBroll).length > 0) {
             // If user provided brollUrls in studio, strictly enforce the 10% maximum budget
@@ -2688,19 +2703,36 @@ export async function POST(request: Request) {
             durationSynchronized: auditReport.durationSynchronized,
           });
 
+          if (targetVideoType === 'facelessVideo') {
+            const qualityGate = assertPreRenderQualityGate({
+              healedScenes,
+              healedBrollUrls,
+              durationSeconds: renderWindow.durationSeconds,
+              fps: 30,
+            });
+            if (!qualityGate.passed) {
+              throw new Error(`QUALITY_GATE_FAILED: ${qualityGate.violations.join('; ')}`);
+            }
+          }
+
           return {
             title: videoTitle,
             creatorHandle: readString(body.creatorHandle) || undefined,
+            fontFamily: primaryFont,
             headingFont,
             subheadingFont,
             typographyFont: bodyFont,
+            accentFont: readString(body.accentFont) || 'Caveat',
             backgroundTheme,
+            canvasTexture: readString(body.canvasTexture) || 'solid',
             customBgUrl: '',
             subtitleStyle,
             captionThemeId: subtitleStyle || 'glow-viral',
             captionAnimationStyle,
             captionPosition,
             autoDucking: body.autoDucking !== false,
+            duckingDb: typeof body.duckingDb === 'number' ? body.duckingDb : -14,
+            sceneTransitionStyle: readString(body.sceneTransitionStyle) || 'crossfade',
             pacingStyle: readString(body.pacingStyle || body.facelessPacingStyle) || 'clean',
             bgmEnabled: body.bgmEnabled !== false && body.musicEnabled !== false && readString(body.facelessBgmMood) !== 'none' && readString(body.bgmTrackId) !== 'none',
             musicUrl: (body.bgmEnabled === false || body.musicEnabled === false || readString(body.facelessBgmMood) === 'none' || readString(body.bgmTrackId) === 'none')
@@ -2900,7 +2932,7 @@ export async function POST(request: Request) {
           };
         })()
         : {}),
-      ...(mode === 'splitScreenExplainer' || (templateName as string) === 'SPLIT_SCREEN_EXPLAINER'
+      ...((mode as string) === 'splitScreenExplainer' || (templateName as string) === 'SPLIT_SCREEN_EXPLAINER'
         ? (() => {
           const splitDur = Math.min(90, requestedDurationSeconds || renderWindow.durationSeconds || 60);
           const splitTitle = readString(body.topicTitle) || topicTitle || 'Split Screen Explainer';
@@ -4175,14 +4207,15 @@ function buildCompareCaptionsFromGroq(renderWindow: {
     const captions: CaptionGroup[] = [];
     let group: typeof words = [];
 
-    // Grouping tuned for natural, readable social captions:
+    // Grouping tuned for natural, readable social captions — strict 3-5 word pills so each chunk
+    // always fits on a SINGLE caption line without wrapping (supports 16:9 Faceless Video & 9:16 Shorts):
     //  - break on sentence-ending punctuation (. ! ?)
-    //  - break on a clear speech pause (gap between words)
-    //  - cap words, on-screen duration, and character width (long Hinglish words)
+    //  - break on clause punctuation (, ; :) or speech pause (>= 0.45s) once >= 3 words
+    //  - cap at 5 words & 28 chars so pills stay 3-5 words on 1 clean line
     const MAX_WORDS = 5;
     const MAX_SECONDS = 1.6;
-    const MAX_CHARS = 30;
-    const PAUSE_GAP_SECONDS = 0.5;
+    const MAX_CHARS = 28;
+    const PAUSE_GAP_SECONDS = 0.45;
 
     const flush = () => {
       if (!group.length) return;
@@ -4201,13 +4234,15 @@ function buildCompareCaptionsFromGroq(renderWindow: {
         const lastWord = group[group.length - 1];
         const currentChars = group.reduce((total, item) => total + item.word.length + 1, 0);
         const endsSentence = /[.!?]$/.test(lastWord.word);
+        const endsClause = /[,;:—–]$/.test(lastWord.word);
         const pause = word.start - lastWord.end;
         const shouldBreak =
           group.length >= MAX_WORDS ||
           word.end - groupStart > MAX_SECONDS ||
           currentChars + word.word.length + 1 > MAX_CHARS ||
           pause > PAUSE_GAP_SECONDS ||
-          endsSentence;
+          endsSentence ||
+          (group.length >= 3 && endsClause);
         if (shouldBreak) flush();
       }
       group.push(word);
@@ -4237,7 +4272,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
     return segments.flatMap((segment) => {
       const parts = readString(segment.text).split(/\s+/).filter(Boolean);
       const chunks: Array<{ start: number; end: number; text: string; words?: Array<{ word: string; start: number; end: number }> }> = [];
-      const chunkSize = 5;
+      const chunkSize = 4; // 3-5 words per pill: matches word-level MAX_WORDS=4 above
       const duration = Math.max(0.8, Number(segment.end) - Number(segment.start));
       const totalChunks = Math.max(1, Math.ceil(parts.length / chunkSize));
 
@@ -4266,7 +4301,7 @@ function buildCompareCaptionsFromGroq(renderWindow: {
 
   const fallbackWords = readString(renderWindow.transcript).split(/\s+/).filter(Boolean);
   const fallbackDuration = Math.max(1, renderWindow.durationSeconds || MAX_RENDER_WINDOW_SECONDS);
-  const chunkSize = 5;
+  const chunkSize = 4; // 3-5 words per pill: matches word-level MAX_WORDS=4 above
   const totalChunks = Math.max(1, Math.ceil(fallbackWords.length / chunkSize));
 
   return Array.from({ length: totalChunks }).map((_, index) => {

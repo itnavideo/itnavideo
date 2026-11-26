@@ -47,6 +47,8 @@ export function toGroqLanguageCode(lang: string): string | undefined {
   const normalized = lang?.toLowerCase().trim();
   return map[normalized] ?? (normalized?.length === 2 ? normalized : undefined);
 }
+import { getGroqApiKeys, fetchGroqWithFailover } from './groqKeyPool';
+
 const DEFAULT_GROQ_TRANSCRIPTION_MODEL = 'whisper-large-v3-turbo';
 const MAX_TRANSCRIPTION_DOWNLOAD_BYTES = 1024 * 1024 * 120;
 const DEFAULT_TRANSCRIPTION_MAX_SECONDS = 60;
@@ -124,8 +126,8 @@ export async function transcribeMediaUrlWithGroq({
   maxSeconds?: number;
   prompt?: string;
 }): Promise<GroqTranscriptionResult> {
-  const apiKey = cleanEnvValue(process.env.GROQ_API_KEY);
-  if (!apiKey) throw new Error('Missing GROQ_API_KEY.');
+  const groqKeys = getGroqApiKeys();
+  if (groqKeys.length === 0) throw new Error('Missing GROQ_API_KEY.');
 
   const model = cleanEnvValue(process.env.GROQ_TRANSCRIPTION_MODEL) || DEFAULT_GROQ_TRANSCRIPTION_MODEL;
   const responseFormat = cleanEnvValue(process.env.GROQ_TRANSCRIPTION_RESPONSE_FORMAT) || 'verbose_json';
@@ -152,11 +154,15 @@ export async function transcribeMediaUrlWithGroq({
     form.append('timestamp_granularities[]', 'word');
   }
 
-  let response = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
-    method: 'POST',
-    headers: {Authorization: `Bearer ${apiKey}`},
-    body: form,
-  });
+  let response = await fetchGroqWithFailover(
+    translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL,
+    (key) => ({
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}` },
+      body: form,
+    }),
+    '[groqTranscription]'
+  );
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -166,7 +172,7 @@ export async function transcribeMediaUrlWithGroq({
       const convertedBuffer = await convertBufferTo16kMp3(rawBuffer, fileName);
       if (convertedBuffer && convertedBuffer.length > 0) {
         const retryForm = new FormData();
-        const retryFilePart = new File([convertedBuffer], 'normalized_audio.mp3', { type: 'audio/mpeg' });
+        const retryFilePart = new File([new Uint8Array(convertedBuffer)], 'normalized_audio.mp3', { type: 'audio/mpeg' });
         retryForm.append('file', retryFilePart, 'normalized_audio.mp3');
         retryForm.append('model', model);
         retryForm.append('response_format', responseFormat);
@@ -182,11 +188,15 @@ export async function transcribeMediaUrlWithGroq({
           retryForm.append('timestamp_granularities[]', 'word');
         }
 
-        const retryResponse = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
-          method: 'POST',
-          headers: {Authorization: `Bearer ${apiKey}`},
-          body: retryForm,
-        });
+        const retryResponse = await fetchGroqWithFailover(
+          translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL,
+          (key) => ({
+            method: 'POST',
+            headers: { Authorization: `Bearer ${key}` },
+            body: retryForm,
+          }),
+          '[groqTranscription]'
+        );
 
         if (retryResponse.ok) {
           console.log('[groqTranscription] Successfully transcribed normalized URL 16kHz MP3 via Groq Whisper!');
@@ -213,8 +223,8 @@ export async function transcribeMediaBlobWithGroq({
   language?: string;
   maxSeconds?: number;
 }): Promise<GroqTranscriptionResult> {
-  const apiKey = cleanEnvValue(process.env.GROQ_API_KEY);
-  if (!apiKey) throw new Error('Missing GROQ_API_KEY.');
+  const groqKeys = getGroqApiKeys();
+  if (groqKeys.length === 0) throw new Error('Missing GROQ_API_KEY.');
 
   const model = cleanEnvValue(process.env.GROQ_TRANSCRIPTION_MODEL) || DEFAULT_GROQ_TRANSCRIPTION_MODEL;
   const responseFormat = cleanEnvValue(process.env.GROQ_TRANSCRIPTION_RESPONSE_FORMAT) || 'verbose_json';
@@ -223,7 +233,7 @@ export async function transcribeMediaBlobWithGroq({
   const safeType = contentType || blob.type || (fileName.endsWith('.wav') ? 'audio/wav' : 'audio/mpeg');
   const buffer = Buffer.from(await blob.arrayBuffer());
   const resolvedFileName = safeFileName(fileName, safeType);
-  const filePart = new File([buffer], resolvedFileName, { type: safeType });
+  const filePart = new File([new Uint8Array(buffer)], resolvedFileName, { type: safeType });
 
   const form = new FormData();
   form.append('file', filePart, resolvedFileName);
@@ -242,11 +252,15 @@ export async function transcribeMediaBlobWithGroq({
     form.append('timestamp_granularities[]', 'word');
   }
 
-  let response = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
-    method: 'POST',
-    headers: {Authorization: `Bearer ${apiKey}`},
-    body: form,
-  });
+  let response = await fetchGroqWithFailover(
+    translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL,
+    (key) => ({
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}` },
+      body: form,
+    }),
+    '[groqTranscription]'
+  );
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -255,7 +269,7 @@ export async function transcribeMediaBlobWithGroq({
       const convertedBuffer = await convertBufferTo16kMp3(buffer, fileName);
       if (convertedBuffer && convertedBuffer.length > 0) {
         const retryForm = new FormData();
-        const retryFilePart = new File([convertedBuffer], 'normalized_audio.mp3', { type: 'audio/mpeg' });
+        const retryFilePart = new File([new Uint8Array(convertedBuffer)], 'normalized_audio.mp3', { type: 'audio/mpeg' });
         retryForm.append('file', retryFilePart, 'normalized_audio.mp3');
         retryForm.append('model', model);
         retryForm.append('response_format', responseFormat);
@@ -271,11 +285,15 @@ export async function transcribeMediaBlobWithGroq({
           retryForm.append('timestamp_granularities[]', 'word');
         }
 
-        const retryResponse = await fetch(translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL, {
-          method: 'POST',
-          headers: {Authorization: `Bearer ${apiKey}`},
-          body: retryForm,
-        });
+        const retryResponse = await fetchGroqWithFailover(
+          translateToEnglish ? GROQ_TRANSLATION_URL : GROQ_TRANSCRIPTION_URL,
+          (key) => ({
+            method: 'POST',
+            headers: { Authorization: `Bearer ${key}` },
+            body: retryForm,
+          }),
+          '[groqTranscription]'
+        );
 
         if (retryResponse.ok) {
           console.log('[groqTranscription] Successfully transcribed normalized 16kHz MP3 via Groq Whisper!');

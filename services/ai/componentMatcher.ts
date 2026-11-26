@@ -92,20 +92,21 @@ export function matchComponentForScene(
   buildKeywordIndex();
 
   const combinedText = `${heading || ''} ${text}`.toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
-  const words = combinedText.split(/\s+/).filter(w => w.length > 2 && !STOP_WORDS.has(w));
+  const uniqueWords = Array.from(new Set(combinedText.split(/\s+/).filter(w => w.length > 2 && !STOP_WORDS.has(w))));
 
-  const candidateScores: Map<string, { comp: VideoComponentMeta; score: number }> = new Map();
+  const candidateScores: Map<string, { comp: VideoComponentMeta; score: number; distinctMatches: number }> = new Map();
 
-  for (const word of words) {
+  for (const word of uniqueWords) {
     const matches = KEYWORD_INDEX.get(word);
     if (matches) {
       for (const m of matches) {
         const existing = candidateScores.get(m.component.id);
-        const weight = m.weight * (heading && heading.toLowerCase().includes(word) ? 2.0 : 1.0);
+        const weight = m.weight * (heading && heading.toLowerCase().includes(word) ? 1.5 : 1.0);
         if (existing) {
           existing.score += weight;
+          existing.distinctMatches += 1;
         } else {
-          candidateScores.set(m.component.id, { comp: m.component, score: weight });
+          candidateScores.set(m.component.id, { comp: m.component, score: weight, distinctMatches: 1 });
         }
       }
     }
@@ -113,8 +114,21 @@ export function matchComponentForScene(
 
   let bestMatch: { comp: VideoComponentMeta; score: number } | null = null;
   for (const entry of candidateScores.values()) {
+    // Require at least 2 distinct keyword matches so single ambiguous words like "delivery" or "focus" never false-trigger
+    if (entry.distinctMatches < 2) continue;
+
+    // Domain-clash guard: prevent email/outlook widgets on non-email scripts & DB/code widgets on non-tech scripts
+    const cat = String(entry.comp.category || '').toLowerCase();
+    const cid = String(entry.comp.id || '').toLowerCase();
+    if ((cat.includes('outlook') || cid.includes('email')) && !/\b(email|inbox|outlook|gmail|newsletter|mail)\b/i.test(combinedText)) {
+      continue;
+    }
+    if ((cat.includes('database') || cid.includes('sql') || cid.includes('terminal')) && !/\b(database|sql|postgres|terminal|cli|code|programming|server)\b/i.test(combinedText)) {
+      continue;
+    }
+
     if (!bestMatch || entry.score > bestMatch.score) {
-      bestMatch = entry;
+      bestMatch = { comp: entry.comp, score: entry.score };
     }
   }
 
@@ -123,7 +137,8 @@ export function matchComponentForScene(
   }
 
   // Extract contextual numbers or metrics from text to customize props
-  const customizedProps = { ...(bestMatch.comp.defaultProps || {}) };
+  const compWithDefaults = bestMatch.comp as VideoComponentMeta & { defaultProps?: Record<string, any> };
+  const customizedProps = { ...(compWithDefaults.defaultProps || {}) };
   if (heading && customizedProps.title) {
     customizedProps.title = heading;
   }

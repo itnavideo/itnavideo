@@ -106,16 +106,18 @@ export function CardConceptScene({
         }}
       >
         {/* Visual Showcase Frame: High-retention cinematic frame */}
+        {/* overflow is 'hidden' for image/video (clean crop), 'visible' for SVG icons (no clip) */}
         <div
           style={{
             width: ds.layout.isVertical ? '100%' : (mediaWidthPx || '680px'),
             maxWidth: ds.layout.isVertical ? '580px' : (mediaWidthPx || '680px'),
             height: ds.layout.isVertical ? '400px' : (mediaHeightPx || '480px'),
             borderRadius: '24px',
-            overflow: 'hidden',
+            overflow: resolvedSrc ? 'hidden' : 'visible',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            padding: resolvedSrc ? 0 : '24px',      // 24px padding for SVG so it never clips on edges
             flexShrink: 0,
             backgroundColor: ds.surface.isDark ? '#1E293B' : '#F1F5F9',
             boxShadow: ds.surface.isDark
@@ -123,6 +125,7 @@ export function CardConceptScene({
               : '0 20px 48px -12px rgba(15, 23, 42, 0.12)',
             transform: `scale(${ds.motion.contentSpring})`,
             transformOrigin: 'center center',
+            boxSizing: 'border-box',
           }}
         >
           {resolvedSrc ? (
@@ -141,20 +144,32 @@ export function CardConceptScene({
                 style={{
                   width: '100%',
                   height: '100%',
-                  objectFit: 'cover',
+                  objectFit: 'contain',              // ← 'contain' so image is never cropped/zoomed
                   transform: `scale(${imageKenBurns})`,
                 }}
               />
             )
           ) : (
-            <VectorDrawingIcon
-              keyword={scene.vectorDrawingId || `${headline} ${supportingText}`}
-              size={ds.layout.isVertical ? 320 : 400}
-              strokeWidth={1.2}
-              animated={true}
-              frameOverride={ds.localFrame}
-              theme={ds.surface.isDark ? 'dark' : 'light'}
-            />
+            /* SVG wrapper: enforce contain sizing so the icon never overflows or gets cropped */
+            <div
+              style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'visible',
+              }}
+            >
+              <VectorDrawingIcon
+                keyword={scene.vectorDrawingId || `${headline} ${supportingText}`}
+                size={Math.min(ds.layout.isVertical ? 280 : 360, 360)} // safe max so SVG stays inside container
+                strokeWidth={1.2}
+                animated={true}
+                frameOverride={ds.localFrame}
+                theme={ds.surface.isDark ? 'dark' : 'light'}
+              />
+            </div>
           )}
         </div>
 
@@ -194,14 +209,12 @@ export function CardConceptScene({
               <>
                 {headline.slice(0, highlightIndex)}
                 <HandwritingHighlight
+                  text={headline.slice(highlightIndex, highlightIndex + highlightWord.length)}
                   color="#FFE600"
-                  textColor="#0F172A"
+                  variant="marker_box"
                   delayFrames={8}
-                  durationFrames={14}
-                  type="highlighter"
-                >
-                  {headline.slice(highlightIndex, highlightIndex + highlightWord.length)}
-                </HandwritingHighlight>
+                  drawDurationFrames={14}
+                />
                 {headline.slice(highlightIndex + highlightWord.length)}
               </>
             ) : (

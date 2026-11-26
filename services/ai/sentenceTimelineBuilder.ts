@@ -191,5 +191,49 @@ export function buildDeterministicSentenceTimeline(
     }
   }
 
+  // ── Post-Pass: Merge ultra-short lead-in / transition sentences (< minDur) into adjacent paragraph beat ──
+  if (timelineSegments.length > 1) {
+    const merged: TimelineSegment[] = [];
+    for (let i = 0; i < timelineSegments.length; i++) {
+      const curr = { ...timelineSegments[i] };
+      const next = timelineSegments[i + 1];
+
+      if (curr.duration < minDur && next && curr.duration + next.duration <= maxDur + 2.0) {
+        // Merge short lead-in (e.g. "And here's the biggest advantage.") forward into the main point it introduces
+        timelineSegments[i + 1] = {
+          ...next,
+          start: curr.start,
+          duration: Math.round((next.end - curr.start) * 100) / 100,
+          text: `${curr.text} ${next.text}`.replace(/\s+/g, ' ').trim(),
+          words:
+            curr.words || next.words
+              ? [...(curr.words || []), ...(next.words || [])]
+              : undefined,
+          isChapterStart: curr.isChapterStart || next.isChapterStart,
+          chapterNumber: curr.chapterNumber,
+        };
+        continue;
+      }
+
+      if (curr.duration < minDur && merged.length > 0) {
+        const prev = merged[merged.length - 1];
+        prev.end = curr.end;
+        prev.duration = Math.round((prev.end - prev.start) * 100) / 100;
+        prev.text = `${prev.text} ${curr.text}`.replace(/\s+/g, ' ').trim();
+        if (prev.words || curr.words) {
+          prev.words = [...(prev.words || []), ...(curr.words || [])];
+        }
+        continue;
+      }
+
+      merged.push(curr);
+    }
+
+    return merged.map((seg, idx) => ({
+      ...seg,
+      id: idx + 1,
+    }));
+  }
+
   return timelineSegments;
 }

@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { interpolate, useCurrentFrame, useVideoConfig, Sequence, Img } from 'remotion';
+import { useAudioData, visualizeAudio } from '@remotion/media-utils';
 import { safeResolveMediaSrc } from '../../utils/safeMedia';
 
 // =========================================================================
@@ -37,6 +38,7 @@ export interface DynamicAudioVisualizerLayer {
   centerRadius?: number;    // Radius of center circle in px (default 65)
 
   // Audio Reaction & Energy
+  audioSrc?: string;         // Optional audio URL for real @remotion/media-utils FFT analysis
   energyTimeline?: number[]; // Optional normalized 0-1 energy array
   sensitivity?: number;      // Multiplier (default 1.0)
 
@@ -74,6 +76,28 @@ function getSpeechCadence(frame: number, fps: number, barIndex: number, totalBar
   return Math.min(1.0, Math.max(0.08, raw));
 }
 
+/**
+ * Resolves bar energy from real FFT frequencies (via @remotion/media-utils visualizeAudio)
+ * or falls back gracefully to deterministic speech cadence when audioSrc is unavailable.
+ */
+function resolveBarEnergy(
+  frame: number,
+  fps: number,
+  idx: number,
+  total: number,
+  sensitivity: number = 1.0,
+  fftValues?: number[] | null
+): number {
+  if (fftValues && fftValues.length > 0) {
+    const binIdx = Math.min(fftValues.length - 1, Math.floor((idx / Math.max(1, total)) * fftValues.length));
+    // Boost low-mid speech frequencies slightly and clamp to [0.06, 1.0]
+    const rawFft = fftValues[binIdx] ?? 0;
+    const scaled = Math.pow(rawFft, 0.72) * 1.85 * sensitivity;
+    return Math.min(1.0, Math.max(0.06, scaled));
+  }
+  return getSpeechCadence(frame, fps, idx, total, sensitivity);
+}
+
 // =========================================================================
 // 3. INDIVIDUAL AUDIO VISUALIZER RENDERERS
 // =========================================================================
@@ -85,10 +109,12 @@ const EqualizerBarsVisualizer = memo(({
   layer,
   frame,
   fps,
+  fftValues,
 }: {
   layer: DynamicAudioVisualizerLayer;
   frame: number;
   fps: number;
+  fftValues?: number[] | null;
 }) => {
   const barsCount = layer.barsCount ?? 32;
   const barW = layer.barWidth ?? 6;
@@ -115,7 +141,7 @@ const EqualizerBarsVisualizer = memo(({
         </defs>
 
         {Array.from({ length: barsCount }).map((_, idx) => {
-          const energy = getSpeechCadence(frame, fps, idx, barsCount, layer.sensitivity);
+          const energy = resolveBarEnergy(frame, fps, idx, barsCount, layer.sensitivity, fftValues);
           const barH = Math.max(6, energy * maxH);
           const x = idx * (barW + gap);
           const centerY = mirror ? maxH : maxH;
@@ -147,10 +173,12 @@ const SmoothWaveVisualizer = memo(({
   layer,
   frame,
   fps,
+  fftValues,
 }: {
   layer: DynamicAudioVisualizerLayer;
   frame: number;
   fps: number;
+  fftValues?: number[] | null;
 }) => {
   const totalW = layer.width ?? 640;
   const maxH = layer.maxHeight ?? 80;
@@ -161,7 +189,7 @@ const SmoothWaveVisualizer = memo(({
   const pts: string[] = [];
   for (let i = 0; i <= pointsCount; i++) {
     const x = i * step;
-    const energy = getSpeechCadence(frame, fps, i, pointsCount, layer.sensitivity);
+    const energy = resolveBarEnergy(frame, fps, i, pointsCount, layer.sensitivity, fftValues);
     const y = maxH / 2 + Math.sin(i * 0.45 + (frame / fps) * 4) * (energy * (maxH / 2));
     pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
   }
@@ -190,10 +218,12 @@ const SpectrumAreaVisualizer = memo(({
   layer,
   frame,
   fps,
+  fftValues,
 }: {
   layer: DynamicAudioVisualizerLayer;
   frame: number;
   fps: number;
+  fftValues?: number[] | null;
 }) => {
   const totalW = layer.width ?? 600;
   const maxH = layer.maxHeight ?? 110;
@@ -205,7 +235,7 @@ const SpectrumAreaVisualizer = memo(({
   const pts: string[] = [];
   for (let i = 0; i <= segments; i++) {
     const x = i * step;
-    const energy = getSpeechCadence(frame, fps, i, segments, layer.sensitivity);
+    const energy = resolveBarEnergy(frame, fps, i, segments, layer.sensitivity, fftValues);
     const y = maxH - energy * maxH;
     pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
   }
@@ -236,10 +266,12 @@ const CircularAudiogramVisualizer = memo(({
   layer,
   frame,
   fps,
+  fftValues,
 }: {
   layer: DynamicAudioVisualizerLayer;
   frame: number;
   fps: number;
+  fftValues?: number[] | null;
 }) => {
   const r = layer.centerRadius ?? 65;
   const barLen = layer.maxHeight ?? 50;
@@ -256,7 +288,7 @@ const CircularAudiogramVisualizer = memo(({
         {Array.from({ length: count }).map((_, idx) => {
           const angleDeg = (idx / count) * 360;
           const rad = (angleDeg * Math.PI) / 180;
-          const energy = getSpeechCadence(frame, fps, idx, count, layer.sensitivity);
+          const energy = resolveBarEnergy(frame, fps, idx, count, layer.sensitivity, fftValues);
           const currentLen = 6 + energy * barLen;
 
           const x1 = cx + Math.cos(rad) * (r + 4);
@@ -312,28 +344,59 @@ const CircularAudiogramVisualizer = memo(({
 // 4. MAIN TIME-WINDOWED AUDIO VISUALIZER VIEW
 // =========================================================================
 
-const SingleAudioVisualizerView = memo(({ layer }: { layer: DynamicAudioVisualizerLayer }) => {
+const RealAudioFftBridge: React.FC<{
+  audioSrc: string;
+  render: (fftValues: number[] | null) => React.ReactNode;
+}> = ({ audioSrc, render }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const audioData = useAudioData(audioSrc);
 
-  let content: React.ReactNode = null;
-  switch (layer.type) {
-    case 'equalizer-bars':
-    case 'pulsing-dots':
-      content = <EqualizerBarsVisualizer layer={layer} frame={frame} fps={fps} />;
-      break;
-    case 'smooth-wave':
-      content = <SmoothWaveVisualizer layer={layer} frame={frame} fps={fps} />;
-      break;
-    case 'spectrum-area':
-      content = <SpectrumAreaVisualizer layer={layer} frame={frame} fps={fps} />;
-      break;
-    case 'circular-audiogram':
-      content = <CircularAudiogramVisualizer layer={layer} frame={frame} fps={fps} />;
-      break;
-    default:
-      content = null;
-  }
+  const fftValues = audioData
+    ? visualizeAudio({
+        fps,
+        frame,
+        audioData,
+        numberOfSamples: 64,
+        optimizeFor: 'speed',
+      })
+    : null;
+
+  return <>{render(fftValues)}</>;
+};
+
+const SingleAudioVisualizerView = memo(({
+  layer,
+  fallbackAudioSrc,
+}: {
+  layer: DynamicAudioVisualizerLayer;
+  fallbackAudioSrc?: string;
+}) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const resolvedAudio = safeResolveMediaSrc(layer.audioSrc || fallbackAudioSrc);
+
+  const renderByType = (fftValues: number[] | null) => {
+    switch (layer.type) {
+      case 'equalizer-bars':
+      case 'pulsing-dots':
+        return <EqualizerBarsVisualizer layer={layer} frame={frame} fps={fps} fftValues={fftValues} />;
+      case 'smooth-wave':
+        return <SmoothWaveVisualizer layer={layer} frame={frame} fps={fps} fftValues={fftValues} />;
+      case 'spectrum-area':
+        return <SpectrumAreaVisualizer layer={layer} frame={frame} fps={fps} fftValues={fftValues} />;
+      case 'circular-audiogram':
+        return <CircularAudiogramVisualizer layer={layer} frame={frame} fps={fps} fftValues={fftValues} />;
+      default:
+        return null;
+    }
+  };
+
+  const content = resolvedAudio ? (
+    <RealAudioFftBridge audioSrc={resolvedAudio} render={renderByType} />
+  ) : (
+    renderByType(null)
+  );
 
   return (
     <div
@@ -363,9 +426,13 @@ const SingleAudioVisualizerView = memo(({ layer }: { layer: DynamicAudioVisualiz
 
 export interface MultiLayerAudioVisualizerOverlayProps {
   visualizers?: DynamicAudioVisualizerLayer[];
+  audioSrc?: string;
 }
 
-export const MultiLayerAudioVisualizerOverlay: React.FC<MultiLayerAudioVisualizerOverlayProps> = ({ visualizers = [] }) => {
+export const MultiLayerAudioVisualizerOverlay: React.FC<MultiLayerAudioVisualizerOverlayProps> = ({
+  visualizers = [],
+  audioSrc,
+}) => {
   const { fps } = useVideoConfig();
 
   if (!visualizers || visualizers.length === 0) return null;
@@ -391,7 +458,7 @@ export const MultiLayerAudioVisualizerOverlay: React.FC<MultiLayerAudioVisualize
             from={fromFrame}
             durationInFrames={durationInFrames}
           >
-            <SingleAudioVisualizerView layer={vis} />
+            <SingleAudioVisualizerView layer={vis} fallbackAudioSrc={audioSrc} />
           </Sequence>
         );
       })}

@@ -5,15 +5,19 @@ import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscrip
 import { generateStructuredSceneBlueprint } from '@/services/ai/aiScenePlanner';
 import { planFacelessGraphics } from '@/services/ai/facelessGraphicPlanner';
 import { generateSFXEvents } from '@/services/ai/sfxEngine';
-import { validateAndAlignTranscript, type TranscriptSegment } from '@/services/ai/transcriptAlignment';
+import {
+  validateAndAlignTranscript,
+  splitLongSegmentsByWordTimestamps,
+  type TranscriptSegment,
+} from '@/services/ai/transcriptAlignment';
 import { searchS3AssetCatalog } from '@/services/ai/assetCatalogMatcher';
-import { auditAndSelfHealVideoBlueprint } from '@/services/ai/preRenderQualityAudit';
+import { auditAndSelfHealVideoBlueprint, assertPreRenderQualityGate } from '@/services/ai/preRenderQualityAudit';
+import { planUserUploadedAssetsForFacelessScenes } from '@/services/ai/smartMediaMatcher';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MAX_FACELESS_LONG_DURATION_SECONDS = 300; // 300 seconds (5 minutes maximum strictly for 16:9 Faceless Video)
-const MAX_FACELESS_SHORTS_DURATION_SECONDS = 90; // 90 seconds maximum strictly for 9:16 Faceless Shorts
 
 export async function POST(req: Request) {
   try {
@@ -25,18 +29,19 @@ export async function POST(req: Request) {
       existingTranscript = '',
       existingSegments = null,
       backgroundTheme = 'studio-white',
-      headingFont = 'Montserrat',
-      subheadingFont = 'Plus Jakarta Sans',
-      bodyFont = 'Plus Jakarta Sans',
+      fontFamily = '',
+      accentFont = 'Caveat',
+      creatorStyle = '',
+      headingFont = '',
+      subheadingFont = '',
+      bodyFont = '',
       brandNamesHint = '',
-      aspectRatio: rawAspectRatio = '16:9',
-      videoType: rawVideoType = 'facelessVideo',
     } = body;
 
-    const isShorts = rawAspectRatio === '9:16' || rawVideoType === 'facelessShorts';
-    const targetAspectRatio: '16:9' | '9:16' = isShorts ? '9:16' : '16:9';
-    const targetVideoType: 'facelessVideo' | 'facelessShorts' = isShorts ? 'facelessShorts' : 'facelessVideo';
-    const maxDurationLimit = isShorts ? MAX_FACELESS_SHORTS_DURATION_SECONDS : MAX_FACELESS_LONG_DURATION_SECONDS;
+    // 16:9 Faceless Video pipeline is strictly 16:9 (9:16 Faceless Shorts uses its own separate pipeline)
+    const targetAspectRatio = '16:9' as const;
+    const targetVideoType = 'facelessVideo' as const;
+    const maxDurationLimit = MAX_FACELESS_LONG_DURATION_SECONDS;
 
     let audioUrl = String(body.audioUrl || '').trim();
     const mediaKey = String(body.mediaKey || '').trim();
@@ -82,17 +87,27 @@ export async function POST(req: Request) {
             maxSeconds: maxDurationLimit,
           });
         } catch (geminiErr) {
-          console.error('[PLAN_FACELESS] Both Groq and Gemini transcription failed:', geminiErr);
+          console.error('[PLAN_FACELESS] Both Groq (Key 1 & Key 2) and Gemini transcription failed:', geminiErr);
           return NextResponse.json(
-            { ok: false, error: 'Could not transcribe speech. Please ensure your audio contains clear spoken voice.' },
-            { status: 422 }
+            {
+              ok: false,
+              code: 'TRANSCRIPTION_FAILED',
+              retryable: true,
+              error: 'TRANSCRIPTION_FAILED: Could not transcribe audio across Groq & Gemini. Please click Retry — no credits were used.',
+            },
+            { status: 503 }
           );
         }
       }
 
       if (!transcriptionResult || !transcriptionResult.transcript?.trim()) {
         return NextResponse.json(
-          { ok: false, error: 'No speech detected in audio file. Please upload a clear narration recording.' },
+          {
+            ok: false,
+            code: 'TRANSCRIPTION_FAILED',
+            retryable: true,
+            error: 'TRANSCRIPTION_FAILED: No speech detected in audio file. Please click Retry or upload a clear narration recording.',
+          },
           { status: 422 }
         );
       }
@@ -133,7 +148,10 @@ export async function POST(req: Request) {
       durationSeconds = Math.min(maxDurationLimit, segments.length > 0 ? segments[segments.length - 1].end : 60);
     }
 
-    // 2. Validate transcript & timestamps
+    // 2. Split overly long Whisper segments using word timestamps, then validate & align
+    if (words.length > 0 && segments.length > 0) {
+      segments = splitLongSegmentsByWordTimestamps(segments, words, 8.5);
+    }
     const validation = validateAndAlignTranscript(segments, transcript, durationSeconds);
     if (!validation.isValid && segments.length === 0) {
       // Create fallback segment
@@ -144,7 +162,7 @@ export async function POST(req: Request) {
     warnings = [...warnings, ...validation.warnings];
 
     // 3. Generate Structured Scene-by-Scene JSON Blueprint
-    const videoTitle = String(topicTitle || '').trim() || (isShorts ? 'Faceless Shorts' : 'Faceless Video');
+    const videoTitle = String(topicTitle || '').trim() || 'Faceless Video';
     const transcriptChunks = segments.map((s) => ({
       text: s.text,
       start: s.start,
@@ -154,29 +172,66 @@ export async function POST(req: Request) {
         : undefined,
     }));
 
-    const blueprint = await generateStructuredSceneBlueprint(transcriptChunks, {
-      title: videoTitle,
-      headingFont,
-      bodyFont: subheadingFont || bodyFont,
-      backgroundTheme,
-      aspectRatio: targetAspectRatio,
-      videoType: targetVideoType,
-    });
+    const resolvedPrimaryFont = String(fontFamily || headingFont || bodyFont || subheadingFont || 'Montserrat').trim();
+    const resolvedAccentFont = String(accentFont || 'Caveat').trim();
+    let blueprint;
+    try {
+      blueprint = await generateStructuredSceneBlueprint(transcriptChunks, {
+        title: videoTitle,
+        fontFamily: resolvedPrimaryFont,
+        headingFont: resolvedPrimaryFont,
+        bodyFont: resolvedPrimaryFont,
+        accentFont: resolvedAccentFont,
+        creatorStyle: String(creatorStyle || '').trim() || undefined,
+        backgroundTheme,
+        aspectRatio: targetAspectRatio,
+        videoType: targetVideoType,
+      });
+    } catch (planErr: any) {
+      console.error('[PLAN_FACELESS] All AI scene planning providers failed:', planErr);
+      return NextResponse.json(
+        {
+          ok: false,
+          retryable: true,
+          error:
+            planErr?.message ||
+            'AI planning failed across all providers. Please click Retry — no credits were consumed.',
+        },
+        { status: 503 }
+      );
+    }
 
     // Derive scene-by-scene graphics from the approved narration
-    const sceneBlueprint = planFacelessGraphics(blueprint.scenes);
+    let sceneBlueprint = planFacelessGraphics(blueprint.scenes);
 
-    // Build brollUrls map from assigned S3 assets
-    const brollUrls: Record<number, string> = {};
+    // 3b. Analyze & semantically place user-uploaded assets (if provided)
+    const uploadedImageUrls = Array.isArray(body.uploadedImageUrls)
+      ? body.uploadedImageUrls.map((u: unknown) => String(u || '').trim()).filter(Boolean)
+      : [];
+    const requestedAssetMode = String(body.assetMode || 'mix').trim().toLowerCase();
+
+    let analyzedUploadedAssets: any[] = [];
+    const userBrollUrls: Record<number, string> = {};
+    if (uploadedImageUrls.length > 0 && requestedAssetMode !== 'library') {
+      const userAssetPlan = await planUserUploadedAssetsForFacelessScenes(sceneBlueprint, uploadedImageUrls, {
+        assetMode: requestedAssetMode,
+      });
+      sceneBlueprint = userAssetPlan.scenes;
+      Object.assign(userBrollUrls, userAssetPlan.brollUrls);
+      analyzedUploadedAssets = userAssetPlan.analyzedAssets;
+    }
+
+    // Build brollUrls map (prioritizing AI-matched user assets, then assigned S3 assets)
+    const brollUrls: Record<number, string> = { ...userBrollUrls };
     sceneBlueprint.forEach((sc: any) => {
-      if (sc.assetUrl) {
+      if (sc.assetUrl && !brollUrls[sc.sceneNumber]) {
         brollUrls[sc.sceneNumber] = sc.assetUrl;
       }
     });
 
     // Curate available S3 assets pool for frontend asset selection
     const availableAssetsPool = searchS3AssetCatalog(transcript, {
-      maxResults: targetAspectRatio === '9:16' ? 24 : 48,
+      maxResults: 48,
     });
 
     // 4. Sound Effects (SFX)
@@ -200,6 +255,26 @@ export async function POST(req: Request) {
       availableAssetsPool,
     });
 
+    const qualityGate = assertPreRenderQualityGate({
+      healedScenes,
+      healedBrollUrls,
+      durationSeconds,
+      fps: 30,
+    });
+    if (!qualityGate.passed) {
+      console.error('[PLAN_FACELESS] Quality gate failed:', qualityGate.violations);
+      return NextResponse.json(
+        {
+          ok: false,
+          code: 'QUALITY_GATE_FAILED',
+          retryable: true,
+          violations: qualityGate.violations,
+          error: 'Scene quality check failed. Please click Retry — no credits were used.',
+        },
+        { status: 422 }
+      );
+    }
+
     return NextResponse.json({
       ok: true,
       transcript,
@@ -208,8 +283,8 @@ export async function POST(req: Request) {
       durationSeconds,
       sceneBlueprint: healedScenes,
       brollUrls: healedBrollUrls,
+      uploadedAssets: analyzedUploadedAssets,
       availableAssetsPool,
-      uploadedAssets: [],
       sfxEvents: healedSfxEvents,
       stickerEvents,
       auditReport,

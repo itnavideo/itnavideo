@@ -9,6 +9,91 @@ export interface CaptionChunk {
   words?: Array<{ word: string; start: number; end: number }>;
 }
 
+/**
+ * Splits any oversized caption chunks (>5 words) into clean 3–5 word 1-line pills
+ * using Groq word-level timestamps (or proportional word timings as fallback).
+ * Breaks early on punctuation/speech pauses when >= 3 words, and hard-caps at 5 words.
+ */
+export function splitCaptionChunksToShortPills(chunks: CaptionChunk[]): CaptionChunk[] {
+  if (!Array.isArray(chunks) || chunks.length === 0) return [];
+  const result: CaptionChunk[] = [];
+  const MAX_WORDS = 5;
+  const MAX_CHARS = 30;
+  const PAUSE_GAP_SECONDS = 0.45;
+
+  for (const chunk of chunks) {
+    const rawText = String(chunk.text || '').trim();
+    if (!rawText) continue;
+
+    const wordsList =
+      Array.isArray(chunk.words) && chunk.words.length > 0
+        ? chunk.words
+            .filter((w) => String(w.word || '').trim() && Number.isFinite(w.start) && Number.isFinite(w.end))
+            .map((w) => ({
+              word: String(w.word).trim(),
+              start: Math.max(0, Number(w.start)),
+              end: Math.max(Number(w.start) + 0.08, Number(w.end)),
+            }))
+        : (() => {
+            const tokens = rawText.split(/\s+/).filter(Boolean);
+            const cStart = Number(chunk.start ?? 0);
+            const cEnd = Math.max(cStart + 0.4, Number(chunk.end ?? cStart + 2.0));
+            const step = (cEnd - cStart) / Math.max(1, tokens.length);
+            return tokens.map((word, idx) => ({
+              word,
+              start: cStart + idx * step,
+              end: cStart + (idx + 1) * step,
+            }));
+          })();
+
+    if (wordsList.length <= MAX_WORDS && rawText.length <= MAX_CHARS) {
+      result.push({
+        start: Number(chunk.start),
+        end: Number(chunk.end),
+        text: rawText,
+        words: wordsList,
+      });
+      continue;
+    }
+
+    let group: typeof wordsList = [];
+    const flush = () => {
+      if (group.length === 0) return;
+      result.push({
+        start: Math.round(group[0].start * 100) / 100,
+        end: Math.round(Math.max(group[group.length - 1].end, group[0].start + 0.45) * 100) / 100,
+        text: group.map((w) => w.word).join(' '),
+        words: group.map((w) => ({
+          word: w.word,
+          start: Math.round(w.start * 100) / 100,
+          end: Math.round(w.end * 100) / 100,
+        })),
+      });
+      group = [];
+    };
+
+    for (const w of wordsList) {
+      if (group.length > 0) {
+        const last = group[group.length - 1];
+        const currentChars = group.reduce((sum, item) => sum + item.word.length + 1, 0);
+        const endsSentence = /[.!?]$/.test(last.word);
+        const endsClause = /[,;:—–]$/.test(last.word);
+        const pause = w.start - last.end;
+        const shouldBreak =
+          group.length >= MAX_WORDS ||
+          currentChars + w.word.length + 1 > MAX_CHARS ||
+          endsSentence ||
+          (group.length >= 3 && (endsClause || pause >= PAUSE_GAP_SECONDS));
+        if (shouldBreak) flush();
+      }
+      group.push(w);
+    }
+    flush();
+  }
+
+  return result;
+}
+
 export type CaptionAnimationStyle =
   | 'mrbeast'
   | 'handwriting'
@@ -491,13 +576,16 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
           borderRadius: shouldWrapPill ? '9999px' : undefined,
           padding: shouldWrapPill ? '10px 30px' : undefined,
           display: 'inline-flex',
-          flexWrap: 'wrap',
+          flexWrap: 'nowrap',       // ← never wrap: each chunk is already ≤5 words, must stay 1 line
           justifyContent: 'center',
           alignItems: 'center',
           gap: '10px',
-          maxWidth: '92%',
+          maxWidth: '90%',
+          whiteSpace: 'nowrap',     // ← belt-and-suspenders: pill text never breaks across lines
           boxShadow: shouldWrapPill ? '0 10px 25px -5px rgba(0, 0, 0, 0.35)' : undefined,
-          ...styleOverrides,
+          ...(isArabic
+            ? { ...styleOverrides, fontFamily: "'Amiri', 'Noto Naskh Arabic', 'Cairo', serif" }
+            : styleOverrides),
         }}
       >
         {wordsList.map((w: { word?: string; text?: string; start: number; end: number }, idx: number) => {
@@ -530,7 +618,7 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
               fps,
               config: { damping: 11, stiffness: 240 },
             });
-            const targetScale = styleConfig.activeScale || 1.18;
+            const targetScale = styleConfig.activeScale || 1.12;
             wordScale = interpolate(wordSpring, [0, 1], [0.94, targetScale]);
             wordRotation = styleConfig.activeRotation || 0;
           }
@@ -578,7 +666,7 @@ export const UniversalCaptionLayer: React.FC<UniversalCaptionLayerProps> = ({
                 transition: 'transform 0.08s ease, color 0.08s ease',
                 textShadow: wordGlow || (isLightCanvas ? undefined : '0 1px 3px rgba(0, 0, 0, 0.4)'),
                 display: 'inline-block',
-                margin: '0 3px',
+                margin: isActive ? '0 10px' : '0 3px',
               }}
             >
               {displayWord}

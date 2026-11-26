@@ -27,7 +27,9 @@ function applyEditorialHighlightSyntax(html: string): string {
     .replace(/==([\s\S]+?)==/g, '<mark class="highlight-yellow">$1</mark>')
     .replace(/~~slate:([\s\S]+?)~~/g, '<span class="underline-wavy-slate">$1</span>')
     .replace(/~~wavy:([\s\S]+?)~~/g, '<span class="underline-wavy-orange">$1</span>')
-    .replace(/~~([\s\S]+?)~~/g, '<span class="underline-wavy-orange">$1</span>');
+    .replace(/~~([\s\S]+?)~~/g, '<span class="underline-wavy-orange">$1</span>')
+    .replace(/\^\^([\s\S]+?)\^\^/g, '<span class="editorial-handwriting">$1</span>')
+    .replace(/\s->\s/g, ' <span class="editorial-arrow">→</span> ');
 }
 
 export function generateStaticParams() {
@@ -77,7 +79,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
  * - ~~slate:Text~~ -> 〰️ Slate Wavy Underline
  */
 function parseEditorialTokens(text: string): ReactNode[] | null {
-  const tokenRegex = /(==(?:(yellow|orange|mint):)?([\s\S]+?)==|~~(?:(wavy|slate):)?([\s\S]+?)~~)/g;
+  const tokenRegex = /(==(?:(yellow|orange|mint):)?([\s\S]+?)==|~~(?:(wavy|slate):)?([\s\S]+?)~~|\^\^([\s\S]+?)\^\^|(?:\s->\s))/g;
   if (!tokenRegex.test(text)) return null;
 
   tokenRegex.lastIndex = 0;
@@ -106,6 +108,19 @@ function parseEditorialTokens(text: string): ReactNode[] | null {
       parts.push(
         <span key={`wavy-${match.index}`} className={cls}>
           {content}
+        </span>
+      );
+    } else if (full.startsWith('^^')) {
+      const content = match[6];
+      parts.push(
+        <span key={`hand-${match.index}`} className="editorial-handwriting">
+          {content}
+        </span>
+      );
+    } else {
+      parts.push(
+        <span key={`arrow-${match.index}`} className="editorial-arrow">
+          →
         </span>
       );
     }
@@ -152,6 +167,12 @@ function renderEditorialParagraph(
   // 2. Standard internal SEO link replacements
   const replacements: Array<{ phrase: string; href: string }> = [
     { phrase: 'Itnavideo AI Audio Cleaner', href: '/tools/ai-audio-cleaner' },
+    { phrase: 'Faceless Video Generator', href: '/faceless-video' },
+    { phrase: 'Auto Caption Generator', href: '/auto-caption-generator' },
+    { phrase: 'Whiteboard Video Maker', href: '/whiteboard-video' },
+    { phrase: 'Compare Explainer', href: '/compare-explainer' },
+    { phrase: 'Image to Video AI', href: '/image-to-video-ai' },
+    { phrase: 'Long Video to Clips', href: '/long-video-clips' },
     { phrase: 'Itnavideo Studio Dashboard', href: topicHref },
     { phrase: 'Itnavideo homepage', href: '/' },
     { phrase: 'pricing plans', href: '/pricing' },
@@ -360,8 +381,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   {section.heading}
                 </h2>
                 <div className="space-y-6">
-                  {section.body.map((paragraph: string, pIndex: number) => (
-                    <p key={paragraph} className="font-editorial text-[18px] sm:text-[19px] leading-[1.8] text-slate-800 tracking-[-0.003em]">
+                  {(Array.isArray(section.body)
+                    ? section.body
+                    : typeof (section as any).body === "string"
+                      ? String((section as any).body).split(/\n\n+/)
+                      : []
+                  ).map((paragraph: string, pIndex: number) => (
+                    <p key={`${index}-${pIndex}`} className="font-editorial text-[18px] sm:text-[19px] leading-[1.8] text-slate-800 tracking-[-0.003em]">
                       {renderEditorialParagraph(paragraph, topicLink.href, index, pIndex)}
                     </p>
                   ))}

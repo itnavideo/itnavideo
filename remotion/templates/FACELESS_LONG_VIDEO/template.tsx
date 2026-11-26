@@ -10,11 +10,12 @@ import {
   OffthreadVideo,
   Sequence,
   interpolate,
+  spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import { UniversalCaptionLayer, type CaptionChunk } from '../../components/library/UniversalCaptionLayer';
+import { UniversalCaptionLayer, splitCaptionChunksToShortPills, type CaptionChunk } from '../../components/library/UniversalCaptionLayer';
 import { UniversalLowerThird, type ChapterCardEvent } from '../../components/library/UniversalLowerThird';
 import { UniversalStickerLayer, type StickerEvent } from '../../components/library/UniversalStickerLayer';
 import { KineticEmojiLayer, type KineticEmojiEvent } from '../../components/library/KineticEmojiLayer';
@@ -74,6 +75,12 @@ import { ProductMockupFlowScene } from './scenes/ProductMockupFlowScene';
 import { BeforeAfterTransformationScene } from './scenes/BeforeAfterTransformationScene';
 import { CreatorCelebrationScene } from './scenes/CreatorCelebrationScene';
 import { InfographicScene } from './scenes/InfographicScene';
+import { RoughNotationScene } from './scenes/RoughNotationScene';
+import { LottieScene } from './scenes/LottieScene';
+import { AnimatedCodeDiffScene } from './scenes/AnimatedCodeDiffScene';
+import { ThreeGlobeScene } from './scenes/ThreeGlobeScene';
+import { MapFlyoverScene } from './scenes/MapFlyoverScene';
+import { KineticKitScene } from './scenes/KineticKitScene';
 import { FACELESS_DESIGN_TOKENS } from './facelessTokens';
 import { BrandWatermark } from '../../components/BrandWatermark';
 import { getFacelessFontAssetPath } from '../../../lib/fonts/facelessFontCatalog';
@@ -155,9 +162,14 @@ export interface FacelessLongVideoProps {
   audioVisualizerLayers?: DynamicAudioVisualizerLayer[];
   cameraConfig?: VirtualCameraConfig;
   visualTheme?: string | Partial<VideoVisualTheme>;
+  fontFamily?: string;
   headingFont?: string;
   subheadingFont?: string;
   typographyFont?: string;
+  accentFont?: string;
+  canvasTexture?: 'solid' | 'dot-grid' | 'square-grid' | 'vignette' | 'paper' | (string & {});
+  duckingDb?: number;
+  sceneTransitionStyle?: 'crossfade' | 'slide-push' | 'zoom-whip' | 'hard-cut' | (string & {});
   subtitleStyle?: string;
   autoDucking?: boolean;
   pacingStyle?: 'clean' | 'cinematic' | 'documentary' | 'dynamic';
@@ -228,9 +240,15 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     audioVisualizerLayers = [],
     cameraConfig,
     visualTheme = 'modern-saas',
-    headingFont = 'Lora, "Playfair Display", Georgia, serif',
-    subheadingFont = 'Plus Jakarta Sans',
-    typographyFont = 'Inter, sans-serif',
+    fontFamily,
+    headingFont: rawHeadingFont = 'Montserrat, sans-serif',
+    subheadingFont: rawSubheadingFont = 'Montserrat',
+    typographyFont: rawTypographyFont = 'Montserrat, sans-serif',
+    accentFont = 'Caveat',
+    canvasTexture = 'solid',
+    duckingDb = -14,
+    sceneTransitionStyle = 'crossfade',
+    pacingStyle = 'cinematic',
     templateConfig = {
       captionThemeId: 'bold_yellow',
       lowerThirdId: 'tech_modern',
@@ -239,42 +257,13 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     brollUrls = [],
     mediaAssets = [],
     assetTimeline = {},
-    sceneBlueprint = [
-      {
-        sceneNumber: 1,
-        sceneType: 'hook',
-        heading: 'EXCLUSIVE INSIGHT',
-        duration: 6,
-        supportingText: 'Spending hours adding captions manually?',
-        visualAssetRequirement: 'none',
-        background: 'solid-white',
-        narrationSegment: { text: 'Spending hours adding captions manually?', startSeconds: 0, endSeconds: 6 },
-        highlightedWords: ['hours', 'captions', 'manually'],
-        layoutType: 'big_typography',
-        fontHierarchy: { headingFont: 'Montserrat', bodyFont: 'Inter' },
-        animation: 'pop_in',
-        SFX: 'whoosh',
-        transition: 'cut',
-      },
-      {
-        sceneNumber: 2,
-        sceneType: 'main_point',
-        heading: 'AUTOMATED PIPELINE',
-        duration: 9,
-        supportingText: 'Generate Vox style documentary videos in seconds.',
-        visualAssetRequirement: 'none',
-        background: 'purple-vignette',
-        narrationSegment: { text: 'Generate Vox style documentary videos in seconds.', startSeconds: 6, endSeconds: 15 },
-        highlightedWords: ['automated', 'seconds'],
-        layoutType: 'split_screen',
-        fontHierarchy: { headingFont: 'Montserrat', bodyFont: 'Inter' },
-        animation: 'spring',
-        SFX: 'rise',
-        transition: 'dissolve',
-      },
-    ],
+    sceneBlueprint = [],
     showCaptions = true,
   } = props;
+
+  const headingFont = fontFamily || rawHeadingFont;
+  const subheadingFont = fontFamily || rawSubheadingFont;
+  const typographyFont = fontFamily || rawTypographyFont;
 
   const [fontRenderHandle] = React.useState(() =>
     typeof window === 'undefined' ? null : delayRender('Loading selected Faceless fonts')
@@ -288,7 +277,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       finished = true;
       continueRender(fontRenderHandle);
     };
-    const fontFamilies = [...new Set([headingFont, subheadingFont, typographyFont]
+    const fontFamilies = [...new Set([headingFont, subheadingFont, typographyFont, accentFont]
       .map((value) => String(value || '').split(',')[0].trim().replace(/^['"]|['"]$/g, ''))
       .filter(Boolean))];
 
@@ -299,7 +288,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           try {
             const fontLink = document.createElement('link');
             fontLink.rel = 'stylesheet';
-            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;600;700;800;900&display=swap`;
+            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;500;600;700;800;900&display=swap`;
             document.head.appendChild(fontLink);
           } catch { }
         }
@@ -308,7 +297,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       try {
         const fontFace = new FontFace(family, 'url("' + staticFile(assetPath) + '")', {
           style: 'normal',
-          weight: '400',
+          weight: '100 900',
         });
         document.fonts.add(await fontFace.load());
       } catch {
@@ -316,10 +305,18 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           try {
             const fontLink = document.createElement('link');
             fontLink.rel = 'stylesheet';
-            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;600;700;800;900&display=swap`;
+            fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;500;600;700;800;900&display=swap`;
             document.head.appendChild(fontLink);
           } catch { }
         }
+      }
+      if (typeof document !== 'undefined') {
+        try {
+          const fontLink = document.createElement('link');
+          fontLink.rel = 'stylesheet';
+          fontLink.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family)}:wght@400;500;600;700;800;900&display=swap`;
+          document.head.appendChild(fontLink);
+        } catch { }
       }
     }))
       .then(finish)
@@ -349,7 +346,11 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   const hasBackgroundVideo = Boolean(resolvedMediaSrc && isVideoFile(rawVideo));
   const hasSubjectCutout = Boolean(enable3DTextBehindSubject && resolvedCutoutSrc);
 
-  const activeCaptions = showCaptions !== false ? (captions.length > 0 ? captions : subtitleChunks) : [];
+  const rawActiveCaptions = showCaptions !== false ? (captions.length > 0 ? captions : subtitleChunks) : [];
+  const activeCaptions = React.useMemo(
+    () => splitCaptionChunksToShortPills(rawActiveCaptions),
+    [rawActiveCaptions]
+  );
   const currentTimeSec = frame / fps;
 
   // ── Dynamic Background Music Auto-Ducking Engine ──
@@ -391,21 +392,23 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       }
     }
 
-    // Swell volume during non-speaking pause scales proportionately with configured volume (up to 1.35x)
-    const swellVolume = Math.min(1.0, Math.max(baseDuckedVolume, baseDuckedVolume * 1.35));
+    // Ducking depth from selected preset (-8 dB Gentle, -14 dB Balanced, -20 dB Podcast Clear)
+    const dbRatio = duckingDb <= -18 ? 0.25 : duckingDb >= -10 ? 0.58 : 0.40;
+    const swellVolume = Math.min(1.0, Math.max(baseDuckedVolume, baseDuckedVolume * (1 / dbRatio) * 0.55));
+    const speechDuckedVolume = Math.max(0.015, baseDuckedVolume * (duckingDb <= -18 ? 0.65 : duckingDb >= -10 ? 1.15 : 1.0));
 
     if (isSpeaking) {
-      return baseDuckedVolume; // Locked strictly at user's configured volume during speech
+      return speechDuckedVolume; // Smoothly ducked during speech per selected dB preset
     }
 
     // 250ms smooth transition ramp up to swell volume, and ramp down when speech approaches
     if (minDistanceToSpeechSec < 0.25) {
       const rampProgress = minDistanceToSpeechSec / 0.25;
-      return baseDuckedVolume + (swellVolume - baseDuckedVolume) * rampProgress;
+      return speechDuckedVolume + (swellVolume - speechDuckedVolume) * rampProgress;
     }
 
     return swellVolume;
-  }, [activeCaptions, currentTimeSec, props.musicVolume, props.bgmVolume, props.autoDucking, isMusicEnabled, resolvedMusicSrc]);
+  }, [activeCaptions, currentTimeSec, props.musicVolume, props.bgmVolume, props.autoDucking, duckingDb, isMusicEnabled, resolvedMusicSrc]);
 
   // Collect all speech words for contextual kinetic emoji pops & kinetic typography
   const allCaptionWords = React.useMemo(() => {
@@ -462,12 +465,12 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   const autoComposedBlueprint = React.useMemo(() => {
     return composeMultiLayerVideoBlueprint(
       sceneBlueprint,
-      props.aspectRatio || '16:9',
+      '16:9',
       allBrollList,
       resolvedMusicSrc,
       props.bgmVolume ?? props.musicVolume ?? 0.12
     );
-  }, [sceneBlueprint, props.aspectRatio, allBrollList, resolvedMusicSrc, props.bgmVolume, props.musicVolume]);
+  }, [sceneBlueprint, allBrollList, resolvedMusicSrc, props.bgmVolume, props.musicVolume]);
 
   const resolvedTextLayers = textLayers && textLayers.length > 0
     ? textLayers
@@ -507,7 +510,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
   // Resolve legacy asset props strictly within the 10% image budget (never recycle across scenes)
   const matchedBrollUrl = FACELESS_IMAGE_VISUALS_ENABLED ? (
     (brollUrls && typeof brollUrls === 'object' && !Array.isArray(brollUrls)
-      ? (brollUrls as Record<number, string>)[currentScene?.sceneNumber] || ''
+      ? (currentScene?.sceneNumber ? (brollUrls as Record<number, string>)[currentScene.sceneNumber] || '' : '')
       : Array.isArray(brollUrls) && brollUrls.length > 0 && currentSceneIdx === 0
         ? brollUrls[0]
         : '') ||
@@ -528,21 +531,38 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     Number(currentScene?.narrationSegment?.startSeconds ?? (currentScene?.narrationSegment as any)?.start ?? 0) * fps
   );
   const framesSinceSceneStart = Math.max(0, frame - sceneStartFrame);
-  const transitionType = (currentScene?.transition || 'dissolve').toLowerCase();
+  const mappedGlobalTransition =
+    sceneTransitionStyle === 'hard-cut'
+      ? 'cut'
+      : sceneTransitionStyle === 'slide-push'
+        ? 'slide'
+        : sceneTransitionStyle === 'zoom-whip'
+          ? 'zoom'
+          : 'dissolve';
+  const transitionType = (props.sceneTransitionStyle ? mappedGlobalTransition : (currentScene?.transition || 'dissolve')).toLowerCase();
+  const pacingMult =
+    pacingStyle === 'dynamic'
+      ? 0.55
+      : pacingStyle === 'clean'
+        ? 1.4
+        : pacingStyle === 'documentary'
+          ? 1.15
+          : 1.0;
 
   const transitionStyles = React.useMemo(() => {
+    const f = (baseFrames: number) => Math.max(2, Math.round(baseFrames * pacingMult));
     if (transitionType === 'cut') {
       return { opacity: 1, transform: 'none', isFadeToBlack: false, blackOverlayOpacity: 0 };
     }
     if (transitionType === 'slide' || transitionType === 'wipe') {
-      const slideX = interpolate(framesSinceSceneStart, [0, 9], [50, 0], { extrapolateRight: 'clamp' });
-      const op = interpolate(framesSinceSceneStart, [0, 8], [0, 1], { extrapolateRight: 'clamp' });
+      const slideX = interpolate(framesSinceSceneStart, [0, f(9)], [50, 0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, f(8)], [0, 1], { extrapolateRight: 'clamp' });
       return { opacity: op, transform: `translateX(${slideX}px)`, isFadeToBlack: false, blackOverlayOpacity: 0 };
     }
     if (transitionType === 'whip' || transitionType === 'whip_pan') {
-      const whipX = interpolate(framesSinceSceneStart, [0, 8], [120, 0], { extrapolateRight: 'clamp' });
-      const op = interpolate(framesSinceSceneStart, [0, 6], [0, 1], { extrapolateRight: 'clamp' });
-      const blurVal = interpolate(framesSinceSceneStart, [0, 4, 8], [8, 3, 0], { extrapolateRight: 'clamp' });
+      const whipX = interpolate(framesSinceSceneStart, [0, f(8)], [120, 0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, f(6)], [0, 1], { extrapolateRight: 'clamp' });
+      const blurVal = interpolate(framesSinceSceneStart, [0, f(4), f(8)], [8, 3, 0], { extrapolateRight: 'clamp' });
       return {
         opacity: op,
         transform: `translateX(${whipX}px)`,
@@ -552,19 +572,19 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
       };
     }
     if (transitionType === 'zoom' || transitionType === 'zoom_blur') {
-      const scaleVal = interpolate(framesSinceSceneStart, [0, 10], [1.08, 1.0], { extrapolateRight: 'clamp' });
-      const op = interpolate(framesSinceSceneStart, [0, 7], [0, 1], { extrapolateRight: 'clamp' });
+      const scaleVal = interpolate(framesSinceSceneStart, [0, f(10)], [1.08, 1.0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [0, f(7)], [0, 1], { extrapolateRight: 'clamp' });
       return { opacity: op, transform: `scale(${scaleVal})`, isFadeToBlack: false, blackOverlayOpacity: 0 };
     }
     if (transitionType === 'fade_to_black' || transitionType === 'dip_to_black') {
-      const blackOpacity = interpolate(framesSinceSceneStart, [0, 4, 8], [1, 0.75, 0], { extrapolateRight: 'clamp' });
-      const op = interpolate(framesSinceSceneStart, [2, 8], [0, 1], { extrapolateRight: 'clamp' });
+      const blackOpacity = interpolate(framesSinceSceneStart, [0, f(4), f(8)], [1, 0.75, 0], { extrapolateRight: 'clamp' });
+      const op = interpolate(framesSinceSceneStart, [Math.max(1, f(2)), f(8)], [0, 1], { extrapolateRight: 'clamp' });
       return { opacity: op, transform: 'none', isFadeToBlack: true, blackOverlayOpacity: blackOpacity };
     }
     // Default: crossfade / dissolve
-    const dissolveOp = interpolate(framesSinceSceneStart, [0, 10], [0, 1], { extrapolateRight: 'clamp' });
+    const dissolveOp = interpolate(framesSinceSceneStart, [0, f(10)], [0, 1], { extrapolateRight: 'clamp' });
     return { opacity: dissolveOp, transform: 'none', isFadeToBlack: false, blackOverlayOpacity: 0 };
-  }, [transitionType, framesSinceSceneStart]);
+  }, [transitionType, framesSinceSceneStart, pacingMult]);
 
   // Render Vox/Johnny Harris Style Modular Scene Layout
   const renderModularScene = (scene: SceneBlueprintItem) => {
@@ -580,6 +600,12 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     else if (norm.includes('tableofcontent') || norm.includes('agenda') || norm === 'toc') layout = 'table_of_contents';
     else if (norm.includes('missionvision') || norm.includes('visionmission')) layout = 'mission_vision';
     else if (norm.includes('medical') || norm.includes('clinical') || norm.includes('vitalsmonitor')) layout = 'medical_infographic';
+    else if (norm.includes('roughnotation') || norm.includes('handdrawn') || norm === 'rough') layout = 'rough_notation';
+    else if (norm.includes('lottiemotion') || norm === 'lottie') layout = 'lottie_motion';
+    else if (norm.includes('codediff') || norm.includes('codeupgrade') || norm === 'diff') layout = 'code_diff';
+    else if (norm.includes('threeglobe') || norm.includes('globe3d') || norm === 'globe') layout = 'three_globe';
+    else if (norm.includes('mapflyover') || norm.includes('routemap') || norm === 'flyover') layout = 'map_flyover';
+    else if (norm.includes('kinetickit') || norm.includes('kineticword') || norm === 'kinetic') layout = 'kinetic_kit';
     else if (norm.includes('statscene') || norm === 'stat' || norm === 'statcard' || norm === 'metricpill') layout = 'stat_card';
     else if (norm.includes('comparisonscene') || norm === 'comparison' || norm === 'vsbattle' || norm === 'battlecard') layout = 'comparison';
     else if (norm.includes('horizontalprocess') || norm.includes('processsteps') || norm === '5stepprocess') layout = 'horizontal_process';
@@ -781,16 +807,17 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     if (layout === 'vs_battle' || layout === 'comparison_battle' || layout === 'battle_card') {
       const leftTitle = scene.comparisonItems?.left || scene.heading || 'Traditional Method';
       const rightTitle = scene.comparisonItems?.right || scene.supportingText || 'AI Advantage';
+      const battleAccent = (scene as any).accentColor || palette.accent || '#EA580C';
       return (
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '50px 80px', zIndex: 12, gap: '36px' }}>
           {scene.heading && (
             <div style={{ textAlign: 'center', maxWidth: '1400px' }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                <span style={{ width: '28px', height: '3px', backgroundColor: '#FF5722', borderRadius: '2px' }} />
-                <span style={{ fontFamily: headingFont, fontSize: '14px', fontWeight: 900, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#FF5722' }}>
+                <span style={{ width: '28px', height: '3px', backgroundColor: battleAccent, borderRadius: '2px' }} />
+                <span style={{ fontFamily: headingFont, fontSize: '14px', fontWeight: 900, letterSpacing: '0.22em', textTransform: 'uppercase', color: battleAccent }}>
                   HEAD TO HEAD
                 </span>
-                <span style={{ width: '28px', height: '3px', backgroundColor: '#FF5722', borderRadius: '2px' }} />
+                <span style={{ width: '28px', height: '3px', backgroundColor: battleAccent, borderRadius: '2px' }} />
               </div>
               <h2 style={{ fontFamily: headingFont, fontSize: '48px', fontWeight: 900, color: palette?.isDark ? '#FFFFFF' : '#0F172A', letterSpacing: '-0.02em', margin: 0, lineHeight: 1.15 }}>
                 {scene.heading}
@@ -1086,6 +1113,87 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
             theme={palette?.isDark ? 'dark' : 'light'}
           />
         </div>
+      );
+    }
+
+    if (layout === 'rough_notation') {
+      return (
+        <RoughNotationScene
+          heading={scene.heading || (scene as any).title || 'Key Principle'}
+          keyPhrase={(scene as any).keyTakeaway || scene.heading || (scene as any).title}
+          supportingText={scene.supportingText || scene.narrationSegment?.text}
+          accentColor={(scene as any).accentColor || palette.accent}
+          headingFont={headingFont}
+          typographyFont={typographyFont}
+          palette={palette}
+        />
+      );
+    }
+    if (layout === 'lottie_motion') {
+      return (
+        <LottieScene
+          heading={scene.heading || (scene as any).title || 'Animated Concept'}
+          supportingText={scene.supportingText || (scene as any).keyTakeaway || scene.narrationSegment?.text}
+          lottieUrl={(scene as any).lottieUrl}
+          accentColor={(scene as any).accentColor || palette.accent}
+          headingFont={headingFont}
+          typographyFont={typographyFont}
+          palette={palette}
+        />
+      );
+    }
+    if (layout === 'code_diff') {
+      return (
+        <AnimatedCodeDiffScene
+          heading={scene.heading || (scene as any).title || 'Code Comparison'}
+          filename={(scene as any).filename}
+          language={(scene as any).language}
+          lines={(scene as any).diffLines}
+          headingFont={headingFont}
+          typographyFont={typographyFont}
+          palette={palette}
+        />
+      );
+    }
+    if (layout === 'three_globe') {
+      return (
+        <ThreeGlobeScene
+          heading={scene.heading || (scene as any).title || 'Global Scale'}
+          supportingText={scene.supportingText || scene.narrationSegment?.text}
+          statLabel={(scene as any).statLabel || 'Key Metric'}
+          statValue={(scene as any).statValue || (scene as any).keyTakeaway || '100%'}
+          accentColor={(scene as any).accentColor || palette.accent}
+          headingFont={headingFont}
+          typographyFont={typographyFont}
+          palette={palette}
+        />
+      );
+    }
+    if (layout === 'map_flyover') {
+      return (
+        <MapFlyoverScene
+          heading={scene.heading || (scene as any).title || 'Route Flyover'}
+          originLabel={(scene as any).originLabel || 'Origin'}
+          destinationLabel={(scene as any).destinationLabel || 'Destination'}
+          accentColor={(scene as any).accentColor || palette.accent}
+          headingFont={headingFont}
+          typographyFont={typographyFont}
+          palette={palette}
+        />
+      );
+    }
+    if (layout === 'kinetic_kit') {
+      return (
+        <KineticKitScene
+          heading={scene.heading || (scene as any).title || 'Key Takeaway'}
+          supportingText={scene.supportingText || scene.narrationSegment?.text}
+          badgeText={(scene as any).keyTakeaway ? 'KEY INSIGHT' : 'HIGHLIGHT'}
+          metricValue={(scene as any).statValue || '94%'}
+          accentColor={(scene as any).accentColor || palette.accent}
+          headingFont={headingFont}
+          typographyFont={typographyFont}
+          palette={palette}
+        />
       );
     }
 
@@ -1462,10 +1570,36 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
     return stickerEvents && stickerEvents.length > 0 ? stickerEvents : [];
   }, [stickerEvents, templateConfig.stickerPackId]);
 
+  // Dynamic Caption Safe Zone: adjusts automatically based on whether captions are enabled and their position
+  const hasVisibleCaptions = showCaptions !== false && activeCaptions.length > 0;
+  const captionSafeZoneStyle: React.CSSProperties = React.useMemo(() => {
+    if (!hasVisibleCaptions) {
+      return { paddingTop: 0, paddingBottom: 0 };
+    }
+    if (props.captionPosition === 'top') {
+      return { paddingTop: 112, paddingBottom: 0 };
+    }
+    if (props.captionPosition === 'center') {
+      return { paddingTop: 0, paddingBottom: 72 };
+    }
+    return { paddingTop: 0, paddingBottom: 120 };
+  }, [hasVisibleCaptions, props.captionPosition]);
+
   return (
     <VideoVisualThemeProvider theme={visualTheme}>
-      <AbsoluteFill style={{ fontFamily: typographyFont, backgroundColor: palette.bg, color: palette.textPrimary }}>
-        {/* ── LAYER 1 (BOTTOM): Base Atmospheric Motion Canvas or Video ── */}
+      <AbsoluteFill
+        style={{
+          fontFamily: typographyFont,
+          backgroundColor: palette.bg,
+          color: palette.textPrimary,
+          ['--font-heading' as any]: headingFont,
+          ['--font-body' as any]: typographyFont,
+          ['--font-accent' as any]: accentFont,
+          ['--scene-accent' as any]: (currentScene as any)?.accentColor || palette.accent,
+          ['--scene-secondary' as any]: (currentScene as any)?.secondaryColor || palette.accent,
+        }}
+      >
+        {/* ── GLOBAL VISUAL LAYER 1: Background + Texture Overlay ── */}
         {hasBackgroundVideo && resolvedMediaSrc ? (
           <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
             <Loop durationInFrames={150}>
@@ -1482,7 +1616,56 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           <MultiLayerBackgroundOverlay
             layers={resolvedBackgroundLayers}
             fallbackTheme={activeBackgroundTheme}
-            aspectRatio={props.aspectRatio}
+            aspectRatio="16:9"
+          />
+        )}
+        {canvasTexture === 'dot-grid' && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 2,
+              pointerEvents: 'none',
+              backgroundImage: `radial-gradient(${palette.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.10)'} 1.5px, transparent 1.5px)`,
+              backgroundSize: '28px 28px',
+            }}
+          />
+        )}
+        {canvasTexture === 'square-grid' && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 2,
+              pointerEvents: 'none',
+              backgroundImage: `linear-gradient(0deg, ${palette.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)'} 1px, transparent 1px), linear-gradient(90deg, ${palette.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)'} 1px, transparent 1px)`,
+              backgroundSize: '48px 48px',
+            }}
+          />
+        )}
+        {canvasTexture === 'vignette' && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 2,
+              pointerEvents: 'none',
+              background: palette.isDark
+                ? 'radial-gradient(circle at center, transparent 48%, rgba(0,0,0,0.48) 100%)'
+                : 'radial-gradient(circle at center, transparent 52%, rgba(15,23,42,0.12) 100%)',
+            }}
+          />
+        )}
+        {canvasTexture === 'paper' && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 2,
+              pointerEvents: 'none',
+              opacity: 0.45,
+              backgroundImage: `repeating-linear-gradient(0deg, ${palette.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(15,23,42,0.025)'} 0px, transparent 1px, transparent 4px), repeating-linear-gradient(90deg, ${palette.isDark ? 'rgba(255,255,255,0.025)' : 'rgba(15,23,42,0.02)'} 0px, transparent 1px, transparent 5px)`,
+            }}
           />
         )}
 
@@ -1555,9 +1738,109 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
           ]}
         />
 
-        {/* ── LAYER 3 (MIDDLE): Dynamic Modular Scene Engine & Transitions ── */}
-        {cameraConfig ? (
-          <VirtualCameraLayer config={cameraConfig}>
+        {/* ── LAYER 3 (MIDDLE): Independent Scene Pipeline with Dynamic Caption Safe Zone & Keynote Callouts ── */}
+        {(() => {
+          const sceneAccent = (currentScene as any)?.accentColor || palette.accent || '#EA580C';
+          const stickerId = (currentScene as any)?.conceptSticker as string | undefined;
+          const hasArrow = Boolean((currentScene as any)?.highlightArrow);
+          const arrowDrawProgress = interpolate(framesSinceSceneStart, [4, 22], [120, 0], { extrapolateRight: 'clamp' });
+          const stickerScale = spring({ frame: Math.max(0, framesSinceSceneStart - 4), fps, config: { damping: 14, stiffness: 180 } });
+          const stickerMap: Record<string, { emoji: string; label: string }> = {
+            lightbulb: { emoji: '💡', label: 'Key Insight' },
+            rocket: { emoji: '🚀', label: 'Fast Growth' },
+            check: { emoji: '✅', label: 'Verified' },
+            trending: { emoji: '📈', label: 'Trending Up' },
+            warning: { emoji: '⚠️', label: 'Watch Out' },
+          };
+          const activeSticker = stickerId ? stickerMap[stickerId] : undefined;
+
+          const sceneNode = (
+            <>
+              {currentScene && renderModularScene(currentScene)}
+              {hasArrow && (
+                <svg
+                  width="110"
+                  height="90"
+                  viewBox="0 0 110 90"
+                  fill="none"
+                  style={{
+                    position: 'absolute',
+                    top: '14%',
+                    right: '8%',
+                    zIndex: 24,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <path
+                    d="M12 14 C 48 12, 76 34, 84 72"
+                    stroke={sceneAccent}
+                    strokeWidth="4.5"
+                    strokeLinecap="round"
+                    strokeDasharray="120"
+                    strokeDashoffset={arrowDrawProgress}
+                  />
+                  <path
+                    d="M68 62 L84 74 L94 56"
+                    stroke={sceneAccent}
+                    strokeWidth="4.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity={framesSinceSceneStart > 16 ? 1 : 0}
+                  />
+                </svg>
+              )}
+              {activeSticker && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '9%',
+                    left: '5%',
+                    zIndex: 24,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 18px',
+                    borderRadius: '9999px',
+                    backgroundColor: palette.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.05)',
+                    border: `2px solid ${sceneAccent}`,
+                    transform: `scale(${stickerScale}) rotate(-3deg)`,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <span style={{ fontSize: '24px' }}>{activeSticker.emoji}</span>
+                  <span
+                    style={{
+                      fontFamily: accentFont,
+                      fontSize: '26px',
+                      fontWeight: 700,
+                      color: sceneAccent,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {activeSticker.label}
+                  </span>
+                </div>
+              )}
+            </>
+          );
+
+          return cameraConfig ? (
+            <VirtualCameraLayer config={cameraConfig}>
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  zIndex: 15,
+                  opacity: transitionStyles.opacity,
+                  transform: transitionStyles.transform,
+                  boxSizing: 'border-box',
+                  ...captionSafeZoneStyle,
+                }}
+              >
+                {sceneNode}
+              </div>
+            </VirtualCameraLayer>
+          ) : (
             <div
               style={{
                 position: 'absolute',
@@ -1565,24 +1848,14 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
                 zIndex: 15,
                 opacity: transitionStyles.opacity,
                 transform: transitionStyles.transform,
+                boxSizing: 'border-box',
+                ...captionSafeZoneStyle,
               }}
             >
-              {currentScene && renderModularScene(currentScene)}
+              {sceneNode}
             </div>
-          </VirtualCameraLayer>
-        ) : (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              zIndex: 15,
-              opacity: transitionStyles.opacity,
-              transform: transitionStyles.transform,
-            }}
-          >
-            {currentScene && renderModularScene(currentScene)}
-          </div>
-        )}
+          );
+        })()}
 
         {/* ── LAYER 3.0: Reusable Dynamic Pattern & Texture Engine (Halftone, Noise, Hatch, Waves, Mesh) ── */}
         {patternLayers && patternLayers.length > 0 ? (
@@ -1611,7 +1884,7 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
 
         {/* ── LAYER 3.3D: Reusable Audio Visualizer Engine (Equalizer Bars, Waves, Audiograms) ── */}
         {audioVisualizerLayers && audioVisualizerLayers.length > 0 ? (
-          <MultiLayerAudioVisualizerOverlay visualizers={audioVisualizerLayers} />
+          <MultiLayerAudioVisualizerOverlay visualizers={audioVisualizerLayers} audioSrc={resolvedAudioSrc} />
         ) : null}
 
         {/* ── LAYER 3.4: Reusable Dynamic Multi-Layer Mask Engine (Scrims & Cutouts) ── */}
@@ -1836,6 +2109,8 @@ export function FacelessLongVideoTemplate(props: FacelessLongVideoProps) {
               backgroundTheme="solid-white"
               styleOverrides={{
                 fontSize: 40,
+                fontFamily: typographyFont,
+                fontWeight: 800,
               }}
             />
           );

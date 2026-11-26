@@ -29,7 +29,17 @@ export function Background({
 
   // Normalize theme or fallback to Ali Abdaal signature warm off-white cream canvas
   const activeId = (theme || 'solid-white').toLowerCase().trim();
-  const matched = BACKGROUND_CATALOG.find((b) => b.id === activeId) || BACKGROUND_CATALOG[0];
+
+  // ── Hex / Canva Core Color Fast-Path ──
+  // If the theme is a raw hex code (#RRGGBB) OR a named Canva core colour swatch,
+  // we must resolve it via renderMinimal() — NOT via the catalog fallback, because
+  // hex values and swatch IDs won't exist in BACKGROUND_CATALOG and would otherwise
+  // fall back to BACKGROUND_CATALOG[0] (midnight-mesh gradient), causing a black preview.
+  const isHexTheme = activeId.startsWith('#') || activeId.startsWith('hex-') || /^[0-9a-f]{6}$/i.test(activeId);
+  const isCoreColorTheme = !isHexTheme && CREATOR_CORE_COLORS.some((c) => c.id === activeId);
+  const matched = !isHexTheme && !isCoreColorTheme
+    ? (BACKGROUND_CATALOG.find((b) => b.id === activeId) || BACKGROUND_CATALOG[0])
+    : { id: activeId, category: 'minimal' as const, name: activeId, tag: '', description: '', isDark: false, accentColor: '' };
   const activePalette = getBackgroundPalette(theme);
   const isLight = !activePalette.isDark;
 

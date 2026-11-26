@@ -21,6 +21,68 @@ export interface AlignmentValidationResult {
 }
 
 /**
+ * Splits overly long Whisper segments (e.g., 25-30s multi-sentence blocks) into crisp
+ * sentence-level segments using exact word-level timestamps.
+ */
+export function splitLongSegmentsByWordTimestamps(
+  segments: TranscriptSegment[],
+  words: Array<{ word: string; start: number; end: number }>,
+  maxSegmentSeconds = 8.5
+): TranscriptSegment[] {
+  if (!Array.isArray(segments) || segments.length === 0) return [];
+  if (!Array.isArray(words) || words.length === 0) return segments;
+
+  const result: TranscriptSegment[] = [];
+
+  for (const seg of segments) {
+    const segDur = Math.max(0, Number(seg.end || 0) - Number(seg.start || 0));
+    const segWords = words.filter(
+      (w) => w.word && Number(w.start || 0) >= seg.start - 0.08 && Number(w.end || 0) <= seg.end + 0.08
+    );
+
+    if (segDur <= maxSegmentSeconds || segWords.length < 6) {
+      result.push({ ...seg, words: segWords.length > 0 ? segWords : seg.words });
+      continue;
+    }
+
+    let chunkWords: Array<{ word: string; start: number; end: number }> = [];
+    for (let i = 0; i < segWords.length; i++) {
+      const w = segWords[i];
+      chunkWords.push(w);
+
+      const chunkStart = chunkWords[0].start;
+      const chunkDur = w.end - chunkStart;
+      const nextWord = segWords[i + 1];
+      const pauseAfter = nextWord ? nextWord.start - w.end : 0;
+      const endsSentence = /[.!?]["')\]]*$/.test(w.word);
+      const endsClause = /[,;:]["')\]]*$/.test(w.word);
+
+      const shouldSplit =
+        i === segWords.length - 1 ||
+        (endsSentence && chunkDur >= 2.2) ||
+        (pauseAfter >= 0.45 && chunkDur >= 2.5) ||
+        (endsClause && chunkDur >= maxSegmentSeconds * 0.75) ||
+        chunkDur >= maxSegmentSeconds;
+
+      if (shouldSplit && chunkWords.length > 0) {
+        const text = chunkWords.map((cw) => cw.word).join(' ').trim();
+        if (text) {
+          result.push({
+            start: Number(chunkWords[0].start.toFixed(3)),
+            end: Number(Math.max(chunkWords[0].start + 0.4, w.end).toFixed(3)),
+            text,
+            words: [...chunkWords],
+          });
+        }
+        chunkWords = [];
+      }
+    }
+  }
+
+  return result.length > 0 ? result : segments;
+}
+
+/**
  * Validates edited segments against the audio duration and original transcript.
  * Does NOT blindly interpolate: validates boundaries, checks duration limits,
  * detects changes, and warns user if text divergence could cause subtitle desync.
