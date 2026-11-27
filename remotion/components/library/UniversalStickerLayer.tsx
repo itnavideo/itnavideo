@@ -65,6 +65,7 @@ export const UniversalStickerLayer: React.FC<UniversalStickerLayerProps> = ({
         });
 
         const imageSrc = resolveStickerSrc(item.src);
+        if (!imageSrc) return null;
         const pos = ev.position || 'bottom-right';
 
         let positionStyles: React.CSSProperties = {

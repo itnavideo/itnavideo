@@ -43,6 +43,7 @@ import {
   Headphones,
   Clock,
   ChevronRight,
+  Link as LinkIcon,
   Palette,
   Pipette,
   Copy,
@@ -435,7 +436,7 @@ export interface FacelessVideoStudioProps {
   uploadedImageFiles?: File[];
   onUploadedImageFilesChange?: (files: File[]) => void;
 
-  onTranscribeAndPlan?: (audioFile: File, brandNamesHint?: string) => Promise<{
+  onTranscribeAndPlan?: (audioFile: File, brandNamesHint?: string, durationSecondsHint?: number) => Promise<{
     transcript: string;
     segments: Array<{ start: number; end: number; text: string }>;
     words?: Array<{ word: string; start: number; end: number }>;
@@ -445,6 +446,24 @@ export interface FacelessVideoStudioProps {
     warnings?: string[];
     uploadedAssets?: any[];
     availableAssetsPool?: any[];
+    audioUrl?: string;
+    wasTrimmed?: boolean;
+    originalDurationSeconds?: number;
+  } | null>;
+  onImportYoutubeAndPlan?: (youtubeUrl: string, brandNamesHint?: string) => Promise<{
+    transcript: string;
+    segments: Array<{ start: number; end: number; text: string }>;
+    words?: Array<{ word: string; start: number; end: number }>;
+    sceneBlueprint: any[];
+    brollUrls: Record<number, string>;
+    durationSeconds: number;
+    warnings?: string[];
+    uploadedAssets?: any[];
+    availableAssetsPool?: any[];
+    audioUrl?: string;
+    title?: string;
+    wasTrimmed?: boolean;
+    originalDurationSeconds?: number;
   } | null>;
   isPlanning?: boolean;
   planningMessage?: string;
@@ -510,6 +529,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   uploadedImageFiles = [],
   onUploadedImageFilesChange,
   onTranscribeAndPlan,
+  onImportYoutubeAndPlan,
   isPlanning = false,
   planningMessage = "",
   planningError = null,
@@ -1168,6 +1188,14 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
 
   const [isDraggingNarration, setIsDraggingNarration] = useState(false);
   const [isDraggingBgm, setIsDraggingBgm] = useState(false);
+  const [inputSourceTab, setInputSourceTab] = useState<"upload" | "youtube">("upload");
+  const [youtubeLinkInput, setYoutubeLinkInput] = useState("");
+  const [youtubeMediaLabel, setYoutubeMediaLabel] = useState("");
+  const [originalAudioDurationSec, setOriginalAudioDurationSec] = useState<number>(0);
+  const [wasAudioTrimmed, setWasAudioTrimmed] = useState<boolean>(false);
+  const [isImportingYoutube, setIsImportingYoutube] = useState<boolean>(false);
+
+  const hasNarrationSource = Boolean(selectedFile || youtubeMediaLabel);
 
   const isValidMediaFile = (file: File, allowVideo: boolean) => {
     const ext = file.name.split(".").pop()?.toLowerCase() || "";
@@ -1180,18 +1208,39 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const processNarrationFile = (file: File) => {
     if (!isValidMediaFile(file, true)) return;
 
+    setYoutubeMediaLabel("");
+    setWasAudioTrimmed(false);
+    setOriginalAudioDurationSec(0);
     onSelectFile(file);
     const localUrl = URL.createObjectURL(file);
     setAudioPreviewUrl(localUrl);
 
-    const audioEl = new Audio(localUrl);
-    audioEl.onloadedmetadata = () => {
-      if (audioEl.duration && Number.isFinite(audioEl.duration)) {
-        setAudioDurationSec(Math.round(audioEl.duration));
+    const mediaEl = document.createElement(file.type.startsWith("video/") ? "video" : "audio");
+    mediaEl.preload = "metadata";
+    mediaEl.src = localUrl;
+    let startedPlan = false;
+    const startWithDuration = (durSec?: number) => {
+      if (startedPlan) return;
+      startedPlan = true;
+      if (durSec && durSec > 0) {
+        setOriginalAudioDurationSec(durSec);
+        if (durSec > 300) {
+          setWasAudioTrimmed(true);
+          setAudioDurationSec(300);
+        } else {
+          setAudioDurationSec(durSec);
+        }
       }
+      triggerTranscription(file, durSec);
     };
 
-    triggerTranscription(file);
+    mediaEl.onloadedmetadata = () => {
+      const dur = mediaEl.duration && Number.isFinite(mediaEl.duration) ? Math.round(mediaEl.duration) : 0;
+      startWithDuration(dur);
+    };
+    mediaEl.onerror = () => startWithDuration(undefined);
+    setTimeout(() => startWithDuration(undefined), 1200);
+
     setCurrentStep(1);
   };
 
@@ -1212,11 +1261,11 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   };
 
   // Trigger transcription
-  const triggerTranscription = (file: File) => {
+  const triggerTranscription = (file: File, durationSecondsHint?: number) => {
     if (!onTranscribeAndPlan) return;
     onClearPlanningError?.();
 
-    onTranscribeAndPlan(file, topicTitle)
+    onTranscribeAndPlan(file, topicTitle, durationSecondsHint)
       .then((planRes) => {
         if (!planRes) return;
         const text = planRes.transcript || "";
@@ -1230,13 +1279,56 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
         if ((planRes as any).availableAssetsPool && (planRes as any).availableAssetsPool.length > 0) {
           setAvailableAssets((planRes as any).availableAssetsPool);
         }
+        if (planRes.audioUrl) {
+          setAudioPreviewUrl(planRes.audioUrl);
+        }
+        if (planRes.wasTrimmed) {
+          setWasAudioTrimmed(true);
+        }
+        if (planRes.originalDurationSeconds && planRes.originalDurationSeconds > 0) {
+          setOriginalAudioDurationSec(planRes.originalDurationSeconds);
+        }
         if (planRes.durationSeconds > 0) {
-          setAudioDurationSec(planRes.durationSeconds);
+          setAudioDurationSec(Math.min(300, planRes.durationSeconds));
         }
       })
       .catch((err) => {
         console.error("[AUTO_TRANSCRIBE_ERROR]", err);
       });
+  };
+
+  const handleYoutubeExtractAndPlan = async () => {
+    const cleanUrl = youtubeLinkInput.trim();
+    if (!cleanUrl || !onImportYoutubeAndPlan || isImportingYoutube) return;
+    onClearPlanningError?.();
+    setIsImportingYoutube(true);
+    try {
+      const planRes = await onImportYoutubeAndPlan(cleanUrl, topicTitle);
+      if (!planRes) return;
+      onSelectFile(null);
+      setYoutubeMediaLabel(planRes.title || "YouTube Audio (First 5:00)");
+      if (planRes.audioUrl) setAudioPreviewUrl(planRes.audioUrl);
+      if (planRes.wasTrimmed) setWasAudioTrimmed(true);
+      if (planRes.originalDurationSeconds && planRes.originalDurationSeconds > 0) {
+        setOriginalAudioDurationSec(planRes.originalDurationSeconds);
+      }
+      const text = planRes.transcript || "";
+      setTranscriptText(text);
+      setEditableTranscript(text);
+      setTranscriptSegments(planRes.segments || []);
+      setOriginalWords(planRes.words || []);
+      setSceneBlueprint(planRes.sceneBlueprint || []);
+      onSceneBlueprintChange?.(planRes.sceneBlueprint || []);
+      setBrollUrls(planRes.brollUrls || {});
+      if ((planRes as any).availableAssetsPool && (planRes as any).availableAssetsPool.length > 0) {
+        setAvailableAssets((planRes as any).availableAssetsPool);
+      }
+      if (planRes.durationSeconds > 0) {
+        setAudioDurationSec(Math.min(300, planRes.durationSeconds));
+      }
+    } finally {
+      setIsImportingYoutube(false);
+    }
   };
 
   // Save edited transcript (text only)
@@ -2156,8 +2248,83 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                 />
               </div>
 
-              {!selectedFile ? (
-                <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-10 shadow-sm relative overflow-hidden group">
+              {!hasNarrationSource ? (
+                <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-10 shadow-sm relative overflow-hidden group space-y-5">
+                  {/* Source Mode Toggle: Audio Upload vs YouTube Link */}
+                  <div className="flex items-center justify-center relative z-10">
+                    <div className="inline-flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200 shadow-2xs">
+                      <button
+                        type="button"
+                        onClick={() => setInputSourceTab("upload")}
+                        className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
+                          inputSourceTab === "upload"
+                            ? "bg-white text-orange-600 shadow-xs"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <Upload size={13} />
+                        <span>Upload Audio / Video</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setInputSourceTab("youtube")}
+                        className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
+                          inputSourceTab === "youtube"
+                            ? "bg-white text-orange-600 shadow-xs"
+                            : "text-slate-600 hover:text-slate-900"
+                        }`}
+                      >
+                        <LinkIcon size={13} />
+                        <span>Paste YouTube Link</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {inputSourceTab === "youtube" ? (
+                    <div className="py-8 sm:py-12 px-4 sm:px-8 border-2 border-dashed border-slate-300 rounded-3xl bg-slate-50/70 flex flex-col items-center justify-center gap-5 relative z-10">
+                      <div className="text-center space-y-1.5 max-w-lg">
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                          Recreate Any YouTube Video as 16:9 Faceless
+                        </h2>
+                        <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                          Paste any YouTube link (even 20+ minute videos). We extract the audio, automatically trim to the first 5:00, and build fresh 16:9 visuals.
+                        </p>
+                      </div>
+
+                      <div className="w-full max-w-xl flex flex-col sm:flex-row gap-2.5">
+                        <input
+                          type="url"
+                          value={youtubeLinkInput}
+                          onChange={(e) => setYoutubeLinkInput(e.target.value)}
+                          placeholder="https://www.youtube.com/watch?v=..."
+                          className="flex-1 px-4 py-3 rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-900 placeholder:text-slate-400 focus:border-orange-500 focus:outline-none shadow-2xs"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleYoutubeExtractAndPlan}
+                          disabled={!youtubeLinkInput.trim() || isImportingYoutube || isPlanning}
+                          className="px-5 py-3 rounded-xl bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-600 text-white text-xs sm:text-sm font-black shadow-md shadow-orange-500/25 disabled:opacity-50 disabled:pointer-events-none transition cursor-pointer flex items-center justify-center gap-2 shrink-0"
+                        >
+                          {isImportingYoutube || isPlanning ? (
+                            <>
+                              <RefreshCw size={14} className="animate-spin" />
+                              <span>Extracting...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={14} />
+                              <span>Extract First 5 Min</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-[11px] font-semibold text-slate-600 shadow-2xs">
+                        <span>Supports 20+ min YouTube videos • Auto-trims beyond 5:00</span>
+                      </div>
+                    </div>
+                  ) : (
+                  <>
                   <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-orange-500/10 via-amber-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
                   <button
                     type="button"
@@ -2216,13 +2383,15 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         <ArrowRight size={18} className="hidden sm:inline-block text-orange-500 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                       </h2>
                       <p className="text-xs sm:text-sm text-slate-500 font-medium">
-                        Drag &amp; drop audio file here or tap to browse
+                        Drag &amp; drop audio file here or tap to browse (files over 5:00 auto-trim to first 5:00)
                       </p>
                     </div>
                     <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-white border border-slate-200 text-[11px] sm:text-xs font-semibold text-slate-600 shadow-2xs">
-                      <span>MP3, WAV, M4A, or MP4</span>
+                      <span>MP3, WAV, M4A, or MP4 • Any length accepted</span>
                     </div>
                   </button>
+                  </>
+                  )}
                 </div>
               ) : (
                 <div className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-8 shadow-sm space-y-6">
@@ -2234,9 +2403,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-black text-slate-900 truncate">
-                            {selectedFile.name}
+                            {selectedFile?.name || youtubeMediaLabel}
                           </p>
-                          <div className="flex items-center gap-2 mt-0.5 text-xs">
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs">
                             <span className="font-mono font-bold text-slate-700">
                               {formatSec(audioDurationSec)}
                             </span>
@@ -2245,6 +2414,11 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                               Ready for 16:9 Cinema
                             </span>
+                            {wasAudioTrimmed && originalAudioDurationSec > 300 && (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-bold text-[11px]">
+                                Original {formatSec(originalAudioDurationSec)} → First 5:00 used
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2252,7 +2426,16 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                       <div className="flex items-center gap-2 shrink-0">
                         <button
                           type="button"
-                          onClick={() => audioInputRef.current?.click()}
+                          onClick={() => {
+                            if (selectedFile) {
+                              audioInputRef.current?.click();
+                            } else {
+                              setYoutubeMediaLabel("");
+                              setWasAudioTrimmed(false);
+                              setOriginalAudioDurationSec(0);
+                              setInputSourceTab("youtube");
+                            }
+                          }}
                           className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer flex items-center gap-1.5"
                         >
                           <RefreshCw size={12} />
@@ -2262,6 +2445,10 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           type="button"
                           onClick={() => {
                             onSelectFile(null);
+                            setYoutubeMediaLabel("");
+                            setYoutubeLinkInput("");
+                            setWasAudioTrimmed(false);
+                            setOriginalAudioDurationSec(0);
                             setAudioPreviewUrl("");
                             setAudioDurationSec(0);
                             setTranscriptText("");
@@ -4826,7 +5013,7 @@ return (
                       <button
                         type="button"
                         onClick={() => setShowPreRenderModal(true)}
-                        disabled={isGenerating || !selectedFile || sceneBlueprint.length === 0}
+                        disabled={isGenerating || !hasNarrationSource || sceneBlueprint.length === 0}
                         className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-black transition shadow-sm shadow-orange-600/25 cursor-pointer disabled:opacity-45 disabled:pointer-events-none"
                       >
                         <Sparkles size={14} />
@@ -5434,7 +5621,7 @@ return (
             <button
               type="button"
               onClick={() => setShowPreRenderModal(true)}
-              disabled={isGenerating || !selectedFile}
+              disabled={isGenerating || !hasNarrationSource}
               className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black transition-all cursor-pointer shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:pointer-events-none group"
             >
               <Sparkles size={14} className="group-hover:rotate-12 transition-transform duration-300" />

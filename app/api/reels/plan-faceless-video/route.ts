@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createReadUrl } from '@/lib/aws/mediaStorage';
+import { trimMediaToMp3AndUpload } from '@/lib/media/facelessAudioTrim';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
 import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
 import { generateStructuredSceneBlueprint } from '@/services/ai/aiScenePlanner';
@@ -66,6 +67,27 @@ export async function POST(req: Request) {
     let words: Array<{ word: string; start: number; end: number }> = [];
     let durationSeconds = Number(inputDuration) || 0;
     let warnings: string[] = [];
+    let trimmedMediaKey: string | undefined;
+    let trimmedAudioUrl: string | undefined;
+    let wasTrimmed = false;
+
+    // 0. If uploaded audio/video exceeds 5 minutes, trim cleanly to first 300s MP3
+    if (!transcript && audioUrl && (Boolean(body.trimIfLonger) || Number(inputDuration) > maxDurationLimit)) {
+      try {
+        const trimmed = await trimMediaToMp3AndUpload({
+          inputUrl: audioUrl,
+          maxSeconds: maxDurationLimit,
+          userId: String(body.userId || 'guest_user'),
+          fileName: 'faceless-trimmed-5m.mp3',
+        });
+        audioUrl = trimmed.audioUrl;
+        trimmedMediaKey = trimmed.mediaKey;
+        trimmedAudioUrl = trimmed.audioUrl;
+        wasTrimmed = true;
+      } catch (trimErr) {
+        console.warn('[PLAN_FACELESS] FFmpeg pre-trim skipped, falling back to capped transcription:', trimErr);
+      }
+    }
 
     // 1. Transcribe voiceover if transcript not supplied
     if (!transcript && audioUrl) {
@@ -292,6 +314,9 @@ export async function POST(req: Request) {
       videoTitle,
       aspectRatio: targetAspectRatio,
       videoType: targetVideoType,
+      trimmedMediaKey,
+      trimmedAudioUrl,
+      wasTrimmed,
     });
   } catch (error: any) {
     console.error('[PLAN_FACELESS_API_ERROR]', error);

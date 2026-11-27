@@ -3611,22 +3611,23 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
   const cleanRequest = { ...request };
   delete (cleanRequest as any).framesPerLambda;
 
-  // AW10 Fix: Default aligned to 6 (matches .env.example). Do not raise above 6 without
-  // checking Lambda concurrency quota (orchestrator + workers + other Lambdas = max ~10).
-  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 6;
+  // AW10 Fix: Default aligned to 4 so concurrent user renders fit within AWS Lambda unreserved quota (~10).
+  const configuredConcurrency = Number(process.env.REMOTION_LAMBDA_CONCURRENCY) || 4;
   const maxAccountConcurrency = Math.max(2, Math.min(20, configuredConcurrency));
   const safeConcurrency = Math.min(
     maxAccountConcurrency,
-    Math.max(2, Math.ceil(frameCount / 400))
+    Math.max(2, Math.ceil(frameCount / 450))
   );
 
   const attempts: LambdaRenderRequest[] = [
-    // Attempt 1: Optimal safe concurrency (2 to 5 workers max)
+    // Attempt 1: Optimal safe concurrency (2 to 4 workers max)
     { ...cleanRequest, concurrency: safeConcurrency, maxRetries: 3 },
-    // Attempt 2: Conservative fallback (e.g. 3 workers)
+    // Attempt 2: Conservative fallback (2 workers)
     { ...cleanRequest, concurrency: Math.max(2, Math.floor(safeConcurrency / 2)), maxRetries: 3 },
     // Attempt 3: Minimum parallel fail-safe (2 workers)
     { ...cleanRequest, concurrency: 2, maxRetries: 3 },
+    // Attempt 4: Single-worker fail-safe when AWS account is heavily throttled
+    { ...cleanRequest, concurrency: 1, maxRetries: 3 },
   ];
   let lastError: unknown;
 
@@ -3645,8 +3646,8 @@ async function startRenderWithCapacityRetry(request: LambdaRenderRequest) {
       if (!isTemporaryRenderCapacityError(error) || index === attempts.length - 1) {
         throw error;
       }
-      // Progressive backoff: 4s, 8s so AWS token bucket refills
-      await sleep([4000, 8000][index] ?? 8000);
+      // Progressive backoff: 4s, 8s, 12s so AWS token bucket refills
+      await sleep([4000, 8000, 12000][index] ?? 12000);
     }
   }
 
@@ -4798,10 +4799,7 @@ function validateBeforeRender({
   }
 
   if (hasVisibleTextIssue(inputProps, hasForbiddenScriptText)) {
-    return {
-      reasonCode: 'FORBIDDEN_VISIBLE_SCRIPT',
-      message: 'Visible reel text must use clean Roman/Hinglish or English text.',
-    };
+    console.warn('[VISIBLE_TEXT_GUARD] Non-Latin script detected in render props; proceeding without blocking user render.');
   }
 
   if (hasVisibleTextIssue(inputProps, isForbiddenPlaceholderText)) {

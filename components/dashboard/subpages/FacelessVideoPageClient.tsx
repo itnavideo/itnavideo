@@ -192,8 +192,8 @@ export default function FacelessVideoPageClient() {
     }
   }
 
-  // STEP 1 -> 2: Plan & Transcribe Handler
-  const handleTranscribeAndPlan = async (audioFile: File, brandNamesHint?: string) => {
+  // STEP 1 -> 2: Plan & Transcribe Handler (supports >5 min auto-trim)
+  const handleTranscribeAndPlan = async (audioFile: File, brandNamesHint?: string, durationSecondsHint?: number) => {
     if (!user) {
       router.push("/login?returnUrl=/dashboard/faceless-video");
       return null;
@@ -201,7 +201,12 @@ export default function FacelessVideoPageClient() {
 
     setIsPlanningAudio(true);
     setPlanningError(null);
-    setPlanningMessage("Uploading voiceover safely to cloud storage...");
+    const willAutoTrim = Boolean(durationSecondsHint && durationSecondsHint > 300);
+    setPlanningMessage(
+      willAutoTrim
+        ? "Uploading audio & trimming to first 5 minutes..."
+        : "Uploading voiceover safely to cloud storage..."
+    );
     try {
       const activeUserId = user?.id || "guest_user";
 
@@ -221,7 +226,11 @@ export default function FacelessVideoPageClient() {
         }
       }
 
-      setPlanningMessage("Transcribing speech with Groq Whisper & planning scenes...");
+      setPlanningMessage(
+        willAutoTrim
+          ? "Trimming to first 5:00, transcribing with Groq Whisper & planning scenes..."
+          : "Transcribing speech with Groq Whisper & planning scenes..."
+      );
 
       // 3. Call dedicated plan endpoint with brandNamesHint bias
       const planRes = await fetch("/api/reels/plan-faceless-video", {
@@ -230,6 +239,9 @@ export default function FacelessVideoPageClient() {
         body: JSON.stringify({
           audioUrl,
           mediaKey,
+          userId: activeUserId,
+          durationSeconds: durationSecondsHint || undefined,
+          trimIfLonger: willAutoTrim,
           topicTitle,
           assetMode: assetSourceMode,
           uploadedImageUrls,
@@ -243,6 +255,10 @@ export default function FacelessVideoPageClient() {
       const planPayload = await planRes.json().catch(() => ({}));
       if (!planRes.ok || !planPayload.ok) {
         throw new Error(planPayload.error || "Failed to transcribe speech or generate scene plan.");
+      }
+
+      if (planPayload.trimmedMediaKey) {
+        cachedAudioKeyRef.current = planPayload.trimmedMediaKey;
       }
 
       setPlanningMessage("");
@@ -259,11 +275,105 @@ export default function FacelessVideoPageClient() {
         durationSeconds: planPayload.durationSeconds,
         warnings: planPayload.warnings,
         uploadedAssets: planPayload.uploadedAssets || [],
+        audioUrl: planPayload.trimmedAudioUrl || audioUrl,
+        wasTrimmed: Boolean(planPayload.wasTrimmed || willAutoTrim),
+        originalDurationSeconds: durationSecondsHint || planPayload.durationSeconds,
       };
     } catch (err: any) {
       console.error("[PLAN_ERROR]", err);
       const errMsg = err?.message || "Failed to transcribe audio. Please ensure the file contains clear speech.";
       setPlanningError(errMsg);
+      setPlanningMessage("");
+      return null;
+    } finally {
+      setIsPlanningAudio(false);
+    }
+  };
+
+  // STEP 1 (YouTube Link): Extract first 5 min audio from YouTube & plan scenes
+  const handleImportYoutubeAndPlan = async (youtubeUrl: string, brandNamesHint?: string) => {
+    if (!user) {
+      router.push("/login?returnUrl=/dashboard/faceless-video");
+      return null;
+    }
+
+    setIsPlanningAudio(true);
+    setPlanningError(null);
+    setPlanningMessage("Extracting first 5 minutes of audio from YouTube link...");
+    try {
+      const activeUserId = user?.id || "guest_user";
+      const ytRes = await fetch("/api/media/youtube-audio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ youtubeUrl, userId: activeUserId }),
+      });
+      const ytData = await ytRes.json().catch(() => ({}));
+      if (!ytRes.ok || !ytData.ok || !ytData.mediaKey) {
+        throw new Error(ytData.error || "Could not extract audio from that YouTube link.");
+      }
+
+      cachedAudioKeyRef.current = ytData.mediaKey;
+      const effectiveTitle = topicTitle.trim() || ytData.title || "";
+      if (!topicTitle.trim() && ytData.title) {
+        setTopicTitle(ytData.title);
+      }
+
+      // Upload any selected user images
+      const uploadedImageUrls: string[] = [];
+      if (facelessImageFiles.length > 0 && assetSourceMode !== "library") {
+        setPlanningMessage("Uploading custom visual assets...");
+        for (const img of facelessImageFiles) {
+          const imgKey = await uploadFileViaPresign(img, "facelessVideo", activeUserId);
+          const imgUrl = await getReadUrlFromKey(imgKey);
+          uploadedImageUrls.push(imgUrl);
+        }
+      }
+
+      setPlanningMessage("Transcribing extracted YouTube audio & planning 16:9 scenes...");
+      const planRes = await fetch("/api/reels/plan-faceless-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          audioUrl: ytData.audioUrl,
+          mediaKey: ytData.mediaKey,
+          userId: activeUserId,
+          durationSeconds: ytData.trimmedDurationSeconds,
+          topicTitle: effectiveTitle,
+          assetMode: assetSourceMode,
+          uploadedImageUrls,
+          backgroundTheme,
+          fontFamily,
+          accentFont,
+          brandNamesHint,
+        }),
+      });
+      const planPayload = await planRes.json().catch(() => ({}));
+      if (!planRes.ok || !planPayload.ok) {
+        throw new Error(planPayload.error || "Failed to transcribe YouTube audio or generate scene plan.");
+      }
+
+      setPlanningMessage("");
+      setPlannedBlueprint(planPayload.sceneBlueprint || []);
+      setPlannedBrollUrls(planPayload.brollUrls || {});
+
+      return {
+        transcript: planPayload.transcript,
+        segments: planPayload.segments,
+        words: planPayload.words,
+        sceneBlueprint: planPayload.sceneBlueprint,
+        brollUrls: planPayload.brollUrls,
+        availableAssetsPool: planPayload.availableAssetsPool || [],
+        durationSeconds: planPayload.durationSeconds || ytData.trimmedDurationSeconds,
+        warnings: planPayload.warnings,
+        uploadedAssets: planPayload.uploadedAssets || [],
+        audioUrl: ytData.audioUrl,
+        title: ytData.title,
+        originalDurationSeconds: ytData.originalDurationSeconds,
+        wasTrimmed: Boolean(ytData.wasTrimmed),
+      };
+    } catch (err: any) {
+      console.error("[YOUTUBE_PLAN_ERROR]", err);
+      setPlanningError(err?.message || "Failed to extract YouTube audio.");
       setPlanningMessage("");
       return null;
     } finally {
@@ -277,8 +387,8 @@ export default function FacelessVideoPageClient() {
       router.push("/login?returnUrl=/dashboard/faceless-video");
       return;
     }
-    if (!selectedFile) {
-      alert("Please upload a voiceover audio file first.");
+    if (!selectedFile && !cachedAudioKeyRef.current) {
+      alert("Please upload an audio file or import a YouTube link first.");
       return;
     }
     if (renderRequestInFlightRef.current) return;
@@ -302,7 +412,10 @@ export default function FacelessVideoPageClient() {
       });
 
       // 1. Upload audio if not already done
-      const mediaKey = cachedAudioKeyRef.current || (await uploadFileViaPresign(selectedFile, "facelessVideo", user.id));
+      const mediaKey = cachedAudioKeyRef.current || (selectedFile ? await uploadFileViaPresign(selectedFile, "facelessVideo", user.id) : "");
+      if (!mediaKey) {
+        throw new Error("Missing audio source. Please upload an audio file or import a YouTube link.");
+      }
       cachedAudioKeyRef.current = mediaKey;
 
       const uploadedImageKeys: string[] = [];
@@ -406,8 +519,8 @@ export default function FacelessVideoPageClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mediaKey,
-          fileName: selectedFile.name,
-          contentType: selectedFile.type || "audio/mpeg",
+          fileName: selectedFile?.name || "youtube-audio-5m.mp3",
+          contentType: selectedFile?.type || "audio/mpeg",
           mediaType: "audio",
           mode: "facelessVideo",
           removeAiWatermark: Boolean(removeAiWatermark),
@@ -734,6 +847,7 @@ export default function FacelessVideoPageClient() {
               setPlanningError(null);
               setPlanningMessage("");
             }}
+            onImportYoutubeAndPlan={handleImportYoutubeAndPlan}
             topicTitle={topicTitle}
             onTopicTitleChange={setTopicTitle}
             showCaptions={showCaptions}

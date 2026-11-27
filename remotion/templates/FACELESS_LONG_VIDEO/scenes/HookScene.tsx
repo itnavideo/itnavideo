@@ -4,6 +4,7 @@ import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintT
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
 import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
+import { safeResolveMediaSrc } from '../../../utils/safeMedia';
 import { useVideoDesignSystem } from '../designSystem';
 import {
   EyebrowPill,
@@ -52,6 +53,7 @@ export function HookScene({
 
   const visualKeyword =
     scene.vectorDrawingId || `${headline} ${supportingText} ${scene.narrationSegment?.text || ''}`;
+  const resolvedMediaUrl = safeResolveMediaSrc(mediaUrl);
 
   return (
     <SceneCanvas
@@ -154,13 +156,13 @@ export function HookScene({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: mediaUrl ? '14px' : '28px',
+            padding: resolvedMediaUrl ? '14px' : '28px',
             overflow: 'hidden',
           }}
         >
-          {mediaUrl ? (
+          {resolvedMediaUrl ? (
             <Img
-              src={mediaUrl}
+              src={resolvedMediaUrl}
               style={{
                 width: '100%',
                 height: ds.layout.isVertical ? '340px' : '392px',

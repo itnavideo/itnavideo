@@ -356,6 +356,55 @@ export function auditAndSelfHealVideoBlueprint(options: PreRenderAuditOptions): 
     }
   }
 
+  // ── PASS 4: Auto-deduplicate consecutive headings & duplicate statValues ──
+  const dedupedStatValues = new Set<string>();
+  for (let i = 0; i < healedScenes.length; i++) {
+    const curr = healedScenes[i];
+    const prev = healedScenes[i - 1];
+    if (
+      prev &&
+      curr.heading &&
+      prev.heading &&
+      curr.heading.trim().toLowerCase() === prev.heading.trim().toLowerCase()
+    ) {
+      const candidateFromSupport = String(curr.supportingText || '')
+        .replace(/[^\w\s-]/g, ' ')
+        .trim()
+        .split(/\s+/)
+        .slice(0, 4)
+        .join(' ')
+        .toUpperCase();
+      const candidateFromNarration = String(curr.narrationSegment?.text || '')
+        .replace(/[^\w\s-]/g, ' ')
+        .trim()
+        .split(/\s+/)
+        .slice(0, 4)
+        .join(' ')
+        .toUpperCase();
+      if (candidateFromSupport && candidateFromSupport.toLowerCase() !== prev.heading.trim().toLowerCase()) {
+        curr.heading = candidateFromSupport;
+      } else if (candidateFromNarration && candidateFromNarration.toLowerCase() !== prev.heading.trim().toLowerCase()) {
+        curr.heading = candidateFromNarration;
+      } else {
+        curr.heading = `${curr.heading.trim()} (${i + 1})`;
+      }
+      auditReport.fixedRepetitiveLayouts += 1;
+    }
+
+    if (curr.statValue) {
+      const statKey = String(curr.statValue).trim().toLowerCase();
+      if (dedupedStatValues.has(statKey)) {
+        curr.statValue = undefined;
+        if (curr.layoutType === 'stat_card') {
+          curr.layoutType = 'card_concept';
+        }
+        auditReport.fixedRepetitiveLayouts += 1;
+      } else {
+        dedupedStatValues.add(statKey);
+      }
+    }
+  }
+
   console.log('[PRE_RENDER_QUALITY_AUDIT] Autonomous inspection completed:', {
     scenesCount: healedScenes.length,
     ...auditReport,
