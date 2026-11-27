@@ -108,8 +108,8 @@ export const VectorDrawingIcon: React.FC<VectorDrawingIconProps> = ({
   // Render SVG Master Catalog item
   if ('paths' in resolvedDef) {
     const item = resolvedDef as SvgConceptItem;
-    // S3-hosted designed SVG: render the hosted illustration file directly.
-    if (item.url) {
+    // S3-hosted designed SVG: render only if URL is valid.
+    if (item.url && /^(https?:\/\/|data:|\/)/i.test(item.url.trim())) {
       return (
         <img
           src={item.url}

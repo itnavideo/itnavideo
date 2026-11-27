@@ -210,6 +210,8 @@ export function SplitScreenLayout({
                 height: '100%',
                 minHeight: isVertical ? 350 : 410,
                 borderRadius: ds.layout.cardRadiusMd,
+                border: ds.surface.imageBorder,
+                boxSizing: 'border-box',
                 overflow: 'hidden',
                 position: 'relative',
               }}

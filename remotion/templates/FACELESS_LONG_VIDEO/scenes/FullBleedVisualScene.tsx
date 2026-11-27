@@ -12,6 +12,7 @@ import { HandwritingHighlight } from '../../../components/library/HandwritingHig
 import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
 import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
 import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
+import { resolveDynamicImageBorder } from '../designSystem';
 
 export interface FullBleedVisualSceneProps {
   scene: SceneBlueprintItem;
@@ -122,6 +123,8 @@ export function FullBleedVisualScene({
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
+                  border: resolveDynamicImageBorder(palette?.accent, !isLight),
+                  boxSizing: 'border-box',
                 }}
               />
             </Loop>
@@ -133,6 +136,8 @@ export function FullBleedVisualScene({
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
+                border: resolveDynamicImageBorder(palette?.accent, !isLight),
+                boxSizing: 'border-box',
               }}
             />
           )

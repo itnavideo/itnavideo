@@ -2,7 +2,7 @@ import React from 'react';
 import { Img, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
 import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
-import { useVideoDesignSystem } from '../designSystem';
+import { useVideoDesignSystem, resolveDynamicImageBorder } from '../designSystem';
 import {
   SceneCanvas,
   SceneHeader,
@@ -145,6 +145,8 @@ export function ScreenshotScene({
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
+                border: ds.surface.imageBorder,
+                boxSizing: 'border-box',
                 display: 'block',
               }}
             />

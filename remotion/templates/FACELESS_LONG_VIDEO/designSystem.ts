@@ -42,6 +42,7 @@ export interface VideoSurfaceTokens {
   cardBgElevated: string;
   borderSubtle: string;
   borderStrong: string;
+  imageBorder: string;
   shadowCard: string;
   shadowElevated: string;
   shadowBadge: string;
@@ -254,8 +255,9 @@ const ACCENT_MAP_DARK: Record<AccentTone, AccentTokenSet> = {
   },
 };
 
-export function resolveSurfaceTokens(palette?: { isDark?: boolean } | null): VideoSurfaceTokens {
+export function resolveSurfaceTokens(palette?: { isDark?: boolean; accent?: string } | null): VideoSurfaceTokens {
   const isDark = palette?.isDark === true;
+  const imageBorder = resolveDynamicImageBorder(palette?.accent, isDark);
   if (isDark) {
     return {
       isDark: true,
@@ -266,6 +268,7 @@ export function resolveSurfaceTokens(palette?: { isDark?: boolean } | null): Vid
       cardBgElevated: 'rgba(15, 23, 42, 0.95)',
       borderSubtle: '1.5px solid rgba(255, 255, 255, 0.11)',
       borderStrong: '1.5px solid rgba(255, 255, 255, 0.22)',
+      imageBorder,
       shadowCard: '0 20px 50px -12px rgba(0, 0, 0, 0.55), 0 4px 16px rgba(0, 0, 0, 0.35)',
       shadowElevated: '0 28px 65px -12px rgba(0, 0, 0, 0.70), 0 0 0 1px rgba(255, 255, 255, 0.08)',
       shadowBadge: '0 6px 18px rgba(0, 0, 0, 0.35)',
@@ -285,6 +288,7 @@ export function resolveSurfaceTokens(palette?: { isDark?: boolean } | null): Vid
     cardBgElevated: '#FFFFFF',
     borderSubtle: '1.5px solid rgba(26, 25, 24, 0.08)',
     borderStrong: '1.5px solid rgba(26, 25, 24, 0.16)',
+    imageBorder,
     shadowCard: '0 20px 45px -12px rgba(180, 160, 140, 0.16), 0 4px 14px -2px rgba(26, 25, 24, 0.05)',
     shadowElevated: '0 26px 60px -14px rgba(180, 160, 140, 0.22), 0 6px 20px -4px rgba(26, 25, 24, 0.07)',
     shadowBadge: '0 4px 14px rgba(26, 25, 24, 0.05)',
@@ -293,6 +297,19 @@ export function resolveSurfaceTokens(palette?: { isDark?: boolean } | null): Vid
     textMuted: '#5C5854', // Editorial Muted Charcoal (#5C5854)
     textInverse: '#FFFFFF',
   };
+}
+
+export function resolveDynamicImageBorder(accentHex?: string, isDark = false): string {
+  const raw = String(accentHex || '').trim();
+  const match = raw.match(/^#?([0-9a-fA-F]{6})$/);
+  if (match) {
+    const hex = match[1];
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `1.5px solid rgba(${r}, ${g}, ${b}, ${isDark ? 0.42 : 0.34})`;
+  }
+  return isDark ? '1.5px solid rgba(148, 163, 184, 0.32)' : '1.5px solid rgba(30, 41, 59, 0.22)';
 }
 
 export function resolveTypographyScale(isVertical: boolean): VideoTypographyScale {
@@ -310,14 +327,14 @@ export function resolveTypographyScale(isVertical: boolean): VideoTypographyScal
   }
 
   return {
-    eyebrow: { fontSize: 14, fontWeight: 600, letterSpacing: '0.08em', lineHeight: 1.2 },
-    displayHero: { fontSize: 68, fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.06 },
-    sceneTitle: { fontSize: 54, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1 },
-    cardTitle: { fontSize: 28, fontWeight: 600, letterSpacing: '-0.015em', lineHeight: 1.2 },
-    bodyLg: { fontSize: 25, fontWeight: 500, letterSpacing: '-0.005em', lineHeight: 1.48 },
-    bodyMd: { fontSize: 19, fontWeight: 400, letterSpacing: '0em', lineHeight: 1.42 },
-    captionMeta: { fontSize: 14, fontWeight: 500, letterSpacing: '0.06em', lineHeight: 1.2 },
-    metricHero: { fontSize: 104, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.0 },
+    eyebrow: { fontSize: 19, fontWeight: 700, letterSpacing: '0.08em', lineHeight: 1.2 },
+    displayHero: { fontSize: 76, fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.06 },
+    sceneTitle: { fontSize: 64, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1 },
+    cardTitle: { fontSize: 36, fontWeight: 700, letterSpacing: '-0.015em', lineHeight: 1.2 },
+    bodyLg: { fontSize: 32, fontWeight: 500, letterSpacing: '-0.005em', lineHeight: 1.45 },
+    bodyMd: { fontSize: 26, fontWeight: 500, letterSpacing: '0em', lineHeight: 1.42 },
+    captionMeta: { fontSize: 18, fontWeight: 600, letterSpacing: '0.06em', lineHeight: 1.2 },
+    metricHero: { fontSize: 120, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.0 },
   };
 }
 
@@ -365,7 +382,7 @@ export function resolveLayoutGrid(width: number, height: number): VideoLayoutGri
 export function useVideoDesignSystem(options?: {
   sceneFrame?: number;
   durationSec?: number;
-  palette?: { isDark?: boolean } | null;
+  palette?: { isDark?: boolean; accent?: string } | null;
 }) {
   const globalFrame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();

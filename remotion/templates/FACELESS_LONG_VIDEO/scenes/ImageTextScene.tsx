@@ -4,12 +4,15 @@ import { ResponsiveTypography } from '../components/ResponsiveTypography';
 import { HighlightText } from '../components/HighlightText';
 import { getSlideAnimation } from '../animations/Slide';
 import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintTypes';
+import type { BackgroundColorPalette } from '../../../components/backgrounds/BackgroundCatalog';
+import { resolveDynamicImageBorder } from '../designSystem';
 
 export interface ImageTextSceneProps {
   scene: SceneBlueprintItem;
   brollUrl?: string;
   headingFont?: string;
   bodyFont?: string;
+  palette?: BackgroundColorPalette;
 }
 
 import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
@@ -19,6 +22,7 @@ export function ImageTextScene({
   brollUrl,
   headingFont = 'Montserrat, sans-serif',
   bodyFont = 'Inter, sans-serif',
+  palette,
 }: ImageTextSceneProps) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -87,7 +91,7 @@ export function ImageTextScene({
             height: '320px',
             borderRadius: '24px',
             overflow: 'hidden',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            border: resolveDynamicImageBorder(palette?.accent, palette?.isDark ?? true),
             backgroundColor: 'rgba(0, 0, 0, 0.6)',
             position: 'relative',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',

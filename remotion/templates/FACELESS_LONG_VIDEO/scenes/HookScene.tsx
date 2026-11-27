@@ -5,7 +5,7 @@ import type { BackgroundColorPalette } from '../../../components/backgrounds/Bac
 import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
 import { HandwritingHighlight } from '../../../components/library/HandwritingHighlight';
 import { safeResolveMediaSrc } from '../../../utils/safeMedia';
-import { useVideoDesignSystem } from '../designSystem';
+import { useVideoDesignSystem, resolveDynamicImageBorder } from '../designSystem';
 import {
   EyebrowPill,
   SceneCanvas,
@@ -161,13 +161,15 @@ export function HookScene({
           }}
         >
           {resolvedMediaUrl ? (
-            <Img
+              <Img
               src={resolvedMediaUrl}
               style={{
                 width: '100%',
                 height: ds.layout.isVertical ? '340px' : '392px',
                 objectFit: 'cover',
                 borderRadius: '18px',
+                border: ds.surface.imageBorder,
+                boxSizing: 'border-box',
                 display: 'block',
               }}
             />

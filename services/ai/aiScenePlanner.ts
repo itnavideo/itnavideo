@@ -805,40 +805,62 @@ export function enforceEditorialPacingRules(
       scene.highlightedWords = extractKeywordEmphasis(text || scene.heading, 2);
     }
 
-    // 2. Anti-Repetition: ZERO consecutive identical layouts (Rule 2.1)
+    // 2. Anti-Repetition: ZERO consecutive identical layouts — rotate across visual storytelling layouts (never fake corporate infographics)
     if (i >= 1) {
       const prev = processedScenes[i - 1];
       if (scene.layoutType === prev.layoutType) {
-        const canonicalAlternatives: VisualLayoutType[] = [
-          'curved_roadmap',
-          'scorecard_dashboard',
-          'horizontal_shelves',
-          'circular_org_chart',
-          'mission_vision',
-          'card_concept',
-          'horizontal_process',
-          'comparison',
-          'checklist',
-          'stat_card',
-          'workflow',
-        ];
-        const nextAlt = canonicalAlternatives.find((alt) => alt !== prev.layoutType && (i < 2 || alt !== processedScenes[i - 2]?.layoutType)) || 'card_concept';
+        const hasAsset = Boolean(scene.assetUrl || scene.assignedAssetId);
+        const canonicalAlternatives: VisualLayoutType[] = hasAsset
+          ? ['image_text', 'full_bleed_visual', 'card_concept', 'screenshot_highlight', 'quote']
+          : ['card_concept', 'drawing_story', 'quote', 'big_typography', 'supporting_note'];
+        const nextAlt =
+          canonicalAlternatives.find((alt) => alt !== prev.layoutType && (i < 2 || alt !== processedScenes[i - 2]?.layoutType)) ||
+          (hasAsset ? 'image_text' : 'card_concept');
         scene.layoutType = nextAlt;
       }
     }
 
-    // 3. Validate Chart & Stat evidence — never show empty or fake charts
-    if (scene.layoutType === 'data_visualization') {
+    // 3. Validate Chart, Stat & Step/Infographic evidence — NEVER render empty or fake hardcoded data
+    const hasRealStepsOrList =
+      (Array.isArray(scene.timelineSteps) && scene.timelineSteps.length >= 2) ||
+      (Array.isArray(scene.listItems) && scene.listItems.length >= 2);
+    const hasRealComparison = Boolean(scene.comparisonItems?.left && scene.comparisonItems?.right);
+
+    if (scene.layoutType === 'data_visualization' || scene.layoutType === 'scorecard_dashboard') {
       const hasValidChart =
         scene.chartItems && scene.chartItems.length >= 2 && scene.chartItems.every((c) => c.value > 0);
       if (!hasValidChart) {
-        scene.layoutType = scene.statValue ? 'stat_card' : 'vector_concept';
+        scene.layoutType = scene.statValue ? 'stat_card' : (scene.assetUrl ? 'image_text' : 'card_concept');
       }
     } else if (scene.layoutType === 'donut_breakdown') {
       const hasValidDonut =
         scene.donutSlices && scene.donutSlices.length >= 2 && scene.donutSlices.every((s) => s.value > 0);
       if (!hasValidDonut) {
-        scene.layoutType = scene.statValue ? 'stat_card' : 'vector_concept';
+        scene.layoutType = scene.statValue ? 'stat_card' : (scene.assetUrl ? 'image_text' : 'card_concept');
+      }
+    } else if (
+      scene.layoutType === 'horizontal_process' ||
+      scene.layoutType === 'workflow' ||
+      scene.layoutType === 'roadmap' ||
+      scene.layoutType === 'curved_roadmap' ||
+      scene.layoutType === 'milestone_ladder' ||
+      scene.layoutType === 'checklist' ||
+      scene.layoutType === 'numbered_steps' ||
+      scene.layoutType === 'circular_org_chart' ||
+      scene.layoutType === 'horizontal_shelves' ||
+      scene.layoutType === 'table_of_contents' ||
+      scene.layoutType === 'mission_vision'
+    ) {
+      if (!hasRealStepsOrList) {
+        scene.layoutType = scene.assetUrl ? 'image_text' : 'card_concept';
+      }
+    } else if (
+      scene.layoutType === 'comparison' ||
+      scene.layoutType === 'before_after_transformation' ||
+      scene.layoutType === 'vs_battle'
+    ) {
+      if (!hasRealComparison) {
+        scene.layoutType = scene.assetUrl ? 'image_text' : 'card_concept';
       }
     } else if (scene.layoutType === 'sticky_note') {
       const noteLength = (scene.supportingText || scene.heading || '').split(/\s+/).length;
@@ -847,16 +869,25 @@ export function enforceEditorialPacingRules(
       }
     }
 
-    // 3B. Autonomous Motion Graphic Library Component Matcher (1,282 Components)
-    // Only attach overlayComponent on generic scenes (never overwrite structured comparison/stat/process layouts)
+    // 3B. Script-Driven Component Matching (only when Gemini didn't pick a structured layout or asset, and confidence is high)
     if (
       i > 0 &&
       i < blueprint.scenes.length - 1 &&
       !scene.overlayComponent &&
+      !scene.assignedAssetId &&
       (scene.layoutType === 'card_concept' || scene.layoutType === 'vector_concept')
     ) {
-      const semanticQuery = `${text} ${scene.englishMeaning || ''} ${scene.brollSearchQuery || ''} ${scene.visualIntent || ''}`.trim();
-      const match = matchComponentForScene(semanticQuery, scene.heading, 4.2);
+      const semanticQuery = `${text} ${scene.englishMeaning || ''} ${scene.supportingText || ''}`.trim();
+      const match = matchComponentForScene(semanticQuery, scene.heading, 5.5, {
+        heading: scene.heading,
+        supportingText: scene.supportingText,
+        listItems: scene.listItems,
+        timelineSteps: scene.timelineSteps,
+        comparisonItems: scene.comparisonItems,
+        chartItems: scene.chartItems,
+        statValue: scene.statValue,
+        statLabel: scene.statLabel,
+      });
       if (match) {
         scene.overlayComponent = {
           componentId: match.componentId,
@@ -1071,26 +1102,16 @@ export function buildDeterministicSceneBlueprint(
       sceneType = 'emphasis';
       sfx = 'chime';
     } else {
-      const variedCadence: VisualLayoutType[] = [
-        'curved_roadmap',
-        'scorecard_dashboard',
-        'horizontal_shelves',
-        'circular_org_chart',
-        'mission_vision',
-        'card_concept',
-        'horizontal_process',
-        'workflow',
-        'checklist',
-        'comparison',
-        'stat_card',
-      ];
+      const variedCadence: VisualLayoutType[] = isShorts
+        ? ['card_concept', 'supporting_note', 'quote', 'big_typography']
+        : ['image_text', 'full_bleed_visual', 'card_concept', 'drawing_story', 'quote', 'big_typography'];
       layoutType = variedCadence[i % variedCadence.length];
       sceneType = i === timelineSegments.length - 1 ? 'next_point' : 'main_point';
       sfx = 'woosh';
     }
 
-    // Autonomous Motion Graphic Library Matching (1,282 Components)
-    const compMatch = i > 0 ? matchComponentForScene(text, undefined, 3.0) : null;
+    // Only attach library_overlay in deterministic fallback when script has strong domain/structural fit
+    const compMatch = i > 0 ? matchComponentForScene(text, undefined, 5.5) : null;
     const overlayComponent = compMatch ? {
       componentId: compMatch.componentId,
       name: compMatch.name,
@@ -1501,16 +1522,17 @@ export async function generateStructuredSceneBlueprint(
         const chunkPrompt = `You are planning Scenes #${chunkSegments[0].id}–#${chunkSegments[chunkSegments.length - 1].id} for ${formatLabel}.${creatorDirective}
 Understand what each narration segment naturally communicates and design a fitting visual scene for it.
 
-Available Layout Templates:
-- "hook" (for opening scene #1)
+Available Layout Templates (Choose ONLY the layout that genuinely communicates what this specific sentence is saying — NEVER force step-based layouts on normal explanations):
+- "hook" (ONLY for opening scene #1)
 - "chapter_title" (when isChapterStart is true and segmentId > 1)
-- "stat_card" (when a number, metric, or percentage stands out)
-- "comparison" or "before_after_transformation" (contrasting two ideas)
-- "horizontal_process" | "workflow" | "curved_roadmap" (sequential steps or milestones)
-- "scorecard_dashboard" | "data_visualization" (multiple metrics/bars — populate "chartItems")
-- "horizontal_shelves" | "circular_org_chart" | "checklist" (multiple points/items — populate "listItems")
-- "quote" (memorable statement)
-- "card_concept" | "drawing_story" | "image_text" (single visual concept)
+- "image_text" | "full_bleed_visual" (when a real photo/illustration from Available Unused Visual Assets visually shows what the speaker is describing — strongly preferred for concrete topics, objects, actions, filming, tools, places)
+- "drawing_story" | "card_concept" (for conceptual explanations with a clean vector icon/illustration and concise takeaway)
+- "stat_card" (ONLY when the script cites a specific number, %, $, or multiplier — MUST populate "statValue" and "statLabel")
+- "comparison" | "before_after_transformation" (ONLY when contrasting two ideas/options/before-vs-after — MUST populate "comparisonItems": { "left": "...", "right": "..." })
+- "horizontal_process" | "workflow" | "checklist" (ONLY when the script explicitly lists 2–4 sequential steps or bullet points — MUST populate "timelineSteps" or "listItems" with exact phrases from the script)
+- "data_visualization" (ONLY when comparing multiple numeric metrics from the script — MUST populate "chartItems")
+- "quote" (when the narration states a memorable quote or rule)
+- "library_overlay" (ONLY when a specialized diagram like iceberg-diagram, funnel-chart, world-map, breaking-news-banner, mind-map, bar-chart, line-chart, mobile-mockup, code-editor, or terminal directly illustrates the narration — MUST include "overlayComponent": { "componentId": "...", "props": { ...real script data... } })
 
 Selected Canvas Background: "${backgroundTheme}"
 
@@ -1644,8 +1666,8 @@ Return strict JSON:
         else if (typographyAnalysis.layoutMode === 'list' && typographyAnalysis.listItems && typographyAnalysis.listItems.length >= 2) chosenLayout = 'checklist';
         else {
           const fallbackCadence: VisualLayoutType[] = isShorts
-            ? ['card_concept', 'supporting_note', 'numbered_steps', 'stat_card']
-            : ['card_concept', 'stat_card', 'horizontal_process', 'comparison', 'workflow', 'checklist', 'roadmap', 'quote'];
+            ? ['card_concept', 'supporting_note', 'quote', 'big_typography']
+            : ['image_text', 'full_bleed_visual', 'card_concept', 'drawing_story', 'quote', 'big_typography'];
           chosenLayout = fallbackCadence[(bStart + sIdx) % fallbackCadence.length];
         }
       }

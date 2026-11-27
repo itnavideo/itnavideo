@@ -79,15 +79,27 @@ const STOP_WORDS = new Set([
   'show', 'data', 'user', 'time', 'text', 'line', 'list', 'item', 'display'
 ]);
 
+export interface SceneStructuredContext {
+  heading?: string;
+  supportingText?: string;
+  listItems?: string[];
+  timelineSteps?: string[];
+  comparisonItems?: { left?: string; right?: string };
+  chartItems?: Array<{ label: string; value: number; formattedValue?: string }>;
+  statValue?: string;
+  statLabel?: string;
+}
+
 /**
  * Intelligent Semantic Matcher:
- * Scans narration text, headings, and keywords to identify the single most relevant
- * Motion Graphic component from the 1,282 Remotion library components.
+ * Scans narration text, headings, and structured scene points to identify a genuinely relevant
+ * Motion Graphic component and populate it with real script-derived data.
  */
 export function matchComponentForScene(
   text: string,
   heading?: string,
-  minConfidenceScore = 1.8
+  minConfidenceScore = 1.8,
+  structuredContext?: SceneStructuredContext
 ): ComponentMatchResult | null {
   buildKeywordIndex();
 
@@ -112,23 +124,81 @@ export function matchComponentForScene(
     }
   }
 
+  const hasNumbers =
+    /\d+%|\$\d+|\d+x\b|\b\d{2,}\b/i.test(combinedText) ||
+    Boolean(structuredContext?.statValue) ||
+    Boolean(structuredContext?.chartItems && structuredContext.chartItems.length >= 2);
+  const hasSteps =
+    /\b(step|first|second|third|phase|stage|process|workflow|how\s+to|roadmap|timeline|milestone|history|then|finally|guide)\b/i.test(combinedText) ||
+    (structuredContext?.timelineSteps?.length || 0) >= 2 ||
+    (structuredContext?.listItems?.length || 0) >= 2;
+  const hasComparison =
+    /\b(vs|versus|compare|comparison|before|after|pros|cons|better|worse|difference|instead|rank|top\s*\d)\b/i.test(combinedText) ||
+    Boolean(structuredContext?.comparisonItems?.left || structuredContext?.comparisonItems?.right);
+
   let bestMatch: { comp: VideoComponentMeta; score: number } | null = null;
   for (const entry of candidateScores.values()) {
-    // Require at least 2 distinct keyword matches so single ambiguous words like "delivery" or "focus" never false-trigger
-    if (entry.distinctMatches < 2) continue;
-
-    // Domain-clash guard: prevent email/outlook widgets on non-email scripts & DB/code widgets on non-tech scripts
     const cat = String(entry.comp.category || '').toLowerCase();
     const cid = String(entry.comp.id || '').toLowerCase();
+    const hasStructuredTimeline = Boolean(structuredContext?.timelineSteps && structuredContext.timelineSteps.length >= 2);
+    const hasStructuredChart = Boolean(structuredContext?.chartItems && structuredContext.chartItems.length >= 2);
+    const hasStructuredCompare = Boolean(structuredContext?.comparisonItems?.left || structuredContext?.comparisonItems?.right);
+
+    // Require at least 2 distinct keyword matches unless structured script evidence directly backs the category
+    const minDistinct =
+      (cat === 'timelines' && hasStructuredTimeline) ||
+      (cat === 'charts' && hasStructuredChart) ||
+      (cat === 'comparisons' && hasStructuredCompare)
+        ? 1
+        : 2;
+    if (entry.distinctMatches < minDistinct) continue;
+
+    // Domain-clash & semantic suitability guards
     if ((cat.includes('outlook') || cid.includes('email')) && !/\b(email|inbox|outlook|gmail|newsletter|mail)\b/i.test(combinedText)) {
       continue;
     }
-    if ((cat.includes('database') || cid.includes('sql') || cid.includes('terminal')) && !/\b(database|sql|postgres|terminal|cli|code|programming|server)\b/i.test(combinedText)) {
+    if ((cat.includes('database') || cid.includes('sql') || cid === 'terminal' || cid === 'code-editor') && !/\b(database|sql|postgres|terminal|cli|code|coding|script|programming|server|developer|api)\b/i.test(combinedText)) {
+      continue;
+    }
+    if (cat === 'scientific' && !/\b(atom|molecule|dna|gene|cell|biology|chemistry|physics|circuit|voltage|anatomy|cardiac|medical|science)\b/i.test(combinedText)) {
+      continue;
+    }
+    if (cat === 'mathematics' && !/\b(math|equation|formula|theorem|proof|calculus|algebra|venn|subset|intersection|graph|function)\b/i.test(combinedText)) {
+      continue;
+    }
+    if (cat === 'geography' && !/\b(world|global|country|map|route|flight|travel|city|region|territory|location|market)\b/i.test(combinedText)) {
+      continue;
+    }
+    if (cat === 'finance' && !/\b(stock|crypto|bitcoin|trading|portfolio|candlestick|earnings|ebitda|revenue|margin|market|invest|finance)\b/i.test(combinedText)) {
+      continue;
+    }
+    if (cat === 'ui-mockups' && !/\b(app|website|browser|dashboard|saas|software|phone|mobile|chat|message|notification|search|pricing|plan|code|terminal|ui)\b/i.test(combinedText)) {
+      continue;
+    }
+    if ((cat === 'charts' || cat === 'statistics' || cat === 'radial') && !hasNumbers && !/\b(chart|graph|growth|trend|metric|rate|percent|percentage|roi|ratio|score|kpi)\b/i.test(combinedText)) {
+      continue;
+    }
+    if (cat === 'comparisons' && !hasComparison) {
+      continue;
+    }
+    if ((cat === 'timelines' || cat === 'diagrams') && !hasSteps && !/\b(flow|diagram|cycle|hierarchy|network|system|architecture|structure|branch)\b/i.test(combinedText)) {
       continue;
     }
 
-    if (!bestMatch || entry.score > bestMatch.score) {
-      bestMatch = { comp: entry.comp, score: entry.score };
+    // Boost components that match structured script evidence
+    let adjustedScore = entry.score;
+    if ((cat === 'charts' || cat === 'statistics') && (structuredContext?.chartItems?.length || structuredContext?.statValue)) {
+      adjustedScore += 2.5;
+    }
+    if ((cat === 'timelines' || cat === 'diagrams') && (structuredContext?.timelineSteps?.length || structuredContext?.listItems?.length)) {
+      adjustedScore += 2.0;
+    }
+    if (cat === 'comparisons' && (structuredContext?.comparisonItems?.left || structuredContext?.comparisonItems?.right)) {
+      adjustedScore += 2.5;
+    }
+
+    if (!bestMatch || adjustedScore > bestMatch.score) {
+      bestMatch = { comp: entry.comp, score: adjustedScore };
     }
   }
 
@@ -171,21 +241,29 @@ function extractDynamicClauses(text: string, heading?: string, maxItems = 4): Ar
 function buildDynamicComponentProps(
   comp: VideoComponentMeta,
   text: string,
-  heading?: string
+  heading?: string,
+  structuredContext?: SceneStructuredContext
 ): Record<string, any> {
   const compWithDefaults = comp as VideoComponentMeta & { defaultProps?: Record<string, any> };
   const props: Record<string, any> = { ...(compWithDefaults.defaultProps || {}) };
   const id = comp.id.toLowerCase();
   const cat = comp.category.toLowerCase();
-  const cleanHeading = (heading || '').trim();
-  const clauses = extractDynamicClauses(text, cleanHeading, 4);
+  const cleanHeading = (structuredContext?.heading || heading || '').trim();
+  const structuredPoints = (structuredContext?.timelineSteps?.length
+    ? structuredContext.timelineSteps
+    : structuredContext?.listItems?.length
+      ? structuredContext.listItems
+      : []
+  ).map((p) => ({ title: String(p).trim(), description: '' })).filter((p) => p.title);
+  const clauses = structuredPoints.length >= 2 ? structuredPoints.slice(0, 5) : extractDynamicClauses(text, cleanHeading, 4);
 
   if (cleanHeading) {
     props.title = cleanHeading;
     props.heading = cleanHeading;
   }
-  if (text) {
-    props.subtitle = text.length > 90 ? `${text.slice(0, 87).trim()}...` : text;
+  if (structuredContext?.supportingText || text) {
+    const sub = structuredContext?.supportingText || text;
+    props.subtitle = sub.length > 90 ? `${sub.slice(0, 87).trim()}...` : sub;
   }
 
   // Dynamic Steps / Timelines / Diagrams
@@ -197,9 +275,25 @@ function buildDynamicComponentProps(
       status: idx === 0 ? 'completed' : idx === 1 ? 'active' : 'upcoming',
     }));
     props.events = clauses.map((c, idx) => ({
-      timeOrDate: `Part ${idx + 1}`,
+      timeOrDate: `Step ${idx + 1}`,
       title: c.title,
       description: c.description,
+    }));
+    props.phases = clauses.map((c, idx) => ({
+      phase: `Phase ${idx + 1}`,
+      title: c.title,
+      deliverables: [c.description || c.title],
+      status: idx === 0 ? 'completed' : idx === 1 ? 'active' : 'upcoming',
+    }));
+    props.milestones = clauses.map((c, idx) => ({
+      metric: `0${idx + 1}`,
+      label: c.title,
+      description: c.description || c.title,
+    }));
+    props.history = clauses.map((c, idx) => ({
+      year: `Stage ${idx + 1}`,
+      title: c.title,
+      description: c.description || c.title,
     }));
   }
 
@@ -208,37 +302,117 @@ function buildDynamicComponentProps(
       id: String(idx + 1),
       type: idx === 0 ? 'start' : idx === clauses.length - 1 ? 'end' : 'process',
       title: c.title,
+      label: c.title,
       description: c.description,
     }));
+    props.centralIdea = cleanHeading || clauses[0]?.title || 'Core Concept';
+    props.branches = clauses.map((c) => ({
+      title: c.title,
+      items: c.description ? [c.description] : [c.title],
+    }));
+    props.steps = clauses.map((c, idx) => ({
+      number: idx + 1,
+      label: c.title,
+      title: c.title,
+      description: c.description || c.title,
+    }));
+    props.root = {
+      label: cleanHeading || 'Core Topic',
+      children: clauses.map((c) => ({
+        label: c.title,
+        children: c.description ? [{ label: c.description }] : [],
+      })),
+    };
+    props.leader = { name: cleanHeading || 'Core System', role: 'Primary Driver' };
+    props.executives = clauses.map((c) => ({ name: c.title, role: c.description || 'Key Pillar' }));
   }
 
   // Dynamic Charts & Statistics
   const numMatches = Array.from(String(text || '').matchAll(/(\$?\d+(?:[.,]\d+)?\s*(?:%|x|k|m|b)?)/gi)).map((m) => m[1]);
-  if (cat === 'charts' || cat === 'statistics' || cat === 'business' || cat === 'finance' || id.includes('chart') || id.includes('counter') || id.includes('kpi')) {
-    if (numMatches.length > 0) {
-      const numeric = parseFloat(numMatches[0].replace(/[^0-9.]/g, '')) || 75;
+  if (cat === 'charts' || cat === 'statistics' || cat === 'radial' || cat === 'business' || cat === 'finance' || id.includes('chart') || id.includes('counter') || id.includes('kpi')) {
+    const resolvedData =
+      structuredContext?.chartItems && structuredContext.chartItems.length >= 2
+        ? structuredContext.chartItems
+        : clauses.map((c, idx) => ({
+            label: c.title.split(/\s+/).slice(0, 3).join(' '),
+            value: numMatches[idx] ? (parseFloat(numMatches[idx].replace(/[^0-9.]/g, '')) || (idx + 2) * 22) : (idx + 2) * 24,
+          }));
+    props.data = resolvedData;
+    props.slices = resolvedData.map((d) => ({ label: d.label, value: d.value }));
+    props.metrics = resolvedData.map((d, idx) => ({
+      label: d.label,
+      value: Math.min(100, d.value),
+      benchmark: Math.max(20, Math.min(90, 50 + idx * 10)),
+    }));
+    props.stages = resolvedData.map((d) => ({ label: d.label, value: d.value }));
+    props.tiers = resolvedData.map((d) => ({ label: d.label, description: String(d.value) }));
+
+    if (structuredContext?.statValue || numMatches.length > 0) {
+      const rawNum = structuredContext?.statValue || numMatches[0];
+      const numeric = parseFloat(String(rawNum).replace(/[^0-9.]/g, '')) || 75;
       props.toValue = numeric;
       props.value = numeric;
       props.percentage = Math.min(100, Math.max(5, Math.round(numeric)));
-      props.label = cleanHeading || clauses[0]?.title || 'Key Metric';
+      props.label = structuredContext?.statLabel || cleanHeading || clauses[0]?.title || 'Key Metric';
+      props.targetValueText = String(rawNum);
+      props.centerHeadline = String(rawNum);
+      props.centerSubline = cleanHeading || clauses[0]?.title || 'Key Metric';
     }
-    props.data = clauses.map((c, idx) => ({
-      label: c.title.split(/\s+/).slice(0, 2).join(' '),
-      value: numMatches[idx] ? (parseFloat(numMatches[idx].replace(/[^0-9.]/g, '')) || (idx + 2) * 22) : (idx + 2) * 24,
-    }));
   }
 
   // Dynamic Comparisons (BeforeAfter, ComparisonTable, ProsCons, RankingList, Splitscreen)
   if (cat === 'comparisons' || id.includes('before-after') || id.includes('pros-cons') || id.includes('comparison')) {
-    const mid = Math.max(1, Math.ceil(clauses.length / 2));
-    const leftClauses = clauses.slice(0, mid);
-    const rightClauses = clauses.slice(mid);
-    props.leftTitle = cleanHeading ? `${cleanHeading} — Before` : 'Before';
-    props.rightTitle = cleanHeading ? `${cleanHeading} — After` : 'After';
-    props.leftItems = leftClauses.map((c) => c.title);
-    props.rightItems = (rightClauses.length > 0 ? rightClauses : leftClauses).map((c) => c.description || c.title);
-    props.pros = leftClauses.map((c) => c.title);
-    props.cons = (rightClauses.length > 0 ? rightClauses : leftClauses).map((c) => c.description || c.title);
+    if (structuredContext?.comparisonItems?.left || structuredContext?.comparisonItems?.right) {
+      const leftText = structuredContext.comparisonItems.left || 'Previous approach';
+      const rightText = structuredContext.comparisonItems.right || 'Improved approach';
+      props.leftTitle = 'Before / Option A';
+      props.rightTitle = 'After / Option B';
+      props.leftHeadline = 'Option A';
+      props.rightHeadline = 'Option B';
+      props.leftBody = leftText;
+      props.rightBody = rightText;
+      props.beforeHeadline = 'Before';
+      props.afterHeadline = 'After';
+      props.beforePoints = [leftText];
+      props.afterPoints = [rightText];
+      props.leftItems = [leftText];
+      props.rightItems = [rightText];
+      props.pros = [rightText];
+      props.cons = [leftText];
+    } else {
+      const mid = Math.max(1, Math.ceil(clauses.length / 2));
+      const leftClauses = clauses.slice(0, mid);
+      const rightClauses = clauses.slice(mid);
+      const leftList = leftClauses.map((c) => c.title);
+      const rightList = (rightClauses.length > 0 ? rightClauses : leftClauses).map((c) => c.description || c.title);
+      props.leftTitle = cleanHeading ? `${cleanHeading} — Before` : 'Before';
+      props.rightTitle = cleanHeading ? `${cleanHeading} — After` : 'After';
+      props.leftHeadline = props.leftTitle;
+      props.rightHeadline = props.rightTitle;
+      props.leftBody = leftList.join(' • ');
+      props.rightBody = rightList.join(' • ');
+      props.beforeHeadline = 'Before';
+      props.afterHeadline = 'After';
+      props.beforePoints = leftList;
+      props.afterPoints = rightList;
+      props.leftItems = leftList;
+      props.rightItems = rightList;
+      props.pros = rightList;
+      props.cons = leftList;
+    }
+    props.columnAHeader = props.leftHeadline || 'Option A';
+    props.columnBHeader = props.rightHeadline || 'Option B';
+    props.rows = clauses.map((c) => ({
+      feature: c.title,
+      a: true,
+      b: Boolean(c.description),
+    }));
+    props.rankings = clauses.map((c, idx) => ({
+      rank: idx + 1,
+      title: c.title,
+      value: numMatches[idx] || `#${idx + 1}`,
+      description: c.description || c.title,
+    }));
     props.items = clauses.map((c, idx) => ({
       id: String(idx + 1),
       label: c.title,
@@ -246,6 +420,13 @@ function buildDynamicComponentProps(
       description: c.description || c.title,
       value: numMatches[idx] || `${(idx + 1) * 25}%`,
     }));
+  }
+
+  // Dynamic Mathematics (VennDiagram, MathEquation, MathProof)
+  if (cat === 'mathematics') {
+    props.setALabel = clauses[0]?.title || 'Factor A';
+    props.setBLabel = clauses[1]?.title || 'Factor B';
+    props.intersectionLabel = cleanHeading || clauses[2]?.title || 'Shared Result';
   }
 
   // Dynamic Editorial (BreakingNewsBanner, HeadlineAnimation, QuoteLayout, Newspaper, ArticleCards, MagazineLayout)
@@ -290,7 +471,7 @@ function buildDynamicComponentProps(
   return props;
 }
 
-  const customizedProps = buildDynamicComponentProps(bestMatch.comp, text, heading);
+  const customizedProps = buildDynamicComponentProps(bestMatch.comp, text, heading, structuredContext);
 
   return {
     componentId: bestMatch.comp.id,

@@ -446,6 +446,7 @@ export interface FacelessVideoStudioProps {
     warnings?: string[];
     uploadedAssets?: any[];
     availableAssetsPool?: any[];
+    mediaKey?: string;
     audioUrl?: string;
     wasTrimmed?: boolean;
     originalDurationSeconds?: number;
@@ -460,6 +461,7 @@ export interface FacelessVideoStudioProps {
     warnings?: string[];
     uploadedAssets?: any[];
     availableAssetsPool?: any[];
+    mediaKey?: string;
     audioUrl?: string;
     title?: string;
     wasTrimmed?: boolean;
@@ -626,6 +628,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [editHighlightArrowInput, setEditHighlightArrowInput] = useState<boolean>(false);
   const [editConceptStickerInput, setEditConceptStickerInput] = useState<string>("none");
   const [sceneTransitionStyle, setSceneTransitionStyle] = useState<"crossfade" | "slide-push" | "zoom-whip" | "hard-cut">("crossfade");
+  const [showStep9QuickCustom, setShowStep9QuickCustom] = useState<boolean>(false);
   const applyCreatorBundle = (bundle: CreatorStyleBundle, jumpToFinal = true) => {
     // ── Font ────────────────────────────────────────────────────────────────
     setActiveCreatorBundleId(bundle.id);
@@ -641,10 +644,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       onSubtitleStyleChange?.(bundle.subtitleStyle);
     }
 
-    // Everything else (pacing, SFX, BGM, transitions, animations) is NOT
-    // changed — the standard workflow handles those independently.
-
+    // Apply creator style across all existing scenes & jump to Step 9
     if (jumpToFinal) {
+      setShowStep9QuickCustom(true);
       setCurrentStep(9);
     }
   };
@@ -1194,8 +1196,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
   const [originalAudioDurationSec, setOriginalAudioDurationSec] = useState<number>(0);
   const [wasAudioTrimmed, setWasAudioTrimmed] = useState<boolean>(false);
   const [isImportingYoutube, setIsImportingYoutube] = useState<boolean>(false);
+  const [importedMediaKey, setImportedMediaKey] = useState<string>("");
 
-  const hasNarrationSource = Boolean(selectedFile || youtubeMediaLabel);
+  const hasNarrationSource = Boolean(selectedFile || youtubeMediaLabel || importedMediaKey);
 
   const isValidMediaFile = (file: File, allowVideo: boolean) => {
     const ext = file.name.split(".").pop()?.toLowerCase() || "";
@@ -1209,6 +1212,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     if (!isValidMediaFile(file, true)) return;
 
     setYoutubeMediaLabel("");
+    setImportedMediaKey("");
     setWasAudioTrimmed(false);
     setOriginalAudioDurationSec(0);
     onSelectFile(file);
@@ -1279,6 +1283,9 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
         if ((planRes as any).availableAssetsPool && (planRes as any).availableAssetsPool.length > 0) {
           setAvailableAssets((planRes as any).availableAssetsPool);
         }
+        if (planRes.mediaKey) {
+          setImportedMediaKey(planRes.mediaKey);
+        }
         if (planRes.audioUrl) {
           setAudioPreviewUrl(planRes.audioUrl);
         }
@@ -1305,8 +1312,8 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
     try {
       const planRes = await onImportYoutubeAndPlan(cleanUrl, topicTitle);
       if (!planRes) return;
-      onSelectFile(null);
       setYoutubeMediaLabel(planRes.title || "YouTube Audio (First 5:00)");
+      if (planRes.mediaKey) setImportedMediaKey(planRes.mediaKey);
       if (planRes.audioUrl) setAudioPreviewUrl(planRes.audioUrl);
       if (planRes.wasTrimmed) setWasAudioTrimmed(true);
       if (planRes.originalDurationSeconds && planRes.originalDurationSeconds > 0) {
@@ -1611,6 +1618,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       duckingStrength,
       duckingDb: duckingStrength === "gentle" ? -8 : duckingStrength === "podcast" ? -20 : -14,
       sceneTransitionStyle,
+      mediaKey: importedMediaKey || undefined,
     };
 
     onGenerate(payload);
@@ -1648,6 +1656,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
       duckingStrength,
       duckingDb: duckingStrength === "gentle" ? -8 : duckingStrength === "podcast" ? -20 : -14,
       sceneTransitionStyle,
+      mediaKey: importedMediaKey || undefined,
     };
 
     onGenerate(payload);
@@ -2446,6 +2455,7 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                           onClick={() => {
                             onSelectFile(null);
                             setYoutubeMediaLabel("");
+                            setImportedMediaKey("");
                             setYoutubeLinkInput("");
                             setWasAudioTrimmed(false);
                             setOriginalAudioDurationSec(0);
@@ -2790,156 +2800,73 @@ export const FacelessVideoStudio: React.FC<FacelessVideoStudioProps> = ({
                   </button>
                 </div>
 
-                {/* Two Clean YouTube-Style Creator Cards */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Clean Scalable Creator Style Grid (Ready for 20+ Creators) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {CREATOR_STYLE_BUNDLES.map((bundle) => {
                     const isSelected = activeCreatorBundleId === bundle.id;
-                    const isAli = bundle.id === "ali-abdaal";
+                    const bgSwatch =
+                      bundle.backgroundTheme === "sara-royal-indigo"
+                        ? "#3F2CC9"
+                        : bundle.backgroundTheme === "solid-cream"
+                          ? "#FAF6F2"
+                          : "#0F172A";
                     return (
                       <div
                         key={bundle.id}
-                        className={`rounded-3xl border-2 p-5 sm:p-6 transition-all flex flex-col justify-between gap-5 ${
+                        className={`rounded-2xl border-2 p-5 transition-all flex flex-col justify-between gap-4 ${
                           isSelected
-                            ? "border-orange-500 bg-orange-50/20 shadow-md ring-2 ring-orange-500/20"
+                            ? "border-orange-500 bg-orange-50/25 shadow-md ring-2 ring-orange-500/20"
                             : "border-slate-200 bg-white hover:border-slate-300 shadow-xs"
                         }`}
                       >
-                        {/* YouTube-Style Creator Header */}
+                        {/* Creator Header */}
                         <div className="flex items-center gap-3.5">
                           <img
                             src={bundle.avatarUrl}
                             alt={bundle.name}
                             className="h-12 w-12 rounded-full object-cover border border-slate-200 shrink-0 bg-slate-100"
                           />
-                          <div className="min-w-0">
-                            <h3 className="text-base sm:text-lg font-black text-slate-900 truncate">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-base font-black text-slate-900 truncate">
                               {bundle.name}
                             </h3>
                             <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 mt-0.5">
-                              {/* YouTube Play Icon */}
-                              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="#FF0000" aria-hidden="true">
+                              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="#FF0000" aria-hidden="true">
                                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                               </svg>
-                              <span>YouTube Creator</span>
+                              <span className="truncate">{bundle.inspiredBy}</span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Accurate 16:9 Faceless Visual Preview */}
-                        {isAli ? (
-                          <div
-                            className="aspect-video w-full rounded-2xl p-4 sm:p-5 flex flex-col justify-center gap-2 border border-slate-200/80 overflow-hidden"
-                            style={{ backgroundColor: "#FAF6F2" }}
+                        {/* Compact Style Summary (Font + Canvas + Subtitle) */}
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <span
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[11px] font-bold text-slate-700"
+                            style={{ fontFamily: bundle.fontFamily }}
                           >
-                            {[
-                              { tag: "Reason 1", title: "Corporate restructuring", tint: "#FFF1E6", iconColor: "#EA580C" },
-                              { tag: "Reason 2", title: "Bought out by private equity", tint: "#E0F2FE", iconColor: "#0284C7" },
-                              { tag: "Reason 3", title: "AI automates your job", tint: "#F3E8FF", iconColor: "#7C3AED" },
-                            ].map((item, idx) => (
-                              <div
-                                key={idx}
-                                className="rounded-xl bg-white px-3.5 py-2 shadow-xs border border-slate-100 flex items-center gap-3"
-                              >
-                                <div
-                                  className="h-7 w-7 rounded-lg shrink-0 flex items-center justify-center"
-                                  style={{ backgroundColor: item.tint }}
-                                >
-                                  <span
-                                    className="h-2.5 w-2.5 rounded-xs"
-                                    style={{ backgroundColor: item.iconColor }}
-                                  />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <span
-                                    className="inline-block px-2 py-0.2 rounded-full text-[8px] font-bold text-white leading-tight"
-                                    style={{ backgroundColor: "#FB923C" }}
-                                  >
-                                    {item.tag}
-                                  </span>
-                                  <div
-                                    style={{ fontFamily: `'Lora', Georgia, serif` }}
-                                    className="text-xs sm:text-sm font-bold text-slate-900 truncate leading-tight mt-0.5"
-                                  >
-                                    {item.title}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div
-                            className="aspect-video w-full rounded-2xl p-5 sm:p-6 flex flex-col justify-center relative overflow-hidden border border-indigo-900/20"
-                            style={{
-                              background: "radial-gradient(circle at 50% 45%, #5B4CF5 0%, #3F2CC9 75%, #2D1F9E 100%)",
-                            }}
-                          >
-                            {/* Subtle Blue Square Grid */}
-                            <div
-                              className="absolute inset-0 pointer-events-none opacity-25"
-                              style={{
-                                backgroundImage:
-                                  "linear-gradient(to right, rgba(255,255,255,0.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.22) 1px, transparent 1px)",
-                                backgroundSize: "22px 22px",
-                              }}
+                            <Type size={11} className="text-slate-500" />
+                            <span>{bundle.fontFamily}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[11px] font-bold text-slate-700">
+                            <span
+                              className="h-3 w-3 rounded-full border border-slate-300 shrink-0"
+                              style={{ backgroundColor: bgSwatch }}
                             />
+                            <span className="capitalize">{bundle.backgroundTheme.replace(/-/g, " ")}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-[11px] font-bold text-slate-700 capitalize">
+                            {bundle.subtitleStyle.replace(/-/g, " ")}
+                          </span>
+                        </div>
 
-                            {/* Black Title Pill with Glowing Blue Border */}
-                            <div className="relative z-10 flex flex-col items-start gap-3.5">
-                              <div
-                                className="w-full rounded-lg px-3.5 py-2 flex items-center justify-center gap-2"
-                                style={{
-                                  backgroundColor: "#050507",
-                                  border: "1.5px solid #2563EB",
-                                  boxShadow: "0 0 18px rgba(37, 99, 235, 0.55)",
-                                }}
-                              >
-                                <span
-                                  className="h-3.5 w-3.5 rounded-xs shrink-0 flex items-center justify-center text-[8px] font-black"
-                                  style={{ backgroundColor: "#10B981", color: "#FFFFFF" }}
-                                >
-                                  $
-                                </span>
-                                <span
-                                  style={{ fontFamily: `'Montserrat', sans-serif` }}
-                                  className="text-[11px] sm:text-xs font-black tracking-wide text-white uppercase truncate"
-                                >
-                                  INTERACTIVE SPREADSHEETS
-                                </span>
-                              </div>
-
-                              {/* White Curved Arrow + Progressive Uppercase Sans Text */}
-                              <div className="flex items-start gap-2 pl-1">
-                                <svg
-                                  className="w-6 h-6 text-white shrink-0 -mt-1"
-                                  viewBox="0 0 28 28"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2.4"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                >
-                                  <path d="M16 4 C6 6, 4 15, 11 22" />
-                                  <path d="M6 21 L12 22 L11 16" />
-                                </svg>
-                                <div
-                                  style={{ fontFamily: `'Montserrat', sans-serif` }}
-                                  className="text-[11px] sm:text-xs font-extrabold uppercase tracking-wide leading-snug pt-1"
-                                >
-                                  <span className="text-white">HELP PEOPLE </span>
-                                  <span className="text-white/40">SOLVE EVERYDAY</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Single Action Button */}
+                        {/* Use This Template CTA -> Jumps directly to Edit & Download */}
                         <button
                           type="button"
                           onClick={() => applyCreatorBundle(bundle, true)}
-                          className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-black transition cursor-pointer shadow-sm shadow-orange-600/20"
+                          className="w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs sm:text-sm font-black transition cursor-pointer shadow-sm shadow-orange-600/20"
                         >
-                          Use This Style
+                          Use This Template
                         </button>
                       </div>
                     );
@@ -4973,16 +4900,16 @@ return (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[11px] font-bold text-orange-800">
                               <Sparkles size={11} className="text-orange-600" />
                               <span>{bundle.name} ({bundle.inspiredBy})</span>
-                              <button
-                                type="button"
-                                onClick={() => setCurrentStep(3)}
-                                className="underline text-orange-700 hover:text-orange-900 ml-1 cursor-pointer"
-                              >
-                                Customize
-                              </button>
-                            </span>
-                          );
-                        })()}
+                                <button
+                                  type="button"
+                                  onClick={() => setShowStep9QuickCustom((v) => !v)}
+                                  className="underline text-orange-700 hover:text-orange-900 ml-1 cursor-pointer"
+                                >
+                                  {showStep9QuickCustom ? "Hide Options" : "Audio & Captions"}
+                                </button>
+                              </span>
+                            );
+                          })()}
                       </div>
                       <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
                         {sceneBlueprint.length > 0
@@ -4993,6 +4920,16 @@ return (
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-center shrink-0">
+                    {!showStep9QuickCustom && (
+                      <button
+                        type="button"
+                        onClick={() => setShowStep9QuickCustom(true)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
+                      >
+                        <Sliders size={12} />
+                        <span>Audio &amp; Captions</span>
+                      </button>
+                    )}
                     <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3.5 py-1.5 rounded-full border border-slate-200 font-mono">
                       {sceneBlueprint.length} {sceneBlueprint.length === 1 ? "Scene" : "Scenes"}
                       {sceneBlueprint.length > 0 ? ` • ${formatSec(totalSceneDurationSec)}` : ""}
@@ -5022,6 +4959,174 @@ return (
                     )}
                   </div>
                 </div>
+
+                {/* Optional Audio & Captions Customisation Panel (Music, Ducking, SFX, Captions + Skip) */}
+                {showStep9QuickCustom && (
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <h3 className="text-sm font-black text-slate-900">
+                          Optional Audio &amp; Captions Customisation
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          Fine-tune music, ducking, sound effects, and captions before exporting — or skip directly to your scenes.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowStep9QuickCustom(false)}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 transition cursor-pointer"
+                      >
+                        <span>Skip &amp; Continue</span>
+                        <ArrowRight size={12} />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {/* 1. Background Music */}
+                      <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                            <Music size={13} className="text-orange-600" />
+                            <span>Background Music</span>
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={isBgmActive}
+                            onChange={(e) => {
+                              setIsBgmActive(e.target.checked);
+                              onBgmEnabledChange?.(e.target.checked);
+                            }}
+                            className="accent-orange-600 cursor-pointer"
+                          />
+                        </div>
+                        <select
+                          value={selectedBgmTrack}
+                          disabled={!isBgmActive}
+                          onChange={(e) => {
+                            const id = e.target.value;
+                            setSelectedBgmTrack(id);
+                            const found = AWS_BGM_TRACKS.find((t) => t.id === id);
+                            if (found) onBgmTrackSelect?.(found.id, getBgmTrackAudioUrl(found));
+                          }}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-800 disabled:opacity-50"
+                        >
+                          {AWS_BGM_TRACKS.map((t) => (
+                            <option key={t.id} value={t.id}>
+                              {t.label}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentStep(3)}
+                          className="text-[11px] font-bold text-sky-600 hover:underline cursor-pointer"
+                        >
+                          Open full music library →
+                        </button>
+                      </div>
+
+                      {/* 2. Audio Ducking */}
+                      <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                            <Volume2 size={13} className="text-orange-600" />
+                            <span>Audio Ducking</span>
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={autoDucking}
+                            onChange={(e) => setAutoDucking(e.target.checked)}
+                            className="accent-orange-600 cursor-pointer"
+                          />
+                        </div>
+                        <select
+                          value={duckingStrength}
+                          disabled={!autoDucking}
+                          onChange={(e) => setDuckingStrength(e.target.value as "gentle" | "balanced" | "podcast")}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-800 disabled:opacity-50"
+                        >
+                          <option value="gentle">Gentle (-8 dB)</option>
+                          <option value="balanced">Balanced (-14 dB)</option>
+                          <option value="podcast">Podcast (-20 dB)</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentStep(4)}
+                          className="text-[11px] font-bold text-sky-600 hover:underline cursor-pointer"
+                        >
+                          Audio ducking settings →
+                        </button>
+                      </div>
+
+                      {/* 3. Sound Effects */}
+                      <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                            <Zap size={13} className="text-orange-600" />
+                            <span>Sound Effects</span>
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={facelessEnableSfx}
+                            onChange={(e) => onEnableSfxChange?.(e.target.checked)}
+                            className="accent-orange-600 cursor-pointer"
+                          />
+                        </div>
+                        <p className="text-[11px] text-slate-500 leading-snug">
+                          {facelessEnableSfx
+                            ? "Whoosh, pop & ding impacts synced to scene transitions."
+                            : "Sound effects muted for clean narration only."}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentStep(5)}
+                          className="text-[11px] font-bold text-sky-600 hover:underline cursor-pointer"
+                        >
+                          Sound effects settings →
+                        </button>
+                      </div>
+
+                      {/* 4. Caption Customisation */}
+                      <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+                            <Type size={13} className="text-orange-600" />
+                            <span>Captions</span>
+                          </span>
+                          <input
+                            type="checkbox"
+                            checked={isCaptionsEnabled}
+                            onChange={(e) => {
+                              setIsCaptionsEnabled(e.target.checked);
+                              onShowCaptionsChange?.(e.target.checked);
+                            }}
+                            className="accent-orange-600 cursor-pointer"
+                          />
+                        </div>
+                        <select
+                          value={subtitleStyle}
+                          disabled={!isCaptionsEnabled}
+                          onChange={(e) => onSubtitleStyleChange?.(e.target.value)}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-800 disabled:opacity-50"
+                        >
+                          {ALL_FACELESS_CAPTION_STYLES.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentStep(6)}
+                          className="text-[11px] font-bold text-sky-600 hover:underline cursor-pointer"
+                        >
+                          All caption styles →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Main Storyboard + Live Preview Area */}
                 {sceneBlueprint.length === 0 ? (

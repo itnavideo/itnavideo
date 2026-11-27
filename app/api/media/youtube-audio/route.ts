@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import ytdl from '@distube/ytdl-core';
 import { extractYoutubeId } from '@/lib/media/youtubeResolver';
-import { trimMediaToMp3AndUpload } from '@/lib/media/facelessAudioTrim';
+import {
+  extractYoutubeFirstFiveMinutesToMp3,
+  trimMediaToMp3AndUpload,
+} from '@/lib/media/facelessAudioTrim';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MAX_FACELESS_AUDIO_SECONDS = 300; // 5 minutes max
+const MAX_FACELESS_AUDIO_SECONDS = 300; // 5 minutes max (strictly trimmed before transcription)
 
 export async function POST(req: Request) {
   try {
@@ -23,15 +26,36 @@ export async function POST(req: Request) {
     }
 
     const canonicalUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+    // 1. Primary: yt-dlp + FFmpeg (--download-sections *0:00-5:00)
+    // Extracts ONLY the first 5 minutes of audio without downloading full 20+ min videos.
+    try {
+      const result = await extractYoutubeFirstFiveMinutesToMp3({
+        canonicalUrl,
+        videoId,
+        maxSeconds: MAX_FACELESS_AUDIO_SECONDS,
+        userId,
+      });
+      return NextResponse.json({
+        ok: true,
+        videoId,
+        ...result,
+      });
+    } catch (ytdlpErr: any) {
+      console.warn('[YOUTUBE_AUDIO] yt-dlp failed, trying ytdl-core fallback:', ytdlpErr?.message || ytdlpErr);
+    }
+
+    // 2. Fallback: @distube/ytdl-core stream piped to FFmpeg -t 300
     let info: ytdl.videoInfo;
     try {
       info = await ytdl.getInfo(canonicalUrl);
     } catch (err: any) {
-      console.error('[YOUTUBE_AUDIO] Failed to fetch video info:', err?.message || err);
+      console.error('[YOUTUBE_AUDIO] Both yt-dlp and ytdl-core failed:', err?.message || err);
       return NextResponse.json(
         {
           ok: false,
-          error: 'Could not access this YouTube video (it may be private, age-restricted, or temporarily blocked). Please try another link or upload the audio file directly.',
+          error:
+            'Could not extract audio from this YouTube video (it may be private, age-restricted, or region-locked). Please try another link or upload the audio file directly.',
         },
         { status: 422 }
       );
@@ -84,4 +108,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

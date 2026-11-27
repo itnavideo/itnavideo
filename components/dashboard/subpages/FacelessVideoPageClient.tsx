@@ -12,6 +12,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { uploadFileViaPresign } from "@/lib/media/presignedUpload";
 import { isFeatureLockedForUser } from "@/lib/billing/freeTierAccess";
 import { FeaturePaywall } from "@/components/dashboard/FeaturePaywall";
+import { trackEvent } from "@/components/analytics/PostHogProvider";
 
 type BillingEntitlement = {
   active: boolean;
@@ -275,6 +276,7 @@ export default function FacelessVideoPageClient() {
         durationSeconds: planPayload.durationSeconds,
         warnings: planPayload.warnings,
         uploadedAssets: planPayload.uploadedAssets || [],
+        mediaKey: planPayload.trimmedMediaKey || mediaKey,
         audioUrl: planPayload.trimmedAudioUrl || audioUrl,
         wasTrimmed: Boolean(planPayload.wasTrimmed || willAutoTrim),
         originalDurationSeconds: durationSecondsHint || planPayload.durationSeconds,
@@ -309,9 +311,19 @@ export default function FacelessVideoPageClient() {
       });
       const ytData = await ytRes.json().catch(() => ({}));
       if (!ytRes.ok || !ytData.ok || !ytData.mediaKey) {
-        throw new Error(ytData.error || "Could not extract audio from that YouTube link.");
+        const errMsg = ytData.error || "Could not extract audio from that YouTube link.";
+        trackEvent("youtube_extract_failed", { youtubeUrl, error: errMsg, status: ytRes.status });
+        throw new Error(errMsg);
       }
 
+      trackEvent("youtube_extract_succeeded", {
+        videoId: ytData.videoId,
+        originalDurationSeconds: ytData.originalDurationSeconds,
+        trimmedDurationSeconds: ytData.trimmedDurationSeconds,
+        wasTrimmed: ytData.wasTrimmed,
+      });
+
+      setSelectedFile(null);
       cachedAudioKeyRef.current = ytData.mediaKey;
       const effectiveTitle = topicTitle.trim() || ytData.title || "";
       if (!topicTitle.trim() && ytData.title) {
@@ -338,6 +350,7 @@ export default function FacelessVideoPageClient() {
           mediaKey: ytData.mediaKey,
           userId: activeUserId,
           durationSeconds: ytData.trimmedDurationSeconds,
+          skipPreTrim: true,
           topicTitle: effectiveTitle,
           assetMode: assetSourceMode,
           uploadedImageUrls,
@@ -366,6 +379,7 @@ export default function FacelessVideoPageClient() {
         durationSeconds: planPayload.durationSeconds || ytData.trimmedDurationSeconds,
         warnings: planPayload.warnings,
         uploadedAssets: planPayload.uploadedAssets || [],
+        mediaKey: ytData.mediaKey,
         audioUrl: ytData.audioUrl,
         title: ytData.title,
         originalDurationSeconds: ytData.originalDurationSeconds,
@@ -387,12 +401,6 @@ export default function FacelessVideoPageClient() {
       router.push("/login?returnUrl=/dashboard/faceless-video");
       return;
     }
-    if (!selectedFile && !cachedAudioKeyRef.current) {
-      alert("Please upload an audio file or import a YouTube link first.");
-      return;
-    }
-    if (renderRequestInFlightRef.current) return;
-    renderRequestInFlightRef.current = true;
 
     const isActualPayload =
       storyboardPayload &&
@@ -404,6 +412,15 @@ export default function FacelessVideoPageClient() {
       lastStoryboardPayloadRef.current = storyboardPayload;
     }
     const activeStoryboard = (isActualPayload ? storyboardPayload : lastStoryboardPayloadRef.current) || {};
+    const resolvedCachedKey = String(activeStoryboard?.mediaKey || cachedAudioKeyRef.current || "").trim();
+
+    if (!selectedFile && !resolvedCachedKey) {
+      trackEvent("video_render_blocked", { mode: "facelessVideo", reason: "missing_audio_and_media_key" });
+      alert("Please upload an audio file or import a YouTube link first.");
+      return;
+    }
+    if (renderRequestInFlightRef.current) return;
+    renderRequestInFlightRef.current = true;
 
     try {
       setJobStatus({
@@ -412,7 +429,7 @@ export default function FacelessVideoPageClient() {
       });
 
       // 1. Upload audio if not already done
-      const mediaKey = cachedAudioKeyRef.current || (selectedFile ? await uploadFileViaPresign(selectedFile, "facelessVideo", user.id) : "");
+      const mediaKey = resolvedCachedKey || (selectedFile ? await uploadFileViaPresign(selectedFile, "facelessVideo", user.id) : "");
       if (!mediaKey) {
         throw new Error("Missing audio source. Please upload an audio file or import a YouTube link.");
       }

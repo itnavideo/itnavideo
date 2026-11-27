@@ -9,7 +9,7 @@ import type { SceneBlueprintItem } from '../../../../services/ai/sceneBlueprintT
 import { getBackgroundPalette } from '../../../components/backgrounds/BackgroundCatalog';
 import { safeResolveMediaSrc, isVideoMedia } from '../../../utils/safeMedia';
 import { VectorDrawingIcon } from '../../../components/graphics/VectorDrawingIcon';
-import { useVideoDesignSystem } from '../designSystem';
+import { useVideoDesignSystem, resolveDynamicImageBorder } from '../designSystem';
 import {
   EyebrowPill,
   SceneCanvas,
@@ -138,7 +138,14 @@ export function CardConceptScene({
                 <OffthreadVideo
                   src={resolvedSrc}
                   volume={0}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '24px',
+                    border: ds.surface.imageBorder,
+                    boxSizing: 'border-box',
+                  }}
                 />
               </Loop>
             ) : (
@@ -150,6 +157,8 @@ export function CardConceptScene({
                   height: '100%',
                   objectFit: 'cover',
                   borderRadius: '24px',
+                  border: ds.surface.imageBorder,
+                  boxSizing: 'border-box',
                   transform: `scale(${imageKenBurns})`,
                 }}
               />

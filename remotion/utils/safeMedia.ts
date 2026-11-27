@@ -11,11 +11,15 @@ export function isValidMediaUrl(url?: string | null): boolean {
 
   // Real HTTP / Cloud URL
   if (/^(https?:\/\/|data:|blob:)/i.test(trimmed)) {
+    if (/\/assets\/reusable\/(?:images\/2d|widgets)\//i.test(trimmed)) return false;
     return !trimmed.includes(' ') || trimmed.includes('%20');
   }
 
   // S3 / Assets path with valid media extension
   const clean = trimmed.replace(/^\/+/, '');
+  if (/^(?:public\/)?assets\/reusable\/(?:images\/2d|widgets)\//i.test(clean)) {
+    return false;
+  }
   if ((clean.startsWith('assets/') || clean.startsWith('public/assets/')) &&
       /\.(jpe?g|png|webp|gif|svg|mp4|webm|mov|m4v|mp3|wav|ogg|aac|m4a)(\?.*)?$/i.test(clean)) {
     return true;

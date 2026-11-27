@@ -6,10 +6,9 @@ import {
   HorizontalShelvesInfographic,
   ScorecardDashboardInfographic,
   TableOfContentsInfographic,
-  MissionVisionInfographic,
-  MedicalInfographic,
 } from '../../../components/infographics';
 import { SceneCanvas } from '../components/DesignSystemPrimitives';
+import { CardConceptScene } from './CardConceptScene';
 
 export interface InfographicSceneProps {
   scene: SceneBlueprintItem;
@@ -20,8 +19,10 @@ export interface InfographicSceneProps {
 }
 
 /**
- * Universal Infographic Scene for 16:9 Faceless Video.
- * Dispatches to one of the 7 PowerPoint/Keynote-grade animated infographic engines.
+ * Script-Accurate Infographic Scene for 16:9 Faceless Video.
+ * Strict Truthfulness Guard: ONLY renders an infographic if real script-derived
+ * steps, list items, or chart metrics exist on the scene — NEVER renders
+ * hardcoded corporate placeholder jargon. Otherwise falls back to CardConceptScene.
  */
 export function InfographicScene({
   scene,
@@ -32,31 +33,43 @@ export function InfographicScene({
 }: InfographicSceneProps) {
   const isDark = palette?.isDark === true;
   const layout = (typeof scene.layoutType === 'string' ? scene.layoutType : '').toLowerCase();
-  const title = scene.heading || 'Strategic Overview';
+  const title = scene.heading || 'Key Insight';
   const subtitle = scene.supportingText || scene.categoryPill || '';
 
-  // ── 1. Curved Serpentine Roadmap with Poles & Milestones ──
+  const renderAccurateFallback = () => (
+    <CardConceptScene
+      scene={scene}
+      headingFont={headingFont}
+      bodyFont={bodyFont}
+      sceneFrame={sceneFrame}
+      palette={palette as any}
+    />
+  );
+
+  // ── 1. Curved Serpentine Roadmap (ONLY with real timelineSteps / listItems) ──
   if (
     layout.includes('roadmap') ||
     layout.includes('curved') ||
     layout.includes('milestone') ||
     layout === 'curved_roadmap'
   ) {
-    const defaultMilestones = [
-      { step: 1, quarterOrDate: 'Phase 01', title: 'Foundation & Setup', description: 'Core architecture and data baseline established.' },
-      { step: 2, quarterOrDate: 'Phase 02', title: 'Acceleration Engine', description: 'Scale operations and automation workflows.', status: 'active' as const },
-      { step: 3, quarterOrDate: 'Phase 03', title: 'Market Expansion', description: 'Multi-channel distribution and user growth.' },
-      { step: 4, quarterOrDate: 'Phase 04', title: 'Global Leadership', description: 'Enterprise dominance and sustained ROI.', metric: '+142% ROI' },
-    ];
+    const rawSteps = (scene.timelineSteps && scene.timelineSteps.length >= 2)
+      ? scene.timelineSteps
+      : (scene.listItems && scene.listItems.length >= 2 ? scene.listItems : null);
 
-    const milestones = (scene.timelineSteps && scene.timelineSteps.length >= 2)
-      ? scene.timelineSteps.slice(0, 4).map((s, i) => ({
-          step: i + 1,
-          quarterOrDate: `Phase 0${i + 1}`,
-          title: s.title || `Phase ${i + 1}`,
-          description: s.detail,
-        }))
-      : defaultMilestones;
+    if (!rawSteps) return renderAccurateFallback();
+
+    const milestones = rawSteps.slice(0, 4).map((s: any, i: number) => {
+      const text = typeof s === 'string' ? s : String(s?.title || s?.detail || '');
+      const parts = text.split(/[:–-]/);
+      return {
+        step: i + 1,
+        quarterOrDate: `Step 0${i + 1}`,
+        title: (parts[0] || text).trim() || `Step ${i + 1}`,
+        description: parts.slice(1).join(' ').trim() || text.trim(),
+        status: i === 1 ? ('active' as const) : undefined,
+      };
+    });
 
     return (
       <SceneCanvas sceneFrame={sceneFrame} palette={palette} fontFamily={bodyFont}>
@@ -71,29 +84,25 @@ export function InfographicScene({
     );
   }
 
-  // ── 2. Multi-Level Circular Organizational Chart / Orbit ──
+  // ── 2. Circular Org / Hub Chart (ONLY with real listItems) ──
   if (
     layout.includes('circular') ||
     layout.includes('org_chart') ||
     layout.includes('radial') ||
     layout === 'ecosystem'
   ) {
-    const satellites = (scene.listItems && scene.listItems.length >= 2)
-      ? scene.listItems.slice(0, 5).map((item, i) => {
-          const parts = String(item).split(/[:•–-]/);
-          return {
-            id: `sat-${i}`,
-            department: `Division 0${i + 1}`,
-            title: parts[0]?.trim() || `Department ${i + 1}`,
-            subtitle: parts[1]?.trim() || 'Core execution team',
-          };
-        })
-      : [
-          { id: '1', department: 'Leadership', title: 'Executive Strategy', subtitle: 'Global vision & capital allocation' },
-          { id: '2', department: 'Product', title: 'AI Engineering', subtitle: 'Core platform & model systems' },
-          { id: '3', department: 'Growth', title: 'Performance Marketing', subtitle: 'Customer acquisition & retention' },
-          { id: '4', department: 'Operations', title: 'Scale & Logistics', subtitle: 'Automated delivery pipelines' },
-        ];
+    if (!scene.listItems || scene.listItems.length < 2) {
+      return renderAccurateFallback();
+    }
+    const satellites = scene.listItems.slice(0, 5).map((item, i) => {
+      const parts = String(item).split(/[:•–-]/);
+      return {
+        id: `sat-${i}`,
+        department: `Point 0${i + 1}`,
+        title: parts[0]?.trim() || String(item).trim(),
+        subtitle: parts[1]?.trim() || '',
+      };
+    });
 
     return (
       <SceneCanvas sceneFrame={sceneFrame} palette={palette} fontFamily={bodyFont}>
@@ -101,9 +110,9 @@ export function InfographicScene({
           title={title}
           subtitle={subtitle}
           centerNode={{
-            title: scene.keyTakeaway || 'Central Core Engine',
-            subtitle: 'Unified operational nexus',
-            badge: 'CENTRAL HUB',
+            title,
+            subtitle,
+            badge: 'CORE TOPIC',
           }}
           satellites={satellites}
           isDark={isDark}
@@ -113,40 +122,29 @@ export function InfographicScene({
     );
   }
 
-  // ── 3. Horizontal Shelves / Architectural Stack ──
+  // ── 3. Horizontal Shelves (ONLY with real listItems) ──
   if (
     layout.includes('shelves') ||
     layout.includes('tier') ||
     layout.includes('stack') ||
     layout === 'horizontal_shelves'
   ) {
-    const defaultTiers = [
-      {
-        id: 'tier-1',
-        levelNumber: 1,
-        name: 'Client Interface Layer',
-        items: [{ id: '1', name: 'Web Studio' }, { id: '2', name: 'Mobile SDK' }, { id: '3', name: 'API Gateway', badge: 'v2.4' }],
-      },
-      {
-        id: 'tier-2',
-        levelNumber: 2,
-        name: 'AI & Inference Engine',
-        items: [{ id: '4', name: 'Groq Whisper' }, { id: '5', name: 'Gemini Flash' }, { id: '6', name: 'Remotion Lambda', badge: 'High Perf' }],
-      },
-      {
-        id: 'tier-3',
-        levelNumber: 3,
-        name: 'Cloud Data & Asset Hub',
-        items: [{ id: '7', name: 'Supabase DB' }, { id: '8', name: 'AWS S3 CDN' }, { id: '9', name: 'Cloudinary' }],
-      },
-    ];
+    if (!scene.listItems || scene.listItems.length < 2) {
+      return renderAccurateFallback();
+    }
+    const tiers = scene.listItems.slice(0, 3).map((item, idx) => ({
+      id: `tier-${idx + 1}`,
+      levelNumber: idx + 1,
+      name: String(item).trim(),
+      items: [{ id: `item-${idx + 1}`, name: String(item).trim() }],
+    }));
 
     return (
       <SceneCanvas sceneFrame={sceneFrame} palette={palette} fontFamily={bodyFont}>
         <HorizontalShelvesInfographic
           title={title}
           subtitle={subtitle}
-          tiers={defaultTiers}
+          tiers={tiers}
           isDark={isDark}
           sceneFrame={sceneFrame}
         />
@@ -154,26 +152,22 @@ export function InfographicScene({
     );
   }
 
-  // ── 4. Table of Contents / Modular Agenda ──
+  // ── 4. Table of Contents / Agenda (ONLY with real listItems) ──
   if (layout.includes('agenda') || layout.includes('toc') || layout === 'table_of_contents') {
-    const chapters = (scene.listItems && scene.listItems.length >= 2)
-      ? scene.listItems.slice(0, 5).map((item, i) => ({
-          number: i + 1,
-          title: String(item).trim(),
-          durationOrPages: `Section ${i + 1}`,
-          isActive: i === 0,
-        }))
-      : [
-          { number: 1, title: 'Strategic Thesis & Market Problem', durationOrPages: '00:00 - 01:15', isActive: true },
-          { number: 2, title: 'The Core Technology Architecture', durationOrPages: '01:15 - 02:40' },
-          { number: 3, title: 'Empirical Results & Comparative Benchmarks', durationOrPages: '02:40 - 03:55' },
-          { number: 4, title: 'Actionable Implementation Framework', durationOrPages: '03:55 - 05:00' },
-        ];
+    if (!scene.listItems || scene.listItems.length < 2) {
+      return renderAccurateFallback();
+    }
+    const chapters = scene.listItems.slice(0, 5).map((item, i) => ({
+      number: i + 1,
+      title: String(item).trim(),
+      durationOrPages: `Part ${i + 1}`,
+      isActive: i === 0,
+    }));
 
     return (
       <SceneCanvas sceneFrame={sceneFrame} palette={palette} fontFamily={bodyFont}>
         <TableOfContentsInfographic
-          title={title || 'Agenda & Table of Contents'}
+          title={title}
           subtitle={subtitle}
           chapters={chapters}
           isDark={isDark}
@@ -183,25 +177,20 @@ export function InfographicScene({
     );
   }
 
-  // ── 5. Mission & Vision Dual Strategic Pillars ──
-  if (layout.includes('mission') || layout.includes('vision') || layout === 'mission_vision') {
+  // ── 5. Scorecard Dashboard (ONLY with real chartItems) ──
+  if (scene.chartItems && scene.chartItems.length >= 2) {
+    const metrics = scene.chartItems.slice(0, 4).map((c, idx) => ({
+      id: String(idx + 1),
+      label: c.label,
+      value: String(c.formattedValue || c.value),
+      progressPercent: Math.min(100, Math.max(15, Number(c.value) || 60)),
+    }));
     return (
       <SceneCanvas sceneFrame={sceneFrame} palette={palette} fontFamily={bodyFont}>
-        <MissionVisionInfographic
+        <ScorecardDashboardInfographic
           title={title}
           subtitle={subtitle}
-          mission={{
-            title: 'Our Mission',
-            subtitle: 'PRESENT OPERATING PURPOSE',
-            statement: scene.supportingText || 'Democratize studio-quality content creation through autonomous AI workflows.',
-            tenets: ['Zero learning curve', 'Real-time cloud rendering', 'Radical cost efficiency'],
-          }}
-          vision={{
-            title: 'Our Vision',
-            subtitle: 'FUTURE HORIZON',
-            statement: scene.keyTakeaway || 'Empower every digital creator and educator to build global reach effortlessly.',
-            tenets: ['10x audience retention', 'Autonomous video generation', 'Universal accessibility'],
-          }}
+          metrics={metrics}
           isDark={isDark}
           sceneFrame={sceneFrame}
         />
@@ -209,46 +198,5 @@ export function InfographicScene({
     );
   }
 
-  // ── 6. Healthcare / Clinical Vitals Monitor ──
-  if (layout.includes('medical') || layout.includes('clinical') || layout.includes('health')) {
-    const vitals = [
-      { id: '1', label: 'Heart Rate', value: '72', unit: 'BPM', status: 'NORMAL' as const, color: '#10B981', trend: 'Resting Baseline' },
-      { id: '2', label: 'Blood Oxygen', value: '98', unit: '% SpO2', status: 'OPTIMAL' as const, color: '#0284C7', trend: 'Target Range' },
-      { id: '3', label: 'Clinical Response', value: '94.2', unit: '%', status: 'ELEVATED' as const, color: '#8B5CF6', trend: 'Cohort Efficacy' },
-      { id: '4', label: 'Dosage Adherence', value: '99', unit: '%', status: 'STABLE' as const, color: '#EA580C', trend: 'Day 45 Complete' },
-    ];
-
-    return (
-      <SceneCanvas sceneFrame={sceneFrame} palette={palette} fontFamily={bodyFont}>
-        <MedicalInfographic
-          title={title}
-          subtitle={subtitle}
-          vitals={vitals}
-          isDark={isDark}
-          sceneFrame={sceneFrame}
-        />
-      </SceneCanvas>
-    );
-  }
-
-  // ── 7. Default: Scorecard Dashboard Infographic ──
-  const metrics = [
-    { id: '1', label: 'Annual Growth Rate', value: '184', suffix: '%', trend: '+28.4%', trendDirection: 'up' as const, status: 'EXCEEDED' as const, progressPercent: 92 },
-    { id: '2', label: 'Customer Retention', value: '96.2', suffix: '%', trend: '+4.1%', trendDirection: 'up' as const, status: 'OPTIMAL' as const, progressPercent: 88 },
-    { id: '3', label: 'Production Cost Reduction', value: '72', suffix: '%', trend: '+15.0%', trendDirection: 'up' as const, status: 'ON TRACK' as const, progressPercent: 78 },
-    { id: '4', label: 'Average Watch Time', value: '4.8', suffix: 'm', trend: '+32.2%', trendDirection: 'up' as const, status: 'EXCEEDED' as const, progressPercent: 85 },
-  ];
-
-  return (
-    <SceneCanvas sceneFrame={sceneFrame} palette={palette} fontFamily={bodyFont}>
-      <ScorecardDashboardInfographic
-        title={title}
-        subtitle={subtitle}
-        metrics={metrics}
-        isDark={isDark}
-        sceneFrame={sceneFrame}
-      />
-    </SceneCanvas>
-  );
+  return renderAccurateFallback();
 }
-

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createReadUrl } from '@/lib/aws/mediaStorage';
-import { trimMediaToMp3AndUpload } from '@/lib/media/facelessAudioTrim';
+import { probeMediaDurationSeconds, trimMediaToMp3AndUpload } from '@/lib/media/facelessAudioTrim';
 import { transcribeMediaUrlWithGroq } from '@/services/ai/groqTranscription';
 import { transcribeMediaWithGeminiFallback } from '@/services/ai/geminiTranscription';
 import { generateStructuredSceneBlueprint } from '@/services/ai/aiScenePlanner';
@@ -71,21 +71,31 @@ export async function POST(req: Request) {
     let trimmedAudioUrl: string | undefined;
     let wasTrimmed = false;
 
-    // 0. If uploaded audio/video exceeds 5 minutes, trim cleanly to first 300s MP3
-    if (!transcript && audioUrl && (Boolean(body.trimIfLonger) || Number(inputDuration) > maxDurationLimit)) {
-      try {
-        const trimmed = await trimMediaToMp3AndUpload({
-          inputUrl: audioUrl,
-          maxSeconds: maxDurationLimit,
-          userId: String(body.userId || 'guest_user'),
-          fileName: 'faceless-trimmed-5m.mp3',
-        });
-        audioUrl = trimmed.audioUrl;
-        trimmedMediaKey = trimmed.mediaKey;
-        trimmedAudioUrl = trimmed.audioUrl;
-        wasTrimmed = true;
-      } catch (trimErr) {
-        console.warn('[PLAN_FACELESS] FFmpeg pre-trim skipped, falling back to capped transcription:', trimErr);
+    // 0. If uploaded audio/video exceeds 5 minutes, trim cleanly to first 300s MP3 BEFORE Groq Whisper
+    let detectedDuration = Number(inputDuration) || 0;
+    if (!transcript && audioUrl && !Boolean(body.skipPreTrim)) {
+      if (detectedDuration <= 0 && !Boolean(body.trimIfLonger)) {
+        detectedDuration = await probeMediaDurationSeconds(audioUrl);
+        if (detectedDuration > 0 && durationSeconds <= 0) {
+          durationSeconds = detectedDuration;
+        }
+      }
+      if (Boolean(body.trimIfLonger) || detectedDuration > maxDurationLimit) {
+        try {
+          const trimmed = await trimMediaToMp3AndUpload({
+            inputUrl: audioUrl,
+            maxSeconds: maxDurationLimit,
+            userId: String(body.userId || 'guest_user'),
+            fileName: 'faceless-trimmed-5m.mp3',
+          });
+          audioUrl = trimmed.audioUrl;
+          trimmedMediaKey = trimmed.mediaKey;
+          trimmedAudioUrl = trimmed.audioUrl;
+          wasTrimmed = true;
+          durationSeconds = maxDurationLimit;
+        } catch (trimErr) {
+          console.warn('[PLAN_FACELESS] FFmpeg pre-trim skipped, falling back to capped transcription:', trimErr);
+        }
       }
     }
 
